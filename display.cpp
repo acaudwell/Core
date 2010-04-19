@@ -32,7 +32,7 @@
 SDLAppDisplay display;
 
 SDLAppDisplay::SDLAppDisplay() {
-    clearColour = vec3f(0.0f,0.0f,0.0f);
+    clearColour = vec4f(0.0f,0.0f,0.0f,1.0f);
     enable_shaders=false;
     enable_alpha=false;
     vsync=false;
@@ -43,6 +43,10 @@ SDLAppDisplay::~SDLAppDisplay() {
 }
 
 void SDLAppDisplay::setClearColour(vec3f colour) {
+    setClearColour(vec4f(colour, enable_alpha ? 0.0f : 1.0f));
+}
+
+void SDLAppDisplay::setClearColour(vec4f colour) {
     clearColour = colour;
 }
 
@@ -81,6 +85,8 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
     atexit(SDL_Quit);
+
+    SDL_EnableUNICODE(1);
 
     //vsync
     if(vsync) SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
@@ -133,7 +139,7 @@ void SDLAppDisplay::update() {
 }
 
 void SDLAppDisplay::clear() {
-    glClearColor(clearColour.x, clearColour.y, clearColour.z, 1.0f);
+    glClearColor(clearColour.x, clearColour.y, clearColour.z, clearColour.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -184,12 +190,15 @@ void SDLAppDisplay::fullScreenQuad(bool coord_flip) {
 }
 
 void SDLAppDisplay::renderToTexture(GLuint target, int width, int height, GLenum format) {
+    glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, target);
     glCopyTexImage2D(GL_TEXTURE_2D, 0, format, 0, 0, width, height, 0);
 }
 
 GLuint SDLAppDisplay::emptyTexture(int width, int height, GLenum format) {
     GLuint textureid;
+
+    glEnable(GL_TEXTURE_2D);
 
     glGenTextures(1, &textureid);
     glBindTexture(GL_TEXTURE_2D, textureid);
