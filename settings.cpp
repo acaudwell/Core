@@ -37,7 +37,7 @@ SDLAppSettings::SDLAppSettings() {
     arg_aliases["f"]   = "fullscreen";
     arg_aliases["w"]   = "windowed";
     arg_aliases["o"]   = "output-ppm-stream";
-    arg_aliases["fps"] = "output-framerate";
+    arg_aliases["r"]   = "output-framerate";
 
     //boolean args
     arg_types["viewport"]          = "string";
