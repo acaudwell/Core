@@ -76,10 +76,11 @@ class SDLApp {
 
     void updateFramerate();
 protected:
-    float fps;
     bool appFinished;
     void stop(int return_code);
 public:
+    float fps;
+
     SDLApp();
     virtual ~SDLApp() {};
 
