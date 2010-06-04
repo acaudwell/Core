@@ -36,7 +36,7 @@
 
 
 bool QuadNode::allowMoreItems() {
-    return (children.size() == 0 && (depth >= tree->max_node_depth || items.size() < tree->max_node_items ) );
+    return (children.empty() && (depth >= tree->max_node_depth || items.size() < tree->max_node_items ) );
 }
 
 
@@ -49,7 +49,7 @@ void QuadNode::addItem(QuadItem* item) {
         return;
     }
 
-    if(children.size() != 0) {
+    if(!children.empty()) {
         addToChild(item);
         return;
     }
@@ -92,7 +92,7 @@ void QuadNode::addItem(QuadItem* item) {
 
 
 void QuadNode::addToChild(QuadItem* item) {
-    if(children.size()==0) return;
+    if(children.empty()) return;
 
     for(int i=0;i<4;i++) {
         if(children[i]->bounds.overlaps(item->quadItemBounds)) {
@@ -104,12 +104,12 @@ void QuadNode::addToChild(QuadItem* item) {
 
 void QuadNode::getLeavesInFrustum(std::vector<QuadNode*>& nodevec, Frustum& frustum) {
 
-    if(items.size()>0) {
+    if(!items.empty()) {
         nodevec.push_back(this);
         return;
     }
 
-    if(children.size()==0) return;
+    if(children.empty()) return;
 
     //for each 4 corners
     for(int i=0;i<4;i++) {
@@ -124,7 +124,7 @@ void QuadNode::getLeavesInFrustum(std::vector<QuadNode*>& nodevec, Frustum& frus
 
 int QuadNode::getItemsInFrustum(std::vector<QuadItem*>& itemvec, Frustum& frustum) {
 
-    if(items.size()>0) {
+    if(!items.empty()) {
         int items_added = 0;
         for(std::list<QuadItem*>::iterator it = items.begin(); it != items.end(); it++) {
             QuadItem* oi = (*it);
@@ -137,7 +137,7 @@ int QuadNode::getItemsInFrustum(std::vector<QuadItem*>& itemvec, Frustum& frustu
         return items_added;
     }
 
-    if(children.size()==0) return 0;
+    if(children.empty()) return 0;
 
     int count = 0;
 
@@ -152,12 +152,12 @@ int QuadNode::getItemsInFrustum(std::vector<QuadItem*>& itemvec, Frustum& frustu
 }
 
 
-int QuadNode::getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds) {
+int QuadNode::getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds) const{
 
-    if(items.size()>0) {
+    if(!items.empty()) {
         int items_added = 0;
 
-        for(std::list<QuadItem*>::iterator it = items.begin(); it != items.end(); it++) {
+        for(std::list<QuadItem*>::const_iterator it = items.begin(); it != items.end(); it++) {
             QuadItem* oi = (*it);
             itemvec.push_back(oi);
             items_added++;
@@ -166,7 +166,7 @@ int QuadNode::getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds
         return items_added;
     }
 
-    if(children.size()==0) return 0;
+    if(children.empty()) return 0;
 
     int count = 0;
 
@@ -185,7 +185,7 @@ int QuadNode::getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds
 
 int QuadNode::getItemsAt(std::vector<QuadItem*>& itemvec, vec2f pos) {
 
-    if(items.size()>0) {
+    if(!items.empty()) {
         int items_added = 0;
         for(std::list<QuadItem*>::iterator it = items.begin(); it != items.end(); it++) {
             QuadItem* oi = (*it);
@@ -197,7 +197,7 @@ int QuadNode::getItemsAt(std::vector<QuadItem*>& itemvec, vec2f pos) {
         return items_added;
     }
 
-    if(children.size()==0) return 0;
+    if(children.empty()) return 0;
 
     int index = getChildIndex(pos);
 
@@ -208,13 +208,13 @@ int QuadNode::getItemsAt(std::vector<QuadItem*>& itemvec, vec2f pos) {
 
 
 bool QuadNode::empty() {
-    return (items.size() == 0 && children.size()==0);
+    return (items.empty() && children.empty());
 }
 
 
 int QuadNode::getChildIndex(vec2f pos) {
 
-    if(children.size()==0) return -1;
+    if(children.empty()) return -1;
 
     for(int i=0;i<4;i++) {
         if(children[i]->bounds.contains(pos)) {
@@ -247,7 +247,7 @@ QuadNode::~QuadNode() {
 
     if(listid) glDeleteLists(listid, 1);
 
-    if(children.size()>0) {
+    if(!children.empty()) {
         for(int i=0;i<4;i++) {
             delete children[i];
         }
@@ -264,7 +264,7 @@ QuadNode::~QuadNode() {
 int QuadNode::usedChildren() {
     int populated = 0;
 
-    if(children.size()>0) {
+    if(!children.empty()) {
         for(int i=0;i<4;i++) {
             if(!children[i]->empty()) populated++;
         }
@@ -276,7 +276,7 @@ int QuadNode::usedChildren() {
 
 int QuadNode::draw(Frustum& frustum) {
 
-    if(listid && items.size()) {
+    if(listid && !items.empty()) {
         glPushMatrix();
             glCallList(listid);
         glPopMatrix();
@@ -285,7 +285,7 @@ int QuadNode::draw(Frustum& frustum) {
 
     int drawn = 0;
 
-    if(children.size() > 0) {
+    if(!children.empty()) {
         for(int i=0;i<4;i++) {
             QuadNode* c = children[i];
             if(!c->empty() && frustum.boundsInFrustum(c->bounds)) {
@@ -300,7 +300,7 @@ int QuadNode::draw(Frustum& frustum) {
 
 void QuadNode::generateLists() {
 
-    if(items.size() > 0) {
+    if(!items.empty()) {
         if(!listid) listid = glGenLists(1);
 
         glNewList(listid, GL_COMPILE);
@@ -314,7 +314,7 @@ void QuadNode::generateLists() {
         return;
     }
 
-    if(children.size() > 0) {
+    if(!children.empty()) {
         for(int i=0;i<4;i++) {
             QuadNode* c = children[i];
             if(!c->empty()) {
@@ -328,7 +328,7 @@ void QuadNode::generateLists() {
 void QuadNode::outline() {
     bounds.draw();
 
-    if(children.size()==0) return;
+    if(children.empty()) return;
 
     for(int i=0;i<4;i++) {
         QuadNode* c = children[i];
@@ -368,7 +368,7 @@ int QuadTree::getItemsInFrustum(std::vector<QuadItem*>& itemvec, Frustum& frustu
 }
 
 
-int QuadTree::getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds) {
+int QuadTree::getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds) const{
     return root->getItemsInBounds(itemvec, bounds);
 }
 
