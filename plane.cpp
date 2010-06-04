@@ -31,7 +31,7 @@ Plane::Plane() {
     d = 0.0f;
 }
 
-Plane::Plane(vec3f v1, vec3f v2, vec3f v3) {
+Plane::Plane(const vec3f & v1, const vec3f & v2, const vec3f & v3) {
     vec3f edge1 = v1 - v2;
     vec3f edge2 = v3 - v2;
 
@@ -43,7 +43,7 @@ Plane::Plane(vec3f v1, vec3f v2, vec3f v3) {
     d = -(normal.dot(point));
 }
 
-float Plane::distance(vec3f p) {
+float Plane::distance(const vec3f & p) const{
     return (d + normal.dot(p));
 }
 

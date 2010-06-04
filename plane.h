@@ -37,9 +37,9 @@ public:
     float d;
 
     Plane();
-    Plane(vec3f v1, vec3f v2, vec3f v3);
+    Plane(const vec3f & v1, const vec3f & v2, const vec3f & v3);
 
-    float distance(vec3f p);
+    float distance(const vec3f & p) const;
 };
 
 #endif

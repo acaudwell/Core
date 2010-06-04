@@ -72,7 +72,7 @@ public:
     int getItemsAt(std::vector<QuadItem*>& itemvec, vec2f pos);
     void getLeavesInFrustum(std::vector<QuadNode*>& nodevec, Frustum& frustum);
     int getItemsInFrustum(std::vector<QuadItem*>& itemvec, Frustum& frustum);
-    int getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds);
+    int getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds) const;
     void addItem(QuadItem* item); //if not subdivided, subdivide, add to correct subdivided node.
     bool empty();
     void generateLists();
@@ -93,7 +93,7 @@ public:
 
     int getItemsAt(std::vector<QuadItem*>& itemvec, vec2f pos);
     int getItemsInFrustum(std::vector<QuadItem*>& itemvec, Frustum& frustum);
-    int getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds);
+    int getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds) const;
     void addItem(QuadItem* item);
     void generateLists();
     void getLeavesInFrustum(std::vector<QuadNode*>& nodevec, Frustum& frustum);

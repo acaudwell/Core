@@ -48,7 +48,7 @@ void FXFont::init() {
     align_top       = true;
 }
 
-FTFont* FXFont::getFTFont() {
+FTFont* FXFont::getFTFont() const{
     return ft;
 }
 
@@ -76,15 +76,15 @@ void FXFont::dropShadow(bool shadow) {
     this->shadow = shadow;
 }
 
-int FXFont::getFontSize() {
+int FXFont::getFontSize() const{
     return ft->FaceSize();
 }
 
-float FXFont::getHeight() {
+float FXFont::getHeight() const{
     return ft->Ascender() + ft->Descender();
 }
 
-float FXFont::getWidth(std::string text) {
+float FXFont::getWidth(const std::string & text) const{
     FTBBox bb = ft->BBox(text.c_str());
 
     float width = (bb.Upper().X() - bb.Lower().X());
@@ -92,7 +92,7 @@ float FXFont::getWidth(std::string text) {
     return width;
 }
 
-void FXFont::render(float x, float y, std::string text) {
+void FXFont::render(float x, float y, const std::string & text) const{
 
 
     if(round) {
@@ -107,7 +107,7 @@ void FXFont::render(float x, float y, std::string text) {
     glPopMatrix();
 }
 
-void FXFont::print(float x, float y, const char *str, ...) {
+void FXFont::print(float x, float y, const char *str, ...) const{
     char buf[4096];
 
     va_list vl;
@@ -121,7 +121,7 @@ void FXFont::print(float x, float y, const char *str, ...) {
     draw(x, y, text);
 }
 
-void FXFont::draw(float x, float y, std::string text) {
+void FXFont::draw(float x, float y, const std::string & text) const{
 
     if(align_right) {
         x -= getWidth(text);

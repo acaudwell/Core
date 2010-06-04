@@ -60,7 +60,7 @@ public:
     void updatePerspective(Camera& camera);
     void updateView(Camera& camera);
 
-    bool boundsInFrustum(Bounds2D& bounds, float z = 0.0);
+    bool boundsInFrustum(const Bounds2D & bounds, float z = 0.0) const;
 
     bool contains(vec3f p);
 };

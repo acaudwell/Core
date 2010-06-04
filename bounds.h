@@ -102,7 +102,7 @@ public:
         return true;
     }
 
-    void draw() {
+    void draw() const{
         glBegin(GL_LINE_STRIP);
             glVertex2fv(min);
             glVertex2f(max.x, min.y);

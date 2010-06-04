@@ -121,7 +121,7 @@ bool Frustum::contains(vec3f p) {
     return true;
 }
 
-bool Frustum::boundsInFrustum(Bounds2D& bounds, float z) {
+bool Frustum::boundsInFrustum(const Bounds2D & bounds, float z) const{
 
     vec3f corner;
 
