@@ -44,7 +44,7 @@ void QuadNode::addItem(QuadItem* item) {
 
     if(allowMoreItems()) {
         tree->item_count++;
-
+        item->node_count++;
         items.push_back(item);
         return;
     }
@@ -83,7 +83,7 @@ void QuadNode::addItem(QuadItem* item) {
     for(std::list<QuadItem*>::iterator it = items.begin(); it != items.end(); it++) {
         QuadItem* oi = *it;
         tree->item_count--;
-
+        oi->node_count--;
         addToChild(oi);
     }
 
@@ -377,12 +377,11 @@ void QuadTree::getLeavesInFrustum(std::vector<QuadNode*>& nodevec, Frustum& frus
     return root->getLeavesInFrustum(nodevec, frustum);
 }
 
-
 void QuadTree::addItem(QuadItem* item) {
+    item->node_count = 0;
     root->addItem(item);
     unique_item_count++;
 }
-
 
 int QuadTree::drawNodesInFrustum(Frustum& frustum) {
     return root->draw(frustum);
@@ -392,7 +391,6 @@ int QuadTree::drawNodesInFrustum(Frustum& frustum) {
 void QuadTree::generateLists() {
     root->generateLists();
 }
-
 
 void QuadTree::outline() {
     root->outline();
