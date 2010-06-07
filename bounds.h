@@ -92,7 +92,7 @@ public:
         return false;
     }
 
-    bool overlaps(Bounds2D& b) {
+    bool overlaps(const Bounds2D & b) const {
 
         if(max.y < b.min.y) return false;
         if(min.y > b.max.y) return false;

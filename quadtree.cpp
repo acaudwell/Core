@@ -206,13 +206,83 @@ int QuadNode::getItemsAt(std::vector<QuadItem*>& itemvec, vec2f pos) {
     return children[index]->getItemsAt(itemvec, pos);
 }
 
+void QuadNode::visitLeavesInFrustum(const Frustum& frustum, VisitFunctor<QuadNode> & visit){
+
+    if(!items.empty()) {
+
+        visit(this);
+
+    }else if(!children.empty()){
+
+      //visit each corner
+      for(int i=0;i<4;i++)
+        if(!children[i]->empty() && frustum.boundsInFrustum(children[i]->bounds))
+            children[i]->visitLeavesInFrustum(frustum, visit);
+
+    }
+
+}
+
+
+void QuadNode::visitItemsInFrustum(const Frustum & frustum, VisitFunctor<QuadItem> & visit){
+
+    if(!items.empty()) {
+
+        for(std::list<QuadItem*>::const_iterator it = items.begin(); it != items.end(); it++)
+            visit(*it);
+
+    }else if(!children.empty()){
+
+        //visit each corner
+        for(int i=0;i<4;i++)
+          if(!children[i]->empty() && frustum.boundsInFrustum(children[i]->bounds))
+            children[i]->visitItemsInFrustum(frustum, visit);
+
+    }
+
+}
+
+
+void QuadNode::visitItemsInBounds(const Bounds2D & bounds, VisitFunctor<QuadItem> & visit){
+
+    if(!items.empty()) {
+
+        for(std::list<QuadItem*>::const_iterator it = items.begin(); it != items.end(); it++)
+            visit(*it);
+
+    }else if(!children.empty()){
+
+      //visit each corner
+      for(int i=0;i<4;i++)
+        if(!children[i]->empty() && bounds.overlaps(children[i]->bounds))
+            children[i]->visitItemsInBounds(bounds, visit);
+
+    }
+
+}
+
+void QuadNode::visitItemsAt(const vec2f & pos, VisitFunctor<QuadItem> & visit){
+
+  if(!items.empty()){
+
+    for(std::list<QuadItem*>::const_iterator it = items.begin(); it != items.end(); it++)
+      if(*it) visit(*it);
+
+  }else if(!children.empty()){
+
+    int index = getChildIndex(pos);
+    if(index != -1) children[index]->visitItemsAt(pos, visit);
+
+  }
+
+}
 
 bool QuadNode::empty() {
     return (items.empty() && children.empty());
 }
 
 
-int QuadNode::getChildIndex(vec2f pos) {
+int QuadNode::getChildIndex(const vec2f & pos) const{
 
     if(children.empty()) return -1;
 
@@ -362,7 +432,6 @@ int QuadTree::getItemsAt(std::vector<QuadItem*>& itemvec, vec2f pos) {
     return root->getItemsAt(itemvec, pos);
 }
 
-
 int QuadTree::getItemsInFrustum(std::vector<QuadItem*>& itemvec, Frustum& frustum) {
     return root->getItemsInFrustum(itemvec, frustum);
 }
@@ -377,11 +446,33 @@ void QuadTree::getLeavesInFrustum(std::vector<QuadNode*>& nodevec, Frustum& frus
     return root->getLeavesInFrustum(nodevec, frustum);
 }
 
+
+void QuadTree::visitItemsAt(const vec2f & pos, VisitFunctor<QuadItem> & visit){
+  return root->visitItemsAt(pos, visit);
+}
+
+
+void QuadTree::visitItemsInFrustum(const Frustum & frustum, VisitFunctor<QuadItem> & visit){
+    root->visitItemsInFrustum(frustum, visit);
+}
+
+
+void QuadTree::visitItemsInBounds(const Bounds2D & bounds, VisitFunctor<QuadItem> & visit){
+    root->visitItemsInBounds(bounds, visit);
+}
+
+
+void QuadTree::visitLeavesInFrustum(const Frustum& frustum, VisitFunctor<QuadNode> & visit){
+    root->visitLeavesInFrustum(frustum, visit);
+}
+
+
 void QuadTree::addItem(QuadItem* item) {
     item->node_count = 0;
     root->addItem(item);
     unique_item_count++;
 }
+
 
 int QuadTree::drawNodesInFrustum(Frustum& frustum) {
     return root->draw(frustum);
@@ -391,6 +482,7 @@ int QuadTree::drawNodesInFrustum(Frustum& frustum) {
 void QuadTree::generateLists() {
     root->generateLists();
 }
+
 
 void QuadTree::outline() {
     root->outline();
