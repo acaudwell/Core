@@ -44,7 +44,11 @@ public:
     virtual void drawQuadItem() {};
 };
 
-
+template <class Data>
+class VisitFunctor{
+  public:
+    virtual void operator()(Data *)=0;
+};
 
 class QuadTree;
 
@@ -58,7 +62,7 @@ class QuadNode {
 
     QuadTree* tree;
 
-    int getChildIndex(vec2f pos);
+    int getChildIndex(const vec2f & pos) const;
     void addToChild(QuadItem* item);
 
     int depth;
@@ -70,11 +74,19 @@ public:
 
     QuadNode(QuadTree* tree, QuadNode* parent, Bounds2D itembounds, int parent_depth);
     ~QuadNode();
+
+    void addItem(QuadItem* item); //if not subdivided, subdivide, add to correct subdivided node.
+
     int getItemsAt(std::vector<QuadItem*>& itemvec, vec2f pos);
     void getLeavesInFrustum(std::vector<QuadNode*>& nodevec, Frustum& frustum);
     int getItemsInFrustum(std::vector<QuadItem*>& itemvec, Frustum& frustum);
     int getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds) const;
-    void addItem(QuadItem* item); //if not subdivided, subdivide, add to correct subdivided node.
+
+    void visitItemsInFrustum(const Frustum & frustum, VisitFunctor<QuadItem> & visit);
+    void visitItemsInBounds(const Bounds2D & bounds, VisitFunctor<QuadItem> & visit);
+    void visitItemsAt(const vec2f & pos, VisitFunctor<QuadItem> & visit);
+    void visitLeavesInFrustum(const Frustum & frustum, VisitFunctor<QuadNode> & visit);
+
     bool empty();
     void generateLists();
     int draw(Frustum& frustum);
@@ -93,11 +105,16 @@ public:
     int max_node_items;
 
     int getItemsAt(std::vector<QuadItem*>& itemvec, vec2f pos);
+    void getLeavesInFrustum(std::vector<QuadNode*>& nodevec, Frustum& frustum);
     int getItemsInFrustum(std::vector<QuadItem*>& itemvec, Frustum& frustum);
     int getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds) const;
+
+    void visitItemsAt(const vec2f & pos, VisitFunctor<QuadItem> & visit);
+    void visitLeavesInFrustum(const Frustum & frustum, VisitFunctor<QuadNode> & visit);
+    void visitItemsInFrustum(const Frustum & frustum, VisitFunctor<QuadItem> & visit);
+    void visitItemsInBounds(const Bounds2D & bounds, VisitFunctor<QuadItem> & visit);
     void addItem(QuadItem* item);
     void generateLists();
-    void getLeavesInFrustum(std::vector<QuadNode*>& nodevec, Frustum& frustum);
     int drawNodesInFrustum(Frustum& frustum);
     QuadTree(Bounds2D bounds, int max_node_depth, int max_node_items);
     ~QuadTree();
