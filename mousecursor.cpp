@@ -100,6 +100,11 @@ void MouseCursor::ungrab() {
     grabbed=false;
 }
 
+bool MouseCursor::hasFocus() {
+    return (SDL_GetAppState() & SDL_APPMOUSEFOCUS);
+}
+
+
 void MouseCursor::setCursorTexture(TextureResource* texture) {
     cursortex = texture;
 }
@@ -107,6 +112,7 @@ void MouseCursor::setCursorTexture(TextureResource* texture) {
 void MouseCursor::draw(const vec2f& pos) {
     if(system_cursor || cursortex == 0) return;
     if(!visible) return;
+    if(!hasFocus()) return;
 
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
