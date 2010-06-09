@@ -32,34 +32,37 @@
 
 class MouseCursor {
 
-    bool visible;
-    bool grabbed;
+    vec2f mousepos;
+
+    bool hidden;
     bool system_cursor;
+
+    float idle;
+    float timeout;
 
     TextureResource* cursortex;
 public:
     MouseCursor();
 
-    bool leftButtonPressed();
-    bool rightButtonPressed();
-    bool bothPressed();
-    bool buttonPressed();
+    bool leftButtonPressed() const;
+    bool rightButtonPressed() const;
+    bool bothPressed() const;
+    bool buttonPressed() const;
 
-    bool isGrabbed();
-    bool isVisible();
-    bool isSystemCursor();
+    bool isHidden() const;
+    bool isSystemCursor()const;
+    bool isVisible() const;
+    bool hasFocus() const;
 
-    bool hasFocus();
-    
-    void showCursor(bool visible);
+    void updatePos(const vec2f& pos);
+
+    void showCursor(bool show);
     void useSystemCursor(bool system_cursor);
 
     void setCursorTexture(TextureResource* texture);
-    
-    void grab();
-    void ungrab();
 
-    void draw(const vec2f& pos);
+    void logic(float dt);
+    void draw() const;
 };
 
 #endif

@@ -30,14 +30,15 @@
 MouseCursor::MouseCursor() {
     system_cursor = true;
     cursortex     = 0;
-    visible       = true;
-    grabbed       = false;
+    hidden        = false;
+    timeout       = 3.0f;
+    idle          = timeout;
 }
 
 void MouseCursor::useSystemCursor(bool system_cursor) {
     this->system_cursor = system_cursor;
 
-    if(visible) {
+    if(!hidden) {
         if(system_cursor) SDL_ShowCursor(true);
         else SDL_ShowCursor(false);
     } else {
@@ -45,80 +46,79 @@ void MouseCursor::useSystemCursor(bool system_cursor) {
     }
 }
 
-void MouseCursor::showCursor(bool visible) {
-    if(this->visible == visible) return;
+void MouseCursor::showCursor(bool show) {
+    if(this->hidden == !show) return;
 
-    this->visible = visible;
+    this->hidden = !show;
+    if(show) idle = 0.0;
 
     if(system_cursor) {
-        if(visible) SDL_ShowCursor(true);
+        if(show) SDL_ShowCursor(true);
         else SDL_ShowCursor(false);
     }
 }
 
-bool MouseCursor::leftButtonPressed() {
+bool MouseCursor::leftButtonPressed() const {
     Uint8 ms = SDL_GetMouseState(0,0);
     return ms & SDL_BUTTON(SDL_BUTTON_LEFT);
 }
 
-bool MouseCursor::rightButtonPressed() {
+bool MouseCursor::rightButtonPressed() const {
     Uint8 ms = SDL_GetMouseState(0,0);
     return ms & SDL_BUTTON(SDL_BUTTON_RIGHT);
 }
 
-bool MouseCursor::bothPressed() {
+bool MouseCursor::bothPressed() const {
     Uint8 ms = SDL_GetMouseState(0,0);
     return (ms & SDL_BUTTON(SDL_BUTTON_RIGHT) && ms & SDL_BUTTON(SDL_BUTTON_LEFT));
 }
 
-bool MouseCursor::buttonPressed() {
+bool MouseCursor::buttonPressed() const {
     Uint8 ms = SDL_GetMouseState(0,0);
     return (ms & SDL_BUTTON(SDL_BUTTON_RIGHT) || ms & SDL_BUTTON(SDL_BUTTON_LEFT));
 }
 
-bool MouseCursor::isSystemCursor() {
+bool MouseCursor::isSystemCursor() const {
     return system_cursor;
 }
 
-bool MouseCursor::isVisible() {
-    return visible;
+bool MouseCursor::isHidden() const {
+    return hidden;
 }
 
-bool MouseCursor::isGrabbed() {
-    return grabbed;
+bool MouseCursor::isVisible() const {
+    return (!hidden && idle < timeout && hasFocus());
 }
 
-void MouseCursor::grab() {
-    SDL_WM_GrabInput(SDL_GRAB_ON);
-    showCursor(false);
-    grabbed=true;
-}
-
-void MouseCursor::ungrab() {
-    SDL_WM_GrabInput(SDL_GRAB_OFF);
-    showCursor(true);
-    grabbed=false;
-}
-
-bool MouseCursor::hasFocus() {
+bool MouseCursor::hasFocus() const {
     return (SDL_GetAppState() & SDL_APPMOUSEFOCUS);
 }
-
 
 void MouseCursor::setCursorTexture(TextureResource* texture) {
     cursortex = texture;
 }
 
-void MouseCursor::draw(const vec2f& pos) {
+void MouseCursor::updatePos(const vec2f& pos) {
+    mousepos = pos;
+    idle     = 0.0f;
+}
+
+void MouseCursor::logic(float dt) {
+    idle += dt;
+}
+
+void MouseCursor::draw() const {
     if(system_cursor || cursortex == 0) return;
-    if(!visible) return;
-    if(!hasFocus()) return;
+    if(!isVisible()) return;
 
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+
     glBindTexture(GL_TEXTURE_2D, cursortex->textureid);
 
-    glTranslatef(pos.x, pos.y, 0.0f);
+    glTranslatef(mousepos.x, mousepos.y, 0.0f);
 
     glPushMatrix();
     glBegin(GL_QUADS);
