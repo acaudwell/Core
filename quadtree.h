@@ -28,7 +28,7 @@
 #ifndef QUADTREE_H
 #define QUADTREE_H
 
-#include <vector>
+#include <set>
 #include <list>
 
 #include "vectors.h"
@@ -77,10 +77,10 @@ public:
 
     void addItem(QuadItem* item); //if not subdivided, subdivide, add to correct subdivided node.
 
-    int getItemsAt(std::vector<QuadItem*>& itemvec, vec2f pos);
-    void getLeavesInFrustum(std::vector<QuadNode*>& nodevec, Frustum& frustum);
-    int getItemsInFrustum(std::vector<QuadItem*>& itemvec, Frustum& frustum);
-    int getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds) const;
+    int getItemsAt(std::set<QuadItem*>& itemvec, vec2f pos);
+    void getLeavesInFrustum(std::set<QuadNode*>& nodeset, Frustum& frustum);
+    int getItemsInFrustum(std::set<QuadItem*>& itemset, Frustum& frustum);
+    int getItemsInBounds(std::set<QuadItem*>& itemset, Bounds2D& bounds) const;
 
     void visitItemsInFrustum(const Frustum & frustum, VisitFunctor<QuadItem> & visit);
     void visitItemsInBounds(const Bounds2D & bounds, VisitFunctor<QuadItem> & visit);
@@ -104,10 +104,10 @@ public:
     int max_node_depth;
     int max_node_items;
 
-    int getItemsAt(std::vector<QuadItem*>& itemvec, vec2f pos);
-    void getLeavesInFrustum(std::vector<QuadNode*>& nodevec, Frustum& frustum);
-    int getItemsInFrustum(std::vector<QuadItem*>& itemvec, Frustum& frustum);
-    int getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds) const;
+    int getItemsAt(std::set<QuadItem*>& itemset, vec2f pos);
+    void getLeavesInFrustum(std::set<QuadNode*>& nodeset, Frustum& frustum);
+    int getItemsInFrustum(std::set<QuadItem*>& itemset, Frustum& frustum);
+    int getItemsInBounds(std::set<QuadItem*>& itemset, Bounds2D& bounds) const;
 
     void visitItemsAt(const vec2f & pos, VisitFunctor<QuadItem> & visit);
     void visitLeavesInFrustum(const Frustum & frustum, VisitFunctor<QuadNode> & visit);
