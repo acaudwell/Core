@@ -102,10 +102,10 @@ void QuadNode::addToChild(QuadItem* item) {
 }
 
 
-void QuadNode::getLeavesInFrustum(std::vector<QuadNode*>& nodevec, Frustum& frustum) {
+void QuadNode::getLeavesInFrustum(std::set<QuadNode*>& nodeset, Frustum& frustum) {
 
     if(!items.empty()) {
-        nodevec.push_back(this);
+        nodeset.insert(this);
         return;
     }
 
@@ -114,7 +114,7 @@ void QuadNode::getLeavesInFrustum(std::vector<QuadNode*>& nodevec, Frustum& frus
     //for each 4 corners
     for(int i=0;i<4;i++) {
         if(!children[i]->empty() && frustum.boundsInFrustum(children[i]->bounds)) {
-            children[i]->getLeavesInFrustum(nodevec, frustum);
+            children[i]->getLeavesInFrustum(nodeset, frustum);
         }
     }
 
@@ -122,7 +122,7 @@ void QuadNode::getLeavesInFrustum(std::vector<QuadNode*>& nodevec, Frustum& frus
 }
 
 
-int QuadNode::getItemsInFrustum(std::vector<QuadItem*>& itemvec, Frustum& frustum) {
+int QuadNode::getItemsInFrustum(std::set<QuadItem*>& itemset, Frustum& frustum) {
 
     if(!items.empty()) {
         int items_added = 0;
@@ -130,7 +130,7 @@ int QuadNode::getItemsInFrustum(std::vector<QuadItem*>& itemvec, Frustum& frustu
             QuadItem* oi = (*it);
 
             if(oi!=0) {
-                itemvec.push_back(oi);
+                itemset.insert(oi);
                 items_added++;
             }
         }
@@ -144,7 +144,7 @@ int QuadNode::getItemsInFrustum(std::vector<QuadItem*>& itemvec, Frustum& frustu
     //for each 4 corners
     for(int i=0;i<4;i++) {
         if(!children[i]->empty() && frustum.boundsInFrustum(children[i]->bounds)) {
-            count += children[i]->getItemsInFrustum(itemvec, frustum);
+            count += children[i]->getItemsInFrustum(itemset, frustum);
         }
     }
 
@@ -152,14 +152,14 @@ int QuadNode::getItemsInFrustum(std::vector<QuadItem*>& itemvec, Frustum& frustu
 }
 
 
-int QuadNode::getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds) const{
+int QuadNode::getItemsInBounds(std::set<QuadItem*>& itemset, Bounds2D& bounds) const{
 
     if(!items.empty()) {
         int items_added = 0;
 
         for(std::list<QuadItem*>::const_iterator it = items.begin(); it != items.end(); it++) {
             QuadItem* oi = (*it);
-            itemvec.push_back(oi);
+            itemset.insert(oi);
             items_added++;
         }
 
@@ -173,7 +173,7 @@ int QuadNode::getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds
     //for each 4 corners
     for(int i=0;i<4;i++) {
         if(!children[i]->empty() && bounds.overlaps(children[i]->bounds)) {
-            count += children[i]->getItemsInBounds(itemvec, bounds);
+            count += children[i]->getItemsInBounds(itemset, bounds);
         }
     }
 
@@ -183,14 +183,14 @@ int QuadNode::getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds
 
 
 
-int QuadNode::getItemsAt(std::vector<QuadItem*>& itemvec, vec2f pos) {
+int QuadNode::getItemsAt(std::set<QuadItem*>& itemset, vec2f pos) {
 
     if(!items.empty()) {
         int items_added = 0;
         for(std::list<QuadItem*>::iterator it = items.begin(); it != items.end(); it++) {
             QuadItem* oi = (*it);
             if(oi!=0) {
-                itemvec.push_back(oi);
+                itemset.insert(oi);
                 items_added++;
             }
         }
@@ -203,7 +203,7 @@ int QuadNode::getItemsAt(std::vector<QuadItem*>& itemvec, vec2f pos) {
 
     if(index == -1) return 0;
 
-    return children[index]->getItemsAt(itemvec, pos);
+    return children[index]->getItemsAt(itemset, pos);
 }
 
 void QuadNode::visitLeavesInFrustum(const Frustum& frustum, VisitFunctor<QuadNode> & visit){
@@ -428,22 +428,22 @@ QuadTree::~QuadTree() {
 }
 
 
-int QuadTree::getItemsAt(std::vector<QuadItem*>& itemvec, vec2f pos) {
-    return root->getItemsAt(itemvec, pos);
+int QuadTree::getItemsAt(std::set<QuadItem*>& itemset, vec2f pos) {
+    return root->getItemsAt(itemset, pos);
 }
 
-int QuadTree::getItemsInFrustum(std::vector<QuadItem*>& itemvec, Frustum& frustum) {
-    return root->getItemsInFrustum(itemvec, frustum);
-}
-
-
-int QuadTree::getItemsInBounds(std::vector<QuadItem*>& itemvec, Bounds2D& bounds) const{
-    return root->getItemsInBounds(itemvec, bounds);
+int QuadTree::getItemsInFrustum(std::set<QuadItem*>& itemset, Frustum& frustum) {
+    return root->getItemsInFrustum(itemset, frustum);
 }
 
 
-void QuadTree::getLeavesInFrustum(std::vector<QuadNode*>& nodevec, Frustum& frustum) {
-    return root->getLeavesInFrustum(nodevec, frustum);
+int QuadTree::getItemsInBounds(std::set<QuadItem*>& itemset, Bounds2D& bounds) const{
+    return root->getItemsInBounds(itemset, bounds);
+}
+
+
+void QuadTree::getLeavesInFrustum(std::set<QuadNode*>& nodeset, Frustum& frustum) {
+    return root->getLeavesInFrustum(nodeset, frustum);
 }
 
 
