@@ -29,7 +29,11 @@
 #ifndef SDLAPP_DISPLAY_H
 #define SDLAPP_DISPLAY_H
 
-#include "extensions.h"
+#include <GL/glew.h>
+
+#define NO_SDL_GLEXT
+#include "SDL.h"
+#include "SDL_opengl.h"
 
 #include "logger.h"
 #include "vectors.h"
@@ -48,7 +52,7 @@ class SDLInitException : public std::exception {
 protected:
     std::string error;
 public:
-    SDLInitException(std::string& error) : error(error) {}
+    SDLInitException(const std::string& error) : error(error) {}
     virtual ~SDLInitException() throw () {};
 
     virtual const char* what() const throw() { return error.c_str(); }
@@ -63,7 +67,8 @@ class SDLAppDisplay {
 
     int  multi_sample;
 
-    int    SDLFlags(bool fullscreen);
+    int  SDLFlags(bool fullscreen);
+    void setupARBExtensions();
 public:
     int width, height;
     bool fullscreen;
@@ -82,9 +87,7 @@ public:
     void   setClearColour(vec3f colour);
     void   setClearColour(vec4f colour);
 
-#ifdef SDLAPP_SHADER_SUPPORT
     void   enableShaders(bool enable);
-#endif
 
     void   enableAlpha(bool enable);
     void   multiSample(int sample);
