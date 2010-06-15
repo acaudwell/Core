@@ -60,11 +60,9 @@ void SDLAppDisplay::enableVsync(bool vsync) {
     this->vsync = vsync;
 }
 
-#ifdef SDLAPP_SHADER_SUPPORT
 void SDLAppDisplay::enableShaders(bool enable) {
     enable_shaders = enable;
 }
-#endif
 
 void SDLAppDisplay::enableAlpha(bool enable) {
     enable_alpha = enable;
@@ -72,6 +70,19 @@ void SDLAppDisplay::enableAlpha(bool enable) {
 
 void SDLAppDisplay::multiSample(int samples) {
     multi_sample = samples;
+}
+
+void SDLAppDisplay::setupARBExtensions() {
+
+    GLenum err = glewInit();
+
+    if (GLEW_OK != err) {
+        /* Problem: glewInit failed, something is seriously wrong. */
+        char glewerr[1024];
+        snprintf(glewerr, 1024, "GLEW Error: %s", glewGetErrorString(err));
+
+        throw SDLInitException(std::string(glewerr));
+    }
 }
 
 void SDLAppDisplay::init(std::string window_title, int width, int height, bool fullscreen) {
@@ -119,12 +130,7 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
         throw SDLInitException(sdlerr);
     }
 
-
-#ifdef SDLAPP_SHADER_SUPPORT
-    if(enable_shaders) {
-        setupARBExtensions();
-    }
-#endif
+    setupARBExtensions();
 
     SDL_WM_SetCaption(window_title.c_str(),0);
 }
