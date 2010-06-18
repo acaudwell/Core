@@ -95,6 +95,9 @@ public:
     void   mode3D(float fov, float znear, float zfar);
     void   mode2D();
 
+    void   push2D();
+    void   pop2D();
+
     vec4f  currentColour();
 
     void fullScreenQuad(bool coord_flip);
