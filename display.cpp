@@ -165,6 +165,24 @@ void SDLAppDisplay::mode2D() {
     glLoadIdentity();
 }
 
+void SDLAppDisplay::push2D() {
+    glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glLoadIdentity();
+            glOrtho(0, display.width, display.height, 0, -1.0, 1.0);
+
+    glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+}
+
+void SDLAppDisplay::pop2D() {
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
+}
+
 vec4f SDLAppDisplay::currentColour() {
     vec4f colour;
    	glGetFloatv(GL_CURRENT_COLOR, colour);
