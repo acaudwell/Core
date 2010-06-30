@@ -166,6 +166,7 @@ void SDLAppDisplay::quit() {
     texturemanager.purge();
     shadermanager.purge();    
     fontmanager.purge();
+    fontmanager.destroy();
 }
 
 void SDLAppDisplay::update() {
