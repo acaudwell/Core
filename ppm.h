@@ -29,7 +29,8 @@
 
 enum { FRAME_EXPORTER_WAIT,
        FRAME_EXPORTER_DUMP,
-       FRAME_EXPORTER_EXIT };
+       FRAME_EXPORTER_EXIT,
+       FRAME_EXPORTER_STOPPED };
 
 class FrameExporter {
 protected:
@@ -49,6 +50,7 @@ protected:
     SDL_cond* cond;
     int dumper_thread_state;
 
+    void stopDumpThr();
 public:
     FrameExporter();
     virtual ~FrameExporter();
