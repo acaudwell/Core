@@ -51,17 +51,8 @@ FrameExporter::FrameExporter() {
 }
 
 FrameExporter::~FrameExporter() {
+    stopDumpThr();
 
-    if(dumper_thread_state != FRAME_EXPORTER_EXIT) {
-        SDL_mutexP(mutex);
-
-        dumper_thread_state = FRAME_EXPORTER_EXIT;
-
-        SDL_CondSignal(cond);
-        SDL_mutexV(mutex);
-    }
-
-    /* wait for thread to quit, then tear down */
     SDL_KillThread(thread);
     SDL_DestroyCond(cond);
     SDL_DestroyMutex(mutex);
@@ -71,6 +62,22 @@ FrameExporter::~FrameExporter() {
     delete[] pixels1;
     delete[] pixels2;
     delete[] pixels_out;
+}
+
+void FrameExporter::stopDumpThr() {
+    if(dumper_thread_state == FRAME_EXPORTER_STOPPED) return;
+
+    SDL_mutexP(mutex);
+
+        dumper_thread_state = FRAME_EXPORTER_EXIT;
+
+        SDL_CondSignal(cond);
+
+    SDL_mutexV(mutex);
+
+    //busy wait for thread to exit
+    while(dumper_thread_state != FRAME_EXPORTER_STOPPED)
+        SDL_Delay(100);
 }
 
 void FrameExporter::dump() {
@@ -101,9 +108,13 @@ void FrameExporter::dumpThr() {
 
     SDL_mutexP(mutex);
 
-    for (;;) {
-        while (dumper_thread_state == FRAME_EXPORTER_WAIT)
+    while(dumper_thread_state != FRAME_EXPORTER_EXIT) {
+
+        dumper_thread_state = FRAME_EXPORTER_WAIT;
+
+        while (dumper_thread_state == FRAME_EXPORTER_WAIT) {
             SDL_CondWait(cond, mutex);
+        }
 
         if (dumper_thread_state == FRAME_EXPORTER_EXIT) break;
 
@@ -118,9 +129,9 @@ void FrameExporter::dumpThr() {
 
             dumpImpl();
         }
-
-        dumper_thread_state = FRAME_EXPORTER_WAIT;
     }
+
+    dumper_thread_state = FRAME_EXPORTER_STOPPED;
 
     SDL_mutexV(mutex);
 
@@ -150,13 +161,7 @@ PPMExporter::PPMExporter(std::string outputfile) {
 }
 
 PPMExporter::~PPMExporter() {
-    SDL_mutexP(mutex);
-
-        dumper_thread_state = FRAME_EXPORTER_EXIT;
-
-        SDL_CondSignal(cond);
-
-    SDL_mutexV(mutex);
+    stopDumpThr();
 
     if(filename.size()>0)
         ((std::fstream*)output)->close();
