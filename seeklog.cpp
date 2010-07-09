@@ -29,15 +29,6 @@
 
 long gSeekLogMaxBufferSize = 104857600;
 
-//BaseLog
-
-void BaseLog::consume() {
-
-    while(stream->get() && !stream->fail());
-
-    stream->clear();
-}
-
 //StreamLog
 
 StreamLog::StreamLog() {
@@ -45,7 +36,9 @@ StreamLog::StreamLog() {
 
     fcntl_fail = false;
 
-#ifndef _WIN32
+#ifdef _WIN32
+    stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
+#else
     int ret = fcntl(STDIN_FILENO, F_GETFL, 0);
 
     if (fcntl (STDIN_FILENO, F_SETFL, ret | O_NONBLOCK) < 0) {
@@ -58,10 +51,6 @@ StreamLog::StreamLog() {
 StreamLog::~StreamLog() {
 }
 
-StreamLog::StreamLog(std::istream* stream) {
-    this->stream = stream;
-}
-
 bool StreamLog::getNextLine(std::string& line) {
 
     //try and fix the stream
@@ -69,8 +58,20 @@ bool StreamLog::getNextLine(std::string& line) {
 
     char buff[1024];
 
+#ifdef _WIN32
+
+    DWORD available_bytes;
+
+    if (!PeekNamedPipe(stdin_handle, 0, 0, 0,
+        &available_bytes, 0)) return false;
+
+    if(available_bytes==0) return false;
+
+#endif
+
     stream->getline(buff, 1024);
     line = std::string(buff);
+
 
     //remove carriage returns
     if (line.size() > 0 && line[line.size()-1] == '\r') {
