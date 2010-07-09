@@ -44,17 +44,18 @@ public:
     virtual ~BaseLog() {};
     virtual bool getNextLine(std::string& line) { return false; };
     virtual bool isFinished() { return false; };
-
-    void consume();
 };
 
 class StreamLog : public BaseLog {
 
     bool fcntl_fail;
+#ifdef _WIN32
+    HANDLE stdin_handle;
+#endif
 public:
     StreamLog();
-    StreamLog(std::istream* stream);
     ~StreamLog();
+
     bool getNextLine(std::string& line);
     bool isFinished();
 };
