@@ -44,6 +44,8 @@ class MouseCursor {
 public:
     MouseCursor();
 
+    vec2f getPos() const { return mousepos; }
+
     bool leftButtonPressed() const;
     bool rightButtonPressed() const;
     bool bothPressed() const;
