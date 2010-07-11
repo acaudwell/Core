@@ -60,10 +60,24 @@ protected:
     std::string message;
     bool showhelp;
 public:
-    SDLAppException(std::string message, bool showhelp = false) : showhelp(showhelp), message(message) {}
+    SDLAppException(const char* str, ...) : showhelp(false) {
+
+        va_list vl;
+        char msg[1024];
+
+        va_start(vl, str);
+            snprintf(msg, 1024, str, vl);
+        va_end(vl);
+
+        message = std::string(msg);
+    }
+
+    SDLAppException(std::string message) : showhelp(false), message(message) {}
+
     ~SDLAppException() throw () {};
 
-    bool showHelp() { return showhelp; }
+    bool showHelp() const { return showhelp; }
+    void setShowHelp(bool showhelp) { this->showhelp = showhelp; };
 
     virtual const char* what() const throw() { return message.c_str(); }
 };
