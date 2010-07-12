@@ -66,7 +66,7 @@ public:
         char msg[1024];
 
         va_start(vl, str);
-            snprintf(msg, 1024, str, vl);
+            vsnprintf(msg, 1024, str, vl);
         va_end(vl);
 
         message = std::string(msg);
