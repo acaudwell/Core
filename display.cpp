@@ -94,7 +94,10 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
 
     int flags = SDLFlags(fullscreen);
 
-    SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
+    if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO) != 0) {
+        throw SDLInitException(SDL_GetError());
+    }
+
     atexit(SDL_Quit);
 
     SDL_EnableUNICODE(1);
