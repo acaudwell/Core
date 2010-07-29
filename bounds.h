@@ -74,6 +74,23 @@ public:
         update(bounds.max);
     }
 
+
+    void set(const Bounds2D& bounds) {
+        reset();
+        update(bounds);
+    }
+
+    void set(vec2f point) {
+        reset();
+        update(point);
+    }
+
+    void set(vec2f a, vec2f b) {
+        reset();
+        update(a);
+        update(b);
+    }
+
     void update(vec2f point) {
         if(first) {
             min = point;
