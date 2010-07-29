@@ -69,6 +69,11 @@ public:
         update(max);
     }
 
+    void update(const Bounds2D& bounds) {
+        update(bounds.min);
+        update(bounds.max);
+    }
+
     void update(vec2f point) {
         if(first) {
             min = point;
