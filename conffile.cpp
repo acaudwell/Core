@@ -223,10 +223,14 @@ vec4f ConfEntry::getVec4() {
 //ConfSection
 
 ConfSection::ConfSection() {
+    lineno = 0;
+    conf   = 0;
 }
 
-ConfSection::ConfSection(const std::string& name) {
-    this->name = name;
+ConfSection::ConfSection(ConfFile* conf, const std::string& name, int lineno) {
+    this->name   = name;
+    this->lineno = lineno;
+    this->conf   = conf;
 }
 
 ConfSection::~ConfSection() {
@@ -235,6 +239,14 @@ ConfSection::~ConfSection() {
 
 std::string ConfSection::getName() {
     return name;
+}
+
+ConfFile* ConfSection::getConfFile() {
+    return conf;
+}
+
+int ConfSection::getLineNumber() {
+    return lineno;
 }
 
 ConfEntryList* ConfSection::getEntries(const std::string& key) {
@@ -510,7 +522,7 @@ void ConfFile::load() {
 
             if(sec != 0) addSection(sec);
 
-            sec = new ConfSection(matches[0]);
+            sec = new ConfSection(this, matches[0], lineno);
 
         // key value pairs
         } else if(ConfFile_key_value.match(line, &matches)) {
@@ -526,7 +538,7 @@ void ConfFile::load() {
                 else if(string_end != value.size()-1) value = value.substr(0,string_end+1);
             }
 
-            if(sec==0) sec = new ConfSection("");
+            if(sec==0) sec = new ConfSection(this, "", lineno);
 
             sec->addEntry(key, value, lineno);
 
@@ -636,7 +648,7 @@ void ConfFile::setEntry(const std::string& section, const std::string& key, cons
     ConfSection* sec = getSection(section);
 
     if(sec==0) {
-        sec = new ConfSection(section);
+        sec = new ConfSection(this, section);
         addSection(sec);
     }
 
@@ -717,27 +729,65 @@ vec4f ConfFile::getVec4(const std::string& section, const std::string& key) {
 }
 
 void ConfFile::unknownOptionException(ConfEntry* entry) {
-    std::string reason = "unknown option ";
+    std::string reason = "unknown option '";
     reason += entry->getName();
+    reason += std::string("'");
 
     entryException(entry, reason);
 }
 
 void ConfFile::missingValueException(ConfEntry* entry) {
 
-    std::string reason = std::string("no value specified for ");
+    std::string reason = std::string("no value specified for '");
     reason += entry->getName();
+    reason += std::string("'");
 
     entryException(entry, reason);
 }
 
 void ConfFile::invalidValueException(ConfEntry* entry) {
 
-    std::string reason = std::string("invalid ");
+    std::string reason = std::string("invalid '");
     reason += entry->getName();
-    reason += std::string(" value");
+    reason += std::string("' value");
 
     entryException(entry, reason);
+}
+
+void ConfFile::missingEntryException(ConfSection* section, std::string entryname) {
+    std::string reason = std::string("section '");
+    reason += section->getName();
+    reason += std::string("' missing required entry '");
+    reason += entryname;
+    reason += std::string("'");
+
+    sectionException(section, reason);
+}
+
+void ConfFile::sectionException(ConfSection* section, std::string reason) {
+
+    std::string errmsg;
+
+    int lineno = 0;
+
+    if(conffile.size()) {
+        errmsg = conffile;
+
+        if(section != 0 && section->getLineNumber() != 0) {
+            lineno = section->getLineNumber();
+
+            char linebuff[256];
+            snprintf(linebuff, 256, ", line %d", lineno);
+
+            errmsg += std::string(linebuff);
+        }
+
+        errmsg += std::string(": ");
+    }
+
+    errmsg += reason;
+
+    throw ConfFileException(errmsg, conffile, lineno);
 }
 
 void ConfFile::entryException(ConfEntry* entry, std::string reason) {

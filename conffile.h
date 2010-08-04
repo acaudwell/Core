@@ -89,20 +89,29 @@ public:
 
 typedef std::list<ConfEntry*> ConfEntryList;
 
+class ConfFile;
+
 class ConfSection {
     std::map<std::string, ConfEntryList*> entrymap;
     std::string name;
+    int lineno;
+    ConfFile* conf;
 public:
     ConfSection();
-    ConfSection(const std::string& name);
+    ConfSection(ConfFile* conf, const std::string& name, int lineno = 0);
     ~ConfSection();
 
     void clear();
 
+    ConfFile* getConfFile();
     ConfEntry* getEntry(const std::string& key);
     ConfEntryList* getEntries(const std::string& key);
 
+    void sectionException(ConfEntry* entry, std::string reason);
+
     std::string getName();
+
+    int getLineNumber();
 
     bool        hasValue(const std::string& key);
 
@@ -169,6 +178,8 @@ public:
     void unknownOptionException(ConfEntry* entry);
     void missingValueException(ConfEntry* entry);
     void invalidValueException(ConfEntry* entry);
+    void missingEntryException(ConfSection* section, std::string entryname);
+    void sectionException(ConfSection* section, std::string reason);
     void entryException(ConfEntry* entry, std::string reason);
 };
 
