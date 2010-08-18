@@ -78,11 +78,11 @@ public:
         return vec2<T>(vec.x*n, vec.y*n);
     }
 
-    bool operator== (vec2<T> &vec) const {
+    bool operator== (const vec2<T> &vec) const {
         return (vec.x==x && vec.y==y);
     }
 
-    bool operator!= (vec2<T> &vec) const {
+    bool operator!= (const vec2<T> &vec) const {
         return (vec.x!=x || vec.y!=y);
     }
 
