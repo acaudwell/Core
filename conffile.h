@@ -98,7 +98,7 @@ class ConfSection {
     ConfFile* conf;
 public:
     ConfSection();
-    ConfSection(ConfFile* conf, const std::string& name, int lineno = 0);
+    ConfSection(const std::string& name, int lineno = 0);
     ~ConfSection();
 
     void clear();
@@ -106,6 +106,8 @@ public:
     ConfFile* getConfFile();
     ConfEntry* getEntry(const std::string& key);
     ConfEntryList* getEntries(const std::string& key);
+
+    void setConfFile(ConfFile* conf);
 
     void sectionException(ConfEntry* entry, std::string reason);
 
@@ -160,6 +162,8 @@ public:
     ConfEntryList* getEntries(const std::string& section, const std::string& key);
 
     void addSection(ConfSection* section);
+    ConfSection* addSection(const std::string& section);
+
     void setSection(ConfSection* section);
 
     int countSection(const std::string& section);
