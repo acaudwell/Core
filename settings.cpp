@@ -63,7 +63,7 @@ void SDLAppSettings::setDisplayDefaults() {
 
 void SDLAppSettings::exportDisplaySettings(ConfFile& conf) {
 
-    ConfSection* section = new ConfSection(&conf, "display");
+    ConfSection* section = new ConfSection("display");
 
     char viewportbuff[256];
     snprintf(viewportbuff, 256, "%dx%d", display_width, display_height);
@@ -149,8 +149,7 @@ void SDLAppSettings::parseArgs(const std::vector<std::string>& arguments, ConfFi
                     ConfSection* display_settings = conffile.getSection("display");
 
                     if(!display_settings) {
-                        display_settings = new ConfSection(&conffile, "display");
-                        conffile.addSection(display_settings);
+                        display_settings = conffile.addSection("display");
                     }
 
                     display_settings->setEntry("viewport", args);
@@ -192,9 +191,7 @@ void SDLAppSettings::parseArgs(const std::vector<std::string>& arguments, ConfFi
         ConfSectionList* sections = conffile.getSections(section_name);
 
         if(sections == 0) {
-            ConfSection* newsection = new ConfSection(&conffile, section_name);
-            conffile.addSection(newsection);
-
+            conffile.addSection(section_name);
             sections = conffile.getSections(section_name);
         }
 

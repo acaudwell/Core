@@ -227,15 +227,16 @@ ConfSection::ConfSection() {
     conf   = 0;
 }
 
-ConfSection::ConfSection(ConfFile* conf, const std::string& name, int lineno) {
+ConfSection::ConfSection(const std::string& name, int lineno) {
     this->name   = name;
     this->lineno = lineno;
-    this->conf   = conf;
+    this->conf   = 0;
 }
 
 ConfSection::~ConfSection() {
     clear();
 }
+
 
 std::string ConfSection::getName() {
     return name;
@@ -243,6 +244,10 @@ std::string ConfSection::getName() {
 
 ConfFile* ConfSection::getConfFile() {
     return conf;
+}
+
+void ConfSection::setConfFile(ConfFile* conf) {
+    this->conf = conf;
 }
 
 int ConfSection::getLineNumber() {
@@ -522,7 +527,7 @@ void ConfFile::load() {
 
             if(sec != 0) addSection(sec);
 
-            sec = new ConfSection(this, matches[0], lineno);
+            sec = new ConfSection(matches[0], lineno);
 
         // key value pairs
         } else if(ConfFile_key_value.match(line, &matches)) {
@@ -538,7 +543,7 @@ void ConfFile::load() {
                 else if(string_end != value.size()-1) value = value.substr(0,string_end+1);
             }
 
-            if(sec==0) sec = new ConfSection(this, "", lineno);
+            if(sec==0) sec = new ConfSection("", lineno);
 
             sec->addEntry(key, value, lineno);
 
@@ -595,6 +600,13 @@ bool ConfFile::hasSection(const std::string& section) {
     return true;
 }
 
+ConfSection* ConfFile::addSection(const std::string& section) {
+    ConfSection* sec = new ConfSection(section);
+    addSection(sec);
+
+    return sec;
+}
+
 void ConfFile::addSection(ConfSection* section) {
 
     ConfSectionList* sectionlist = getSections(section->getName());
@@ -603,6 +615,7 @@ void ConfFile::addSection(ConfSection* section) {
         sectionmap[section->getName()] = sectionlist = new ConfSectionList;
     }
 
+    section->setConfFile(this);
     sectionlist->push_back(section);
 }
 
@@ -648,8 +661,7 @@ void ConfFile::setEntry(const std::string& section, const std::string& key, cons
     ConfSection* sec = getSection(section);
 
     if(sec==0) {
-        sec = new ConfSection(this, section);
-        addSection(sec);
+        sec = addSection(section);
     }
 
     sec->setEntry(key, value);
