@@ -27,6 +27,7 @@ SDLAppSettings::SDLAppSettings() {
     //conf entries in other sections
     conf_sections["viewport"]           = "display";
     conf_sections["windowed"]           = "display";
+    conf_sections["window-id"]          = "display";
     conf_sections["fullscreen"]         = "display";
     conf_sections["multi-sampling"]     = "display";
     conf_sections["output-ppm-stream"]  = "display";
@@ -42,6 +43,7 @@ SDLAppSettings::SDLAppSettings() {
     //boolean args
     arg_types["viewport"]          = "string";
     arg_types["windowed"]          = "bool";
+    arg_types["window-id"]         = "string";
     arg_types["fullscreen"]        = "bool";
     arg_types["transparent"]       = "bool";
     arg_types["multi-sampling"]    = "bool";
@@ -56,7 +58,7 @@ void SDLAppSettings::setDisplayDefaults() {
     fullscreen     = false;
     multisample    = false;
     transparent    = false;
-
+    window_id      = 0;
     output_ppm_filename = "";
     output_framerate    = 60;
 }
@@ -255,6 +257,23 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
 
     if(display_settings->getBool("windowed")) {
         fullscreen = false;
+    }
+
+    if((entry = display_settings->getEntry("window-id")) != 0) {
+
+        if(!entry->hasValue()) {
+             conffile.entryException(entry, "specify window-id (window)");
+        }
+        std::string window_id_str = entry->getString();
+
+        window_id = 0;
+
+        sscanf(window_id_str.c_str(), "0x%lx", &window_id);
+        if (!window_id) sscanf(window_id_str.c_str(), "%lu", &window_id);
+
+        if(!window_id) {
+            conffile.invalidValueException(entry);
+        }
     }
 
     if(display_settings->getBool("transparent")) {

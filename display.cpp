@@ -36,7 +36,11 @@ SDLAppDisplay::SDLAppDisplay() {
     enable_shaders=false;
     enable_alpha=false;
     vsync=false;
+    screensaver=false;
     multi_sample = 0;
+#ifdef SDLAPP_XWINDOWS
+    xwindow = 0;
+#endif
 }
 
 SDLAppDisplay::~SDLAppDisplay() {
@@ -85,11 +89,73 @@ void SDLAppDisplay::setupARBExtensions() {
     }
 }
 
+#ifdef SDLAPP_XWINDOWS
+void SDLAppDisplay::setXWindow(const Window& xwindow) {
+    this->xwindow = xwindow;
+}
+#endif
+
 void SDLAppDisplay::init(std::string window_title, int width, int height, bool fullscreen) {
 
-    this->width  = width;
-    this->height = height;
+    int gl_depth     = 24;
+    int colour_depth = 32;
 
+#ifndef _WIN32
+    if(!enable_shaders) {
+        gl_depth     = 16;
+        colour_depth = 24;
+    }
+#endif
+
+    bool no_cursor = false;
+
+#ifdef SDLAPP_XWINDOWS
+
+    /* check for window_id in ENV */
+    if(xwindow == 0) {
+        char* xscreensaver_window_env = getenv("XSCREENSAVER_WINDOW");
+
+        if(xscreensaver_window_env != 0) {
+            //parse xscreensaver window id
+            sscanf(xscreensaver_window_env, "0x%lx", &xwindow);
+            if (!xwindow) sscanf(xscreensaver_window_env, "%lu", &xwindow);
+            if (!xwindow) throw SDLInitException("Invalid window");
+        }
+    }
+
+    if(xwindow != 0) {
+        char sdl_window_env[100];
+        snprintf(sdl_window_env, 100, "SDL_WINDOWID=%d", xwindow);
+        putenv(sdl_window_env);
+
+
+        Display* dpy = XOpenDisplay(0);
+
+        if(!dpy) {
+            throw SDLInitException("Cannot get display");
+        }
+
+        XWindowAttributes win_attributes;
+
+        if (!XGetWindowAttributes(dpy, xwindow, &win_attributes)) {
+            throw SDLInitException("Cannot get window attributes");
+        }
+
+        width  = win_attributes.width;
+        height = win_attributes.height;
+
+        colour_depth = win_attributes.depth;
+
+        screensaver = true;
+        fullscreen  = false;
+
+        // assume window opened at y=0 by xscreensaver is actually running as a screensaver and not a preview
+        if(win_attributes.y == 0) no_cursor = true;
+    }
+#endif
+
+    this->width      = width;
+    this->height     = height;
     this->fullscreen = fullscreen;
 
     int flags = SDLFlags(fullscreen);
@@ -101,6 +167,8 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
     atexit(SDL_Quit);
 
     SDL_EnableUNICODE(1);
+
+    if(no_cursor) SDL_ShowCursor(false);
 
     //vsync
     if(vsync) SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
@@ -115,18 +183,8 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
         SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
     }
 
-#ifdef _WIN32
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    surface = SDL_SetVideoMode(width, height, 32, flags);
-#else
-    if(enable_shaders) {
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-        surface = SDL_SetVideoMode(width, height, 32, flags);
-    } else {
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-        surface = SDL_SetVideoMode(width, height, 24, flags);
-    }
-#endif
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, gl_depth);
+    surface = SDL_SetVideoMode(width, height, colour_depth, flags);
 
     if (!surface) {
         std::string sdlerr(SDL_GetError());

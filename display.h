@@ -48,6 +48,11 @@
 #include <vector>
 #include <string>
 
+#if defined(SDL_VIDEO_DRIVER_X11) && !defined(__MACOSX__)
+#define SDLAPP_XWINDOWS
+#include "X11/Xlib.h"
+#endif
+
 class SDLInitException : public std::exception {
 protected:
     std::string error;
@@ -67,11 +72,18 @@ class SDLAppDisplay {
 
     int  multi_sample;
 
+#ifdef SDLAPP_XWINDOWS
+    Window xwindow;
+#endif
+
     int  SDLFlags(bool fullscreen);
     void setupARBExtensions();
 public:
+    bool screensaver;
+
     int width, height;
     bool fullscreen;
+
     vec4f clearColour;
 
     SDLAppDisplay();
@@ -86,6 +98,10 @@ public:
     void   enableVsync(bool vsync);
     void   setClearColour(vec3f colour);
     void   setClearColour(vec4f colour);
+
+#ifdef SDLAPP_XWINDOWS
+    void  setXWindow(const Window& xwindow);
+#endif
 
     void   enableShaders(bool enable);
 
