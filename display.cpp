@@ -52,7 +52,10 @@ SDLAppDisplay::SDLAppDisplay() {
 #else
     surface = 0;
 #endif
-
+    screensaver=false;
+#ifdef SDLAPP_XWINDOWS
+    xwindow = 0;
+#endif
 }
 
 SDLAppDisplay::~SDLAppDisplay() {
@@ -119,11 +122,78 @@ bool SDLAppDisplay::multiSamplingEnabled() {
     return value==1;
 }
 
+#ifdef SDLAPP_XWINDOWS
+void SDLAppDisplay::setXWindow(const Window& xwindow) {
+    this->xwindow = xwindow;
+}
+#endif
+
 void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
 #if SDL_VERSION_ATLEAST(1,3,0)
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+    int gl_depth     = 24;
+    int colour_depth = 32;
+
+#ifndef _WIN32
+    if(!enable_shaders) {
+        gl_depth     = 16;
+        colour_depth = 24;
+    }
+#endif
+
+    bool no_cursor = false;
+
+#ifdef SDLAPP_XWINDOWS
+
+    /* check for window_id in ENV */
+    if(xwindow == 0) {
+        char* xscreensaver_window_env = getenv("XSCREENSAVER_WINDOW");
+
+        if(xscreensaver_window_env != 0) {
+            //parse xscreensaver window id
+            sscanf(xscreensaver_window_env, "0x%lx", &xwindow);
+            if (!xwindow) sscanf(xscreensaver_window_env, "%lu", &xwindow);
+            if (!xwindow) throw SDLInitException("Invalid window");
+        }
+    }
+
+    if(xwindow != 0) {
+        char sdl_window_env[100];
+        snprintf(sdl_window_env, 100, "SDL_WINDOWID=%d", xwindow);
+        putenv(sdl_window_env);
+
+
+        Display* dpy = XOpenDisplay(0);
+
+        if(!dpy) {
+            throw SDLInitException("Cannot get display");
+        }
+
+        XWindowAttributes win_attributes;
+
+        if (!XGetWindowAttributes(dpy, xwindow, &win_attributes)) {
+            throw SDLInitException("Cannot get window attributes");
+        }
+
+        width  = win_attributes.width;
+        height = win_attributes.height;
+
+        colour_depth = win_attributes.depth;
+
+        screensaver = true;
+        fullscreen  = false;
+
+        // assume window opened at y=0 by xscreensaver is actually running as a screensaver and not a preview
+        if(win_attributes.y == 0) no_cursor = true;
+    }
+#endif
+
+    this->width      = width;
+    this->height     = height;
+    this->fullscreen = fullscreen;
 
     Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
     if(resizable && !fullscreen) flags |= SDL_WINDOW_RESIZABLE;
@@ -150,6 +220,7 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
 
     int flags = SDLFlags(fullscreen);
 
+    if(no_cursor) SDL_ShowCursor(false);
     if(vsync) SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
     else SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 0);
 
@@ -175,6 +246,8 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
         surface = SDL_SetVideoMode(width, height, depth, flags);
     }
 #endif
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, gl_depth);
+    surface = SDL_SetVideoMode(width, height, colour_depth, flags);
 
     if (!surface) {
         if (multi_sample > 0) {

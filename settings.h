@@ -19,7 +19,6 @@
 #define SDLAPP_SETTINGS_H
 
 #include "regex.h"
-
 #include "conffile.h"
 
 class SDLAppSettings {
@@ -38,6 +37,7 @@ protected:
 public:
     int display_width;
     int display_height;
+    long int window_id;
     bool multisample;
     bool fullscreen;
     bool transparent;
