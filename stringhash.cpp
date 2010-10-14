@@ -27,30 +27,20 @@
 
 #include "stringhash.h"
 
+int gStringHashSeed = 31;
+
 int stringHash(std::string& str) {
 
     int val = 0;
     int n = str.size();
 
     for (int i = 0; i < n; i++) {
-        val = val + str[i] * (31^(n-i));
+        val = val + str[i] * (gStringHashSeed^(n-i));
     }
 
      if(val<0) {
          val = -val;
      }
-
-//     unsigned long hash = 5381;
-// 
-//     size_t strlen = str.size();
-//     for(size_t i=0;i<strlen;i++) {
-//         hash = ((hash << 5) + hash) + str[i];
-//     }
-// 
-//     int val = (int) hash;
-//     if(val<0) {
-//         val = -val;
-//     }
 
     return val;
 }
@@ -93,25 +83,4 @@ vec3f colourHash(std::string& str) {
     colour.normalize();
 
     return colour;
-}
-
-vec3f stylizedColourHash(std::string& str) {
-    vec3f colour = colourHash(str);
-
-    vec3f colourc;
-
-    //how red
-    float z = colour.z;
-    float t = 0.5;
-
-    if(z <= t) {
-        float zp = z/t;
-
-        colourc = vec3f(1.0, 1.0, 1.0) * zp + vec3f(0.6, 0.6, 0.6) * (1.0 - zp);
-    } else {
-        float zp = (z-t)/(1.0 - t);
-        colourc = vec3f(1.0, 0.0, 0.0) * zp + vec3f(1.0, 1.0, 1.0) * (1.0 - zp);
-    }
-
-    return colour * 0.1 + colourc * 0.9;
 }
