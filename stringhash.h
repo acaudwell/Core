@@ -39,4 +39,6 @@ vec3f vec3Hash(std::string& str);
 vec3f colourHash(std::string& str);
 vec3f stylizedColourHash(std::string& str);
 
+extern int gStringHashSeed;
+
 #endif
