@@ -489,6 +489,19 @@ void ConfFile::load(const std::string& conffile) {
     load();
 }
 
+static const std::string conffile_whitespaces(" \t\f\v\n\r");
+
+void ConfFile::trim(std::string& value) {
+    
+    if(value.size() == 0) return;
+    
+    size_t string_end = value.find_last_not_of(conffile_whitespaces);
+
+    if(string_end == std::string::npos) value.assign("");
+    else if(string_end != value.size()-1) value.assign(value.substr(0,string_end+1));
+   
+}
+
 void ConfFile::load() {
     debugLog("ConfFile::load(%s)\n", conffile.c_str());
 
@@ -508,7 +521,6 @@ void ConfFile::load() {
         throw ConfFileException(conf_error, conffile, 0);
     }
 
-    std::string whitespaces (" \t\f\v\n\r");
     std::string line;
 
     while(std::getline(in, line)) {
@@ -536,12 +548,7 @@ void ConfFile::load() {
             std::string value = (matches.size()>1) ? matches[1] : "";
 
             //trim whitespace
-            if(value.size()>0) {
-                size_t string_end = value.find_last_not_of(whitespaces);
-
-                if(string_end == std::string::npos) value = "";
-                else if(string_end != value.size()-1) value = value.substr(0,string_end+1);
-            }
+            ConfFile::trim(value);
 
             if(sec==0) sec = new ConfSection("", lineno);
 
