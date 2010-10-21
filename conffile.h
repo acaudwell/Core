@@ -179,6 +179,8 @@ public:
     vec3f       getVec3(const std::string& section,   const std::string& key);
     vec4f       getVec4(const std::string& section,   const std::string& key);
 
+    static void trim(std::string& value);
+    
     void unknownOptionException(ConfEntry* entry);
     void missingValueException(ConfEntry* entry);
     void invalidValueException(ConfEntry* entry);
