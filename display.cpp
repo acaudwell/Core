@@ -28,6 +28,7 @@
 
 #include "display.h"
 #include "sdlapp.h"
+#include <iostream>
 
 SDLAppDisplay display;
 
@@ -93,6 +94,7 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
     this->fullscreen = fullscreen;
 
     int flags = SDLFlags(fullscreen);
+    int depth = 32;
 
     if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO) != 0) {
         throw SDLInitException(SDL_GetError());
@@ -117,20 +119,34 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
 
 #ifdef _WIN32
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    surface = SDL_SetVideoMode(width, height, 32, flags);
+    surface = SDL_SetVideoMode(width, height, depth, flags);
 #else
     if(enable_shaders) {
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-        surface = SDL_SetVideoMode(width, height, 32, flags);
+        surface = SDL_SetVideoMode(width, height, depth, flags);
     } else {
+        depth = 24;
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-        surface = SDL_SetVideoMode(width, height, 24, flags);
+        surface = SDL_SetVideoMode(width, height, depth, flags);
     }
 #endif
 
     if (!surface) {
-        std::string sdlerr(SDL_GetError());
-        throw SDLInitException(sdlerr);
+        if (multi_sample > 0) {
+            // Retry without multi-sampling before failing
+            std::cerr << "Failed to set video mode: " << SDL_GetError() << std::endl
+                      << "Trying again without multi-sampling" << std::endl;
+
+            multi_sample = 0;
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+            surface = SDL_SetVideoMode(width, height, depth, flags);
+        }
+
+        if (!surface) {
+            std::string sdlerr(SDL_GetError());
+            throw SDLInitException(sdlerr);
+        }
     }
 
     setupARBExtensions();
