@@ -86,6 +86,13 @@ void SDLAppDisplay::setupARBExtensions() {
     }
 }
 
+bool SDLAppDisplay::multiSamplingEnabled() {
+    int value;
+    SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &value );
+    return value==1;
+}
+
+
 void SDLAppDisplay::init(std::string window_title, int width, int height, bool fullscreen) {
 
     this->width  = width;
@@ -133,10 +140,11 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
 
     if (!surface) {
         if (multi_sample > 0) {
+#ifndef _WIN32            
             // Retry without multi-sampling before failing
             std::cerr << "Failed to set video mode: " << SDL_GetError() << std::endl
                       << "Trying again without multi-sampling" << std::endl;
-
+#endif
             multi_sample = 0;
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);

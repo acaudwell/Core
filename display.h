@@ -79,6 +79,8 @@ public:
 
     void   init(std::string window_title, int xres, int yres, bool fullscreen);
 
+    bool   multiSamplingEnabled();
+    
     void   quit();
 
     void   update();
