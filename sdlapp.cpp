@@ -299,9 +299,9 @@ int SDLApp::run() {
 
         Uint32 delta_msec = msec - last_msec;
 
-        // cant have delta ticks be 0
+        // cant have delta ticks be less than 8ms
         buffer_msec += delta_msec;
-        if(buffer_msec < 1) {
+        if(buffer_msec < 8) {
             SDL_Delay(1);
             continue;
         }
