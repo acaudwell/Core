@@ -83,11 +83,13 @@ public:
     void shadowOffset(float x, float y);
 };
 
+typedef std::map<int,FTFont*> fontSizeMap;
+
 class FXFontManager {
 
     std::string font_dir;
 
-    std::map<std::string, FTFont*> fonts;
+    std::map<std::string, fontSizeMap*> fonts;
 
     FTFont* create(std::string font_file, int size);
 public:
