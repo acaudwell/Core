@@ -56,7 +56,7 @@ class QuadNode {
     GLuint listid;
 
     Bounds2D bounds;
-
+    
     std::vector<QuadNode*> children;
     std::list<QuadItem*> items;
 
@@ -77,7 +77,7 @@ public:
 
     void addItem(QuadItem* item); //if not subdivided, subdivide, add to correct subdivided node.
 
-    int getItemsAt(std::set<QuadItem*>& itemvec, vec2f pos);
+    int getItemsAt(std::set<QuadItem*>& itemset, vec2f pos);
     void getLeavesInFrustum(std::set<QuadNode*>& nodeset, Frustum& frustum);
     int getItemsInFrustum(std::set<QuadItem*>& itemset, Frustum& frustum);
     int getItemsInBounds(std::set<QuadItem*>& itemset, Bounds2D& bounds) const;
@@ -91,6 +91,7 @@ public:
     void generateLists();
     int draw(Frustum& frustum);
     void outline();
+    void outlineItems();
 };
 
 
@@ -119,6 +120,7 @@ public:
     QuadTree(Bounds2D bounds, int max_node_depth, int max_node_items);
     ~QuadTree();
     void outline();
+    void outlineItems();
 };
 
 #endif
