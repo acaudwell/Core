@@ -79,7 +79,7 @@ void QuadNode::addItem(QuadItem* item) {
     //bottom right
     newbounds = Bounds2D( bounds.min + middle, bounds.max );
     children.push_back(new QuadNode(tree, this, newbounds, depth));
-
+   
     for(std::list<QuadItem*>::iterator it = items.begin(); it != items.end(); it++) {
         QuadItem* oi = *it;
         tree->item_count--;
@@ -88,6 +88,8 @@ void QuadNode::addItem(QuadItem* item) {
     }
 
     items.clear();
+    
+    addToChild(item);
 }
 
 
@@ -98,7 +100,7 @@ void QuadNode::addToChild(QuadItem* item) {
         if(children[i]->bounds.overlaps(item->quadItemBounds)) {
             children[i]->addItem(item);
         }
-    }
+    }   
 }
 
 
@@ -198,12 +200,12 @@ int QuadNode::getItemsAt(std::set<QuadItem*>& itemset, vec2f pos) {
     }
 
     if(children.empty()) return 0;
-
+    
     int index = getChildIndex(pos);
 
     if(index == -1) return 0;
 
-    return children[index]->getItemsAt(itemset, pos);
+    return children[index]->getItemsAt(itemset, pos);    
 }
 
 void QuadNode::visitLeavesInFrustum(const Frustum& frustum, VisitFunctor<QuadNode> & visit){
@@ -292,15 +294,12 @@ int QuadNode::getChildIndex(const vec2f & pos) const{
         }
     }
 
-    //debugLog("(%.3f, %.3f) is outside of bounds of node (%.3f, %.3f) to (%.3f, %.3f) \n", pos.x, pos.y, bounds.min.x,  bounds.min.y, bounds.max.x,  bounds.max.y);
-
     return -1;
 }
 
 
 
 QuadNode::QuadNode(QuadTree* tree, QuadNode* parent, Bounds2D bounds, int parent_depth) {
-    //debugLog("new QuadNode from (%.3f, %.3f) to (%.3f, %.3f) \n",  bounds.min.x,  bounds.min.y, bounds.max.x,  bounds.max.y);
 
     this->parent = parent;
     this->tree   = tree;
@@ -396,7 +395,15 @@ void QuadNode::generateLists() {
 
 
 void QuadNode::outline() {
-    bounds.draw();
+    //bounds.draw();
+
+    if(!items.empty()) {
+        bounds.draw();
+        /*glBegin(GL_LINES);
+            glVertex2fv(bounds.min);
+            glVertex2fv(bounds.max);
+        glEnd();*/
+    }
 
     if(children.empty()) return;
 
@@ -408,6 +415,23 @@ void QuadNode::outline() {
     }
 }
 
+void QuadNode::outlineItems() {
+    if(items.empty() && children.empty()) return;
+
+    for(std::list<QuadItem*>::iterator it = items.begin(); it != items.end(); it++) {
+        QuadItem* oi = (*it);
+        oi->quadItemBounds.draw();
+    }
+    
+    if(children.empty()) return;
+    
+    for(int i=0;i<4;i++) {
+        QuadNode* c = children[i];
+        if(c!=0) {
+            c->outlineItems();
+        }
+    }    
+}
 //Quad TREE
 
 
@@ -418,7 +442,7 @@ QuadTree::QuadTree(Bounds2D bounds, int max_node_depth, int max_node_items) {
 
     this->max_node_depth = max_node_depth;
     this->max_node_items = max_node_items;
-
+    
     root = new QuadNode(this, 0, bounds, 0);
 }
 
@@ -429,7 +453,9 @@ QuadTree::~QuadTree() {
 
 
 int QuadTree::getItemsAt(std::set<QuadItem*>& itemset, vec2f pos) {
-    return root->getItemsAt(itemset, pos);
+    int return_count = root->getItemsAt(itemset, pos);
+       
+    return return_count;    
 }
 
 int QuadTree::getItemsInFrustum(std::set<QuadItem*>& itemset, Frustum& frustum) {
@@ -486,4 +512,8 @@ void QuadTree::generateLists() {
 
 void QuadTree::outline() {
     root->outline();
+}
+
+void QuadTree::outlineItems() {
+    root->outlineItems();
 }
