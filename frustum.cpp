@@ -110,7 +110,7 @@ void Frustum::updateView(Camera& camera) {
     planes[5] = Plane(far_top_right,     far_top_left,      far_bottom_left);
 }
 
-bool Frustum::contains(vec3f p) {
+bool Frustum::contains(const vec3f& p) const {
 
     for(int i=0; i < 6; i++) {
         float dist = planes[i].distance(p);
@@ -121,7 +121,24 @@ bool Frustum::contains(vec3f p) {
     return true;
 }
 
-bool Frustum::boundsInFrustum(const Bounds2D & bounds, float z) const{
+bool Frustum::intersects(const Bounds3D& bounds) const {
+
+    vec3f corner;
+
+    for(int i=0; i<6; i++) {
+
+        corner.x = planes[i].normal.x > 0.0 ? bounds.max.x : bounds.min.x;
+        corner.y = planes[i].normal.y > 0.0 ? bounds.max.y : bounds.min.y;
+        corner.z = planes[i].normal.z > 0.0 ? bounds.max.z : bounds.min.z;
+
+        if (planes[i].distance(corner) < 0.0) return false;
+    }
+
+    return true;
+
+}
+
+bool Frustum::intersects(const Bounds2D& bounds, float z) const {
 
     vec3f corner;
 

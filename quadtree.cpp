@@ -79,7 +79,7 @@ void QuadNode::addItem(QuadItem* item) {
     //bottom right
     newbounds = Bounds2D( bounds.min + middle, bounds.max );
     children.push_back(new QuadNode(tree, this, newbounds, depth));
-   
+
     for(std::list<QuadItem*>::iterator it = items.begin(); it != items.end(); it++) {
         QuadItem* oi = *it;
         tree->item_count--;
@@ -88,7 +88,7 @@ void QuadNode::addItem(QuadItem* item) {
     }
 
     items.clear();
-    
+
     addToChild(item);
 }
 
@@ -100,7 +100,7 @@ void QuadNode::addToChild(QuadItem* item) {
         if(children[i]->bounds.overlaps(item->quadItemBounds)) {
             children[i]->addItem(item);
         }
-    }   
+    }
 }
 
 
@@ -115,7 +115,7 @@ void QuadNode::getLeavesInFrustum(std::set<QuadNode*>& nodeset, Frustum& frustum
 
     //for each 4 corners
     for(int i=0;i<4;i++) {
-        if(!children[i]->empty() && frustum.boundsInFrustum(children[i]->bounds)) {
+        if(!children[i]->empty() && frustum.intersects(children[i]->bounds)) {
             children[i]->getLeavesInFrustum(nodeset, frustum);
         }
     }
@@ -145,7 +145,7 @@ int QuadNode::getItemsInFrustum(std::set<QuadItem*>& itemset, Frustum& frustum) 
 
     //for each 4 corners
     for(int i=0;i<4;i++) {
-        if(!children[i]->empty() && frustum.boundsInFrustum(children[i]->bounds)) {
+        if(!children[i]->empty() && frustum.intersects(children[i]->bounds)) {
             count += children[i]->getItemsInFrustum(itemset, frustum);
         }
     }
@@ -200,12 +200,12 @@ int QuadNode::getItemsAt(std::set<QuadItem*>& itemset, vec2f pos) {
     }
 
     if(children.empty()) return 0;
-    
+
     int index = getChildIndex(pos);
 
     if(index == -1) return 0;
 
-    return children[index]->getItemsAt(itemset, pos);    
+    return children[index]->getItemsAt(itemset, pos);
 }
 
 void QuadNode::visitLeavesInFrustum(const Frustum& frustum, VisitFunctor<QuadNode> & visit){
@@ -218,7 +218,7 @@ void QuadNode::visitLeavesInFrustum(const Frustum& frustum, VisitFunctor<QuadNod
 
       //visit each corner
       for(int i=0;i<4;i++)
-        if(!children[i]->empty() && frustum.boundsInFrustum(children[i]->bounds))
+        if(!children[i]->empty() && frustum.intersects(children[i]->bounds))
             children[i]->visitLeavesInFrustum(frustum, visit);
 
     }
@@ -237,7 +237,7 @@ void QuadNode::visitItemsInFrustum(const Frustum & frustum, VisitFunctor<QuadIte
 
         //visit each corner
         for(int i=0;i<4;i++)
-          if(!children[i]->empty() && frustum.boundsInFrustum(children[i]->bounds))
+          if(!children[i]->empty() && frustum.intersects(children[i]->bounds))
             children[i]->visitItemsInFrustum(frustum, visit);
 
     }
@@ -357,7 +357,7 @@ int QuadNode::draw(Frustum& frustum) {
     if(!children.empty()) {
         for(int i=0;i<4;i++) {
             QuadNode* c = children[i];
-            if(!c->empty() && frustum.boundsInFrustum(c->bounds)) {
+            if(!c->empty() && frustum.intersects(c->bounds)) {
                 drawn += c->draw(frustum);
             }
         }
@@ -422,15 +422,15 @@ void QuadNode::outlineItems() {
         QuadItem* oi = (*it);
         oi->quadItemBounds.draw();
     }
-    
+
     if(children.empty()) return;
-    
+
     for(int i=0;i<4;i++) {
         QuadNode* c = children[i];
         if(c!=0) {
             c->outlineItems();
         }
-    }    
+    }
 }
 //Quad TREE
 
@@ -442,7 +442,7 @@ QuadTree::QuadTree(Bounds2D bounds, int max_node_depth, int max_node_items) {
 
     this->max_node_depth = max_node_depth;
     this->max_node_items = max_node_items;
-    
+
     root = new QuadNode(this, 0, bounds, 0);
 }
 
@@ -454,8 +454,8 @@ QuadTree::~QuadTree() {
 
 int QuadTree::getItemsAt(std::set<QuadItem*>& itemset, vec2f pos) {
     int return_count = root->getItemsAt(itemset, pos);
-       
-    return return_count;    
+
+    return return_count;
 }
 
 int QuadTree::getItemsInFrustum(std::set<QuadItem*>& itemset, Frustum& frustum) {

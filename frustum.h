@@ -60,9 +60,10 @@ public:
     void updatePerspective(Camera& camera);
     void updateView(Camera& camera);
 
-    bool boundsInFrustum(const Bounds2D & bounds, float z = 0.0) const;
+    bool contains(const vec3f& p) const;
 
-    bool contains(vec3f p);
+    bool intersects(const Bounds3D& bounds) const;
+    bool intersects(const Bounds2D& bounds, float z = 0.0) const;
 };
 
 #endif
