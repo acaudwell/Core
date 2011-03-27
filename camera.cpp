@@ -108,6 +108,10 @@ float Camera::getFov() {
     return fov;
 }
 
+void Camera::setUp(vec3f up) {
+    this->up = up;
+}
+
 void Camera::setFov(float fov) {
     this->fov = fov;
 }

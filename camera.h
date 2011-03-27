@@ -64,6 +64,7 @@ public:
 
     void setPos(vec3f pos, bool keepangle = false);
 
+    void setUp(vec3f up);
     void setFov(float fov);
     void setZNear(float znear);
     void setZFar(float zfar);
@@ -108,7 +109,7 @@ class CameraMoveEvent : public CameraEvent {
     float old_fov;
     vec3f old_pos;
     vec3f old_target;
-    
+
 public:
     CameraMoveEvent(float fov, vec3f pos, vec3f target, float duration = 0.0);
     void prepare(Camera* cam);
