@@ -164,6 +164,7 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
 
 void SDLAppDisplay::quit() {
     texturemanager.purge();
+    shadermanager.purge();    
     fontmanager.purge();
 }
 

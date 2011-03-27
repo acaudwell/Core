@@ -35,6 +35,7 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 
+#include "shader.h"
 #include "logger.h"
 #include "vectors.h"
 
@@ -80,7 +81,7 @@ public:
     void   init(std::string window_title, int xres, int yres, bool fullscreen);
 
     bool   multiSamplingEnabled();
-    
+
     void   quit();
 
     void   update();
