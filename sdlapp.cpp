@@ -146,6 +146,7 @@ void SDLAppInit(std::string apptitle, std::string execname) {
     std::string conf_dir     = "";
     std::string resource_dir = "data/";
     std::string fonts_dir    = "data/fonts/";
+    std::string shaders_dir  = "data/shaders/";
 #ifdef _WIN32
     char szAppPath[MAX_PATH];
     GetModuleFileName(0, szAppPath, MAX_PATH);
@@ -159,6 +160,7 @@ void SDLAppInit(std::string apptitle, std::string execname) {
     conf_dir     = path + std::string("\\");
     resource_dir = path + std::string("\\data\\");
     fonts_dir    = path + std::string("\\data\\fonts\\");
+    shaders_dir  = path + std::string("\\data\\shaders\\");
 #else
     //get working directory
     char cwd_buff[1024];
@@ -167,6 +169,7 @@ void SDLAppInit(std::string apptitle, std::string execname) {
         conf_dir     = std::string(cwd_buff) + std::string("/");
         resource_dir = std::string(cwd_buff) + std::string("/") + resource_dir;
         fonts_dir    = std::string(cwd_buff) + std::string("/") + fonts_dir;
+        shaders_dir  = std::string(cwd_buff) + std::string("/") + shaders_dir;
     }
 
 #endif
@@ -181,6 +184,7 @@ void SDLAppInit(std::string apptitle, std::string execname) {
     if (SDLAppDirExists(SDLAPP_RESOURCE_DIR)) {
         resource_dir = SDLAPP_RESOURCE_DIR;
         fonts_dir    = SDLAPP_RESOURCE_DIR + std::string("/fonts/");
+        shaders_dir  = SDLAPP_RESOURCE_DIR + std::string("/shaders/");
     }
 #endif
 
@@ -190,12 +194,14 @@ void SDLAppInit(std::string apptitle, std::string execname) {
     }
 #endif
 
-    resource_dir = SDLAppAddSlash(resource_dir);
-    conf_dir     = SDLAppAddSlash(conf_dir);
-    fonts_dir    = SDLAppAddSlash(fonts_dir);
+    resource_dir  = SDLAppAddSlash(resource_dir);
+    conf_dir      = SDLAppAddSlash(conf_dir);
+    fonts_dir     = SDLAppAddSlash(fonts_dir);
+    shaders_dir   = SDLAppAddSlash(shaders_dir);
 
     texturemanager.setDir(resource_dir);
     fontmanager.setDir(fonts_dir);
+    shadermanager.setDir(shaders_dir);
 
     gSDLAppResourceDir = resource_dir;
     gSDLAppConfDir     = conf_dir;
