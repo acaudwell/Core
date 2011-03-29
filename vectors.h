@@ -289,6 +289,27 @@ public:
     }
 };
 
+template<class T> class lerp3 : public vec3<T> {
+public:
+    vec3<T> p;
+    vec3<T> l;
+
+    lerp3() : vec3<T>(), p(), l() {
+    }
+
+    lerp3(const vec3<T>& vec) : vec3<T>(vec) {
+    }
+
+    void snap() {
+        p = (vec3<T>) *this;
+    }
+
+    const vec3<T>& lerp(T n) {
+        l = p * n + *this * (1.0-n);
+        return l;
+    }
+};
+
 template<class T> class vec4 {
 public:
     T x;
@@ -422,6 +443,8 @@ public:
 typedef vec2<float> vec2f;
 typedef vec3<float> vec3f;
 typedef vec4<float> vec4f;
+
+typedef lerp3<float> lerp3f;
 
 typedef vec2<int> vec2i;
 typedef vec3<int> vec3i;
