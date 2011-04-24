@@ -38,10 +38,10 @@
     distribute, sublicense, and/or sell copies of the Software, and to
     permit persons to whom the Software is furnished to do so, subject to
     the following conditions:
- 
+
     The above copyright notice and this permission notice shall be
     included in all copies or substantial portions of the Software.
- 
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -61,56 +61,57 @@ FXGlyph::FXGlyph(FXGlyphSet* set, unsigned int chr) {
 
     this->set = set;
     this->chr = chr;
-    
+
     FT_Face ftface = set->getFTFace();
-    
+
     if(FT_Load_Glyph( ftface, FT_Get_Char_Index( ftface, chr ), FT_LOAD_DEFAULT ))
     throw FXFontException(ftface->family_name);
 
     FT_Glyph ftglyph;
-    
+
     if(FT_Get_Glyph( ftface->glyph, &ftglyph ))
         throw FXFontException(ftface->family_name);
 
     FT_Glyph_To_Bitmap( &ftglyph, FT_RENDER_MODE_NORMAL, 0, 1 );
 
     glyph_bitmap = (FT_BitmapGlyph)ftglyph;
-    
-    dims    = vec2f( glyph_bitmap->bitmap.width, glyph_bitmap->bitmap.rows);
-    corner  = vec2f( glyph_bitmap->left, glyph_bitmap->top);
+
+    dims    = vec2f( glyph_bitmap->bitmap.width+1.0f, glyph_bitmap->bitmap.rows+1.0f);
+    corner  = vec2f( glyph_bitmap->left, -glyph_bitmap->top);
     advance = vec2f( ftface->glyph->advance.x >> 6, ftface->glyph->advance.y >> 6);
 
-    call_list = 0;
+    vertex_positions[0] = vec2f(0.0f, 0.0f);
+    vertex_positions[1] = vec2f(dims.x, 0.0f);
+    vertex_positions[2] = dims;
+    vertex_positions[3] = vec2f(0.0f, dims.y);
+
+    //call_list = 0;
     page = 0;
 }
 
-void FXGlyph::compile(FXGlyphPage* page, const vec4f& texcoords) {
-
-    //fprintf(stderr, "%c: %.2f, %.2f, %.2f, %.2f\n", chr, texcoords.x, texcoords.y, texcoords.z, texcoords.w);
-    
+void FXGlyph::setPage(FXGlyphPage* page, const vec4f& texcoords) {
     this->page = page;
-    
-    call_list = glGenLists(1);    
-    
-    glNewList(call_list, GL_COMPILE);
+    this->texcoords = texcoords;
 
-        glBegin(GL_QUADS);
-        
-        glTexCoord2f(texcoords.x,texcoords.y);
-        glVertex2f(0.0f, 0.0f);
+    vertex_texcoords[0] = vec2f(texcoords.x, texcoords.y);
+    vertex_texcoords[1] = vec2f(texcoords.z, texcoords.y);
+    vertex_texcoords[2] = vec2f(texcoords.z, texcoords.w);
+    vertex_texcoords[3] = vec2f(texcoords.x, texcoords.w);
+}
 
-        glTexCoord2f(texcoords.z,texcoords.y);
-        glVertex2f(dims.x, 0.0f);
+void FXGlyph::drawToVBO(quadbuf& buffer, const vec2f& pos, const vec4f& colour) const {
+    buffer.add(page->textureid, pos + corner, dims, colour, texcoords);
+}
 
-        glTexCoord2f(texcoords.z, texcoords.w);
-        glVertex2f(dims.x, dims.y);
+void FXGlyph::draw() const {
+    glBegin(GL_QUADS);
 
-        glTexCoord2f(texcoords.x,texcoords.w);
-        glVertex2f(0.0f, dims.y);
+    for(int i=0;i<4;i++) {
+        glTexCoord2fv(vertex_texcoords[i]);
+        glVertex2fv(vertex_positions[i]);
+    }
 
-        glEnd();
-
-    glEndList();
+    glEnd();
 }
 
 //FXGlyphPage
@@ -122,37 +123,38 @@ FXGlyphPage::FXGlyphPage(int page_width, int page_height) {
 
     texture_data = new GLubyte[ page_width * page_height ];
     memset(texture_data, 0, sizeof(texture_data));
-    
+
     needs_update = false;
     textureid = 0;
     glGenTextures(1, &textureid);
-    
+
     max_glyph_height = cursor_x = cursor_y = 0;
-}    
+}
 
 FXGlyphPage::~FXGlyphPage() {
     delete[] texture_data;
-    if(textureid!=0) glDeleteTextures(1, &textureid);
 }
 
 bool FXGlyphPage::addGlyph(FXGlyph* glyph) {
 
     FT_BitmapGlyph bitmap = glyph->glyph_bitmap;
-    
+
     int corner_x = cursor_x;
     int corner_y = cursor_y;
-    
+
+    int padding = 2;
+
     if(bitmap->bitmap.rows > max_glyph_height) max_glyph_height = bitmap->bitmap.rows;
-    
-    if(corner_x + bitmap->bitmap.width >= page_width) {
+
+    if(corner_x + bitmap->bitmap.width + padding > page_width) {
         corner_x = 0;
-        corner_y += max_glyph_height + 1;
-    
+        corner_y += max_glyph_height + padding;
+
         //bitmap is bigger than the full dimension
-        if(bitmap->bitmap.width >= page_width) return false;
+        if(bitmap->bitmap.width + padding > page_width) return false;
     }
 
-    if(corner_y + bitmap->bitmap.rows >= page_height) return false;
+    if(corner_y + bitmap->bitmap.rows + padding > page_height) return false;
 
     needs_update = true;
 
@@ -166,13 +168,15 @@ bool FXGlyphPage::addGlyph(FXGlyph* glyph) {
 
     vec4f texcoords = vec4f( corner_x / (float) page_width,
                              corner_y / (float) page_height,
-                             (corner_x+bitmap->bitmap.width) / (float) page_width, 
-                             (corner_y+bitmap->bitmap.rows) / (float) page_height );
-   
-    glyph->compile(this, texcoords);
-    
+                             (corner_x+bitmap->bitmap.width+1) / (float) page_width,
+                             (corner_y+bitmap->bitmap.rows+1) / (float) page_height );
+
+    glyph->setPage(this, texcoords);
+
+    //glyph->compile(this, texcoords);
+
     // move cursor for next character
-    cursor_x = corner_x + bitmap->bitmap.width + 1;
+    cursor_x = corner_x + bitmap->bitmap.width + padding;
     cursor_y = corner_y;
 
     return true;
@@ -180,7 +184,7 @@ bool FXGlyphPage::addGlyph(FXGlyph* glyph) {
 
 void FXGlyphPage::updateTexture() {
     if(!needs_update) return;
-    
+
     glBindTexture( GL_TEXTURE_2D, textureid);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -200,14 +204,14 @@ FXGlyphSet::FXGlyphSet(FT_Library freetype, const std::string& fontfile, int siz
     this->fontfile = fontfile;
     this->size     = size;
     this->dpi      = dpi;
-    this->ftface   = 0;  
-    
+    this->ftface   = 0;
+
     init();
 }
 
 FXGlyphSet::~FXGlyphSet() {
     if(ftface!=0) FT_Done_Face(ftface);
-    
+
     for(std::vector<FXGlyphPage*>::iterator it = pages.begin(); it != pages.end(); it++) {
         delete (*it);
     }
@@ -219,7 +223,7 @@ void FXGlyphSet::init() {
     if(FT_New_Face(freetype, fontfile.c_str(), 0, &ftface)) {
         throw FXFontException(fontfile);
     }
-    
+
     int ft_font_size = 64 * size;
 
     FT_Set_Char_Size( ftface, ft_font_size, ft_font_size, dpi, dpi );
@@ -232,10 +236,10 @@ void FXGlyphSet::precache(const std::string& chars) {
     FTUnicodeStringItr<char> precache_glyphs(chars.c_str());
 
     unsigned int chr;
-   
+
     //add to bitmap without updating textures until the end
     pre_caching = true;
-    
+
     while (chr = *precache_glyphs++) {
         getGlyph(chr);
     }
@@ -245,7 +249,7 @@ void FXGlyphSet::precache(const std::string& chars) {
     for(std::vector<FXGlyphPage*>::iterator it = pages.begin(); it != pages.end(); it++) {
         (*it)->updateTexture();
     }
-   
+
 }
 
 FXGlyph* FXGlyphSet::getGlyph(unsigned int chr) {
@@ -254,35 +258,35 @@ FXGlyph* FXGlyphSet::getGlyph(unsigned int chr) {
     if((it = glyphs.find(chr)) != glyphs.end()) return it->second;
 
     //if new
-    
+
     FXGlyph* glyph = new FXGlyph(this, chr);
-    
+
     // paint glyph to next page it will fit on
-    
+
     FXGlyphPage* page = 0;
-    
+
     if(!pages.empty()) page = pages.back();
-    
+
     //page is full, create new page
     if(page == 0 || !page->addGlyph(glyph)) {
 
         //allocate page using maximum allowed texture size
-        GLint max_texture_size;        
+        GLint max_texture_size;
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_texture_size);
         max_texture_size = std::min( 512, max_texture_size );
-        
+
         page = new FXGlyphPage(max_texture_size, max_texture_size);
-        
+
         pages.push_back(page);
 
         if(!page->addGlyph(glyph)) {
             throw FXFontException(glyph->set->getFTFace()->family_name);
         }
     }
-        
+
     //update the texture unless this is the precaching process
     if(!pre_caching) page->updateTexture();
-    
+
     glyphs[chr] = glyph;
 
     return glyph;
@@ -299,7 +303,7 @@ float FXGlyphSet::getMaxHeight() const {
 float FXGlyphSet::getWidth(const std::string& text) {
 
     FTUnicodeStringItr<char> unicode_text(text.c_str());
-     
+
     float width = 0.0;
 
     while (unsigned int c = *unicode_text++) {
@@ -310,14 +314,26 @@ float FXGlyphSet::getWidth(const std::string& text) {
     return width;
 }
 
-void FXGlyphSet::draw(const std::string& text) {
-    
+void FXGlyphSet::drawToVBO(vec2f& cursor, const std::string& text, const vec4f& colour) {
     FTUnicodeStringItr<char> unicode_text(text.c_str());
-    
+
+    unsigned int chr;
+
+    while (chr = *unicode_text++) {
+        FXGlyph* glyph = getGlyph(chr);
+        glyph->drawToVBO(fontmanager.font_vbo, cursor, colour);
+        cursor += glyph->getAdvance();
+    }
+}
+
+void FXGlyphSet::draw(const std::string& text) {
+
+    FTUnicodeStringItr<char> unicode_text(text.c_str());
+
     unsigned int chr;
 
     GLuint textureid = -1;
-    
+
     while (chr = *unicode_text++) {
         FXGlyph* glyph = getGlyph(chr);
 
@@ -325,12 +341,12 @@ void FXGlyphSet::draw(const std::string& text) {
             textureid = glyph->page->textureid;
             glBindTexture(GL_TEXTURE_2D, textureid);
         }
-        
+
         glPushMatrix();
-            glTranslatef(glyph->getCorner().x, -glyph->getCorner().y, 0.0f);
+            glTranslatef(glyph->getCorner().x, glyph->getCorner().y, 0.0f);
             glyph->draw();
         glPopMatrix();
-        
+
         glTranslatef(glyph->getAdvance().x, glyph->getAdvance().y, 0.0f);
     }
 }
@@ -350,10 +366,12 @@ void FXFont::init() {
     shadow          = false;
     shadow_strength = 0.7;
     shadow_offset   = vec2f(1.0, 1.0);
-
     round           = false;
     align_right     = false;
     align_top       = true;
+
+    colour          = vec4f(1.0f, 1.0f, 1.0f, 1.0f);
+    shadow_colour   = vec4f(0.0f, 0.0f, 0.0f, shadow_strength);
 }
 
 void FXFont::roundCoordinates(bool round) {
@@ -370,6 +388,17 @@ void FXFont::alignTop(bool align_top) {
 
 void FXFont::shadowStrength(float s) {
     shadow_strength = s;
+    shadow_colour.w = colour.w * shadow_strength;
+}
+
+void FXFont::setColour(const vec4f& colour) {
+    this->colour = colour;
+    shadow_colour.w = colour.w * shadow_strength;
+}
+
+void FXFont::setAlpha(float alpha) {
+    colour.w = alpha;
+    shadow_colour.w = shadow_strength * alpha;
 }
 
 void FXFont::shadowOffset(float x, float y) {
@@ -397,22 +426,24 @@ int FXFont::getFontSize() const {
 }
 
 float FXFont::getWidth(const std::string& text) const {
-    return glyphset->getWidth(text);   
+    return glyphset->getWidth(text);
 }
 
-void FXFont::render(float x, float y, const std::string& text) const{
+void FXFont::render(float x, float y, const std::string& text, const vec4f& colour) const{
 
-    if(round) {
-        x = roundf(x);
-        y = roundf(y);
-//        fprintf(stderr, "%.2f, %.2f %s\n", x, y, text.c_str());
+    if(fontmanager.buffering) {
+        vec2f cursor_start(x,y);
+        glyphset->drawToVBO(cursor_start, text, colour);
+        return;
     }
+
+    glColor4fv(colour);
 
     glPushMatrix();
 
        glTranslatef(x,y,0.0f);
 
-       glyphset->draw(text);        
+       glyphset->draw(text);
 
     glPopMatrix();
 }
@@ -442,41 +473,17 @@ void FXFont::draw(float x, float y, const std::string& text) const {
         y += getFontSize() + (glyphset->getFTFace()->descender / 64.0f);
     }
 
-    if(shadow) {
-        glPushAttrib(GL_CURRENT_BIT);
-        vec4f current = display.currentColour();
-        glColor4f(0.0f, 0.0f, 0.0f, shadow_strength * current.w);
-        render(x + shadow_offset.x, y + shadow_offset.y, text);
-        glPopAttrib();
+    if(round) {
+        x = roundf(x);
+        y = roundf(y);
     }
 
-    render(x, y, text);
-}
+    //buffered fonts need to do shadow in a shader pass
+    if(shadow && !fontmanager.buffering) {
+        render(x + shadow_offset.x, y + shadow_offset.y, text, shadow_colour);
+    }
 
-//FXLabel
-
-FXLabel::FXLabel() {
-    call_list = 0;
-}
-
-FXLabel::FXLabel(const FXFont& font, const std::string& text) {
-    call_list = 0;
-    setText(font, text);
-}
-
-FXLabel::~FXLabel() {
-    if(call_list != 0) glDeleteLists(call_list, 1);
-}
-
-void FXLabel::setText(const FXFont& font, const std::string& text) {
-   
-    if(!call_list) call_list = glGenLists(1);
-    
-    glNewList(call_list, GL_COMPILE);
-
-        font.draw(0.0f, 0.0f, text);
-    
-    glEndList();
+    render(x, y, text, colour);
 }
 
 // FXFontManager
@@ -487,6 +494,21 @@ FXFontManager::FXFontManager() {
 void FXFontManager::init() {
     if(FT_Init_FreeType( &library ))
         throw FXFontException("Failed to init FreeType");
+    buffering = false;
+}
+
+void FXFontManager::startBuffer() {
+    font_vbo.reset();
+    buffering = true;
+}
+
+void FXFontManager::commitBuffer() {
+    font_vbo.update();
+    buffering = false;
+}
+
+void FXFontManager::drawBuffer() {
+    font_vbo.draw();
 }
 
 void FXFontManager::destroy() {
@@ -523,15 +545,15 @@ FXFont FXFontManager::grab(std::string font_file, int size, int dpi) {
     //std::string font_key = std::string(buf);
 
     fontSizeMap* sizemap = fonts[font_file];
-    
+
     if(!sizemap) {
         sizemap = fonts[font_file] = new fontSizeMap;
     }
-    
-    fontSizeMap::iterator ft_it = sizemap->find(size);   
+
+    fontSizeMap::iterator ft_it = sizemap->find(size);
 
     FXGlyphSet* glyphset;
-    
+
     if(ft_it == sizemap->end()) {
         glyphset = new FXGlyphSet(library, font_file.c_str(), size, dpi);
         sizemap->insert(std::pair<int,FXGlyphSet*>(size,glyphset));

@@ -38,10 +38,10 @@
     distribute, sublicense, and/or sell copies of the Software, and to
     permit persons to whom the Software is furnished to do so, subject to
     the following conditions:
- 
+
     The above copyright notice and this permission notice shall be
     included in all copies or substantial portions of the Software.
- 
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -57,8 +57,8 @@
 #include "display.h"
 #include "vectors.h"
 #include "logger.h"
-
 #include "resource.h"
+#include "vbo.h"
 
 #include <string>
 #include <vector>
@@ -76,31 +76,8 @@ public:
 };
 
 
-class FXGlyphPage;
+class FXGlyph;
 class FXGlyphSet;
-
-class FXGlyph {
-    unsigned int chr;
-    GLuint call_list;
-    
-    vec2f dims;
-    vec2f corner;
-    vec2f advance;
-       
-public:
-    FXGlyphPage* page;
-    FXGlyphSet* set;
-    FT_BitmapGlyph glyph_bitmap;
-
-    FXGlyph(FXGlyphSet* set, unsigned int chr);
-
-    void compile(FXGlyphPage* page, const vec4f& texcoords);
-
-    const vec2f& getAdvance() const { return advance; };
-    const vec2f& getCorner() const { return corner; };
-    const vec2f& getDimensions() const { return dims; }
-    inline void draw() const { glCallList(call_list); };
-};
 
 class FXGlyphPage {
     GLubyte* texture_data;
@@ -112,13 +89,40 @@ public:
     ~FXGlyphPage();
 
     bool addGlyph(FXGlyph* glyph);
-    
+
     void updateTexture();
 
     GLuint textureid;
-    
+
     int cursor_x, cursor_y;
     int max_glyph_height;
+};
+
+class FXGlyph {
+    unsigned int chr;
+
+    vec2f dims;
+    vec2f corner;
+    vec2f advance;
+public:
+    vec2f vertex_positions[4];
+    vec2f vertex_texcoords[4];
+
+    FXGlyphPage* page;
+    vec4f texcoords;
+    FXGlyphSet* set;
+    FT_BitmapGlyph glyph_bitmap;
+
+    FXGlyph(FXGlyphSet* set, unsigned int chr);
+
+    const vec2f& getAdvance() const { return advance; };
+    const vec2f& getCorner() const { return corner; };
+    const vec2f& getDimensions() const { return dims; };
+
+    void setPage(FXGlyphPage* page, const vec4f& texcoords);
+
+    void drawToVBO(quadbuf& buffer, const vec2f& offset, const vec4f& colour) const;
+    void draw() const;
 };
 
 class FXGlyphSet {
@@ -129,11 +133,11 @@ class FXGlyphSet {
     int dpi;
 
     bool pre_caching;
-        
+
     std::vector<FXGlyphPage*> pages;
-    
+
     std::map<unsigned int, FXGlyph*> glyphs;
-    
+
     void init();
     FXGlyph* getGlyph(unsigned int chr);
 public:
@@ -141,18 +145,19 @@ public:
     ~FXGlyphSet();
 
     void precache(const std::string& chars);
-    
+
     FT_Face getFTFace() const { return ftface; }
-    
+
     const std::string& getFontFile() const { return fontfile; }
-    
+
     float getWidth(const std::string& text);
 
     float getMaxWidth() const;
     float getMaxHeight() const;
-    
+
     int getSize() const { return size; };
 
+    void drawToVBO(vec2f& cursor, const std::string& text, const vec4f& colour);
     void draw(const std::string& text);
 };
 
@@ -166,17 +171,19 @@ class FXFont {
 
     float shadow_strength;
     vec2f shadow_offset;
+    vec4f shadow_colour;
+    vec4f colour;
 
     bool align_right, align_top;
 
-    void render(float x, float y, const std::string& text) const;
+    void render(float x, float y, const std::string& text, const vec4f& colour) const;
     void init();
 public:
     FXFont();
     FXFont(FXGlyphSet* glyphset);
 
-    bool initialized() const { return (glyphset!=0); } 
-    
+    bool initialized() const { return (glyphset!=0); }
+
     void print(float x, float y, const char *str, ...) const;
     void draw(float x, float y, const std::string& text) const;
 
@@ -195,21 +202,13 @@ public:
     int getFontSize() const;
 
     bool dropShadow() const { return shadow; };
-    
+
     void dropShadow(bool shadow);
     void shadowStrength(float s);
     void shadowOffset(float x, float y);
-};
 
-class FXLabel {
-    GLuint call_list;
-public:
-    FXLabel();
-    FXLabel(const FXFont& font, const std::string& text);
-    ~FXLabel();
-    
-    void setText(const FXFont& font, const std::string& text);
-    inline void draw() const { glCallList(call_list); };   
+    void setColour(const vec4f& colour);
+    void setAlpha(float alpha);
 };
 
 typedef std::map<int,FXGlyphSet*> fontSizeMap;
@@ -221,12 +220,19 @@ class FXFontManager {
     std::map<std::string, fontSizeMap*> fonts;
     FT_Library library;
 public:
+    quadbuf font_vbo;
+
     FXFontManager();
+    bool buffering;
 
     void setDir(std::string font_dir);
     void init();
     void destroy();
     void purge();
+
+    void startBuffer();
+    void commitBuffer();
+    void drawBuffer();
 
     FXFont grab(std::string font_file, int size, int dpi = 72);
 };
