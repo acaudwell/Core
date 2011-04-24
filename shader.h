@@ -31,6 +31,7 @@
 #include "vectors.h"
 #include "resource.h"
 #include "display.h"
+#include "sdlapp.h"
 
 #include <map>
 #include <string>

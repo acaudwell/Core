@@ -81,8 +81,7 @@ void Shader::checkError(const std::string& filename, GLenum shaderRef) {
     errormsg[errorlen] = '\0';
 
     if(errorlen != 0) {
-        fprintf(stderr, "shader %s failed to compile: %s\n", filename.c_str(), errormsg);
-        exit(1);
+        throw SDLAppException("shader '%s' failed to compile: %s", filename.c_str(), errormsg);
     }
 }
 
@@ -91,8 +90,7 @@ GLenum Shader::load(const std::string& filename, GLenum shaderType) {
     std::string source = readSource(filename);
 
     if(source.size()==0) {
-        fprintf(stderr, "could not read shader %s\n", filename.c_str());
-        exit(1);
+        throw SDLAppException("could not read shader '%s'", filename.c_str());
     }
 
     GLenum shaderRef = glCreateShaderObjectARB(shaderType);
