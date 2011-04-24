@@ -95,9 +95,6 @@ bool SDLAppDisplay::multiSamplingEnabled() {
 
 void SDLAppDisplay::init(std::string window_title, int width, int height, bool fullscreen) {
 
-    this->width  = width;
-    this->height = height;
-
     this->fullscreen = fullscreen;
 
     int flags = SDLFlags(fullscreen);
@@ -140,7 +137,7 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
 
     if (!surface) {
         if (multi_sample > 0) {
-#ifndef _WIN32            
+#ifndef _WIN32
             // Retry without multi-sampling before failing
             std::cerr << "Failed to set video mode: " << SDL_GetError() << std::endl
                       << "Trying again without multi-sampling" << std::endl;
@@ -157,6 +154,13 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
         }
     }
 
+    //get actual opengl viewport
+    GLint viewport[4];
+    glGetIntegerv( GL_VIEWPORT, viewport );
+
+    this->width  = viewport[2];
+    this->height = viewport[3];
+
     setupARBExtensions();
 
     SDL_WM_SetCaption(window_title.c_str(),0);
@@ -164,7 +168,7 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
 
 void SDLAppDisplay::quit() {
     texturemanager.purge();
-    shadermanager.purge();    
+    shadermanager.purge();
     fontmanager.purge();
     fontmanager.destroy();
 }
