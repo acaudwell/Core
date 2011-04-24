@@ -182,6 +182,12 @@ public:
         this->z = vec.z;
     }
 
+    vec3(const vec2<T>& vec, float z) {
+        this->x = vec.x;
+        this->y = vec.y;
+        this->z = z;
+    }
+
     vec3(T x = 0, T y = 0, T z = 0) {
         this->x = x;
         this->y = y;
@@ -379,7 +385,7 @@ public:
     }
 
     bool operator!= (const vec4<T> &vec) const {
-        return (vec.x!=x || vec.y!=y || vec.z!=z || vec.w==w);
+        return (vec.x!=x || vec.y!=y || vec.z!=z || vec.w!=w);
     }
 
     T length2() const {
