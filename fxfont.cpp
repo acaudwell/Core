@@ -122,7 +122,7 @@ FXGlyphPage::FXGlyphPage(int page_width, int page_height) {
     this->page_height = page_height;
 
     texture_data = new GLubyte[ page_width * page_height ];
-    memset(texture_data, 0, sizeof(texture_data));
+    memset(texture_data, 0, page_width * page_height);
 
     needs_update = false;
     textureid = 0;
