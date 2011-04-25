@@ -46,38 +46,35 @@ Shader* ShaderManager::grab(const std::string& shader_prefix) {
 
 //Shader
 Shader::Shader(const std::string& prefix) : Resource(prefix) {
-
     std::string shader_dir = shadermanager.getDir();
 
     std::string vertexSrc   = shader_dir + prefix + std::string(".vert");
     std::string fragmentSrc = shader_dir + prefix + std::string(".frag");
 
-    vertexShader   = load(vertexSrc,   GL_VERTEX_SHADER_ARB);
-    fragmentShader = load(fragmentSrc, GL_FRAGMENT_SHADER_ARB);
+    vertexShader   = load(vertexSrc,   GL_VERTEX_SHADER);
+    fragmentShader = load(fragmentSrc, GL_FRAGMENT_SHADER);
 
     makeProgram();
 }
 
 Shader::~Shader() {
-    glDeleteObjectARB(vertexShader);
-    glDeleteObjectARB(fragmentShader);
-    glDeleteObjectARB(shaderProg);
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+    glDeleteProgram(shaderProg);
 }
 
 void Shader::makeProgram() {
-
-    shaderProg = glCreateProgramObjectARB();
-    glAttachObjectARB(shaderProg,fragmentShader);
-    glAttachObjectARB(shaderProg,vertexShader);
-
-    glLinkProgramARB(shaderProg);
+    shaderProg = glCreateProgram();
+    glAttachShader(shaderProg,fragmentShader);
+    glAttachShader(shaderProg,vertexShader);
+    glLinkProgram(shaderProg);
 }
 
 void Shader::checkError(const std::string& filename, GLenum shaderRef) {
     char errormsg[1024];
     int errorlen = 0;
 
-    glGetInfoLogARB(shaderRef, 1023, &errorlen, errormsg);
+    glGetShaderInfoLog(shaderRef, 1023, &errorlen, errormsg);
     errormsg[errorlen] = '\0';
 
     if(errorlen != 0) {
@@ -86,21 +83,20 @@ void Shader::checkError(const std::string& filename, GLenum shaderRef) {
 }
 
 GLenum Shader::load(const std::string& filename, GLenum shaderType) {
-
     std::string source = readSource(filename);
 
     if(source.size()==0) {
         throw SDLAppException("could not read shader '%s'", filename.c_str());
     }
 
-    GLenum shaderRef = glCreateShaderObjectARB(shaderType);
+    GLenum shaderRef = glCreateShader(shaderType);
 
     const char* source_ptr = source.c_str();
     int source_len = source.size();
 
-    glShaderSourceARB(shaderRef, 1, (const GLcharARB**) &source_ptr, &source_len);
+    glShaderSource(shaderRef, 1, (const GLchar**) &source_ptr, &source_len);
 
-    glCompileShaderARB(shaderRef);
+    glCompileShader(shaderRef);
 
     checkError(filename, shaderRef);
 
@@ -128,7 +124,7 @@ std::string Shader::readSource(const std::string& file) {
 }
 
 void Shader::use() {
-    glUseProgramObjectARB(shaderProg);
+    glUseProgram(shaderProg);
 }
 
 GLenum Shader::getProgram() {
@@ -149,7 +145,7 @@ GLint Shader::getVarLocation(const std::string& name) {
 
     if(loc != -1) return loc;
 
-    loc = glGetUniformLocationARB( shaderProg, name.c_str() );
+    loc = glGetUniformLocation( shaderProg, name.c_str() );
 
     varMap[name] = loc + 1;
 
@@ -158,27 +154,27 @@ GLint Shader::getVarLocation(const std::string& name) {
 
 void Shader::setFloat(const std::string& name, float value) {
     GLint loc = getVarLocation(name);
-    glUniform1fARB(loc, value);
+    glUniform1f(loc, value);
 }
 
 void Shader::setVec2 (const std::string& name, const vec2f& value) {
     GLint loc = getVarLocation(name);
-    glUniform2fvARB(loc, 1, value);
+    glUniform2fv(loc, 1, value);
 }
 
 void Shader::setVec3 (const std::string& name, const vec3f& value) {
     GLint loc = getVarLocation(name);
-    glUniform3fvARB(loc, 1, value);
+    glUniform3fv(loc, 1, value);
 }
 
 void Shader::setVec4 (const std::string& name, const vec4f& value) {
     GLint loc =  getVarLocation(name);
-    glUniform4fvARB(loc, 1, value);
+    glUniform4fv(loc, 1, value);
 }
 
 void Shader::setInteger (const std::string& name, int value) {
     GLint loc =  getVarLocation(name);
-    glUniform1iARB(loc, value);
+    glUniform1i(loc, value);
 }
 
 

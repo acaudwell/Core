@@ -73,7 +73,7 @@ void SDLAppDisplay::multiSample(int samples) {
     multi_sample = samples;
 }
 
-void SDLAppDisplay::setupARBExtensions() {
+void SDLAppDisplay::setupExtensions() {
 
     GLenum err = glewInit();
 
@@ -161,7 +161,7 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
     this->width  = viewport[2];
     this->height = viewport[3];
 
-    setupARBExtensions();
+    setupExtensions();
 
     SDL_WM_SetCaption(window_title.c_str(),0);
 }

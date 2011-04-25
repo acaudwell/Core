@@ -64,7 +64,7 @@ class SDLAppDisplay {
     int  multi_sample;
 
     int  SDLFlags(bool fullscreen);
-    void setupARBExtensions();
+    void setupExtensions();
 public:
     int width, height;
     bool fullscreen;

@@ -28,6 +28,7 @@
 #ifndef GLSL_SHADER_H
 #define GLSL_SHADER_H
 
+#include "gl.h"
 #include "vectors.h"
 #include "resource.h"
 #include "display.h"
