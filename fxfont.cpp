@@ -305,9 +305,12 @@ float FXGlyphSet::getWidth(const std::string& text) {
     FTUnicodeStringItr<char> unicode_text(text.c_str());
 
     float width = 0.0;
+    unsigned int chr;
 
-    while (unsigned int c = *unicode_text++) {
-        FXGlyph* glyph = getGlyph(c);
+    while (*unicode_text) {
+        chr = *unicode_text++;
+
+        FXGlyph* glyph = getGlyph(chr);
         width += glyph->getAdvance().x;
     }
 
@@ -319,7 +322,9 @@ void FXGlyphSet::drawToVBO(vec2f& cursor, const std::string& text, const vec4f& 
 
     unsigned int chr;
 
-    while (chr = *unicode_text++) {
+    while (*unicode_text) {
+        chr = *unicode_text++;
+
         FXGlyph* glyph = getGlyph(chr);
         glyph->drawToVBO(fontmanager.font_vbo, cursor, colour);
         cursor += glyph->getAdvance();
@@ -330,11 +335,13 @@ void FXGlyphSet::draw(const std::string& text) {
 
     FTUnicodeStringItr<char> unicode_text(text.c_str());
 
-    unsigned int chr;
-
     GLuint textureid = -1;
 
-    while (chr = *unicode_text++) {
+    unsigned int chr;
+
+    while (*unicode_text) {
+        chr = *unicode_text++;
+
         FXGlyph* glyph = getGlyph(chr);
 
         if(glyph->page->textureid != textureid) {
