@@ -233,7 +233,7 @@ void FXGlyphSet::init() {
 
 void FXGlyphSet::precache(const std::string& chars) {
 
-    FTUnicodeStringItr<char> precache_glyphs(chars.c_str());
+    FTUnicodeStringItr<unsigned char> precache_glyphs((const unsigned char*)chars.c_str());
 
     unsigned int chr;
 
@@ -302,7 +302,7 @@ float FXGlyphSet::getMaxHeight() const {
 
 float FXGlyphSet::getWidth(const std::string& text) {
 
-    FTUnicodeStringItr<char> unicode_text(text.c_str());
+    FTUnicodeStringItr<unsigned char> unicode_text((const unsigned char*)text.c_str());
 
     float width = 0.0;
     unsigned int chr;
@@ -318,7 +318,7 @@ float FXGlyphSet::getWidth(const std::string& text) {
 }
 
 void FXGlyphSet::drawToVBO(vec2f& cursor, const std::string& text, const vec4f& colour) {
-    FTUnicodeStringItr<char> unicode_text(text.c_str());
+    FTUnicodeStringItr<unsigned char> unicode_text((const unsigned char*)text.c_str());
 
     unsigned int chr;
 
@@ -333,7 +333,7 @@ void FXGlyphSet::drawToVBO(vec2f& cursor, const std::string& text, const vec4f& 
 
 void FXGlyphSet::draw(const std::string& text) {
 
-    FTUnicodeStringItr<char> unicode_text(text.c_str());
+    FTUnicodeStringItr<unsigned char> unicode_text((const unsigned char*)text.c_str());
 
     GLuint textureid = -1;
 
