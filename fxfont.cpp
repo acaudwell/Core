@@ -353,8 +353,7 @@ void FXGlyphSet::draw(const std::string& text) {
        
         pos += glyph->getAdvance();
     }
-    glEnd();
-    
+    if(textureid != -1) glEnd();   
 }
 
 //FXFont
