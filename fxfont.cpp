@@ -103,15 +103,11 @@ void FXGlyph::drawToVBO(quadbuf& buffer, const vec2f& pos, const vec4f& colour) 
     buffer.add(page->textureid, pos + corner, dims, colour, texcoords);
 }
 
-void FXGlyph::draw() const {
-    glBegin(GL_QUADS);
-
+void FXGlyph::draw(const vec2f& pos) const {
     for(int i=0;i<4;i++) {
         glTexCoord2fv(vertex_texcoords[i]);
-        glVertex2fv(vertex_positions[i]);
+        glVertex2fv(vertex_positions[i] + pos + corner);
     }
-
-    glEnd();
 }
 
 //FXGlyphPage
@@ -339,23 +335,26 @@ void FXGlyphSet::draw(const std::string& text) {
 
     unsigned int chr;
 
+    vec2f pos;
+    
     while (*unicode_text) {
         chr = *unicode_text++;
 
         FXGlyph* glyph = getGlyph(chr);
 
         if(glyph->page->textureid != textureid) {
+            if(textureid != -1) glEnd();
             textureid = glyph->page->textureid;
             glBindTexture(GL_TEXTURE_2D, textureid);
+            glBegin(GL_QUADS);
         }
 
-        glPushMatrix();
-            glTranslatef(glyph->getCorner().x, glyph->getCorner().y, 0.0f);
-            glyph->draw();
-        glPopMatrix();
-
-        glTranslatef(glyph->getAdvance().x, glyph->getAdvance().y, 0.0f);
+        glyph->draw(pos);
+       
+        pos += glyph->getAdvance();
     }
+    glEnd();
+    
 }
 
 //FXFont
@@ -438,7 +437,7 @@ float FXFont::getWidth(const std::string& text) const {
 
 void FXFont::render(float x, float y, const std::string& text, const vec4f& colour) const{
 
-    if(fontmanager.buffering) {
+    if(fontmanager.use_vbo) {
         vec2f cursor_start(x,y);
         glyphset->drawToVBO(cursor_start, text, colour);
         return;
@@ -486,7 +485,7 @@ void FXFont::draw(float x, float y, const std::string& text) const {
     }
 
     //buffered fonts need to do shadow in a shader pass
-    if(shadow && !fontmanager.buffering) {
+    if(shadow && !fontmanager.use_vbo) {
         render(x + shadow_offset.x, y + shadow_offset.y, text, shadow_colour);
     }
 
@@ -501,17 +500,17 @@ FXFontManager::FXFontManager() {
 void FXFontManager::init() {
     if(FT_Init_FreeType( &library ))
         throw FXFontException("Failed to init FreeType");
-    buffering = false;
+    use_vbo = false;
 }
 
 void FXFontManager::startBuffer() {
     font_vbo.reset();
-    buffering = true;
+    use_vbo = true;
 }
 
 void FXFontManager::commitBuffer() {
     font_vbo.update();
-    buffering = false;
+    use_vbo = false;
 }
 
 void FXFontManager::drawBuffer() {

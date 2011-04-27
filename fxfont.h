@@ -122,7 +122,7 @@ public:
     void setPage(FXGlyphPage* page, const vec4f& texcoords);
 
     void drawToVBO(quadbuf& buffer, const vec2f& offset, const vec4f& colour) const;
-    void draw() const;
+    void draw(const vec2f& pos) const;
 };
 
 class FXGlyphSet {
@@ -223,7 +223,7 @@ public:
     quadbuf font_vbo;
 
     FXFontManager();
-    bool buffering;
+    bool use_vbo;
 
     void setDir(std::string font_dir);
     void init();
