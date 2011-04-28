@@ -95,6 +95,7 @@ public:
 
     void add(GLuint textureid, const vec2f& pos, const vec2f& dims, const vec4f& colour);
     void add(GLuint textureid, const vec2f& pos, const vec2f& dims, const vec4f& colour, const vec4f& texcoord);
+    void add(GLuint textureid, const quadbuf_vertex& v1, const quadbuf_vertex& v2, const quadbuf_vertex& v3, const quadbuf_vertex& v4);
 
     void update();
     void draw();

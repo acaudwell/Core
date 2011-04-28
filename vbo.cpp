@@ -103,7 +103,27 @@ void quadbuf::add(GLuint textureid, const vec2f& pos, const vec2f& dims, const v
     data[i+2] = v3;
     data[i+3] = v4;
 
-    if(textures.empty() || textures.back().textureid != textureid) {
+    if(textureid>0 && (textures.empty() || textures.back().textureid != textureid)) {
+        textures.push_back(quadbuf_tex(i, textureid));
+    }
+}
+
+void quadbuf::add(GLuint textureid, const quadbuf_vertex& v1, const quadbuf_vertex& v2, const quadbuf_vertex& v3, const quadbuf_vertex& v4) {
+
+    int i = vertex_count;
+
+    vertex_count += 4;
+
+    if(vertex_count > data_size) {
+        resize(vertex_count*2);
+    }
+
+    data[i]   = v1;
+    data[i+1] = v2;
+    data[i+2] = v3;
+    data[i+3] = v4;
+
+    if(textureid>0 && (textures.empty() || textures.back().textureid != textureid)) {
         textures.push_back(quadbuf_tex(i, textureid));
     }
 }
@@ -147,23 +167,29 @@ void quadbuf::draw() {
 
     int last_index = vertex_count-1;
 
-    for(std::vector<quadbuf_tex>::iterator it = textures.begin(); it != textures.end();) {
-        quadbuf_tex* tex = &(*it);
+    if(textures.empty()) {
 
-        int end_index;
+         glDrawArrays(GL_QUADS, 0, last_index);
 
-        it++;
+    } else {
+        for(std::vector<quadbuf_tex>::iterator it = textures.begin(); it != textures.end();) {
+            quadbuf_tex* tex = &(*it);
 
-        if(it == textures.end()) {
-            end_index = last_index;
-        } else {
-            end_index = (*it).start_index;
+            int end_index;
+
+            it++;
+
+            if(it == textures.end()) {
+                end_index = last_index;
+            } else {
+                end_index = (*it).start_index;
+            }
+
+            glBindTexture(GL_TEXTURE_2D, tex->textureid);
+            glDrawArrays(GL_QUADS, tex->start_index, end_index - tex->start_index + 1);
+
+            if(end_index==last_index) break;
         }
-
-        glBindTexture(GL_TEXTURE_2D, tex->textureid);
-        glDrawArrays(GL_QUADS, tex->start_index, end_index - tex->start_index + 1);
-
-        if(end_index==last_index) break;
     }
 
     glDisableClientState(GL_VERTEX_ARRAY);
