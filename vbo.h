@@ -84,7 +84,7 @@ class quadbuf {
 
     void resize(int new_size);
 public:
-    quadbuf(int data_size = 1);
+    quadbuf(int data_size = 0);
     ~quadbuf();
 
     void reset();

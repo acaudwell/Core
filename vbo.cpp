@@ -35,13 +35,13 @@ quadbuf::quadbuf(int data_size) : data_size(data_size) {
 
     buffers.resize(1);
 
-    data = new quadbuf_vertex[data_size];
+    data = data_size > 0 ? new quadbuf_vertex[data_size] : 0;
 
     //fprintf(stderr, "size of quadbuf_vertex = %d\n", sizeof(quadbuf_vertex));
 }
 
 quadbuf::~quadbuf() {
-    delete[] data;
+    if(data!=0) delete[] data;
 }
 
 void quadbuf::resize(int new_size) {
@@ -56,7 +56,7 @@ void quadbuf::resize(int new_size) {
 
     data_size = new_size;
 
-    delete[] _data;
+    if(_data != 0) delete[] _data;
 }
 
 void quadbuf::reset() {
@@ -73,7 +73,7 @@ size_t quadbuf::capacity() {
 }
 
 size_t quadbuf::texture_changes() {
-    return textures.size()-1;
+    return textures.size();
 }
 
 vec4f quadbuf_default_texcoord(0.0f, 0.0f, 1.0f, 1.0f);
