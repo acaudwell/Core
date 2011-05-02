@@ -78,8 +78,10 @@ void Shader::checkError(const std::string& filename, GLenum shaderRef) {
     glGetShaderInfoLog(shaderRef, 1023, &errorlen, errormsg);
     errormsg[errorlen] = '\0';
 
+    // TODO: need to distinguish between errors and (un)helpful info messages.
     if(errorlen != 0) {
-        throw SDLAppException("shader '%s' failed to compile: %s", filename.c_str(), errormsg);
+        fprintf(stderr, "%s: %s\n", filename.c_str(), errormsg);
+    //    throw SDLAppException("shader '%s' failed to compile: %s", filename.c_str(), errormsg);
     }
 }
 
