@@ -39,7 +39,8 @@ public:
     bool multisample;
     bool fullscreen;
     bool transparent;
-
+    bool vsync;
+    
     std::string output_ppm_filename;
     int output_framerate;
 

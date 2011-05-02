@@ -41,7 +41,7 @@ class ResourceException : public std::exception {
 protected:
     std::string resource;
 public:
-    ResourceException(std::string& resource) : resource(resource) {}
+    ResourceException(const std::string& resource) : resource(resource) {}
     virtual ~ResourceException() throw () {};
 
     virtual const char* what() const throw() { return resource.c_str(); }

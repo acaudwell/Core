@@ -32,6 +32,7 @@ SDLAppSettings::SDLAppSettings() {
     conf_sections["output-ppm-stream"]  = "display";
     conf_sections["output-framerate"]   = "display";
     conf_sections["transparent"]        = "display";
+    conf_sections["no-vsync"]           = "display";
 
     //translate args
     arg_aliases["f"]   = "fullscreen";
@@ -45,6 +46,7 @@ SDLAppSettings::SDLAppSettings() {
     arg_types["fullscreen"]        = "bool";
     arg_types["transparent"]       = "bool";
     arg_types["multi-sampling"]    = "bool";
+    arg_types["no-vsync"]          = "bool";
     arg_types["output-ppm-stream"] = "string";
     arg_types["output-framerate"]  = "int";
 
@@ -56,6 +58,7 @@ void SDLAppSettings::setDisplayDefaults() {
     fullscreen     = false;
     multisample    = false;
     transparent    = false;
+    vsync          = true;
 
     output_ppm_filename = "";
     output_framerate    = 60;
@@ -78,6 +81,10 @@ void SDLAppSettings::exportDisplaySettings(ConfFile& conf) {
     if(multisample)
         section->setEntry(new ConfEntry("multi-sampling", multisample));
 
+    if(!vsync) {
+        section->setEntry(new ConfEntry("no-vsync", vsync));
+    }
+    
     conf.setSection(section);
 }
 
@@ -261,6 +268,10 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
         transparent = true;
     }
 
+    if(display_settings->getBool("no-vsync")) {
+        vsync = false;
+    }
+    
     if((entry = display_settings->getEntry("output-ppm-stream")) != 0) {
 
         if(!entry->hasValue()) {

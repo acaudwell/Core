@@ -29,16 +29,11 @@
 #ifndef SDLAPP_DISPLAY_H
 #define SDLAPP_DISPLAY_H
 
-#include <GL/glew.h>
-
-#define NO_SDL_GLEXT
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include "gl.h"
 
 #include "shader.h"
 #include "logger.h"
 #include "vectors.h"
-
 #include "texture.h"
 #include "fxfont.h"
 
@@ -69,7 +64,7 @@ class SDLAppDisplay {
     int  multi_sample;
 
     int  SDLFlags(bool fullscreen);
-    void setupARBExtensions();
+    void setupExtensions();
 public:
     int width, height;
     bool fullscreen;

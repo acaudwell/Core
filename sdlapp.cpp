@@ -205,6 +205,8 @@ void SDLAppInit(std::string apptitle, std::string execname) {
 
     gSDLAppResourceDir = resource_dir;
     gSDLAppConfDir     = conf_dir;
+
+    fontmanager.init();
 }
 
 void SDLAppParseArgs(int argc, char *argv[], int* xres, int* yres, bool* fullscreen, std::vector<std::string>* otherargs) {
