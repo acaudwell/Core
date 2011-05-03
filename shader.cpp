@@ -72,16 +72,31 @@ void Shader::makeProgram() {
 }
 
 void Shader::checkError(const std::string& filename, GLenum shaderRef) {
-    char errormsg[1024];
-    int errorlen = 0;
 
-    glGetShaderInfoLog(shaderRef, 1023, &errorlen, errormsg);
-    errormsg[errorlen] = '\0';
+    GLint compile_success;   
+    glGetShaderiv(shaderRef, GL_COMPILE_STATUS, &compile_success);
 
-    // TODO: need to distinguish between errors and (un)helpful info messages.
-    if(errorlen != 0) {
-        fprintf(stderr, "%s: %s\n", filename.c_str(), errormsg);
-    //    throw SDLAppException("shader '%s' failed to compile: %s", filename.c_str(), errormsg);
+    GLint info_log_length;
+    glGetShaderiv(shaderRef, GL_INFO_LOG_LENGTH, &info_log_length);
+
+    if(info_log_length > 1) {
+        char info_log[info_log_length];
+
+        glGetShaderInfoLog(shaderRef, info_log_length, &info_log_length, info_log);
+
+        if(!compile_success) {
+            throw SDLAppException("shader '%s' failed to compile: %s", filename.c_str(), info_log);
+        }
+        
+        if(shadermanager.debug) {
+            fprintf(stderr, "%s: %s\n", filename.c_str(), info_log);
+        }
+
+        return;
+    }
+    
+    if(!compile_success) {
+        throw SDLAppException("shader '%s' failed to compile", filename.c_str());
     }
 }
 
@@ -101,7 +116,7 @@ GLenum Shader::load(const std::string& filename, GLenum shaderType) {
     glShaderSource(shaderRef, 1, (const GLchar**) &source_ptr, &source_len);
 
     glCompileShader(shaderRef);
-
+    
     checkError(filename, shaderRef);
 
     return shaderRef;

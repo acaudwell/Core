@@ -45,7 +45,7 @@ class Shader : public Resource {
     GLenum shaderProg;
     GLenum vertexShader;
     GLenum fragmentShader;
-
+    
     GLint getVarLocation(const std::string& name);
 
     std::string readSource(const std::string& filename);
@@ -72,6 +72,10 @@ public:
 
 class ShaderManager : public ResourceManager {
 public:
+    bool debug;
+    ShaderManager() {
+        debug = false;
+    }
     Shader* grab(const std::string& shader_prefix);
 };
 
