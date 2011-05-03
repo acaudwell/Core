@@ -169,7 +169,7 @@ void quadbuf::draw() {
 
     if(textures.empty()) {
 
-         glDrawArrays(GL_QUADS, 0, last_index);
+         glDrawArrays(GL_QUADS, 0, vertex_count);
 
     } else {
         for(std::vector<quadbuf_tex>::iterator it = textures.begin(); it != textures.end();) {
