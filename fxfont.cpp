@@ -76,8 +76,8 @@ FXGlyph::FXGlyph(FXGlyphSet* set, unsigned int chr) {
 
     glyph_bitmap = (FT_BitmapGlyph)ftglyph;
 
-    dims    = vec2f( glyph_bitmap->bitmap.width, glyph_bitmap->bitmap.rows) + vec2f(1.5f, 1.5f);
-    corner  = vec2f( glyph_bitmap->left, -glyph_bitmap->top);
+    dims    = vec2f( glyph_bitmap->bitmap.width, glyph_bitmap->bitmap.rows) + vec2f(2.0f, 2.0f);
+    corner  = vec2f( glyph_bitmap->left, -glyph_bitmap->top) + vec2f(0.5, -0.5);
     advance = vec2f( ftface->glyph->advance.x >> 6, ftface->glyph->advance.y >> 6);
 
     vertex_positions[0] = vec2f(0.0f, 0.0f);
