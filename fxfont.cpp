@@ -76,7 +76,7 @@ FXGlyph::FXGlyph(FXGlyphSet* set, unsigned int chr) {
 
     glyph_bitmap = (FT_BitmapGlyph)ftglyph;
 
-    dims    = vec2f( glyph_bitmap->bitmap.width+1.0f, glyph_bitmap->bitmap.rows+1.0f);
+    dims    = vec2f( glyph_bitmap->bitmap.width, glyph_bitmap->bitmap.rows) + vec2f(1.5f, 1.5f);
     corner  = vec2f( glyph_bitmap->left, -glyph_bitmap->top);
     advance = vec2f( ftface->glyph->advance.x >> 6, ftface->glyph->advance.y >> 6);
 
@@ -124,7 +124,7 @@ FXGlyphPage::FXGlyphPage(int page_width, int page_height) {
     textureid = 0;
     glGenTextures(1, &textureid);
 
-    max_glyph_height = cursor_x = cursor_y = 0;
+    max_glyph_height = cursor_x = cursor_y = 1;
 }
 
 FXGlyphPage::~FXGlyphPage() {
@@ -138,16 +138,16 @@ bool FXGlyphPage::addGlyph(FXGlyph* glyph) {
     int corner_x = cursor_x;
     int corner_y = cursor_y;
 
-    int padding = 2;
+    int padding = 3;
 
     if(bitmap->bitmap.rows > max_glyph_height) max_glyph_height = bitmap->bitmap.rows;
 
     if(corner_x + bitmap->bitmap.width + padding > page_width) {
-        corner_x = 0;
+        corner_x = 1;
         corner_y += max_glyph_height + padding;
 
         //bitmap is bigger than the full dimension
-        if(bitmap->bitmap.width + padding > page_width) return false;
+        if(corner_x + bitmap->bitmap.width + padding > page_width) return false;
     }
 
     if(corner_y + bitmap->bitmap.rows + padding > page_height) return false;
@@ -162,10 +162,10 @@ bool FXGlyphPage::addGlyph(FXGlyph* glyph) {
 
     //fprintf(stderr, "corner_x = %d, corner_y = %d\n", corner_x, corner_y);
 
-    vec4f texcoords = vec4f( corner_x / (float) page_width,
-                             corner_y / (float) page_height,
-                             (corner_x+bitmap->bitmap.width+1) / (float) page_width,
-                             (corner_y+bitmap->bitmap.rows+1) / (float) page_height );
+    vec4f texcoords = vec4f( (((float)corner_x)-0.5f) / (float) page_width,
+                             (((float)corner_y)-0.5f) / (float) page_height,
+                             (((float)corner_x+bitmap->bitmap.width)+1.5f) / (float) page_width,
+                             (((float)corner_y+bitmap->bitmap.rows)+1.5f) / (float) page_height );
 
     glyph->setPage(this, texcoords);
 
@@ -336,7 +336,7 @@ void FXGlyphSet::draw(const std::string& text) {
     unsigned int chr;
 
     vec2f pos;
-    
+
     while (*unicode_text) {
         chr = *unicode_text++;
 
@@ -350,10 +350,10 @@ void FXGlyphSet::draw(const std::string& text) {
         }
 
         glyph->draw(pos);
-       
+
         pos += glyph->getAdvance();
     }
-    if(textureid != -1) glEnd();   
+    if(textureid != -1) glEnd();
 }
 
 //FXFont
