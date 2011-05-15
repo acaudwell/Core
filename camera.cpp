@@ -69,15 +69,11 @@ Camera::Camera(vec3f pos, vec3f target) {
 
 void Camera::focus() {
     display.mode3D(fov, znear, zfar);
-    glMatrixMode(GL_PROJECTION);
-
     look();
 }
 
 void Camera::focusOn(vec3f p) {
     display.mode3D(fov, znear, zfar);
-    glMatrixMode(GL_PROJECTION);
-
     lookAt(p);
 }
 
