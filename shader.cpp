@@ -31,6 +31,8 @@ ShaderManager shadermanager;
 
 //ShaderManager
 
+Regex Shader_pre_include("\\s*#include\\s*\"([^\"]+)\"");
+
 Shader* ShaderManager::grab(const std::string& shader_prefix) {
     Resource* s = resources[shader_prefix];
 
@@ -102,9 +104,10 @@ void Shader::checkError(const std::string& filename, GLenum shaderRef) {
 
 GLenum Shader::load(const std::string& filename, GLenum shaderType) {
 
-    std::string source = readSource(filename);
+    std::string source;
+    readSource(filename, source);
 
-    if(source.size()==0) {
+    if(source.empty()) {
         throw SDLAppException("could not read shader '%s'", filename.c_str());
     }
 
@@ -122,24 +125,44 @@ GLenum Shader::load(const std::string& filename, GLenum shaderType) {
     return shaderRef;
 }
 
-std::string Shader::readSource(const std::string& file) {
 
-    std::string source;
+bool Shader::preprocess(const std::string& line, std::string& output) {
+
+    std::vector<std::string> matches;
+
+    if(Shader_pre_include.match(line, &matches)) {
+
+        std::string include_file = shadermanager.getDir() + matches[0];
+
+        readSource(include_file, output);
+
+        return true;
+    }
+
+    return false;
+
+}
+
+bool Shader::readSource(const std::string& file, std::string& output) {
 
     // get length
     std::ifstream in(file.c_str());
 
-    if(!in.is_open()) return source;
+    if(!in.is_open()) {
+        throw SDLAppException("could not open '%s'", file.c_str());
+    }
 
     std::string line;
     while( std::getline(in,line) ) {
-        source += line;
-        source += "\n";
+        if(!preprocess(line, output)) {            
+            output += line;
+            output += "\n";
+        }
     }
 
     in.close();
-
-    return source;
+    
+    return true;
 }
 
 void Shader::use() {

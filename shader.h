@@ -33,6 +33,7 @@
 #include "resource.h"
 #include "display.h"
 #include "sdlapp.h"
+#include "regex.h"
 
 #include <map>
 #include <string>
@@ -48,7 +49,8 @@ class Shader : public Resource {
     
     GLint getVarLocation(const std::string& name);
 
-    std::string readSource(const std::string& filename);
+    bool preprocess(const std::string& line, std::string& output);
+    bool readSource(const std::string& filename, std::string& output);
     GLenum load(const std::string& filename, GLenum shaderType);
     void makeProgram();
 
