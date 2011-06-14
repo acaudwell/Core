@@ -540,8 +540,6 @@ void FXFontManager::purge() {
 
 FXFont FXFontManager::grab(std::string font_file, int size, int dpi) {
 
-    char buf[256];
-
     if(font_dir.size()>0 && font_file[0] != '/') {
         font_file = font_dir + font_file;
     }
