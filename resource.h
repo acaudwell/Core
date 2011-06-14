@@ -51,6 +51,7 @@ class Resource {
     int refs;
 public:
     std::string name;
+    Resource() { refs =0; };
     Resource(std::string name) { this->name = name; refs=0; };
     int refcount() { return refs; };
     void addref()  { refs++; };
