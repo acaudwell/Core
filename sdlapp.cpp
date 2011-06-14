@@ -339,6 +339,10 @@ int SDLApp::run() {
                     appFinished=true;
                     break;
 
+                case SDL_VIDEORESIZE:
+                    resize(&event.resize);
+                    break;
+
                 case SDL_MOUSEMOTION:
                     mouseMove(&event.motion);
                     break;

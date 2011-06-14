@@ -100,6 +100,8 @@ public:
 
     int run();
 
+    virtual void resize(SDL_ResizeEvent* e) {};
+
     virtual void update(float t, float dt) {};
     virtual void init() {};
 

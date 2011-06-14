@@ -59,6 +59,7 @@ class SDLAppDisplay {
 
     bool enable_shaders;
     bool enable_alpha;
+    bool resizable;
     bool vsync;
 
     int  multi_sample;
@@ -73,7 +74,9 @@ public:
     SDLAppDisplay();
     ~SDLAppDisplay();
 
-    void   init(std::string window_title, int xres, int yres, bool fullscreen);
+    void   resize(int width, int height);
+    void   init(std::string window_title, int width, int height, bool fullscreen);
+    void   setVideoMode(int width, int height, bool fullscreen);
 
     bool   multiSamplingEnabled();
 
@@ -81,13 +84,16 @@ public:
 
     void   update();
     void   clear();
-    void   enableVsync(bool vsync);
+
     void   setClearColour(vec3f colour);
     void   setClearColour(vec4f colour);
 
-    void   enableShaders(bool enable);
 
+    void   enableShaders(bool enable);
+    void   enableVsync(bool vsync);
     void   enableAlpha(bool enable);
+    void   enableResize(bool resizable);
+
     void   multiSample(int sample);
 
     void   mode3D(float fov, float znear, float zfar);

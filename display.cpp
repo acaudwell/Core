@@ -37,6 +37,7 @@ SDLAppDisplay::SDLAppDisplay() {
     enable_shaders=false;
     enable_alpha=false;
     vsync=false;
+    resizable=false;
     multi_sample = 0;
 }
 
@@ -53,7 +54,9 @@ void SDLAppDisplay::setClearColour(vec4f colour) {
 
 int SDLAppDisplay::SDLFlags(bool fullscreen) {
     int flags = SDL_OPENGL | SDL_HWSURFACE | SDL_ANYFORMAT | SDL_DOUBLEBUF;
+    if (resizable) flags |= SDL_RESIZABLE;
     if (fullscreen) flags |= SDL_FULLSCREEN;
+
     return flags;
 }
 
@@ -63,6 +66,10 @@ void SDLAppDisplay::enableVsync(bool vsync) {
 
 void SDLAppDisplay::enableShaders(bool enable) {
     enable_shaders = enable;
+}
+
+void SDLAppDisplay::enableResize(bool resizable) {
+    this->resizable = resizable;
 }
 
 void SDLAppDisplay::enableAlpha(bool enable) {
@@ -92,21 +99,11 @@ bool SDLAppDisplay::multiSamplingEnabled() {
     return value==1;
 }
 
+void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
 
-void SDLAppDisplay::init(std::string window_title, int width, int height, bool fullscreen) {
-
-    this->fullscreen = fullscreen;
-
-    int flags = SDLFlags(fullscreen);
     int depth = 32;
 
-    if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO) != 0) {
-        throw SDLInitException(SDL_GetError());
-    }
-
-    atexit(SDL_Quit);
-
-    SDL_EnableUNICODE(1);
+    int flags = SDLFlags(fullscreen);
 
     //vsync
     if(vsync) SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
@@ -154,16 +151,39 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
         }
     }
 
+    setupExtensions();
+}
+
+void SDLAppDisplay::resize(int width, int height) {
+    setVideoMode(width, height, fullscreen);
+
+    glViewport(0, 0, width, height);
+
+    this->width  = width;
+    this->height = height;
+}
+
+void SDLAppDisplay::init(std::string window_title, int width, int height, bool fullscreen) {
+
+    if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO) != 0) {
+        throw SDLInitException(SDL_GetError());
+    }
+
+    atexit(SDL_Quit);
+
+    SDL_EnableUNICODE(1);
+
+    SDL_WM_SetCaption(window_title.c_str(),0);
+
+    setVideoMode(width, height, fullscreen);
+
     //get actual opengl viewport
     GLint viewport[4];
     glGetIntegerv( GL_VIEWPORT, viewport );
 
-    this->width  = viewport[2];
-    this->height = viewport[3];
-
-    setupExtensions();
-
-    SDL_WM_SetCaption(window_title.c_str(),0);
+    this->width      = viewport[2];
+    this->height     = viewport[3];
+    this->fullscreen = fullscreen;
 }
 
 void SDLAppDisplay::quit() {
