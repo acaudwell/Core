@@ -34,28 +34,29 @@
 #include "display.h"
 #include "sdlapp.h"
 #include "regex.h"
+#include "matrix.h"
 
 #include <map>
 #include <string>
 #include <fstream>
+#include <sstream>
 
 class Shader : public Resource {
 
     std::map<std::string, GLint> varMap;
+    std::map<GLenum, std::string> srcMap;
 
     GLenum shaderProg;
-    GLenum vertexShader;
-    GLenum fragmentShader;
-    
+
     GLint getVarLocation(const std::string& name);
 
-    bool preprocess(const std::string& line, std::string& output);
-    bool readSource(const std::string& filename, std::string& output);
-    GLenum load(const std::string& filename, GLenum shaderType);
-    void makeProgram();
+    bool preprocess(GLenum shaderType, const std::string& line);
 
-    void checkError(const std::string& filename, GLenum shaderRef);
+    GLenum compile(GLenum shaderType);
+
+    void checkError(GLenum shaderType, GLenum shaderRef);
 public:
+    Shader();
     Shader(const std::string& prefix);
     ~Shader();
 
@@ -63,12 +64,17 @@ public:
     GLenum getVertexShader();
     GLenum getFragmentShader();
 
+    void makeProgram();
+
+    void includeSource(GLenum shaderType, const std::string& source);
+    bool includeFile(GLenum shaderType,   const std::string& filename);
+
     void setInteger (const std::string& name, int value);
     void setFloat(const std::string& name, float value);
     void setVec2 (const std::string& name, const vec2f& value);
     void setVec3 (const std::string& name, const vec3f& value);
     void setVec4 (const std::string& name, const vec4f& value);
-
+    void setMat3 (const std::string& name, const mat3f& value);
     void use();
 };
 

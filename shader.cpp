@@ -31,7 +31,7 @@ ShaderManager shadermanager;
 
 //ShaderManager
 
-Regex Shader_pre_include("\\s*#include\\s*\"([^\"]+)\"");
+Regex Shader_pre_include("^\\s*#include\\s*\"([^\"]+)\"");
 
 Shader* ShaderManager::grab(const std::string& shader_prefix) {
     Resource* s = resources[shader_prefix];
@@ -51,31 +51,41 @@ Shader::Shader(const std::string& prefix) : Resource(prefix) {
 
     std::string shader_dir = shadermanager.getDir();
 
-    std::string vertexSrc   = shader_dir + prefix + std::string(".vert");
-    std::string fragmentSrc = shader_dir + prefix + std::string(".frag");
+    std::string vertexFile   = shader_dir + prefix + std::string(".vert");
+    std::string fragmentFile = shader_dir + prefix + std::string(".frag");
 
-    vertexShader   = load(vertexSrc,   GL_VERTEX_SHADER);
-    fragmentShader = load(fragmentSrc, GL_FRAGMENT_SHADER);
+    includeFile(GL_VERTEX_SHADER,   vertexFile);
+    includeFile(GL_FRAGMENT_SHADER, fragmentFile);
 
     makeProgram();
 }
 
+Shader::Shader() {
+}
+
 Shader::~Shader() {
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
     glDeleteProgram(shaderProg);
 }
 
 void Shader::makeProgram() {
+
+    GLenum vertexShader   = compile(GL_VERTEX_SHADER);
+    GLenum fragmentShader = compile(GL_FRAGMENT_SHADER);
+
     shaderProg = glCreateProgram();
-    glAttachShader(shaderProg,fragmentShader);
-    glAttachShader(shaderProg,vertexShader);
+
+    glAttachShader(shaderProg, fragmentShader);
+    glAttachShader(shaderProg, vertexShader);
+
     glLinkProgram(shaderProg);
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
 }
 
-void Shader::checkError(const std::string& filename, GLenum shaderRef) {
+void Shader::checkError(GLenum shaderType, GLenum shaderRef) {
 
-    GLint compile_success;   
+    GLint compile_success;
     glGetShaderiv(shaderRef, GL_COMPILE_STATUS, &compile_success);
 
     GLint info_log_length;
@@ -87,46 +97,48 @@ void Shader::checkError(const std::string& filename, GLenum shaderRef) {
         glGetShaderInfoLog(shaderRef, info_log_length, &info_log_length, info_log);
 
         if(!compile_success) {
-            throw SDLAppException("shader '%s' failed to compile: %s", filename.c_str(), info_log);
+            throw SDLAppException("%s shader '%s' failed to compile: %s",
+                                  (shaderType == GL_VERTEX_SHADER ? "vertex" : "fragment"),
+                                  (!name.empty() ? name.c_str() : "???"),
+                                  info_log);
         }
-        
+
         if(shadermanager.debug) {
-            fprintf(stderr, "%s: %s\n", filename.c_str(), info_log);
+            fprintf(stderr, "%s shader '%s': %s\n",
+                            (shaderType == GL_VERTEX_SHADER ? "vertex" : "fragment"),
+                            (!name.empty() ? name.c_str() : "???"),
+                            info_log);
         }
 
         return;
     }
-    
+
     if(!compile_success) {
-        throw SDLAppException("shader '%s' failed to compile", filename.c_str());
+        throw SDLAppException("%s shader '%s' failed to compile",
+                              (shaderType == GL_VERTEX_SHADER ? "vertex" : "fragment"),
+                              (!name.empty() ? name.c_str() : "???"));
     }
 }
 
-GLenum Shader::load(const std::string& filename, GLenum shaderType) {
-
-    std::string source;
-    readSource(filename, source);
-
-    if(source.empty()) {
-        throw SDLAppException("could not read shader '%s'", filename.c_str());
-    }
+GLenum Shader::compile(GLenum shaderType) {
 
     GLenum shaderRef = glCreateShader(shaderType);
 
-    const char* source_ptr = source.c_str();
-    int source_len = source.size();
+    std::string& src = srcMap[shaderType];
+
+    const char* source_ptr = src.c_str();
+    int source_len = src.size();
 
     glShaderSource(shaderRef, 1, (const GLchar**) &source_ptr, &source_len);
 
     glCompileShader(shaderRef);
-    
-    checkError(filename, shaderRef);
+
+    checkError(shaderType, shaderRef);
 
     return shaderRef;
 }
 
-
-bool Shader::preprocess(const std::string& line, std::string& output) {
+bool Shader::preprocess(GLenum shaderType, const std::string& line) {
 
     std::vector<std::string> matches;
 
@@ -134,7 +146,7 @@ bool Shader::preprocess(const std::string& line, std::string& output) {
 
         std::string include_file = shadermanager.getDir() + matches[0];
 
-        readSource(include_file, output);
+        includeFile(shaderType, include_file);
 
         return true;
     }
@@ -143,25 +155,42 @@ bool Shader::preprocess(const std::string& line, std::string& output) {
 
 }
 
-bool Shader::readSource(const std::string& file, std::string& output) {
+void Shader::includeSource(GLenum shaderType, const std::string& string) {
 
-    // get length
-    std::ifstream in(file.c_str());
+    std::stringstream in(string);
 
-    if(!in.is_open()) {
-        throw SDLAppException("could not open '%s'", file.c_str());
-    }
+    std::string& output = srcMap[shaderType];
 
     std::string line;
     while( std::getline(in,line) ) {
-        if(!preprocess(line, output)) {            
+        if(!preprocess(shaderType, line)) {
+            output += line;
+            output += "\n";
+        }
+    }
+}
+
+bool Shader::includeFile(GLenum shaderType, const std::string& filename) {
+
+    // get length
+    std::ifstream in(filename.c_str());
+
+    if(!in.is_open()) {
+        throw SDLAppException("could not open '%s'", filename.c_str());
+    }
+
+    std::string& output = srcMap[shaderType];
+
+    std::string line;
+    while( std::getline(in,line) ) {
+        if(!preprocess(shaderType, line)) {
             output += line;
             output += "\n";
         }
     }
 
     in.close();
-    
+
     return true;
 }
 
@@ -171,14 +200,6 @@ void Shader::use() {
 
 GLenum Shader::getProgram() {
     return shaderProg;
-}
-
-GLenum Shader::getVertexShader() {
-    return vertexShader;
-}
-
-GLenum Shader::getFragmentShader() {
-    return fragmentShader;
 }
 
 GLint Shader::getVarLocation(const std::string& name) {
@@ -210,8 +231,13 @@ void Shader::setVec3 (const std::string& name, const vec3f& value) {
 }
 
 void Shader::setVec4 (const std::string& name, const vec4f& value) {
-    GLint loc =  getVarLocation(name);
+    GLint loc = getVarLocation(name);
     glUniform4fv(loc, 1, value);
+}
+
+void Shader::setMat3 (const std::string& name, const mat3f& value) {
+    GLint loc = getVarLocation(name);
+    glUniformMatrix3fv(loc, 1, 0, value);
 }
 
 void Shader::setInteger (const std::string& name, int value) {
