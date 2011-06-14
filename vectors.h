@@ -138,6 +138,9 @@ public:
         return v + centre;
     }
 
+    vec2<T> operator -() const {
+        return vec2<T>(-x, -y);
+    }
 
     operator T*() const {
         return (T*) &x;
@@ -257,6 +260,10 @@ public:
 
     vec2<T> truncate() const {
         return vec2<T>(x, y);
+    }
+
+    vec3<T> operator -() const {
+        return vec3<T>(-x, -y, -z);
     }
 
     operator T*() const {
@@ -411,6 +418,10 @@ public:
 
     vec3<T> truncate() const {
         return vec3<T>(x, y, z);
+    }
+
+    vec4<T> operator -() const {
+        return vec4<T>(-x, -y, -z, -w);
     }
 
     operator T*() const {
