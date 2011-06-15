@@ -38,7 +38,14 @@ SDLAppDisplay::SDLAppDisplay() {
     enable_alpha=false;
     vsync=false;
     resizable=false;
+    frameless=false;
     multi_sample = 0;
+    width = 0;
+    height = 0;
+    desktop_width   = 0;
+    desktop_height  = 0;
+    windowed_width  = 0;
+    windowed_height = 0;
 }
 
 SDLAppDisplay::~SDLAppDisplay() {
@@ -54,6 +61,7 @@ void SDLAppDisplay::setClearColour(vec4f colour) {
 
 int SDLAppDisplay::SDLFlags(bool fullscreen) {
     int flags = SDL_OPENGL | SDL_HWSURFACE | SDL_ANYFORMAT | SDL_DOUBLEBUF;
+    if (frameless) flags |= SDL_NOFRAME;
     if (resizable) flags |= SDL_RESIZABLE;
     if (fullscreen) flags |= SDL_FULLSCREEN;
 
@@ -154,13 +162,49 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
     setupExtensions();
 }
 
-void SDLAppDisplay::resize(int width, int height) {
+void SDLAppDisplay::toggleFullscreen() {
+
+    int width  = this->width;
+    int height = this->height;
+
+    if(!fullscreen) {
+        //save windowed width and height
+        windowed_width  = width;
+        windowed_height = height;
+
+        width  = desktop_width;
+        height = desktop_height;
+    } else {
+        //switch back to window dimensions, if known
+        if(windowed_width != 0) {
+            width  = windowed_width;
+            height = windowed_height;
+        }
+    }
+
+    fullscreen = !fullscreen;
+
     setVideoMode(width, height, fullscreen);
 
-    glViewport(0, 0, width, height);
+    const SDL_VideoInfo* display_info = SDL_GetVideoInfo();
 
-    this->width  = width;
-    this->height = height;
+    //set viewport to match what we ended up on
+    glViewport(0, 0, display_info->current_w, display_info->current_h);
+
+    this->width  = display_info->current_w;
+    this->height = display_info->current_h;
+}
+
+void SDLAppDisplay::resize(int width, int height) {
+
+    setVideoMode(width, height, fullscreen);
+
+    const SDL_VideoInfo* display_info = SDL_GetVideoInfo();
+
+    glViewport(0, 0, display_info->current_w, display_info->current_h);
+
+    this->width  = display_info->current_w;
+    this->height = display_info->current_h;
 }
 
 void SDLAppDisplay::init(std::string window_title, int width, int height, bool fullscreen) {
@@ -168,6 +212,12 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
     if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO) != 0) {
         throw SDLInitException(SDL_GetError());
     }
+
+    const SDL_VideoInfo* display_info = SDL_GetVideoInfo();
+
+    //save the desktop resolution
+    desktop_width  = display_info->current_w;
+    desktop_height = display_info->current_h;
 
     atexit(SDL_Quit);
 

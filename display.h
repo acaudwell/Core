@@ -60,6 +60,7 @@ class SDLAppDisplay {
     bool enable_shaders;
     bool enable_alpha;
     bool resizable;
+    bool frameless;
     bool vsync;
 
     int  multi_sample;
@@ -68,13 +69,18 @@ class SDLAppDisplay {
     void setupExtensions();
 public:
     int width, height;
+    int desktop_width, desktop_height;
+    int windowed_width, windowed_height;
+
     bool fullscreen;
     vec4f clearColour;
 
     SDLAppDisplay();
     ~SDLAppDisplay();
 
+    void   toggleFullscreen();
     void   resize(int width, int height);
+
     void   init(std::string window_title, int width, int height, bool fullscreen);
     void   setVideoMode(int width, int height, bool fullscreen);
 
@@ -93,6 +99,7 @@ public:
     void   enableVsync(bool vsync);
     void   enableAlpha(bool enable);
     void   enableResize(bool resizable);
+    void   enableFrameless(bool frameless);
 
     void   multiSample(int sample);
 
