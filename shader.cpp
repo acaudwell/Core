@@ -97,14 +97,14 @@ void Shader::checkError(GLenum shaderType, GLenum shaderRef) {
         glGetShaderInfoLog(shaderRef, info_log_length, &info_log_length, info_log);
 
         if(!compile_success) {
-            throw SDLAppException("%s shader '%s' failed to compile: %s",
+            throw SDLAppException("%s shader '%s' failed to compile:\n%s",
                                   (shaderType == GL_VERTEX_SHADER ? "vertex" : "fragment"),
                                   (!name.empty() ? name.c_str() : "???"),
                                   info_log);
         }
 
         if(shadermanager.debug) {
-            fprintf(stderr, "%s shader '%s': %s\n",
+            fprintf(stderr, "%s shader '%s':\n%s",
                             (shaderType == GL_VERTEX_SHADER ? "vertex" : "fragment"),
                             (!name.empty() ? name.c_str() : "???"),
                             info_log);
