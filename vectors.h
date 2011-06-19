@@ -205,10 +205,6 @@ public:
         return x*vec.x + y*vec.y + z*vec.z;
     }
 
-    T operator* (const vec3<T> &vec) const {
-        return x*vec.x + y*vec.y + z*vec.z;
-    }
-
     vec3<T> operator+ (const vec3<T> &vec) const {
         return vec3<T>(x+vec.x,y+vec.y,z+vec.z);
     }
@@ -375,16 +371,12 @@ public:
         return vec4<T>(x*n, y*n, z*n, w*n);
     }
 
-	vec4<T> operator/ (const T n) const {
-		return vec4<T>(x/n, y/n, z/n, w/n);
-	}
-
-    T operator* (const vec4<T> &vec) const {
-        return x*vec.x + y*vec.y + z*vec.z + w*vec.w;
+    vec4<T> operator/ (const T n) const {
+        return vec4<T>(x/n, y/n, z/n, w/n);
     }
 
-    friend vec4<T> operator* (T n, const vec4<T>& vec) {
-        return vec4<T>(vec.x*n, vec.y*n, vec.z*n, vec.w*n);
+    vec4<T> operator* (const vec4<T> &vec) const {
+        return vec4(x*vec.x, y*vec.y, z*vec.z, w*vec.w);
     }
 
     bool operator== (const vec4<T> &vec) const {
