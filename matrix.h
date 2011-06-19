@@ -57,6 +57,13 @@ public:
         return vec3<T>(matrix[0][2], matrix[1][2], matrix[2][2]);
     }
 
+    friend vec3<T> operator* (const vec3<T>& vec, const mat3<T>& m) {
+
+        return vec3<T>(vec.x * m.matrix[0][0] + vec.y * m.matrix[0][1] + vec.z * m.matrix[0][2],
+                       vec.x * m.matrix[1][0] + vec.y * m.matrix[1][1] + vec.z * m.matrix[1][2],
+                       vec.x * m.matrix[2][0] + vec.y * m.matrix[2][1] + vec.z * m.matrix[2][2]);
+    }
+
     operator T*() const {
             return (T*) &matrix;
     }
