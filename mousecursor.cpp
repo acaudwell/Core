@@ -116,7 +116,7 @@ void MouseCursor::draw() const {
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
 
-    glBindTexture(GL_TEXTURE_2D, cursortex->textureid);
+    cursortex->bind();
 
     glTranslatef(mousepos.x, mousepos.y, 0.0f);
 
