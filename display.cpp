@@ -62,7 +62,7 @@ void SDLAppDisplay::setClearColour(vec4f colour) {
 int SDLAppDisplay::SDLFlags(bool fullscreen) {
     int flags = SDL_OPENGL | SDL_HWSURFACE | SDL_ANYFORMAT | SDL_DOUBLEBUF;
     if (frameless) flags |= SDL_NOFRAME;
-    if (resizable) flags |= SDL_RESIZABLE;
+    if (resizable && !fullscreen) flags |= SDL_RESIZABLE;
     if (fullscreen) flags |= SDL_FULLSCREEN;
 
     return flags;
@@ -180,7 +180,7 @@ void SDLAppDisplay::toggleFullscreen() {
             width  = windowed_width;
             height = windowed_height;
         }
-    }
+    }    
 
     fullscreen = !fullscreen;
 
@@ -190,19 +190,19 @@ void SDLAppDisplay::toggleFullscreen() {
 
     //set viewport to match what we ended up on
     glViewport(0, 0, display_info->current_w, display_info->current_h);
-
+    
     this->width  = display_info->current_w;
     this->height = display_info->current_h;
 }
 
 void SDLAppDisplay::resize(int width, int height) {
-
+    
     setVideoMode(width, height, fullscreen);
 
     const SDL_VideoInfo* display_info = SDL_GetVideoInfo();
 
     glViewport(0, 0, display_info->current_w, display_info->current_h);
-
+    
     this->width  = display_info->current_w;
     this->height = display_info->current_h;
 }
