@@ -50,9 +50,14 @@ public:
 class Resource {
     int refs;
 public:
-    std::string name;
+    std::string resource_name;
     Resource() { refs =0; };
-    Resource(std::string name) { this->name = name; refs=0; };
+    Resource(const std::string& resource_name) : resource_name(resource_name), refs(0) {};
+
+    void setResourceName(const std::string& resource_name) {
+        if(this->resource_name.empty()) this->resource_name = resource_name;
+    };
+    
     int refcount() { return refs; };
     void addref()  { refs++; };
     void deref()   { refs--; };
@@ -65,7 +70,7 @@ protected:
     std::string resource_dir;
 public:
 
-    void setDir(std::string resource_dir);
+    void setDir(const std::string& resource_dir);
     std::string getDir();
 
     ResourceManager();
@@ -74,8 +79,8 @@ public:
     void purge();
 
     void release(Resource* resource);
-    Resource* grab(std::string name);
-    virtual Resource* create(std::string name) { return 0; };
+    Resource* grab(const std::string& resource_name);
+    virtual Resource* create(const std::string& name) { return 0; };
 };
 
 #endif

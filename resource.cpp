@@ -34,7 +34,7 @@ std::string ResourceManager::getDir() {
     return resource_dir;
 }
 
-void ResourceManager::setDir(std::string resource_dir) {
+void ResourceManager::setDir(const std::string& resource_dir) {
     this->resource_dir = resource_dir;
 }
 
@@ -50,7 +50,7 @@ void ResourceManager::purge() {
 ResourceManager::~ResourceManager() {
 }
 
-Resource* ResourceManager::grab(std::string name) {
+Resource* ResourceManager::grab(const std::string& name) {
     //debugLog("grabing %s\n", name.c_str());
     Resource* r = resources[name];
 
@@ -64,7 +64,7 @@ Resource* ResourceManager::grab(std::string name) {
 }
 
 void ResourceManager::release(Resource* resource) {
-    Resource* r = resources[resource->name];
+    Resource* r = resources[resource->resource_name];
 
     if(r==0) return;
 
@@ -73,7 +73,7 @@ void ResourceManager::release(Resource* resource) {
 
     if(r->refcount()<=0) {
         //debugLog("no refs to %s, deleting\n", name.c_str());
-        resources.erase(r->name); //sufficient?
+        resources.erase(r->resource_name); //sufficient?
         delete r;
     }
 }
