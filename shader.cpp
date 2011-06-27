@@ -46,6 +46,33 @@ Shader* ShaderManager::grab(const std::string& shader_prefix) {
     return (Shader*) s;
 }
 
+void ShaderManager::manage(Shader* shader) {
+
+    if(shader->resource_name.empty()) {
+        throw SDLAppException("Cannot manage shader with no resource name");   
+    }
+    
+    if(resources[shader->resource_name] != 0) {
+        throw SDLAppException("A shader resource already exists under the name '%s'", shader->resource_name.c_str());
+    }
+
+    resources[shader->resource_name] = shader;
+ 
+    shader->addref();
+}
+
+void ShaderManager::unload() {
+    for(std::map<std::string, Resource*>::iterator it= resources.begin(); it!=resources.end();it++) {
+        ((Shader*)it->second)->load();
+    }    
+}
+
+void ShaderManager::reload() {
+    for(std::map<std::string, Resource*>::iterator it= resources.begin(); it!=resources.end();it++) {
+        ((Shader*)it->second)->load();
+    }    
+}
+
 //Shader
 Shader::Shader(const std::string& prefix) : Resource(prefix) {
 
@@ -57,18 +84,26 @@ Shader::Shader(const std::string& prefix) : Resource(prefix) {
     includeFile(GL_VERTEX_SHADER,   vertexFile);
     includeFile(GL_FRAGMENT_SHADER, fragmentFile);
 
-    makeProgram();
+    shaderProg = 0;
+    
+    load();
 }
 
 Shader::Shader() {
 }
 
 Shader::~Shader() {
-    glDeleteProgram(shaderProg);
+    unload();
 }
 
-void Shader::makeProgram() {
+void Shader::unload() {
+    if(shaderProg != 0) glDeleteProgram(shaderProg);
+    shaderProg = 0;
+}
 
+void Shader::load() {
+    if(shaderProg !=0) unload();    
+    
     GLenum vertexShader   = compile(GL_VERTEX_SHADER);
     GLenum fragmentShader = compile(GL_FRAGMENT_SHADER);
 
@@ -99,14 +134,14 @@ void Shader::checkError(GLenum shaderType, GLenum shaderRef) {
         if(!compile_success) {
             throw SDLAppException("%s shader '%s' failed to compile:\n%s",
                                   (shaderType == GL_VERTEX_SHADER ? "vertex" : "fragment"),
-                                  (!name.empty() ? name.c_str() : "???"),
+                                  (!resource_name.empty() ? resource_name.c_str() : "???"),
                                   info_log);
         }
 
         if(shadermanager.debug) {
             fprintf(stderr, "%s shader '%s':\n%s",
                             (shaderType == GL_VERTEX_SHADER ? "vertex" : "fragment"),
-                            (!name.empty() ? name.c_str() : "???"),
+                            (!resource_name.empty() ? resource_name.c_str() : "???"),
                             info_log);
         }
 
@@ -116,7 +151,7 @@ void Shader::checkError(GLenum shaderType, GLenum shaderRef) {
     if(!compile_success) {
         throw SDLAppException("%s shader '%s' failed to compile",
                               (shaderType == GL_VERTEX_SHADER ? "vertex" : "fragment"),
-                              (!name.empty() ? name.c_str() : "???"));
+                              (!resource_name.empty() ? resource_name.c_str() : "???"));
     }
 }
 

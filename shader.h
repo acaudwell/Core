@@ -64,8 +64,9 @@ public:
     GLenum getVertexShader();
     GLenum getFragmentShader();
 
-    void makeProgram();
-
+    void load();
+    void unload();
+    
     void includeSource(GLenum shaderType, const std::string& source);
     bool includeFile(GLenum shaderType,   const std::string& filename);
 
@@ -85,6 +86,11 @@ public:
         debug = false;
     }
     Shader* grab(const std::string& shader_prefix);
+    
+    void manage(Shader* shader);    
+    
+    void unload();
+    void reload();
 };
 
 extern ShaderManager shadermanager;
