@@ -34,53 +34,128 @@ TextureManager texturemanager;
 TextureManager::TextureManager() : ResourceManager() {
 }
 
-TextureResource* TextureManager::grabFile(std::string name, bool mipmaps, bool clamp, bool trilinear) {
-    return grab(name, mipmaps, clamp, trilinear, true);
+TextureResource* TextureManager::grabFile(const std::string& filename, bool mipmaps, bool clamp, bool trilinear) {
+    return grab(filename, mipmaps, clamp, trilinear, true);
 }
 
-TextureResource* TextureManager::grab(std::string name, bool mipmaps, bool clamp, bool trilinear, bool external_file) {
+TextureResource* TextureManager::grab(const std::string& filename, bool mipmaps, bool clamp, bool trilinear, bool external) {
 
-    Resource* r = resources[name];
+    Resource* r = resources[filename];
 
     if(r==0) {
-        r = new TextureResource(name, mipmaps, clamp, trilinear, external_file);
+        r = new TextureResource(filename, mipmaps, clamp, trilinear, external);
 
-        resources[name] = r;
+        resources[filename] = r;
     }
     r->addref();
 
     return (TextureResource*)r;
 }
 
-// texture resource
+TextureResource* TextureManager::emptyTexture(const std::string& resource_name, int width, int height, GLenum format) {
 
-TextureResource::TextureResource(std::string file, bool mipmaps, bool clamp, bool trilinear, bool external_file) : Resource(file) {
+    Resource* r = resources[resource_name];
 
-    //if doesnt have an absolute path, look in resource dir
-    if(!external_file && !(file.size() > 2 && file[1] == ':') && !(file.size() > 1 && file[0] == '/')) {
-        file = texturemanager.getDir() + file;
+    if(r!=0) {
+        throw SDLAppException("A texture resource already exists under the name '%s'", resource_name.c_str());
     }
 
-    debugLog("creating texture from %s\n", file.c_str());
+    r = new TextureResource(width, height, format);
+    r->setResourceName(resource_name);
+    
+    resources[resource_name] = r;
 
-    SDL_Surface *surface = IMG_Load(file.c_str());
+    r->addref();
 
-    if(surface==0) throw TextureException(file);
+    return (TextureResource*)r;
+    
+    
+}
+
+void TextureManager::unload() {
+    for(std::map<std::string, Resource*>::iterator it= resources.begin(); it!=resources.end();it++) {
+        ((TextureResource*)it->second)->unload();
+    }
+}
+
+void TextureManager::reload() {
+    for(std::map<std::string, Resource*>::iterator it= resources.begin(); it!=resources.end();it++) {
+        ((TextureResource*)it->second)->load();
+    }    
+}
+
+// texture resource
+
+TextureResource::TextureResource(const std::string& filename, bool mipmaps, bool clamp, bool trilinear, bool external) : Resource(filename) {
+
+    this->mipmaps   = mipmaps;
+    this->clamp     = clamp;
+    this->trilinear = trilinear;
+
+    textureid = 0;
+
+    //if doesnt have an absolute path, look in resource dir
+    if(!external && !(filename.size() > 2 && filename[1] == ':') && !(filename.size() > 1 && filename[0] == '/')) {
+        this->filename = texturemanager.getDir() + filename;
+    } else {
+        this->filename = filename;
+    } 
+   
+    load();
+}
+
+TextureResource::TextureResource(int width, int height, GLenum format) {
+    this->w      = width;
+    this->h      = height;
+    this->format = format;
+
+    mipmaps   = false;
+    clamp     = false;
+    
+    // ? 
+    trilinear = false;
+    
+    load();
+}
+
+TextureResource::~TextureResource() {
+    unload();
+}
+
+void TextureResource::unload() {
+    if(textureid!=0) glDeleteTextures(1, &textureid);
+    textureid=0;
+}
+
+void TextureResource::load() {
+
+    if(textureid != 0) unload();
+    
+    if(filename.empty() && w!=0 && format != 0) {
+        textureid = display.emptyTexture(w, h, format);    
+        return;
+    }
+    
+    debugLog("creating texture from %s\n", filename.c_str());
+
+    SDL_Surface *surface = IMG_Load(filename.c_str());
+
+    if(surface==0) throw TextureException(filename);
 
     w = surface->w;
     h = surface->h;
 
     //figure out image colour order
-    int format = colourFormat(surface);
+    format = colourFormat(surface);
 
-    if(format==0) throw TextureException(file);
+    if(format==0) throw TextureException(filename);
 
     textureid = display.createTexture(w, h, mipmaps, clamp, trilinear, format, (unsigned int*) surface->pixels);
 
     SDL_FreeSurface(surface);
 }
 
-int TextureResource::colourFormat(SDL_Surface* surface) {
+GLenum TextureResource::colourFormat(SDL_Surface* surface) {
 
     int colours = surface->format->BytesPerPixel;
     int format  = 0;
@@ -99,8 +174,4 @@ int TextureResource::colourFormat(SDL_Surface* surface) {
     }
 
     return format;
-}
-
-TextureResource::~TextureResource() {
-    if(textureid!=0) glDeleteTextures(1, &textureid);
 }

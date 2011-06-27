@@ -39,20 +39,38 @@ public:
 };
 
 class TextureResource : public Resource {
-    int colourFormat(SDL_Surface* surface);
-    void loadTexture(std::string file, bool mipmaps, bool clamp, bool trilinear, bool external_file);
+    bool mipmaps;
+    bool clamp;
+    bool trilinear;
+    std::string filename;
+
+    GLenum colourFormat(SDL_Surface* surface);
 public:
-	int w, h;
+    int w, h;
+    GLenum format;
     GLuint textureid;
-    TextureResource(std::string name, bool mipmaps, bool clamp, bool trilinear, bool external_file);
+
+    TextureResource(int w, int h, GLenum format);
+    TextureResource(const std::string& filename, bool mipmaps, bool clamp, bool trilinear, bool external);
+    
+    inline void bind() const { glBindTexture(GL_TEXTURE_2D, textureid); };
+    
+    void load();
+    void unload();
+    
     ~TextureResource();
 };
 
 class TextureManager : public ResourceManager {
 public:
     TextureManager();
-    TextureResource* grabFile(std::string name, bool mipmaps=true, bool clamp=true, bool trilinear=false);
-    TextureResource* grab(std::string file, bool mipmaps=true, bool clamp=true, bool trilinear=false, bool external_file = false);
+    TextureResource* grabFile(const std::string& filename, bool mipmaps=true, bool clamp=true, bool trilinear=false);
+    TextureResource* grab(const std::string& filename, bool mipmaps=true, bool clamp=true, bool trilinear=false, bool external_file = false);
+    
+    TextureResource* emptyTexture(const std::string& resource_name, int width, int height, GLenum format);
+     
+    void unload();
+    void reload();
 };
 
 extern TextureManager texturemanager;
