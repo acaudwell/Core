@@ -180,7 +180,7 @@ void SDLAppDisplay::toggleFullscreen() {
             width  = windowed_width;
             height = windowed_height;
         }
-    }    
+    }
 
     fullscreen = !fullscreen;
 
@@ -190,19 +190,19 @@ void SDLAppDisplay::toggleFullscreen() {
 
     //set viewport to match what we ended up on
     glViewport(0, 0, display_info->current_w, display_info->current_h);
-    
+
     this->width  = display_info->current_w;
     this->height = display_info->current_h;
 }
 
 void SDLAppDisplay::resize(int width, int height) {
-    
+
     setVideoMode(width, height, fullscreen);
 
     const SDL_VideoInfo* display_info = SDL_GetVideoInfo();
 
     glViewport(0, 0, display_info->current_w, display_info->current_h);
-    
+
     this->width  = display_info->current_w;
     this->height = display_info->current_h;
 }
@@ -322,46 +322,44 @@ void SDLAppDisplay::renderToTexture(GLuint target, int width, int height, GLenum
     glCopyTexImage2D(GL_TEXTURE_2D, 0, format, 0, 0, width, height, 0);
 }
 
-GLuint SDLAppDisplay::emptyTexture(int width, int height, GLenum format) {
-    GLuint textureid;
-
-    glEnable(GL_TEXTURE_2D);
-
-    glGenTextures(1, &textureid);
-    glBindTexture(GL_TEXTURE_2D, textureid);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0,
-        GL_RGBA, GL_UNSIGNED_BYTE, 0);
-
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-
-    return textureid;
-}
-
-GLuint SDLAppDisplay::createTexture(int width, int height, bool mipmaps, bool clamp, bool trilinear, GLenum format, unsigned int* data) {
+GLuint SDLAppDisplay::createTexture(int width, int height, bool mipmaps, bool clamp, bool trilinear, GLenum format, GLubyte* data) {
 
     GLuint textureid;
 
     glGenTextures(1, &textureid);
     glBindTexture(GL_TEXTURE_2D, textureid);
+
+    GLint internalFormat = 0;
+
+    switch(format) {
+        case GL_ALPHA:
+            internalFormat = GL_ALPHA;
+            break;
+        case GL_LUMINANCE:
+            internalFormat = GL_LUMINANCE;
+            break;
+        default:
+            internalFormat = GL_RGBA;
+            break;
+    }
 
     if(mipmaps) {
         gluBuild2DMipmaps(GL_TEXTURE_2D, 4, width, height, format, GL_UNSIGNED_BYTE, data);
+
+        if(trilinear) {
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+        } else {
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+        }
+
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST_MIPMAP_NEAREST);
+
     } else {
-    	glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     }
-
-    //GL_LINEAR_MIPMAP_LINEAR  - Trilinear
-    //GL_LINEAR_MIPMAP_NEAREST - Bilinear
-
-    if(trilinear) {
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-    }
-
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST_MIPMAP_NEAREST);
 
     if(clamp) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

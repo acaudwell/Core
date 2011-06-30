@@ -58,6 +58,7 @@
 #include "vectors.h"
 #include "logger.h"
 #include "resource.h"
+#include "texture.h"
 #include "vbo.h"
 
 #include <string>
@@ -85,14 +86,14 @@ class FXGlyphPage {
     int page_width;
     int page_height;
 public:
+    TextureResource* texture;
+
     FXGlyphPage(int page_width, int page_height);
     ~FXGlyphPage();
 
     bool addGlyph(FXGlyph* glyph);
 
     void updateTexture();
-
-    GLuint textureid;
 
     int cursor_x, cursor_y;
     int max_glyph_height;

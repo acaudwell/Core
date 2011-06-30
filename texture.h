@@ -31,7 +31,7 @@
 #include "SDL_image.h"
 
 #include "resource.h"
-#include "display.h"
+#include "gl.h"
 
 class TextureException : public ResourceException {
 public:
@@ -41,7 +41,6 @@ public:
 class TextureResource : public Resource {
     bool mipmaps;
     bool clamp;
-    bool trilinear;
     std::string filename;
 
     GLenum colourFormat(SDL_Surface* surface);
@@ -49,26 +48,32 @@ public:
     int w, h;
     GLenum format;
     GLuint textureid;
+    GLubyte* data;
 
-    TextureResource(int w, int h, GLenum format);
-    TextureResource(const std::string& filename, bool mipmaps, bool clamp, bool trilinear, bool external);
-    
+    TextureResource(GLuint textureid);
+    TextureResource(int width, int height,  bool mipmaps, bool clamp, GLenum format, GLubyte* data = 0);
+    TextureResource(const std::string& filename, bool mipmaps, bool clamp, bool external);
+
     inline void bind() const { glBindTexture(GL_TEXTURE_2D, textureid); };
-    
+
     void load();
     void unload();
-    
+
     ~TextureResource();
 };
 
 class TextureManager : public ResourceManager {
+    int  resource_seq;
 public:
+    bool trilinear;
+
     TextureManager();
-    TextureResource* grabFile(const std::string& filename, bool mipmaps=true, bool clamp=true, bool trilinear=false);
-    TextureResource* grab(const std::string& filename, bool mipmaps=true, bool clamp=true, bool trilinear=false, bool external_file = false);
-    
-    TextureResource* emptyTexture(const std::string& resource_name, int width, int height, GLenum format);
-     
+
+    TextureResource* grabFile(const std::string& filename, bool mipmaps=true, bool clamp=true);
+    TextureResource* grab(const std::string& filename, bool mipmaps=true, bool clamp=true, bool external_file = false);
+    TextureResource* create(int width, int height, bool mipmaps, bool clamp, GLenum format, GLubyte* data  = 0);
+    TextureResource* create();
+
     void unload();
     void reload();
 };

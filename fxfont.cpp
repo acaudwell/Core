@@ -100,7 +100,7 @@ void FXGlyph::setPage(FXGlyphPage* page, const vec4f& texcoords) {
 }
 
 void FXGlyph::drawToVBO(quadbuf& buffer, const vec2f& pos, const vec4f& colour) const {
-    buffer.add(page->textureid, pos + corner, dims, colour, texcoords);
+    buffer.add(page->texture->textureid, pos + corner, dims, colour, texcoords);
 }
 
 void FXGlyph::draw(const vec2f& pos) const {
@@ -121,8 +121,7 @@ FXGlyphPage::FXGlyphPage(int page_width, int page_height) {
     memset(texture_data, 0, page_width * page_height);
 
     needs_update = false;
-    textureid = 0;
-    glGenTextures(1, &textureid);
+    texture = 0;
 
     max_glyph_height = cursor_x = cursor_y = 1;
 }
@@ -181,14 +180,11 @@ bool FXGlyphPage::addGlyph(FXGlyph* glyph) {
 void FXGlyphPage::updateTexture() {
     if(!needs_update) return;
 
-    glBindTexture( GL_TEXTURE_2D, textureid);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-
-    glTexImage2D( GL_TEXTURE_2D, 0, GL_ALPHA, page_width, page_height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, texture_data );
+    if(!texture) {
+        texture = texturemanager.create(page_width, page_height, false, true, GL_ALPHA, texture_data);
+    } else {
+        texture->load();
+    }
 
     needs_update = false;
 }
@@ -342,9 +338,9 @@ void FXGlyphSet::draw(const std::string& text) {
 
         FXGlyph* glyph = getGlyph(chr);
 
-        if(glyph->page->textureid != textureid) {
+        if(glyph->page->texture->textureid != textureid) {
             if(textureid != -1) glEnd();
-            textureid = glyph->page->textureid;
+            textureid = glyph->page->texture->textureid;
             glBindTexture(GL_TEXTURE_2D, textureid);
             glBegin(GL_QUADS);
         }

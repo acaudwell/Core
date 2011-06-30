@@ -114,8 +114,8 @@ public:
     void fullScreenQuad(bool coord_flip);
 
     void   renderToTexture(GLuint target, int width, int height, GLenum format);
-    GLuint emptyTexture(int width, int height, GLenum format);
-    GLuint createTexture(int width, int height, bool mipmaps, bool clamp, bool trilinear, GLenum format, unsigned int* data);
+
+    GLuint createTexture(int width, int height, bool mipmaps, bool clamp, bool trilinear, GLenum format, GLubyte* data);
 
     vec3f project(vec3f pos);
     vec3f unproject(vec2f pos);
