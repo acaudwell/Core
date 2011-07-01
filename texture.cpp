@@ -55,25 +55,6 @@ TextureResource* TextureManager::grab(const std::string& filename, bool mipmaps,
     return (TextureResource*)r;
 }
 
-TextureResource* TextureManager::create() {
-
-    char res_name[256];
-    snprintf(res_name, 256, "__resource_%d", ++resource_seq);
-
-    std::string resource_name(res_name);
-
-    GLuint textureid;
-    glGenTextures(1, &textureid);
-
-    TextureResource* r = new TextureResource(textureid);
-
-    resources[resource_name] = r;
-
-    r->addref();
-
-    return (TextureResource*)r;
-}
-
 TextureResource* TextureManager::create(int width, int height, bool mipmaps, bool clamp, GLenum format, GLubyte* data) {
 
     char res_name[256];
@@ -106,15 +87,6 @@ void TextureManager::reload() {
 }
 
 // texture resource
-
-TextureResource::TextureResource(GLuint textureid) : textureid(textureid) {
-    w       = 0;
-    h       = 0;
-    format  = 0;
-    data    = 0;
-    mipmaps = false;
-    clamp   = false;
-}
 
 TextureResource::TextureResource(const std::string& filename, bool mipmaps, bool clamp, bool external) : Resource(filename) {
 
