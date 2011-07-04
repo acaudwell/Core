@@ -50,6 +50,7 @@ public:
     GLuint textureid;
     GLubyte* data;
 
+    TextureResource();
     TextureResource(int width, int height,  bool mipmaps, bool clamp, GLenum format, GLubyte* data = 0);
     TextureResource(const std::string& filename, bool mipmaps, bool clamp, bool external);
 
@@ -63,6 +64,8 @@ public:
 
 class TextureManager : public ResourceManager {
     int  resource_seq;
+
+    void addResource(TextureResource* r);
 public:
     bool trilinear;
 
@@ -71,6 +74,7 @@ public:
     TextureResource* grabFile(const std::string& filename, bool mipmaps=true, bool clamp=true);
     TextureResource* grab(const std::string& filename, bool mipmaps=true, bool clamp=true, bool external_file = false);
     TextureResource* create(int width, int height, bool mipmaps, bool clamp, GLenum format, GLubyte* data  = 0);
+    TextureResource* create();
 
     void unload();
     void reload();

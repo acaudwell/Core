@@ -55,19 +55,37 @@ TextureResource* TextureManager::grab(const std::string& filename, bool mipmaps,
     return (TextureResource*)r;
 }
 
+void TextureManager::addResource(TextureResource* r) {
+
+    if(r->resource_name.empty()) {
+        char res_name[256];
+        snprintf(res_name, 256, "__texture_resource_%d", ++resource_seq);
+
+        std::string resource_name(res_name);
+
+        r->setResourceName(resource_name);
+    }
+
+    resources[r->resource_name] = r;
+    r->addref();
+}
+
+TextureResource* TextureManager::create() {
+
+    TextureResource* r = new TextureResource();
+    r->load();
+
+    addResource(r);
+
+    return (TextureResource*)r;
+
+}
+
 TextureResource* TextureManager::create(int width, int height, bool mipmaps, bool clamp, GLenum format, GLubyte* data) {
 
-    char res_name[256];
-    snprintf(res_name, 256, "__resource_%d", ++resource_seq);
-
-    std::string resource_name(res_name);
-
     TextureResource* r = new TextureResource(width, height, mipmaps, clamp, format, data);
-    r->setResourceName(resource_name);
 
-    resources[resource_name] = r;
-
-    r->addref();
+    addResource(r);
 
     return (TextureResource*)r;
 
@@ -87,6 +105,16 @@ void TextureManager::reload() {
 }
 
 // texture resource
+
+TextureResource::TextureResource() {
+    textureid = 0;
+    w = 0;
+    h = 0;
+    format = 0;
+    data = 0;
+
+    load();
+}
 
 TextureResource::TextureResource(const std::string& filename, bool mipmaps, bool clamp, bool external) : Resource(filename) {
 
@@ -132,10 +160,14 @@ void TextureResource::unload() {
 void TextureResource::load() {
 
     if(filename.empty()) {
-        if(w == 0 || h == 0 || format == 0)
-            throw SDLAppException("Invalid TextureResource parameters");
+
+        if(w == 0) {
+            glGenTextures(1, &textureid);
+            return;
+        }
 
         textureid = display.createTexture(w, h, mipmaps, clamp, texturemanager.trilinear, format, data);
+
         return;
     }
 
