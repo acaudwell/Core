@@ -37,22 +37,18 @@ TextureManager::TextureManager() : ResourceManager() {
     trilinear    = false;
 }
 
-TextureResource* TextureManager::grabFile(const std::string& filename, bool mipmaps, bool clamp) {
-    return grab(filename, mipmaps, clamp, true);
+TextureResource* TextureManager::grabFile(const std::string& filename, bool mipmaps, GLint wrap) {
+    return grab(filename, mipmaps, wrap, true);
 }
 
-TextureResource* TextureManager::grab(const std::string& filename, bool mipmaps, bool clamp, bool external) {
+TextureResource* TextureManager::grab(const std::string& filename, bool mipmaps, GLint wrap, bool external) {
 
-    Resource* r = resources[filename];
+    TextureResource* r = new TextureResource(filename, mipmaps, wrap, external);
+    r->load();
 
-    if(r==0) {
-        r = new TextureResource(filename, mipmaps, clamp, external);
-        resources[filename] = r;
-    }
+    addResource(r);
 
-    r->addref();
-
-    return (TextureResource*)r;
+    return r;
 }
 
 void TextureManager::addResource(TextureResource* r) {
@@ -81,9 +77,10 @@ TextureResource* TextureManager::create() {
 
 }
 
-TextureResource* TextureManager::create(int width, int height, bool mipmaps, bool clamp, GLenum format, GLubyte* data) {
+TextureResource* TextureManager::create(int width, int height, bool mipmaps, GLint wrap, GLenum format, GLubyte* data) {
 
-    TextureResource* r = new TextureResource(width, height, mipmaps, clamp, format, data);
+    TextureResource* r = new TextureResource(width, height, mipmaps, wrap, format, data);
+    r->load();
 
     addResource(r);
 
@@ -104,22 +101,24 @@ void TextureManager::reload() {
     }
 }
 
-// texture resource
+// TextureResource
 
 TextureResource::TextureResource() {
     textureid = 0;
-    w = 0;
-    h = 0;
-    format = 0;
-    data = 0;
+    w         = 0;
+    h         = 0;
+    format    = 0;
+    data      = 0;
+    wrap      = GL_CLAMP_TO_EDGE;
+    mipmaps   = false;
 
-    load();
+    setDefaultFiltering();
 }
 
-TextureResource::TextureResource(const std::string& filename, bool mipmaps, bool clamp, bool external) : Resource(filename) {
+TextureResource::TextureResource(const std::string& filename, bool mipmaps, GLint wrap, bool external) : Resource(filename) {
 
     this->mipmaps   = mipmaps;
-    this->clamp     = clamp;
+    this->wrap     = wrap;
 
     data      = 0;
     format    = 0;
@@ -131,63 +130,131 @@ TextureResource::TextureResource(const std::string& filename, bool mipmaps, bool
     } else {
         this->filename = filename;
     }
-
-    load();
+    
+    setDefaultFiltering();
 }
 
-TextureResource::TextureResource(int width, int height, bool mipmaps, bool clamp, GLenum format, GLubyte* data) {
+TextureResource::TextureResource(int width, int height, bool mipmaps, GLint wrap, GLenum format, GLubyte* data) {
     this->w         = width;
     this->h         = height;
     this->data      = data;
-    this->mipmaps   = mipmaps;
-    this->clamp     = clamp;
     this->format    = format;
+    this->mipmaps   = mipmaps;
+    this->wrap      = wrap;
 
     textureid = 0;
 
-    load();
+    setDefaultFiltering();
 }
 
 TextureResource::~TextureResource() {
     unload();
 }
 
+void TextureResource::setDefaultFiltering() {
+
+    if(mipmaps) {
+
+        if(texturemanager.trilinear) {
+            min_filter = GL_LINEAR_MIPMAP_LINEAR;
+        } else {
+            min_filter = GL_LINEAR_MIPMAP_NEAREST;
+        }
+
+        mag_filter = GL_NEAREST_MIPMAP_NEAREST;
+        
+    } else {
+        min_filter = GL_LINEAR;
+        mag_filter = GL_LINEAR;
+    }
+
+}
+
+void TextureResource::setFiltering(GLint min_filter, GLint mag_filter) {
+    
+    this->min_filter = min_filter;
+    this->mag_filter = mag_filter;
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
+}
+
+void TextureResource::setWrap(GLint wrap) {
+    
+    this->wrap = wrap;
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
+}
+
+
 void TextureResource::unload() {
     if(textureid!=0) glDeleteTextures(1, &textureid);
     textureid=0;
 }
 
-void TextureResource::load() {
+void TextureResource::createTexture() {
 
-    if(filename.empty()) {
+    glGenTextures(1, &textureid);
+    glBindTexture(GL_TEXTURE_2D, textureid);
 
-        if(w == 0) {
-            glGenTextures(1, &textureid);
-            return;
+    if(w != 0 && format != 0) {
+    
+        GLint internalFormat = 0;
+
+        switch(format) {
+            case GL_ALPHA:
+                internalFormat = GL_ALPHA;
+                break;
+            case GL_LUMINANCE:
+                internalFormat = GL_LUMINANCE;
+                break;
+            default:
+                internalFormat = GL_RGBA;
+                break;
         }
 
-        textureid = display.createTexture(w, h, mipmaps, clamp, texturemanager.trilinear, format, data);
+        if(mipmaps) {
+            gluBuild2DMipmaps(GL_TEXTURE_2D, 4, w, h, format, GL_UNSIGNED_BYTE, data);
+        } else {
+            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, format, GL_UNSIGNED_BYTE, data);
+        }
+    }
+    
+    setFiltering(min_filter, mag_filter);
+    setWrap(wrap);
+}
 
-        return;
+void TextureResource::load() {
+    if(textureid != 0) return;    
+    
+    SDL_Surface *surface = 0;
+    
+    if(!filename.empty()) {
+        debugLog("creating texture from %s\n", filename.c_str());
+
+        surface = IMG_Load(filename.c_str());
+
+        if(surface==0) throw TextureException(filename);
+
+        w = surface->w;
+        h = surface->h;
+
+        //figure out image colour order
+        format = colourFormat(surface);
+
+        data = (GLubyte*) surface->pixels;
+        
+        if(format==0) throw TextureException(filename);
+    }
+   
+    createTexture();    
+
+    if(surface != 0) {
+        SDL_FreeSurface(surface);
+        data = 0;
     }
 
-    debugLog("creating texture from %s\n", filename.c_str());
-
-    SDL_Surface *surface = IMG_Load(filename.c_str());
-
-    if(surface==0) throw TextureException(filename);
-
-    w = surface->w;
-    h = surface->h;
-
-    //figure out image colour order
-    format = colourFormat(surface);
-
-    if(format==0) throw TextureException(filename);
-
-    textureid = display.createTexture(w, h, mipmaps, clamp, texturemanager.trilinear, format, (GLubyte*) surface->pixels);
-
-    SDL_FreeSurface(surface);
 }
 
 GLenum TextureResource::colourFormat(SDL_Surface* surface) {

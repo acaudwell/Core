@@ -40,7 +40,9 @@ public:
 
 class TextureResource : public Resource {
     bool mipmaps;
-    bool clamp;
+    GLint wrap;
+    GLint min_filter;
+    GLint mag_filter;
     std::string filename;
 
     GLenum colourFormat(SDL_Surface* surface);
@@ -51,11 +53,17 @@ public:
     GLubyte* data;
 
     TextureResource();
-    TextureResource(int width, int height,  bool mipmaps, bool clamp, GLenum format, GLubyte* data = 0);
-    TextureResource(const std::string& filename, bool mipmaps, bool clamp, bool external);
+    TextureResource(int width, int height,  bool mipmaps, GLint wrap, GLenum format, GLubyte* data = 0);
+    TextureResource(const std::string& filename, bool mipmaps, GLint wrap, bool external);
 
-    inline void bind() const { glBindTexture(GL_TEXTURE_2D, textureid); };
+    void setWrap(GLint wrap);
+    void setFiltering(GLint min_filter, GLint mag_filter);
+    void setDefaultFiltering();
+    
+    inline void bind() { if(!textureid) load(); glBindTexture(GL_TEXTURE_2D, textureid); };
 
+    void createTexture();
+    
     void load();
     void unload();
 
@@ -71,9 +79,10 @@ public:
 
     TextureManager();
 
-    TextureResource* grabFile(const std::string& filename, bool mipmaps=true, bool clamp=true);
-    TextureResource* grab(const std::string& filename, bool mipmaps=true, bool clamp=true, bool external_file = false);
-    TextureResource* create(int width, int height, bool mipmaps, bool clamp, GLenum format, GLubyte* data  = 0);
+    TextureResource* grabFile(const std::string& filename, bool mipmaps = true, GLint wrap = GL_CLAMP_TO_EDGE);
+    TextureResource*     grab(const std::string& filename, bool mipmaps = true, GLint wrap = GL_CLAMP_TO_EDGE, bool external_file = false);
+
+    TextureResource* create(int width, int height, bool mipmaps, GLint wrap, GLenum format, GLubyte* data  = 0);
     TextureResource* create();
 
     void unload();
