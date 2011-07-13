@@ -130,7 +130,7 @@ TextureResource::TextureResource(const std::string& filename, bool mipmaps, GLin
     } else {
         this->filename = filename;
     }
-    
+
     setDefaultFiltering();
 }
 
@@ -162,7 +162,7 @@ void TextureResource::setDefaultFiltering() {
         }
 
         mag_filter = GL_NEAREST_MIPMAP_NEAREST;
-        
+
     } else {
         min_filter = GL_LINEAR;
         mag_filter = GL_LINEAR;
@@ -171,18 +171,18 @@ void TextureResource::setDefaultFiltering() {
 }
 
 void TextureResource::setFiltering(GLint min_filter, GLint mag_filter) {
-    
+
     this->min_filter = min_filter;
     this->mag_filter = mag_filter;
-    
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
 }
 
-void TextureResource::setWrap(GLint wrap) {
-    
+void TextureResource::setWrapStyle(GLint wrap) {
+
     this->wrap = wrap;
-    
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
 }
@@ -199,7 +199,7 @@ void TextureResource::createTexture() {
     glBindTexture(GL_TEXTURE_2D, textureid);
 
     if(w != 0 && format != 0) {
-    
+
         GLint internalFormat = 0;
 
         switch(format) {
@@ -220,16 +220,16 @@ void TextureResource::createTexture() {
             glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, format, GL_UNSIGNED_BYTE, data);
         }
     }
-    
+
     setFiltering(min_filter, mag_filter);
-    setWrap(wrap);
+    setWrapStyle(wrap);
 }
 
 void TextureResource::load() {
-    if(textureid != 0) return;    
-    
+    if(textureid != 0) return;
+
     SDL_Surface *surface = 0;
-    
+
     if(!filename.empty()) {
         debugLog("creating texture from %s\n", filename.c_str());
 
@@ -244,11 +244,11 @@ void TextureResource::load() {
         format = colourFormat(surface);
 
         data = (GLubyte*) surface->pixels;
-        
+
         if(format==0) throw TextureException(filename);
     }
-   
-    createTexture();    
+
+    createTexture();
 
     if(surface != 0) {
         SDL_FreeSurface(surface);

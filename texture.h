@@ -56,14 +56,15 @@ public:
     TextureResource(int width, int height,  bool mipmaps, GLint wrap, GLenum format, GLubyte* data = 0);
     TextureResource(const std::string& filename, bool mipmaps, GLint wrap, bool external);
 
-    void setWrap(GLint wrap);
+    void setWrapStyle(GLint wrap);
+
     void setFiltering(GLint min_filter, GLint mag_filter);
     void setDefaultFiltering();
-    
+
     inline void bind() { if(!textureid) load(); glBindTexture(GL_TEXTURE_2D, textureid); };
 
     void createTexture();
-    
+
     void load();
     void unload();
 
