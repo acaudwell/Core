@@ -161,7 +161,7 @@ void TextureResource::setDefaultFiltering() {
             min_filter = GL_LINEAR_MIPMAP_NEAREST;
         }
 
-        mag_filter = GL_NEAREST_MIPMAP_NEAREST;
+        mag_filter = GL_LINEAR;
 
     } else {
         min_filter = GL_LINEAR;
