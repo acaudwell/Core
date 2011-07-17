@@ -90,6 +90,7 @@ Shader::Shader(const std::string& prefix) : Resource(prefix) {
 }
 
 Shader::Shader() {
+    shaderProg = 0;
 }
 
 Shader::~Shader() {
