@@ -181,7 +181,7 @@ void FXGlyphPage::updateTexture() {
     if(!needs_update) return;
 
     if(!texture) {
-        texture = texturemanager.create(page_width, page_height, false, true, GL_ALPHA, texture_data);
+        texture = texturemanager.create(page_width, page_height, false, GL_CLAMP_TO_EDGE, GL_ALPHA, texture_data);
     } else {
         texture->load();
     }
