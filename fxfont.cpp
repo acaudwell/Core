@@ -232,7 +232,8 @@ void FXGlyphSet::precache(const std::string& chars) {
     //add to bitmap without updating textures until the end
     pre_caching = true;
 
-    while (chr = *precache_glyphs++) {
+    while (*precache_glyphs) {
+        chr  = *precache_glyphs++;
         getGlyph(chr);
     }
 
