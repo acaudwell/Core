@@ -64,6 +64,18 @@ public:
                        vec.x * m.matrix[2][0] + vec.y * m.matrix[2][1] + vec.z * m.matrix[2][2]);
     }
 
+    mat3<T> transpose() {
+        return mat3<T>( vec3<T>(matrix[0][0], matrix[0][1], matrix[0][2]),
+                        vec3<T>(matrix[1][0], matrix[1][1], matrix[1][2]),
+                        vec3<T>(matrix[2][0], matrix[2][1], matrix[2][2]));        
+    }
+
+    mat3<T> operator -() {
+        return mat3<T>( vec3<T>(-matrix[0][0], -matrix[1][0], -matrix[2][0]),
+                        vec3<T>(-matrix[0][1], -matrix[1][1], -matrix[2][1]),
+                        vec3<T>(-matrix[0][2], -matrix[1][2], -matrix[2][2]));             
+    }
+
     operator T*() const {
             return (T*) &matrix;
     }
