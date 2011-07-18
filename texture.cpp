@@ -43,9 +43,17 @@ TextureResource* TextureManager::grabFile(const std::string& filename, bool mipm
 
 TextureResource* TextureManager::grab(const std::string& filename, bool mipmaps, GLint wrap, bool external) {
 
-    TextureResource* r = new TextureResource(filename, mipmaps, wrap, external);
-    r->load();
+    TextureResource* r = 0;
+    
+    //look up this resource
+    if((r = (TextureResource*) resources[filename]) != 0) {
+        r->addref();
+        return r;
+    }
 
+    r = new TextureResource(filename, mipmaps, wrap, external);
+    r->load();
+    
     addResource(r);
 
     return r;
