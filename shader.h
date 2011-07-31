@@ -46,7 +46,11 @@ class Shader : public Resource {
     std::map<std::string, GLint> varMap;
     std::map<GLenum, std::string> srcMap;
 
-    GLenum shaderProg;
+    GLenum geom_input_type;
+    GLenum geom_output_type;
+    GLuint geom_max_vertices;
+
+    GLenum program;
 
     GLint getVarLocation(const std::string& name);
 
@@ -54,7 +58,10 @@ class Shader : public Resource {
 
     GLenum compile(GLenum shaderType);
 
-    void checkError(GLenum shaderType, GLenum shaderRef);
+    void checkShaderError(GLenum shaderType, GLenum shaderRef);
+    void checkProgramError();
+
+    void setDefaults();
 public:
     Shader();
     Shader(const std::string& prefix);
@@ -66,9 +73,11 @@ public:
 
     void load();
     void unload();
-    
+
     void includeSource(GLenum shaderType, const std::string& source);
     bool includeFile(GLenum shaderType,   const std::string& filename);
+
+    void geometrySettings(GLenum input_type, GLenum  output_type, GLuint max_vertices);
 
     void setInteger (const std::string& name, int value);
     void setFloat(const std::string& name, float value);
@@ -81,14 +90,15 @@ public:
 
 class ShaderManager : public ResourceManager {
 public:
-    bool debug;
-    ShaderManager() {
-        debug = false;
-    }
+    bool warnings;
+
+    ShaderManager();
     Shader* grab(const std::string& shader_prefix);
-    
-    void manage(Shader* shader);    
-    
+
+    void enableWarnings(bool warnings);
+
+    void manage(Shader* shader);
+
     void unload();
     void reload();
 };

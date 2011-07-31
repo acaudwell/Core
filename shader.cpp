@@ -31,6 +31,14 @@ ShaderManager shadermanager;
 
 //ShaderManager
 
+ShaderManager::ShaderManager() {
+    warnings = false;
+}
+
+void ShaderManager::enableWarnings(bool warnings) {
+    this->warnings = warnings;
+}
+
 Regex Shader_pre_include("^\\s*#include\\s*\"([^\"]+)\"");
 
 Shader* ShaderManager::grab(const std::string& shader_prefix) {
@@ -49,28 +57,28 @@ Shader* ShaderManager::grab(const std::string& shader_prefix) {
 void ShaderManager::manage(Shader* shader) {
 
     if(shader->resource_name.empty()) {
-        throw SDLAppException("Cannot manage shader with no resource name");   
+        throw SDLAppException("Cannot manage shader with no resource name");
     }
-    
+
     if(resources[shader->resource_name] != 0) {
         throw SDLAppException("A shader resource already exists under the name '%s'", shader->resource_name.c_str());
     }
 
     resources[shader->resource_name] = shader;
- 
+
     shader->addref();
 }
 
 void ShaderManager::unload() {
     for(std::map<std::string, Resource*>::iterator it= resources.begin(); it!=resources.end();it++) {
         ((Shader*)it->second)->load();
-    }    
+    }
 }
 
 void ShaderManager::reload() {
     for(std::map<std::string, Resource*>::iterator it= resources.begin(); it!=resources.end();it++) {
         ((Shader*)it->second)->load();
-    }    
+    }
 }
 
 //Shader
@@ -84,13 +92,21 @@ Shader::Shader(const std::string& prefix) : Resource(prefix) {
     includeFile(GL_VERTEX_SHADER,   vertexFile);
     includeFile(GL_FRAGMENT_SHADER, fragmentFile);
 
-    shaderProg = 0;
-    
+    setDefaults();
+
     load();
 }
 
 Shader::Shader() {
-    shaderProg = 0;
+    setDefaults();
+}
+
+void Shader::setDefaults() {
+    program = 0;
+
+    geom_input_type    = GL_POINTS;
+    geom_output_type   = GL_POINTS;
+    geom_max_vertices  = 1;
 }
 
 Shader::~Shader() {
@@ -98,34 +114,103 @@ Shader::~Shader() {
 }
 
 void Shader::unload() {
-    if(shaderProg != 0) glDeleteProgram(shaderProg);
-    shaderProg = 0;
+    if(program != 0) glDeleteProgram(program);
+    program = 0;
+}
+
+void Shader::geometrySettings(GLenum input_type, GLenum  output_type, GLuint max_vertices) {
+    this->geom_input_type   = input_type;
+    this->geom_output_type  = output_type;
+    this->geom_max_vertices = max_vertices;
 }
 
 void Shader::load() {
-    if(shaderProg !=0) unload();    
-    
+    if(program !=0) unload();
+
     GLenum vertexShader   = compile(GL_VERTEX_SHADER);
+    GLenum geometryShader = compile(GL_GEOMETRY_SHADER_EXT);
     GLenum fragmentShader = compile(GL_FRAGMENT_SHADER);
 
-    shaderProg = glCreateProgram();
+    program = glCreateProgram();
 
-    glAttachShader(shaderProg, fragmentShader);
-    glAttachShader(shaderProg, vertexShader);
+    if(vertexShader!=0)   glAttachShader(program, vertexShader);
+    if(geometryShader!=0) glAttachShader(program, geometryShader);
+    if(fragmentShader!=0) glAttachShader(program, fragmentShader);
 
-    glLinkProgram(shaderProg);
+    if(geometryShader != 0) {
+        glProgramParameteriEXT(program, GL_GEOMETRY_INPUT_TYPE_EXT,   geom_input_type);
+        glProgramParameteriEXT(program, GL_GEOMETRY_OUTPUT_TYPE_EXT,  geom_output_type);
+        glProgramParameteriEXT(program, GL_GEOMETRY_VERTICES_OUT_EXT, geom_max_vertices);
+    }
 
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    glLinkProgram(program);
+
+    checkProgramError();
+
+    if(vertexShader!=0)   glDeleteShader(fragmentShader);
+    if(geometryShader!=0) glDeleteShader(geometryShader);
+    if(fragmentShader!=0) glDeleteShader(vertexShader);
 }
 
-void Shader::checkError(GLenum shaderType, GLenum shaderRef) {
+void Shader::checkProgramError() {
+
+    GLint link_success;
+    glGetProgramiv(program, GL_LINK_STATUS, &link_success);
+
+    GLint info_log_length;
+    glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_log_length);
+
+    const char* resource_desc = resource_name.empty() ? resource_name.c_str() : "???";
+
+    if(info_log_length > 1) {
+        char info_log[info_log_length];
+
+        glGetProgramInfoLog(program, info_log_length, &info_log_length, info_log);
+
+        if(!link_success) {
+            throw SDLAppException("shader '%s' failed to link:\n%s",
+                                  resource_desc,
+                                  info_log);
+        }
+
+        if(shadermanager.warnings) {
+            fprintf(stderr, "shader '%s':\n%s",
+                            resource_desc,
+                            info_log);
+        }
+
+        return;
+    }
+
+    if(!link_success) {
+        throw SDLAppException("shader '%s' failed to link",
+                              resource_desc);
+    }
+}
+
+void Shader::checkShaderError(GLenum shaderType, GLenum shaderRef) {
 
     GLint compile_success;
     glGetShaderiv(shaderRef, GL_COMPILE_STATUS, &compile_success);
 
     GLint info_log_length;
     glGetShaderiv(shaderRef, GL_INFO_LOG_LENGTH, &info_log_length);
+
+    const char* shader_desc;
+
+    switch(shaderType) {
+        case GL_VERTEX_SHADER:
+            shader_desc = "vertex";
+            break;
+        case GL_FRAGMENT_SHADER:
+            shader_desc = "fragment";
+            break;
+        case GL_GEOMETRY_SHADER_EXT:
+            shader_desc = "geometry";
+            break;
+    }
+
+    const char* resource_desc = resource_name.empty() ? resource_name.c_str() : "???";
 
     if(info_log_length > 1) {
         char info_log[info_log_length];
@@ -134,15 +219,15 @@ void Shader::checkError(GLenum shaderType, GLenum shaderRef) {
 
         if(!compile_success) {
             throw SDLAppException("%s shader '%s' failed to compile:\n%s",
-                                  (shaderType == GL_VERTEX_SHADER ? "vertex" : "fragment"),
-                                  (!resource_name.empty() ? resource_name.c_str() : "???"),
+                                  shader_desc,
+                                  resource_desc,
                                   info_log);
         }
 
-        if(shadermanager.debug) {
+        if(shadermanager.warnings) {
             fprintf(stderr, "%s shader '%s':\n%s",
-                            (shaderType == GL_VERTEX_SHADER ? "vertex" : "fragment"),
-                            (!resource_name.empty() ? resource_name.c_str() : "???"),
+                            shader_desc,
+                            resource_desc,
                             info_log);
         }
 
@@ -151,12 +236,14 @@ void Shader::checkError(GLenum shaderType, GLenum shaderRef) {
 
     if(!compile_success) {
         throw SDLAppException("%s shader '%s' failed to compile",
-                              (shaderType == GL_VERTEX_SHADER ? "vertex" : "fragment"),
-                              (!resource_name.empty() ? resource_name.c_str() : "???"));
+                              shader_desc,
+                              resource_desc);
     }
 }
 
 GLenum Shader::compile(GLenum shaderType) {
+
+    if(srcMap[shaderType].empty()) return 0;
 
     GLenum shaderRef = glCreateShader(shaderType);
 
@@ -169,7 +256,7 @@ GLenum Shader::compile(GLenum shaderType) {
 
     glCompileShader(shaderRef);
 
-    checkError(shaderType, shaderRef);
+    checkShaderError(shaderType, shaderRef);
 
     return shaderRef;
 }
@@ -231,11 +318,11 @@ bool Shader::includeFile(GLenum shaderType, const std::string& filename) {
 }
 
 void Shader::use() {
-    glUseProgram(shaderProg);
+    glUseProgram(program);
 }
 
 GLenum Shader::getProgram() {
-    return shaderProg;
+    return program;
 }
 
 GLint Shader::getVarLocation(const std::string& name) {
@@ -244,7 +331,7 @@ GLint Shader::getVarLocation(const std::string& name) {
 
     if(loc != -1) return loc;
 
-    loc = glGetUniformLocation( shaderProg, name.c_str() );
+    loc = glGetUniformLocation( program, name.c_str() );
 
     varMap[name] = loc + 1;
 
