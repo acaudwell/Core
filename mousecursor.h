@@ -39,11 +39,15 @@ class MouseCursor {
 
     float idle;
     float timeout;
+    
+    SDL_Cursor* sdl_default_cursor;
+    SDL_Cursor* sdl_hidden_cursor;
 
     TextureResource* cursortex;
 public:
     MouseCursor();
-
+    ~MouseCursor();
+    
     vec2f getPos() const { return mousepos; }
 
     bool leftButtonPressed() const;

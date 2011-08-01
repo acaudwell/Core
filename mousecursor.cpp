@@ -33,16 +33,32 @@ MouseCursor::MouseCursor() {
     hidden        = false;
     timeout       = 3.0f;
     idle          = timeout;
+    
+    sdl_default_cursor = SDL_GetCursor();
+    
+    
+    Uint8 data[4*32];
+    Uint8 mask[4*32];
+    
+    memset(data, 0, sizeof(data));
+    memset(mask, 0, sizeof(mask));
+  
+    sdl_hidden_cursor = SDL_CreateCursor(data, mask, 32, 32, 0, 0);
+}
+
+MouseCursor::~MouseCursor() {
+    SDL_SetCursor(sdl_default_cursor);
+    SDL_FreeCursor(sdl_hidden_cursor);
 }
 
 void MouseCursor::useSystemCursor(bool system_cursor) {
     this->system_cursor = system_cursor;
 
     if(!hidden) {
-        if(system_cursor) SDL_ShowCursor(true);
-        else SDL_ShowCursor(false);
+        if(system_cursor) SDL_SetCursor(sdl_default_cursor);
+        else SDL_SetCursor(sdl_hidden_cursor);
     } else {
-        SDL_ShowCursor(false);
+        SDL_SetCursor(sdl_hidden_cursor);
     }
 }
 
@@ -53,8 +69,8 @@ void MouseCursor::showCursor(bool show) {
     if(show) idle = 0.0;
 
     if(system_cursor) {
-        if(show) SDL_ShowCursor(true);
-        else SDL_ShowCursor(false);
+        if(show) SDL_SetCursor(sdl_default_cursor);
+        else SDL_SetCursor(sdl_hidden_cursor);
     }
 }
 
