@@ -160,7 +160,7 @@ void Shader::checkProgramError() {
     GLint info_log_length;
     glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_log_length);
 
-    const char* resource_desc = resource_name.empty() ? resource_name.c_str() : "???";
+    const char* resource_desc = !resource_name.empty() ? resource_name.c_str() : "???";
 
     if(info_log_length > 1) {
         char info_log[info_log_length];
@@ -210,7 +210,7 @@ void Shader::checkShaderError(GLenum shaderType, GLenum shaderRef) {
             break;
     }
 
-    const char* resource_desc = resource_name.empty() ? resource_name.c_str() : "???";
+    const char* resource_desc = !resource_name.empty() ? resource_name.c_str() : "???";
 
     if(info_log_length > 1) {
         char info_log[info_log_length];
