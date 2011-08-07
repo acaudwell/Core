@@ -363,6 +363,11 @@ void Shader::setMat3 (const std::string& name, const mat3f& value) {
     glUniformMatrix3fv(loc, 1, 0, value);
 }
 
+void Shader::setMat4 (const std::string& name, const mat4f& value) {
+    GLint loc = getVarLocation(name);
+    glUniformMatrix4fv(loc, 1, 0, value);
+}
+
 void Shader::setInteger (const std::string& name, int value) {
     GLint loc =  getVarLocation(name);
     glUniform1i(loc, value);

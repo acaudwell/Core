@@ -85,6 +85,8 @@ public:
     void setVec3 (const std::string& name, const vec3f& value);
     void setVec4 (const std::string& name, const vec4f& value);
     void setMat3 (const std::string& name, const mat3f& value);
+    void setMat4 (const std::string& name, const mat4f& value);
+
     void use();
 };
 

@@ -35,14 +35,18 @@ public:
     T x;
     T y;
 
-    vec2(const vec2<T>& vec) {
-        this->x = vec.x;
-        this->y = vec.y;
+    vec2() {
+        x = T();
+        y = T();
     }
 
-    vec2(T x = 0, T y = 0) {
-        this->x = x;
-        this->y = y;
+    vec2(T x, T y) : x(x), y(y) {
+    }
+
+    vec2(const vec2<T>& vec) : x(vec.x), y(vec.y) {
+    }
+
+    vec2(T n) : x(n), y(n) {
     }
 
     vec2<T> perpendicular() const {
@@ -179,22 +183,22 @@ public:
     T y;
     T z;
 
-    vec3(const vec3<T>& vec) {
-        this->x = vec.x;
-        this->y = vec.y;
-        this->z = vec.z;
+    vec3() {
+        x = T();
+        y = T();
+        z = T();
     }
 
-    vec3(const vec2<T>& vec, float z) {
-        this->x = vec.x;
-        this->y = vec.y;
-        this->z = z;
+    vec3(const vec3<T>& vec) : x(vec.x), y(vec.y), z(vec.z) {
     }
 
-    vec3(T x = 0, T y = 0, T z = 0) {
-        this->x = x;
-        this->y = y;
-        this->z = z;
+    vec3(const vec2<T>& vec, float z) : x(vec.x), y(vec.y), z(z) {
+    }
+
+    vec3(T x, T y, T z) : x(x), y(y), z(z) {
+    }
+
+    vec3(T n) : x(n), y(n), z(n) {
     }
 
     vec3<T> cross(const vec3<T>& vec) const {
@@ -333,7 +337,7 @@ public:
 
     lerp3(const vec3<T>& vec) : vec3<T>(vec) {
     }
-    
+
     void snap() {
         p = (vec3<T>) *this;
     }
@@ -355,25 +359,20 @@ public:
     T z;
     T w;
 
-    vec4(T x = 0, T y = 0, T z = 0, T w = 0) {
-        this->x = x;
-        this->y = y;
-        this->z = z;
-        this->w = w;
+    vec4() {
+        x = T();
+        y = T();
+        z = T();
+        w = T();
     }
 
-    vec4(const vec4<T>& vec) {
-        this->x = vec.x;
-        this->y = vec.y;
-        this->z = vec.z;
-        this->w = vec.w;
+    vec4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {
     }
 
-    vec4(const vec3<T>& vec, T w) {
-        this->x = vec.x;
-        this->y = vec.y;
-        this->z = vec.z;
-        this->w = w;
+    vec4(const vec4<T>& vec) : x(vec.x), y(vec.y), z(vec.z), w(vec.w) {
+    }
+
+    vec4(const vec3<T>& vec, T w) : x(vec.x), y(vec.y), z(vec.z), w(w) {
     }
 
     vec4<T>& operator= (const vec4<T> &vec) {
