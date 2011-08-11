@@ -29,12 +29,9 @@
 #define FRUSTUM_H
 
 #include "vectors.h"
-#include "camera.h"
 #include "plane.h"
 #include "pi.h"
 #include "bounds.h"
-
-class Camera;
 
 class Frustum {
 
@@ -55,10 +52,12 @@ class Frustum {
     Plane planes[6];
 public:
     Frustum();
-    Frustum(Camera& camera);
-    void update(Camera& camera);
-    void updatePerspective(Camera& camera);
-    void updateView(Camera& camera);
+    Frustum(const vec3f& source, const vec3f& target, const vec3f& up, float fov, float near_distance, float far_distance);
+
+    void update(const vec3f& source, const vec3f& target, const vec3f& up, float fov, float near_distance, float far_distance);
+
+    void updatePerspective(float fov, float near_distance, float far_distance);
+    void updateView(const vec3f& source, const vec3f& target, const vec3f& up);
 
     bool contains(const vec3f& p) const;
 

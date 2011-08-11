@@ -33,20 +33,21 @@
 Frustum::Frustum() {
 }
 
-Frustum::Frustum(Camera& camera) {
-    update(camera);
+Frustum::Frustum(const vec3f& source, const vec3f& target, const vec3f& up, float fov, float near_distance, float far_distance) {
+    update(source, target, up, fov, near_distance, far_distance);
 }
 
-void Frustum::update(Camera& camera) {
-    updatePerspective(camera);
-    updateView(camera);
+void Frustum::update(const vec3f& source, const vec3f& target, const vec3f& up, float fov, float near_distance, float far_distance) {
+    updatePerspective(fov, near_distance, far_distance);
+    updateView(source, target, up);
 }
 
-void Frustum::updatePerspective(Camera& camera) {
+void Frustum::updatePerspective(float fov, float near_distance, float far_distance) {
+
+    this->near_distance = near_distance;
+    this->far_distance  = far_distance;
+
     view_ratio    = (float) display.width / (float) display.height;
-    fov           = camera.getFov();
-    near_distance = camera.getZNear();
-    far_distance  = camera.getZFar();
 
     float toa = (float) tan(fov * 0.5 * DEGREES_TO_RADIANS);
 
@@ -56,10 +57,7 @@ void Frustum::updatePerspective(Camera& camera) {
     far_half_width   = far_half_height * view_ratio;
 }
 
-void Frustum::updateView(Camera& camera) {
-    vec3f source = camera.getPos();
-    vec3f target = camera.getTarget();
-    vec3f up     = camera.getUp();
+void Frustum::updateView(const vec3f& source, const vec3f& target, const vec3f& up) {
 
     vec3f view_ray = target - source;
     view_ray.normalize();
