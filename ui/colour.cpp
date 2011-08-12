@@ -214,11 +214,13 @@ void UISatSlider::setColour(UIColour* colour) {
 void UISatSlider::drawContent() {
     if(!colour) return;
 
-    glDisable(GL_TEXTURE_2D);
+    float lightness = std::min(0.75f, std::max(0.25f, colour->lightness));
 
+    glDisable(GL_TEXTURE_2D);
+    
     //saturation gradient
-    vec4f colour1 = vec4f(colour->toColour(colour->hue, 0.0f, colour->lightness), 1.0f);    
-    vec4f colour2 = vec4f(colour->toColour(colour->hue, 1.0f, colour->lightness), 1.0f);
+    vec4f colour1 = vec4f(colour->toColour(colour->hue, 0.0f, lightness), 1.0f);    
+    vec4f colour2 = vec4f(colour->toColour(colour->hue, 1.0f, lightness), 1.0f);
     
     drawGradient(rect, colour1, colour2);
 
@@ -243,18 +245,21 @@ void UIHueSlider::setColour(UIColour* colour) {
 
 void UIHueSlider::drawContent() {
     if(!colour) return;
+         
+    float saturation = std::max(0.25f, colour->saturation);
+    float lightness  = std::min(0.75f, std::max(0.25f, colour->lightness));
 
     glDisable(GL_TEXTURE_2D);
 
     glPushMatrix();
-
-    vec4f colour1(colour->toColour(0.0f,     colour->saturation, colour->lightness), 1.0f);
-    vec4f colour2(colour->toColour(0.16667f, colour->saturation, colour->lightness), 1.0f);
-    vec4f colour3(colour->toColour(0.33333f, colour->saturation, colour->lightness), 1.0f);
-    vec4f colour4(colour->toColour(0.5f,     colour->saturation, colour->lightness), 1.0f);
-    vec4f colour5(colour->toColour(0.66667f, colour->saturation, colour->lightness), 1.0f);
-    vec4f colour6(colour->toColour(0.83333f, colour->saturation, colour->lightness), 1.0f);
-    vec4f colour7(colour->toColour(1.0f,     colour->saturation, colour->lightness), 1.0f);
+    
+    vec4f colour1(colour->toColour(0.0f,     saturation, lightness), 1.0f);
+    vec4f colour2(colour->toColour(0.16667f, saturation, lightness), 1.0f);
+    vec4f colour3(colour->toColour(0.33333f, saturation, lightness), 1.0f);
+    vec4f colour4(colour->toColour(0.5f,     saturation, lightness), 1.0f);
+    vec4f colour5(colour->toColour(0.66667f, saturation, lightness), 1.0f);
+    vec4f colour6(colour->toColour(0.83333f, saturation, lightness), 1.0f);
+    vec4f colour7(colour->toColour(1.0f,     saturation, lightness), 1.0f);
     
     float width = rect.x*0.16667f;
     
