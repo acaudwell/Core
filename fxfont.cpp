@@ -76,37 +76,40 @@ FXGlyph::FXGlyph(FXGlyphSet* set, unsigned int chr) {
 
     glyph_bitmap = (FT_BitmapGlyph)ftglyph;
 
-    dims    = vec2f( glyph_bitmap->bitmap.width, glyph_bitmap->bitmap.rows) + vec2f(2.0f, 2.0f);
-    corner  = vec2f( glyph_bitmap->left, -glyph_bitmap->top) + vec2f(0.5, -0.5);
-    advance = vec2f( ftface->glyph->advance.x >> 6, ftface->glyph->advance.y >> 6);
+    dims    = vec2( glyph_bitmap->bitmap.width, glyph_bitmap->bitmap.rows) + vec2(2.0f, 2.0f);
+    corner  = vec2( glyph_bitmap->left, -glyph_bitmap->top) + vec2(0.5, -0.5);
+    advance = vec2( ftface->glyph->advance.x >> 6, ftface->glyph->advance.y >> 6);
 
-    vertex_positions[0] = vec2f(0.0f, 0.0f);
-    vertex_positions[1] = vec2f(dims.x, 0.0f);
+    vertex_positions[0] = vec2(0.0f, 0.0f);
+    vertex_positions[1] = vec2(dims.x, 0.0f);
     vertex_positions[2] = dims;
-    vertex_positions[3] = vec2f(0.0f, dims.y);
+    vertex_positions[3] = vec2(0.0f, dims.y);
 
     //call_list = 0;
     page = 0;
 }
 
-void FXGlyph::setPage(FXGlyphPage* page, const vec4f& texcoords) {
+void FXGlyph::setPage(FXGlyphPage* page, const vec4& texcoords) {
     this->page = page;
     this->texcoords = texcoords;
 
-    vertex_texcoords[0] = vec2f(texcoords.x, texcoords.y);
-    vertex_texcoords[1] = vec2f(texcoords.z, texcoords.y);
-    vertex_texcoords[2] = vec2f(texcoords.z, texcoords.w);
-    vertex_texcoords[3] = vec2f(texcoords.x, texcoords.w);
+    vertex_texcoords[0] = vec2(texcoords.x, texcoords.y);
+    vertex_texcoords[1] = vec2(texcoords.z, texcoords.y);
+    vertex_texcoords[2] = vec2(texcoords.z, texcoords.w);
+    vertex_texcoords[3] = vec2(texcoords.x, texcoords.w);
 }
 
-void FXGlyph::drawToVBO(quadbuf& buffer, const vec2f& pos, const vec4f& colour) const {
+void FXGlyph::drawToVBO(quadbuf& buffer, const vec2& pos, const vec4& colour) const {
     buffer.add(page->texture->textureid, pos + corner, dims, colour, texcoords);
 }
 
-void FXGlyph::draw(const vec2f& pos) const {
+void FXGlyph::draw(const vec2& pos) const {
     for(int i=0;i<4;i++) {
-        glTexCoord2fv(vertex_texcoords[i]);
-        glVertex2fv(vertex_positions[i] + pos + corner);
+        vec2 pos_offset = vertex_positions[i] + pos + corner;
+        
+        glTexCoord2fv(glm::value_ptr(vertex_texcoords[i]));
+        glVertex2fv(glm::value_ptr(pos_offset));
+        
     }
 }
 
@@ -161,7 +164,7 @@ bool FXGlyphPage::addGlyph(FXGlyph* glyph) {
 
     //fprintf(stderr, "corner_x = %d, corner_y = %d\n", corner_x, corner_y);
 
-    vec4f texcoords = vec4f( (((float)corner_x)-0.5f) / (float) page_width,
+    vec4 texcoords = vec4( (((float)corner_x)-0.5f) / (float) page_width,
                              (((float)corner_y)-0.5f) / (float) page_height,
                              (((float)corner_x+bitmap->bitmap.width)+1.5f) / (float) page_width,
                              (((float)corner_y+bitmap->bitmap.rows)+1.5f) / (float) page_height );
@@ -310,7 +313,7 @@ float FXGlyphSet::getWidth(const std::string& text) {
     return width;
 }
 
-void FXGlyphSet::drawToVBO(vec2f& cursor, const std::string& text, const vec4f& colour) {
+void FXGlyphSet::drawToVBO(vec2& cursor, const std::string& text, const vec4& colour) {
     FTUnicodeStringItr<unsigned char> unicode_text((const unsigned char*)text.c_str());
 
     unsigned int chr;
@@ -332,7 +335,7 @@ void FXGlyphSet::draw(const std::string& text) {
 
     unsigned int chr;
 
-    vec2f pos;
+    vec2 pos;
 
     while (*unicode_text) {
         chr = *unicode_text++;
@@ -367,13 +370,13 @@ FXFont::FXFont(FXGlyphSet* glyphset) {
 void FXFont::init() {
     shadow          = false;
     shadow_strength = 0.7;
-    shadow_offset   = vec2f(1.0, 1.0);
+    shadow_offset   = vec2(1.0, 1.0);
     round           = false;
     align_right     = false;
     align_top       = true;
 
-    colour          = vec4f(1.0f, 1.0f, 1.0f, 1.0f);
-    shadow_colour   = vec4f(0.0f, 0.0f, 0.0f, shadow_strength);
+    colour          = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    shadow_colour   = vec4(0.0f, 0.0f, 0.0f, shadow_strength);
 }
 
 void FXFont::roundCoordinates(bool round) {
@@ -393,7 +396,7 @@ void FXFont::shadowStrength(float s) {
     shadow_colour.w = colour.w * shadow_strength;
 }
 
-void FXFont::setColour(const vec4f& colour) {
+void FXFont::setColour(const vec4& colour) {
     this->colour = colour;
     shadow_colour.w = colour.w * shadow_strength;
 }
@@ -404,7 +407,7 @@ void FXFont::setAlpha(float alpha) {
 }
 
 void FXFont::shadowOffset(float x, float y) {
-    shadow_offset = vec2f(x,y);
+    shadow_offset = vec2(x,y);
 }
 
 void FXFont::dropShadow(bool shadow) {
@@ -431,15 +434,15 @@ float FXFont::getWidth(const std::string& text) const {
     return glyphset->getWidth(text);
 }
 
-void FXFont::render(float x, float y, const std::string& text, const vec4f& colour) const{
+void FXFont::render(float x, float y, const std::string& text, const vec4& colour) const{
 
     if(fontmanager.use_vbo) {
-        vec2f cursor_start(x,y);
+        vec2 cursor_start(x,y);
         glyphset->drawToVBO(cursor_start, text, colour);
         return;
     }
 
-    glColor4fv(colour);
+    glColor4fv(glm::value_ptr(colour));
 
     glPushMatrix();
 

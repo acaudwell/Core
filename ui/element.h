@@ -15,20 +15,20 @@ class UIElement {
 protected:
     UI* ui;
 public:
-    vec2f  pos;
-    vec2f  rect;
-    vec4f  background;
+    vec2  pos;
+    vec2  rect;
+    vec4  background;
     bool   selected;
     bool   disabled;
     UIElement* parent;
 
     // border around element between this element and other elements
     // doesnt affect the selectable area of the element
-    vec2f margin;
+    vec2 margin;
 
     // padding around elements inside this element
     // affects the selectable area of the element
-    vec2f padding;
+    vec2 padding;
 
     UIElement() : padding(0.0f, 0.0f), margin(0.0f, 0.0f), ui(0), disabled(false), selected(false), parent(0) {};
 
@@ -38,28 +38,28 @@ public:
 
     virtual void drawOutline();
 
-    void drawOutline(const vec2f& rect);
+    void drawOutline(const vec2& rect);
 
-    void drawQuad(const vec2f& rect, const vec4f& texcoord);
-    void drawQuad(const vec2f& pos, const vec2f& rect, const vec4f& texcoord);
+    void drawQuad(const vec2& rect, const vec4& texcoord);
+    void drawQuad(const vec2& pos, const vec2& rect, const vec4& texcoord);
 
-    void setPadding(const vec2f& padding) { this->padding = padding; };
-    void setPadding(float padding)        { this->padding = vec2f(padding, padding); };
+    void setPadding(const vec2& padding) { this->padding = padding; };
+    void setPadding(float padding)        { this->padding = vec2(padding, padding); };
 
-    void setMargin(const vec2f& margin)  { this->margin  = margin; };
-    void setMargin(float margin)         { this->margin = vec2f(margin, margin); };
+    void setMargin(const vec2& margin)  { this->margin  = margin; };
+    void setMargin(float margin)         { this->margin = vec2(margin, margin); };
 
-    void setPos(const vec2f& pos) { this->pos = pos; };
+    void setPos(const vec2& pos) { this->pos = pos; };
 
     virtual void setSelected(bool selected) { this->selected = selected; };
 
     virtual bool elementsByType(std::list<UIElement*>& found, int type);
 
-    virtual UIElement* elementAt(const vec2f& pos);
+    virtual UIElement* elementAt(const vec2& pos);
 
     virtual int getType() { return -1; };
 
-    virtual void updatePos(const vec2f& pos) { this->pos = pos; };
+    virtual void updatePos(const vec2& pos) { this->pos = pos; };
     virtual void updateRect() {};
 
     virtual void update(float dt);

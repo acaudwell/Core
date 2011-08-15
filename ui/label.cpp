@@ -39,7 +39,7 @@ void UILabel::updateRect() {
 
 void UILabel::drawBackground() {
 
-    vec4f texcoord;
+    vec4 texcoord;
 
     for(int i=0;i<4;i++) {
         labeltex[i]->bind();
@@ -48,18 +48,18 @@ void UILabel::drawBackground() {
 
             switch(i) {
                 case 0:
-                    texcoord = vec4f(0.0f, 0.0f, rect.x/32.0f, rect.y/32.0f);
+                    texcoord = vec4(0.0f, 0.0f, rect.x/32.0f, rect.y/32.0f);
                     break;
                 case 1:
-                    texcoord = vec4f(1.0f-(rect.x/32.0f), 0.0f, 1.0f, (rect.y/32.0f));
+                    texcoord = vec4(1.0f-(rect.x/32.0f), 0.0f, 1.0f, (rect.y/32.0f));
                     glTranslatef(rect.x*0.5, 0.0f, 0.0f);
                     break;
                 case 2:
-                    texcoord = vec4f(1.0-rect.x/32.0f, 1.0-rect.y/32.0f, 1.0f, 1.0f);
+                    texcoord = vec4(1.0-rect.x/32.0f, 1.0-rect.y/32.0f, 1.0f, 1.0f);
                     glTranslatef(rect.x*0.5, rect.y*0.5, 0.0f);
                     break;
                 case 3:
-                    texcoord = vec4f(0.0, 1.0-(rect.y/32.0f), (rect.x/32.0f), 1.0f);;
+                    texcoord = vec4(0.0, 1.0-(rect.y/32.0f), (rect.x/32.0f), 1.0f);;
                     glTranslatef(0.0f, rect.y*0.5, 0.0f);
                     break;
             }
@@ -96,14 +96,14 @@ void UILabel::drawContent() {
         glDisable(GL_TEXTURE_2D);
 
         glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
-        drawQuad(rect, vec4f(0.0f, 0.0f, 1.0f, 1.0f));
+        drawQuad(rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
         glEnable(GL_TEXTURE_2D);
 
         if(!disabled) {
-            ui->font.setColour(vec4f(1.0, 1.0, 1.0, 1.0f));
+            ui->font.setColour(vec4(1.0, 1.0, 1.0, 1.0f));
         } else {
-            ui->font.setColour(vec4f(0.5, 0.5, 0.5, 1.0f));
+            ui->font.setColour(vec4(0.5, 0.5, 0.5, 1.0f));
         }
 
         ui->font.print(margin.x, rect.y-(3.0+margin.y), "%s_", text.c_str());

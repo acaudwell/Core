@@ -34,7 +34,6 @@
 #include "display.h"
 #include "sdlapp.h"
 #include "regex.h"
-#include "matrix.h"
 
 #include <map>
 #include <string>
@@ -81,11 +80,11 @@ public:
 
     void setInteger (const std::string& name, int value);
     void setFloat(const std::string& name, float value);
-    void setVec2 (const std::string& name, const vec2f& value);
-    void setVec3 (const std::string& name, const vec3f& value);
-    void setVec4 (const std::string& name, const vec4f& value);
-    void setMat3 (const std::string& name, const mat3f& value);
-    void setMat4 (const std::string& name, const mat4f& value);
+    void setVec2 (const std::string& name, const vec2& value);
+    void setVec3 (const std::string& name, const vec3& value);
+    void setVec4 (const std::string& name, const vec4& value);
+    void setMat3 (const std::string& name, const mat3& value);
+    void setMat4 (const std::string& name, const mat4& value);
 
     void use();
 };

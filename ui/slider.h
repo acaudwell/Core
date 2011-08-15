@@ -17,7 +17,7 @@ public:
 
     int getType() { return UI_SLIDER; };
 
-    virtual void selectValueAt(const vec2f& pos) {};
+    virtual void selectValueAt(const vec2& pos) {};
 };
 
 class UIFloatSlider : public UISlider {
@@ -29,7 +29,7 @@ public:
     UIFloatSlider(float* value, float min, float max);
 
     void mouseWheel(bool up);
-    void selectValueAt(const vec2f& pos);
+    void selectValueAt(const vec2& pos);
 
     void drawContent();
 };
@@ -43,7 +43,7 @@ public:
     UIIntSlider(int* value, int min, int max);
 
     void mouseWheel(bool up);
-    void selectValueAt(const vec2f& pos);
+    void selectValueAt(const vec2& pos);
 
     void drawContent();
 };

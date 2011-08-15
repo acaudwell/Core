@@ -26,8 +26,8 @@ public:
 
     bool elementsByType(std::list<UIElement*>& found, int type);
 
-    UIElement* elementAt(const vec2f& pos);
-    UIElement* selectElementAt(const vec2f& pos);
+    UIElement* elementAt(const vec2& pos);
+    UIElement* selectElementAt(const vec2& pos);
 
     void update(float dt);
 

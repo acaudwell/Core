@@ -28,464 +28,67 @@
 #ifndef VECTORS_H
 #define VECTORS_H
 
-#include <cmath>
+#define GLM_SWIZZLE_XYZW
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp> 
+#include <glm/gtc/matrix_access.hpp>
 
-template<class T> class vec2 {
+using glm::vec2;
+using glm::vec3;
+using glm::vec4;
+using glm::mat3;
+using glm::mat4;
+using glm::normalize;
+
+class lerp2 : public glm::vec2 {
 public:
-    T x;
-    T y;
+    vec2 p;
+    vec2 l;
 
-    vec2() {
-        x = T();
-        y = T();
+    lerp2() : vec2(), p(), l() {
     }
 
-    vec2(T x, T y) : x(x), y(y) {
-    }
-
-    vec2(const vec2<T>& vec) : x(vec.x), y(vec.y) {
-    }
-
-    vec2(T n) : x(n), y(n) {
-    }
-
-    vec2<T> perpendicular() const {
-        return vec2<T>(y * -1.0f, x);
-    }
-
-
-    T dot(const vec2<T> &vec) const {
-        return x*vec.x + y*vec.y;
-    }
-
-    T operator* (const vec2<T> &vec) const {
-        return x*vec.x + y*vec.y;
-    }
-
-    vec2<T> operator+ (const vec2<T> &vec) const {
-        return vec2<T>(x+vec.x, y+vec.y);
-    }
-
-    vec2<T> operator- (const vec2<T> &vec) const {
-        return vec2<T>(x-vec.x, y-vec.y);
-    }
-
-    vec2<T> operator* (const T n) const {
-        return vec2<T>(x*n, y*n);
-    }
-
-    vec2<T> operator/ (const T n) const {
-        return vec2<T>(x/n, y/n);
-    }
-
-    friend vec2<T> operator* (T n, const vec2<T>& vec) {
-        return vec2<T>(vec.x*n, vec.y*n);
-    }
-
-    bool operator== (const vec2<T> &vec) const {
-        return (vec.x==x && vec.y==y);
-    }
-
-    bool operator!= (const vec2<T> &vec) const {
-        return (vec.x!=x || vec.y!=y);
-    }
-
-    T length2() const {
-        return x*x + y*y;
-    }
-
-    T length() const {
-        return sqrt(x*x + y*y);
-    }
-
-    void normalize() {
-        T len = length();
-        if(len == 0) return;
-
-        *this *= (1.0/len);
-    }
-
-    vec2<T> normal() const {
-        vec2<T> v(x,y);
-        v.normalize();
-        return v;
-    }
-
-    vec2<T> rotate(float angle) const {
-
-        float s = sinf(angle);
-        float c = cosf(angle);
-
-        return vec2<T>( x * c - y * s, x * s + y * c );
-    }
-
-    vec2<T> rotate(float s, float c) const {
-        return vec2<T>( x * c - y * s, x * s + y * c );
-    }
-
-    vec2<T> rotate(const vec2<T> &centre, float angle) const {
-        vec2<T> v = *this - centre;
-
-        float s = sinf(angle);
-        float c = cosf(angle);
-
-        v = vec2<T>( v.x * c - v.y * s, v.x * s + v.y * c );
-
-        return v + centre;
-    }
-
-    vec2<T> rotate(const vec2<T> &centre, float s, float c) const {
-        vec2<T> v = *this - centre;
-
-        v = vec2<T>( v.x * c - v.y * s, v.x * s + v.y * c );
-
-        return v + centre;
-    }
-
-    vec2<T> operator -() const {
-        return vec2<T>(-x, -y);
-    }
-
-    operator T*() const {
-        return (T*) &x;
-    }
-
-    vec2<T>& operator= (const vec2<T> &vec) {
-        x = vec.x;
-        y = vec.y;
-        return *this;
-    }
-
-    void operator+= (const vec2<T> &vec) {
-        x += vec.x;
-        y += vec.y;
-    }
-
-    void operator-= (const vec2<T> &vec) {
-        x -= vec.x;
-        y -= vec.y;
-    }
-
-    void operator*= (T n) {
-        x *= n;
-        y *= n;
-    }
-
-    void operator/= (T n) {
-        x /= n;
-        y /= n;
-    }
-};
-
-template<class T> class vec3 {
-public:
-    T x;
-    T y;
-    T z;
-
-    vec3() {
-        x = T();
-        y = T();
-        z = T();
-    }
-
-    vec3(const vec3<T>& vec) : x(vec.x), y(vec.y), z(vec.z) {
-    }
-
-    vec3(const vec2<T>& vec, float z) : x(vec.x), y(vec.y), z(z) {
-    }
-
-    vec3(T x, T y, T z) : x(x), y(y), z(z) {
-    }
-
-    vec3(T n) : x(n), y(n), z(n) {
-    }
-
-    vec3<T> cross(const vec3<T>& vec) const {
-        return vec3<T>(y*vec.z-z*vec.y, z*vec.x-x*vec.z, x*vec.y-y*vec.x);
-    }
-
-    T dot(const vec3<T>& vec) const {
-        return x*vec.x + y*vec.y + z*vec.z;
-    }
-
-    vec3<T> operator+ (const vec3<T> &vec) const {
-        return vec3<T>(x+vec.x,y+vec.y,z+vec.z);
-    }
-
-    vec3<T> operator- (const vec3<T> &vec) const {
-        return vec3<T>(x-vec.x,y-vec.y,z-vec.z);
-    }
-
-    vec3<T> operator* (T n) const {
-		return vec3<T>(x*n,y*n,z*n);
-	}
-
-	vec3<T> operator/ (const T n) const {
-		return vec3<T>(x/n, y/n, z/n);
-	}
-
-	friend vec3<T> operator* (T n, const vec3<T>& vec) {
-		return vec3<T>(vec.x*n,vec.y*n,vec.z*n);
-	}
-
-    bool operator== (vec3<T> &vec) const {
-        return (vec.x==x && vec.y==y && vec.z==z);
-    }
-
-    bool operator!= (vec3<T> &vec) const {
-        return (vec.x!=x || vec.y!=y || vec.z!=z);
-    }
-
-	T length2() const {
-		return x*x + y*y + z*z;
-	}
-
-	T length() const {
-        return sqrt(x*x + y*y + z*z);
-	}
-
-    void normalize() {
-        T len = length();
-        if(len == 0) return;
-
-        *this *= (1.0/len);
-    }
-
-    vec3<T> normal() const {
-        vec3<T> v(x,y,z);
-        v.normalize();
-        return v;
-    }
-
-    vec2<T> truncate() const {
-        return vec2<T>(x, y);
-    }
-
-    vec3<T> operator -() const {
-        return vec3<T>(-x, -y, -z);
-    }
-
-    operator T*() const {
-        return (T*) &x;
-    }
-
-    vec3<T>& operator= (const vec3<T> &vec) {
-        x = vec.x;
-        y = vec.y;
-        z = vec.z;
-        return *this;
-    }
-
-    void operator+= (const vec3<T> &vec) {
-        x += vec.x;
-        y += vec.y;
-        z += vec.z;
-    }
-
-    void operator-= (const vec3<T> &vec) {
-        x -= vec.x;
-        y -= vec.y;
-        z -= vec.z;
-    }
-
-    void operator*= (T n) {
-        x *= n;
-        y *= n;
-        z *= n;
-    }
-
-    void operator/= (T n) {
-        x /= n;
-        y /= n;
-        z /= n;
-    }
-};
-
-template<class T> class lerp2 : public vec2<T> {
-public:
-    vec2<T> p;
-    vec2<T> l;
-
-    lerp2() : vec2<T>(), p(), l() {
-    }
-
-    lerp2(const vec2<T>& vec) : vec2<T>(vec) {
+    lerp2(const vec2& vec) : vec2(vec) {
     }
 
     void snap() {
-        p = (vec2<T>) *this;
+        p = *this;
     }
 
-    static vec2<T> lerp(const vec2<T>& a, const vec2<T>& b, T n) {
+    static vec2 lerp(const vec2& a, const vec2& b, float n) {
         return a + (b - a) * n;
     }
 
-    const vec2<T>& lerp(T n) {
+    const vec2& lerp(float n) {
         l = *this + (p - *this) * n;
         return l;
     }
 };
 
-template<class T> class lerp3 : public vec3<T> {
+class lerp3 : public vec3 {
 public:
-    vec3<T> p;
-    vec3<T> l;
+    vec3 p;
+    vec3 l;
 
-    lerp3() : vec3<T>(), p(), l() {
+    lerp3() : vec3(), p(), l() {
     }
 
-    lerp3(const vec3<T>& vec) : vec3<T>(vec) {
+    lerp3(const vec3& vec) : vec3(vec) {
     }
 
     void snap() {
-        p = (vec3<T>) *this;
+        p = *this;
     }
 
-    static vec3<T> lerp(const vec3<T>& a, const vec3<T>& b, T n) {
+    static vec3 lerp(const vec3& a, const vec3& b, float n) {
         return a + (b - a) * n;
     }
 
-    const vec3<T>& lerp(T n) {
+    const vec3& lerp(float n) {
         l = *this + (p - *this) * n;
         return l;
     }
 };
-
-template<class T> class vec4 {
-public:
-    T x;
-    T y;
-    T z;
-    T w;
-
-    vec4() {
-        x = T();
-        y = T();
-        z = T();
-        w = T();
-    }
-
-    vec4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {
-    }
-
-    vec4(const vec4<T>& vec) : x(vec.x), y(vec.y), z(vec.z), w(vec.w) {
-    }
-
-    vec4(const vec3<T>& vec, T w) : x(vec.x), y(vec.y), z(vec.z), w(w) {
-    }
-
-    vec4<T>& operator= (const vec4<T> &vec) {
-        x = vec.x;
-        y = vec.y;
-        z = vec.z;
-        w = vec.w;
-        return *this;
-    }
-
-    T dot(const vec4<T>& vec) const {
-        return x*vec.x + y*vec.y + z*vec.z + w*vec.w;
-    }
-
-    vec4<T> operator+ (const vec4<T> &vec) const {
-        return vec4<T>(x+vec.x, y+vec.y, z+vec.z, w+vec.w);
-    }
-
-    vec4<T> operator- (const vec4<T> &vec) const {
-        return vec4<T>(x-vec.x, y-vec.y, z-vec.z, w-vec.w);
-    }
-
-    vec4<T> operator* (T n) const {
-        return vec4<T>(x*n, y*n, z*n, w*n);
-    }
-
-    vec4<T> operator/ (const T n) const {
-        return vec4<T>(x/n, y/n, z/n, w/n);
-    }
-
-    vec4<T> operator* (const vec4<T> &vec) const {
-        return vec4(x*vec.x, y*vec.y, z*vec.z, w*vec.w);
-    }
-
-    bool operator== (const vec4<T> &vec) const {
-        return (vec.x==x && vec.y==y && vec.z==z && vec.w==w);
-    }
-
-    bool operator!= (const vec4<T> &vec) const {
-        return (vec.x!=x || vec.y!=y || vec.z!=z || vec.w!=w);
-    }
-
-    T length2() const {
-        return  x*x + y*y + z*z + w*w;
-    }
-
-    T length() const {
-        return sqrt(x*x + y*y + z*z + w*w);
-    }
-
-    void normalize() {
-        T len = length();
-        if(len == 0) return;
-
-        *this *= (1.0/len);
-    }
-
-    vec4<T> normal() const {
-        vec4<T> v(x,y,z,w);
-        v.normalize();
-        return v;
-    }
-
-    vec3<T> truncate() const {
-        return vec3<T>(x, y, z);
-    }
-
-    vec4<T> operator -() const {
-        return vec4<T>(-x, -y, -z, -w);
-    }
-
-    operator T*() const {
-        return (T*) &x;
-    }
-
-    void operator+= (const vec4<T> &vec) {
-        x += vec.x;
-        y += vec.y;
-        z += vec.z;
-        w += vec.w;
-    }
-
-    void operator-= (const vec4<T> &vec) {
-        x -= vec.x;
-        y -= vec.y;
-        z -= vec.z;
-        w -= vec.w;
-    }
-
-    void operator*= (T n) {
-        x *= n;
-        y *= n;
-        z *= n;
-        w *= n;
-    }
-
-    void operator/= (T n) {
-        x /= n;
-        y /= n;
-        z /= n;
-        w /= n;
-    }
-};
-
-typedef vec2<float> vec2f;
-typedef vec3<float> vec3f;
-typedef vec4<float> vec4f;
-
-typedef lerp2<float> lerp2f;
-typedef lerp3<float> lerp3f;
-
-typedef vec2<int> vec2i;
-typedef vec3<int> vec3i;
-typedef vec4<int> vec4i;
 
 #endif

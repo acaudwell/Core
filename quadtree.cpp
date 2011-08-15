@@ -54,26 +54,26 @@ void QuadNode::addItem(QuadItem* item) {
         return;
     }
 
-    vec2f average = bounds.centre();
+    vec2 average = bounds.centre();
 
-    vec2f middle = average - bounds.min;
+    vec2 middle = average - bounds.min;
 
-    vec2f relmax = bounds.max-bounds.min;
+    vec2 relmax = bounds.max-bounds.min;
 
     Bounds2D newbounds;
 
     children.reserve(4);
 
     //top left
-    newbounds = Bounds2D( bounds.min + vec2f(0.0, 0.0), bounds.min + middle );
+    newbounds = Bounds2D( bounds.min + vec2(0.0, 0.0), bounds.min + middle );
     children.push_back(new QuadNode(tree, this, newbounds, depth));
 
     //top right
-    newbounds = Bounds2D( bounds.min + vec2f(middle.x, 0.0), bounds.min + vec2f(relmax.x,middle.y) );
+    newbounds = Bounds2D( bounds.min + vec2(middle.x, 0.0), bounds.min + vec2(relmax.x,middle.y) );
     children.push_back(new QuadNode(tree, this, newbounds, depth));
 
     //bottom left
-    newbounds = Bounds2D( bounds.min + vec2f(0.0, middle.y), bounds.min + vec2f(middle.x,relmax.y) );
+    newbounds = Bounds2D( bounds.min + vec2(0.0, middle.y), bounds.min + vec2(middle.x,relmax.y) );
     children.push_back(new QuadNode(tree, this, newbounds, depth));
 
     //bottom right
@@ -185,7 +185,7 @@ int QuadNode::getItemsInBounds(std::set<QuadItem*>& itemset, Bounds2D& bounds) c
 
 
 
-int QuadNode::getItemsAt(std::set<QuadItem*>& itemset, vec2f pos) {
+int QuadNode::getItemsAt(std::set<QuadItem*>& itemset, vec2 pos) {
 
     if(!items.empty()) {
         int items_added = 0;
@@ -263,7 +263,7 @@ void QuadNode::visitItemsInBounds(const Bounds2D & bounds, VisitFunctor<QuadItem
 
 }
 
-void QuadNode::visitItemsAt(const vec2f & pos, VisitFunctor<QuadItem> & visit){
+void QuadNode::visitItemsAt(const vec2 & pos, VisitFunctor<QuadItem> & visit){
 
   if(!items.empty()){
 
@@ -284,7 +284,7 @@ bool QuadNode::empty() {
 }
 
 
-int QuadNode::getChildIndex(const vec2f & pos) const{
+int QuadNode::getChildIndex(const vec2 & pos) const{
 
     if(children.empty()) return -1;
 
@@ -452,7 +452,7 @@ QuadTree::~QuadTree() {
 }
 
 
-int QuadTree::getItemsAt(std::set<QuadItem*>& itemset, vec2f pos) {
+int QuadTree::getItemsAt(std::set<QuadItem*>& itemset, vec2 pos) {
     int return_count = root->getItemsAt(itemset, pos);
 
     return return_count;
@@ -473,7 +473,7 @@ void QuadTree::getLeavesInFrustum(std::set<QuadNode*>& nodeset, Frustum& frustum
 }
 
 
-void QuadTree::visitItemsAt(const vec2f & pos, VisitFunctor<QuadItem> & visit){
+void QuadTree::visitItemsAt(const vec2 & pos, VisitFunctor<QuadItem> & visit){
   return root->visitItemsAt(pos, visit);
 }
 

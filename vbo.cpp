@@ -76,19 +76,19 @@ size_t quadbuf::texture_changes() {
     return textures.size();
 }
 
-vec4f quadbuf_default_texcoord(0.0f, 0.0f, 1.0f, 1.0f);
+vec4 quadbuf_default_texcoord(0.0f, 0.0f, 1.0f, 1.0f);
 
-void quadbuf::add(GLuint textureid, const vec2f& pos, const vec2f& dims, const vec4f& colour) {
+void quadbuf::add(GLuint textureid, const vec2& pos, const vec2& dims, const vec4& colour) {
     add(textureid, pos, dims, colour, quadbuf_default_texcoord);
 }
 
-void quadbuf::add(GLuint textureid, const vec2f& pos, const vec2f& dims, const vec4f& colour, const vec4f& texcoord) {
+void quadbuf::add(GLuint textureid, const vec2& pos, const vec2& dims, const vec4& colour, const vec4& texcoord) {
     //debugLog("%d: %.2f, %.2f, %.2f, %.2f\n", i, pos.x, pos.y, dims.x, dims.y);
 
-    quadbuf_vertex v1(pos,                       colour, vec2f(texcoord.x, texcoord.y));
-    quadbuf_vertex v2(pos + vec2f(dims.x, 0.0f), colour, vec2f(texcoord.z, texcoord.y));
-    quadbuf_vertex v3(pos + dims,                colour, vec2f(texcoord.z, texcoord.w));
-    quadbuf_vertex v4(pos + vec2f(0.0f, dims.y), colour, vec2f(texcoord.x, texcoord.w));
+    quadbuf_vertex v1(pos,                       colour, vec2(texcoord.x, texcoord.y));
+    quadbuf_vertex v2(pos + vec2(dims.x, 0.0f), colour, vec2(texcoord.z, texcoord.y));
+    quadbuf_vertex v3(pos + dims,                colour, vec2(texcoord.z, texcoord.w));
+    quadbuf_vertex v4(pos + vec2(0.0f, dims.y), colour, vec2(texcoord.x, texcoord.w));
 
     int i = vertex_count;
 

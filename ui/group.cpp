@@ -9,7 +9,7 @@ UIGroup::UIGroup(const std::string& groupname, bool open) : open(open) {
     label->setMargin(5.0f);
     label->parent = this;
 
-    layout->setMargin(vec2f(0.0f, 5.0f));
+    layout->setMargin(vec2(0.0f, 5.0f));
     layout->setPadding(5.0f);
     
     animation = 0.0f;
@@ -48,7 +48,7 @@ bool UIGroup::elementsByType(std::list<UIElement*>& found, int type) {
     return success;
 }
 
-UIElement* UIGroup::elementAt(const vec2f& pos) {
+UIElement* UIGroup::elementAt(const vec2& pos) {
 
     if(!UIElement::elementAt(pos)) return 0;
 
@@ -60,11 +60,11 @@ UIElement* UIGroup::elementAt(const vec2f& pos) {
     return 0;
 }
 
-void UIGroup::updatePos(const vec2f& pos) {
+void UIGroup::updatePos(const vec2& pos) {
     this->pos = pos;
 
     label->updatePos(pos);
-    layout->updatePos(pos + vec2f(0.0f, label->rect.y));
+    layout->updatePos(pos + vec2(0.0f, label->rect.y));
 }
 
 void UIGroup::update(float dt) {
@@ -81,8 +81,8 @@ void UIGroup::update(float dt) {
     }
 
     if(animation>0.0f) {
-        rect        = lerp2f::lerp(old_group_rect, rect,        1.0f-animation);
-        label->rect = lerp2f::lerp(old_label_rect, label->rect, 1.0f-animation);
+        rect        = lerp2::lerp(old_group_rect, rect,        1.0f-animation);
+        label->rect = lerp2::lerp(old_label_rect, label->rect, 1.0f-animation);
         
         animation -= dt*speed;
     }

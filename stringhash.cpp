@@ -45,32 +45,30 @@ int stringHash(std::string& str) {
     return val;
 }
 
-vec2f vec2Hash(std::string& str) {
+vec2 vec2Hash(std::string& str) {
     int hash = stringHash(str);
 
     int x = ((hash/7) % 255) - 127;
     int y = ((hash/3) % 255) - 127;
 
-    vec2f v = vec2f(x, y);
-    v.normalize();
+    vec2 v = normalize(vec2(x, y));
 
     return v;
 }
 
-vec3f vec3Hash(std::string& str) {
+vec3 vec3Hash(std::string& str) {
     int hash = stringHash(str);
 
     int x = ((hash/7) % 255) - 127;
     int y = ((hash/3) % 255) - 127;
     int z = hash % 255;
 
-    vec3f v = vec3f(x, y, z);
-    v.normalize();
+    vec3 v = normalize(vec3(x, y, z));
 
     return v;
 }
 
-vec3f colourHash(std::string& str) {
+vec3 colourHash(std::string& str) {
     int hash = stringHash(str);
 
     int r = (hash/7) % 255;
@@ -79,8 +77,7 @@ vec3f colourHash(std::string& str) {
     if(g<0) g=0;
     int b = hash % 255;
 
-    vec3f colour = vec3f(r, g, b);
-    colour.normalize();
+    vec3 colour = normalize(vec3(r, g, b));
 
     return colour;
 }

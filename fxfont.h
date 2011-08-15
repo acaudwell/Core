@@ -65,12 +65,6 @@
 #include <vector>
 #include <map>
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_GLYPH_H
-
-#include "ftgl/FTUnicode.h"
-
 class FXFontException : public ResourceException {
 public:
     FXFontException(const std::string & font_file) : ResourceException(font_file) {}
@@ -102,28 +96,28 @@ public:
 class FXGlyph {
     unsigned int chr;
 
-    vec2f dims;
-    vec2f corner;
-    vec2f advance;
+    vec2 dims;
+    vec2 corner;
+    vec2 advance;
 public:
-    vec2f vertex_positions[4];
-    vec2f vertex_texcoords[4];
+    vec2 vertex_positions[4];
+    vec2 vertex_texcoords[4];
 
     FXGlyphPage* page;
-    vec4f texcoords;
+    vec4 texcoords;
     FXGlyphSet* set;
     FT_BitmapGlyph glyph_bitmap;
 
     FXGlyph(FXGlyphSet* set, unsigned int chr);
 
-    const vec2f& getAdvance() const { return advance; };
-    const vec2f& getCorner() const { return corner; };
-    const vec2f& getDimensions() const { return dims; };
+    const vec2& getAdvance() const { return advance; };
+    const vec2& getCorner() const { return corner; };
+    const vec2& getDimensions() const { return dims; };
 
-    void setPage(FXGlyphPage* page, const vec4f& texcoords);
+    void setPage(FXGlyphPage* page, const vec4& texcoords);
 
-    void drawToVBO(quadbuf& buffer, const vec2f& offset, const vec4f& colour) const;
-    void draw(const vec2f& pos) const;
+    void drawToVBO(quadbuf& buffer, const vec2& offset, const vec4& colour) const;
+    void draw(const vec2& pos) const;
 };
 
 class FXGlyphSet {
@@ -158,7 +152,7 @@ public:
 
     int getSize() const { return size; };
 
-    void drawToVBO(vec2f& cursor, const std::string& text, const vec4f& colour);
+    void drawToVBO(vec2& cursor, const std::string& text, const vec4& colour);
     void draw(const std::string& text);
 };
 
@@ -171,13 +165,13 @@ class FXFont {
     bool round;
 
     float shadow_strength;
-    vec2f shadow_offset;
-    vec4f shadow_colour;
-    vec4f colour;
+    vec2 shadow_offset;
+    vec4 shadow_colour;
+    vec4 colour;
 
     bool align_right, align_top;
 
-    void render(float x, float y, const std::string& text, const vec4f& colour) const;
+    void render(float x, float y, const std::string& text, const vec4& colour) const;
     void init();
 public:
     FXFont();
@@ -208,7 +202,7 @@ public:
     void shadowStrength(float s);
     void shadowOffset(float x, float y);
 
-    void setColour(const vec4f& colour);
+    void setColour(const vec4& colour);
     void setAlpha(float alpha);
 };
 

@@ -31,19 +31,18 @@ Plane::Plane() {
     d = 0.0f;
 }
 
-Plane::Plane(const vec3f & v1, const vec3f & v2, const vec3f & v3) {
-    vec3f edge1 = v1 - v2;
-    vec3f edge2 = v3 - v2;
+Plane::Plane(const vec3 & v1, const vec3 & v2, const vec3 & v3) {
+    vec3 edge1 = v1 - v2;
+    vec3 edge2 = v3 - v2;
 
-    normal = edge2.cross(edge1);
-    normal.normalize();
+    normal = normalize(glm::cross(edge2, edge1));
 
     point = v2;
 
-    d = -(normal.dot(point));
+    d = -(glm::dot(normal, point));
 }
 
-float Plane::distance(const vec3f & p) const{
-    return (d + normal.dot(p));
+float Plane::distance(const vec3 & p) const{
+    return d + glm::dot(normal, p);
 }
 

@@ -2,7 +2,7 @@
 
 UIImage::UIImage(const std::string& path) {
     imagetex = texturemanager.grab(path);
-    shadow_offset = vec2f(1.0f, 1.0f);
+    shadow_offset = vec2(1.0f, 1.0f);
     shadow = 0.0f;
     alpha = 1.0f;
 }
@@ -21,9 +21,9 @@ void UIImage::drawContent() {
 
     if(shadow > 0.0f) {
         glColor4f(0.0f, 0.0f, 0.0f, shadow);
-        drawQuad(rect + shadow_offset, vec4f(0.0f, 0.0f, 1.0f, 1.0f));
+        drawQuad(rect + shadow_offset, vec4(0.0f, 0.0f, 1.0f, 1.0f));
     }
 
     glColor4f(1.0f, 1.0f, 1.0f, alpha);
-    drawQuad(rect, vec4f(0.0f, 0.0f, 1.0f, 1.0f));
+    drawQuad(rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
 }

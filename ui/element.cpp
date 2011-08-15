@@ -24,7 +24,7 @@ void UIElement::drawOutline() {
     glEnable(GL_TEXTURE_2D);
 }
 
-void UIElement::drawOutline(const vec2f& rect) {
+void UIElement::drawOutline(const vec2& rect) {
     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
     glPushMatrix();
@@ -43,7 +43,7 @@ void UIElement::drawOutline(const vec2f& rect) {
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 }
 
-void UIElement::drawQuad(const vec2f& pos, const vec2f& rect, const vec4f& texcoord) {
+void UIElement::drawQuad(const vec2& pos, const vec2& rect, const vec4& texcoord) {
 
     glPushMatrix();
         glTranslatef(pos.x, pos.y, 0.0f);
@@ -51,7 +51,7 @@ void UIElement::drawQuad(const vec2f& pos, const vec2f& rect, const vec4f& texco
     glPopMatrix();
 }
 
-void UIElement::drawQuad(const vec2f& rect, const vec4f& texcoord) {
+void UIElement::drawQuad(const vec2& rect, const vec4& texcoord) {
     glBegin(GL_QUADS);
         glTexCoord2f(texcoord.x,texcoord.y);
         glVertex2f(0.0f,    0.0f);
@@ -89,7 +89,7 @@ bool UIElement::elementsByType(std::list<UIElement*>& found, int type) {
     return false;
 }
 
-UIElement* UIElement::elementAt(const vec2f& pos) {
+UIElement* UIElement::elementAt(const vec2& pos) {
     if(   pos.x >= this->pos.x && pos.x <= (this->pos.x + rect.x)
        && pos.y >= this->pos.y && pos.y <= (this->pos.y + rect.y)) {
         return this;

@@ -73,7 +73,7 @@ public:
     int windowed_width, windowed_height;
 
     bool fullscreen;
-    vec4f clearColour;
+    vec4 clearColour;
 
     SDLAppDisplay();
     ~SDLAppDisplay();
@@ -91,8 +91,8 @@ public:
     void   update();
     void   clear();
 
-    void   setClearColour(vec3f colour);
-    void   setClearColour(vec4f colour);
+    void   setClearColour(vec3 colour);
+    void   setClearColour(vec4 colour);
 
 
     void   enableShaders(bool enable);
@@ -109,10 +109,10 @@ public:
     void   push2D();
     void   pop2D();
 
-    vec4f  currentColour();
+    vec4  currentColour();
 
-    vec3f project(vec3f pos);
-    vec3f unproject(vec2f pos);
+    vec3 project(vec3 pos);
+    vec3 unproject(vec2 pos);
 };
 
 extern SDLAppDisplay display;

@@ -33,7 +33,7 @@
 SDLAppDisplay display;
 
 SDLAppDisplay::SDLAppDisplay() {
-    clearColour = vec4f(0.0f,0.0f,0.0f,1.0f);
+    clearColour = vec4(0.0f,0.0f,0.0f,1.0f);
     enable_shaders=false;
     enable_alpha=false;
     vsync=false;
@@ -51,11 +51,11 @@ SDLAppDisplay::SDLAppDisplay() {
 SDLAppDisplay::~SDLAppDisplay() {
 }
 
-void SDLAppDisplay::setClearColour(vec3f colour) {
-    setClearColour(vec4f(colour, enable_alpha ? 0.0f : 1.0f));
+void SDLAppDisplay::setClearColour(vec3 colour) {
+    setClearColour(vec4(colour, enable_alpha ? 0.0f : 1.0f));
 }
 
-void SDLAppDisplay::setClearColour(vec4f colour) {
+void SDLAppDisplay::setClearColour(vec4 colour) {
     clearColour = colour;
 }
 
@@ -286,13 +286,13 @@ void SDLAppDisplay::pop2D() {
         glPopMatrix();
 }
 
-vec4f SDLAppDisplay::currentColour() {
-    vec4f colour;
-   	glGetFloatv(GL_CURRENT_COLOR, colour);
-   	return colour;
+vec4 SDLAppDisplay::currentColour() {
+    vec4 colour;
+    glGetFloatv(GL_CURRENT_COLOR, glm::value_ptr(colour));
+    return colour;
 }
 
-vec3f SDLAppDisplay::project(vec3f pos) {
+vec3 SDLAppDisplay::project(vec3 pos) {
     GLint viewport[4];
     GLdouble modelview[16];
     GLdouble projection[16];
@@ -306,10 +306,10 @@ vec3f SDLAppDisplay::project(vec3f pos) {
 
     winY = (float)viewport[3] - winY;
 
-    return vec3f((float) winX, (float) winY, (float) winZ);
+    return vec3((float) winX, (float) winY, (float) winZ);
 }
 
-vec3f SDLAppDisplay::unproject(vec2f pos) {
+vec3 SDLAppDisplay::unproject(vec2 pos) {
     GLint viewport[4];
     GLdouble modelview[16];
     GLdouble projection[16];
@@ -325,5 +325,5 @@ vec3f SDLAppDisplay::unproject(vec2f pos) {
     glReadPixels( int(winX), int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ );
     gluUnProject( winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
 
-    return vec3f((float) posX, (float) posY, (float) posZ);
+    return vec3((float) posX, (float) posY, (float) posZ);
 }

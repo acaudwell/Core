@@ -28,7 +28,7 @@
 #ifndef FRUSTUM_H
 #define FRUSTUM_H
 
-#include "vectors.h"
+#include "gl.h"
 #include "plane.h"
 #include "pi.h"
 #include "bounds.h"
@@ -44,22 +44,22 @@ class Frustum {
     float far_half_width;
     float far_half_height;
 
-    vec3f near_top_left,    near_top_right;
-    vec3f near_bottom_left, near_bottom_right;
-    vec3f far_top_left,     far_top_right;
-    vec3f far_bottom_left,  far_bottom_right;
+    vec3 near_top_left,    near_top_right;
+    vec3 near_bottom_left, near_bottom_right;
+    vec3 far_top_left,     far_top_right;
+    vec3 far_bottom_left,  far_bottom_right;
 
     Plane planes[6];
 public:
     Frustum();
-    Frustum(const vec3f& source, const vec3f& target, const vec3f& up, float fov, float near_distance, float far_distance);
+    Frustum(const vec3& source, const vec3& target, const vec3& up, float fov, float near_distance, float far_distance);
 
-    void update(const vec3f& source, const vec3f& target, const vec3f& up, float fov, float near_distance, float far_distance);
+    void update(const vec3& source, const vec3& target, const vec3& up, float fov, float near_distance, float far_distance);
 
     void updatePerspective(float fov, float near_distance, float far_distance);
-    void updateView(const vec3f& source, const vec3f& target, const vec3f& up);
+    void updateView(const vec3& source, const vec3& target, const vec3& up);
 
-    bool contains(const vec3f& p) const;
+    bool contains(const vec3& p) const;
 
     bool intersects(const Bounds3D& bounds) const;
     bool intersects(const Bounds2D& bounds, float z = 0.0) const;

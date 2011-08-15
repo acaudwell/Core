@@ -4,7 +4,7 @@
 
 UISlider::UISlider(const std::string& slider_texture, float width) : slider_width(width), UIElement() {
     slidertex  = texturemanager.grab(slider_texture);
-    rect       = vec2f(slider_width, 16.0f);
+    rect       = vec2(slider_width, 16.0f);
     background = true;
 }
 
@@ -13,7 +13,7 @@ void UISlider::drawSlider(float position) {
     float slider_position = position * (slider_width-4.0f) + 4.0f;
 
     //background
-    //drawQuad(vec2f(slider_width,16.0f), vec4f(0.0f, 0.0f, 1.0f, 0.5f));
+    //drawQuad(vec2(slider_width,16.0f), vec4(0.0f, 0.0f, 1.0f, 0.5f));
 
     if(background) {
 
@@ -51,7 +51,7 @@ void UISlider::drawSlider(float position) {
 
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     //slider
-    drawQuad(vec2f(slider_position-4.0, 0.0f), vec2f(16.0,16.0), vec4f(0.0f, 0.0f, 1.0f, 1.0f));
+    drawQuad(vec2(slider_position-4.0, 0.0f), vec2(16.0,16.0), vec4(0.0f, 0.0f, 1.0f, 1.0f));
 }
 
 //UIFloatSlider
@@ -74,7 +74,7 @@ void UIFloatSlider::mouseWheel(bool up) {
     *value = std::max(std::min(max,*value+value_inc), min);
 }
 
-void UIFloatSlider::selectValueAt(const vec2f& pos) {
+void UIFloatSlider::selectValueAt(const vec2& pos) {
     float new_value = ((pos.x - this->pos.x) / slider_width) * (max-min) + min;
 
     *value = std::max(std::min(max,new_value), min);
@@ -101,7 +101,7 @@ void UIIntSlider::mouseWheel(bool up) {
     *value = std::max(std::min(max,*value+value_inc), min);
 }
 
-void UIIntSlider::selectValueAt(const vec2f& pos) {
+void UIIntSlider::selectValueAt(const vec2& pos) {
     int new_value = ((pos.x - this->pos.x) / slider_width) * (max-min) + min;
 
     *value = std::max(std::min(max,new_value), min);
@@ -122,7 +122,7 @@ UILabelFloatSlider::UILabelFloatSlider(const std::string& label, float* value, f
     addElement(new UIFloatSlider(value, min, max));
     addElement(new UIFloatLabel(value, true));
 
-    padding = vec2f(5.0f, 0.0f);
+    padding = vec2(5.0f, 0.0f);
 }
 
 // UILabelIntSlider
@@ -133,5 +133,5 @@ UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min
     addElement(new UIIntSlider(value, min, max));
     addElement(new UIIntLabel(value, true));
 
-    padding = vec2f(5.0f, 0.0f);
+    padding = vec2(5.0f, 0.0f);
 }

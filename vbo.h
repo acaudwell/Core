@@ -40,11 +40,11 @@
 class quadbuf_vertex {
 public:
     quadbuf_vertex() {};
-    quadbuf_vertex(const vec2f& pos, const vec4f& colour, const vec2f& texcoord) : pos(pos), colour(colour), texcoord(texcoord) {};
+    quadbuf_vertex(const vec2& pos, const vec4& colour, const vec2& texcoord) : pos(pos), colour(colour), texcoord(texcoord) {};
 
-    vec2f pos;
-    vec4f colour;
-    vec2f texcoord;
+    vec2 pos;
+    vec4 colour;
+    vec2 texcoord;
 };
 
 //maintain ranges corresponding to each texture
@@ -93,8 +93,8 @@ public:
     size_t capacity();
     size_t texture_changes();
 
-    void add(GLuint textureid, const vec2f& pos, const vec2f& dims, const vec4f& colour);
-    void add(GLuint textureid, const vec2f& pos, const vec2f& dims, const vec4f& colour, const vec4f& texcoord);
+    void add(GLuint textureid, const vec2& pos, const vec2& dims, const vec4& colour);
+    void add(GLuint textureid, const vec2& pos, const vec2& dims, const vec4& colour, const vec4& texcoord);
     void add(GLuint textureid, const quadbuf_vertex& v1, const quadbuf_vertex& v2, const quadbuf_vertex& v3, const quadbuf_vertex& v4);
 
     void update();

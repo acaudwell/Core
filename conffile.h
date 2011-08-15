@@ -52,9 +52,9 @@ public:
     ConfEntry(const std::string& name, int value);
     ConfEntry(const std::string& name, float value);
     ConfEntry(const std::string& name, bool value);
-    ConfEntry(const std::string& name, vec2f value);
-    ConfEntry(const std::string& name, vec3f value);
-    ConfEntry(const std::string& name, vec4f value);
+    ConfEntry(const std::string& name, vec2 value);
+    ConfEntry(const std::string& name, vec3 value);
+    ConfEntry(const std::string& name, vec4 value);
 
     void setName(const std::string& name);
 
@@ -62,9 +62,9 @@ public:
     void setFloat(float value);
     void setInt(int value);
     void setBool(bool value);
-    void setVec2(vec2f value);
-    void setVec3(vec3f value);
-    void setVec4(vec4f value);
+    void setVec2(vec2 value);
+    void setVec3(vec3 value);
+    void setVec4(vec4 value);
 
     bool hasValue();
 
@@ -75,9 +75,9 @@ public:
     int         getInt();
     float       getFloat();
     bool        getBool();
-    vec2f       getVec2();
-    vec3f       getVec3();
-    vec4f       getVec4();
+    vec2       getVec2();
+    vec3       getVec3();
+    vec4       getVec4();
     
     bool isFloat();
     bool isInt();
@@ -121,8 +121,8 @@ public:
     int         getInt(const std::string& key);
     float       getFloat(const std::string& key);
     bool        getBool(const std::string& key);
-    vec3f       getVec3(const std::string& key);
-    vec4f       getVec4(const std::string& key);
+    vec3       getVec3(const std::string& key);
+    vec4       getVec4(const std::string& key);
 
     void print(std::ostream& out);
 
@@ -176,8 +176,8 @@ public:
     int         getInt(const std::string& section,    const std::string& key);
     float       getFloat(const std::string& section,  const std::string& key);
     bool        getBool(const std::string& section,   const std::string& key);
-    vec3f       getVec3(const std::string& section,   const std::string& key);
-    vec4f       getVec4(const std::string& section,   const std::string& key);
+    vec3       getVec3(const std::string& section,   const std::string& key);
+    vec4       getVec4(const std::string& section,   const std::string& key);
 
     static void trim(std::string& value);
     

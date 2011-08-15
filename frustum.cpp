@@ -33,11 +33,11 @@
 Frustum::Frustum() {
 }
 
-Frustum::Frustum(const vec3f& source, const vec3f& target, const vec3f& up, float fov, float near_distance, float far_distance) {
+Frustum::Frustum(const vec3& source, const vec3& target, const vec3& up, float fov, float near_distance, float far_distance) {
     update(source, target, up, fov, near_distance, far_distance);
 }
 
-void Frustum::update(const vec3f& source, const vec3f& target, const vec3f& up, float fov, float near_distance, float far_distance) {
+void Frustum::update(const vec3& source, const vec3& target, const vec3& up, float fov, float near_distance, float far_distance) {
     updatePerspective(fov, near_distance, far_distance);
     updateView(source, target, up);
 }
@@ -57,32 +57,30 @@ void Frustum::updatePerspective(float fov, float near_distance, float far_distan
     far_half_width   = far_half_height * view_ratio;
 }
 
-void Frustum::updateView(const vec3f& source, const vec3f& target, const vec3f& up) {
+void Frustum::updateView(const vec3& source, const vec3& target, const vec3& up) {
 
-    vec3f view_ray = target - source;
-    view_ray.normalize();
+    vec3 view_ray = normalize(target - source);
 
-    vec3f horiz_normal = view_ray.cross(up);
-    horiz_normal.normalize();
+    vec3 horiz_normal = normalize(glm::cross(view_ray,up));
 
-    vec3f vert_normal = horiz_normal.cross(view_ray);
+    vec3 vert_normal = glm::cross(horiz_normal, view_ray);
 
     //calculate the positions of the 8 points that make up
     //the viewing frustum and then use them to create the 6 planes
 
-    vec3f near_centre = source + view_ray * near_distance;
-    vec3f far_centre  = source + view_ray * far_distance;
+    vec3 near_centre = source + view_ray * near_distance;
+    vec3 far_centre  = source + view_ray * far_distance;
 
-    vec3f near_horiz_offset = horiz_normal * near_half_width;
-    vec3f near_vert_offset  = vert_normal  * near_half_height;
+    vec3 near_horiz_offset = horiz_normal * near_half_width;
+    vec3 near_vert_offset  = vert_normal  * near_half_height;
 
     near_top_left     = near_centre + near_vert_offset - near_horiz_offset;
     near_top_right    = near_centre + near_vert_offset + near_horiz_offset;
     near_bottom_left  = near_centre - near_vert_offset - near_horiz_offset;
     near_bottom_right = near_centre - near_vert_offset + near_horiz_offset;
 
-    vec3f far_horiz_offset = horiz_normal * far_half_width;
-    vec3f far_vert_offset  = vert_normal  * far_half_height;
+    vec3 far_horiz_offset = horiz_normal * far_half_width;
+    vec3 far_vert_offset  = vert_normal  * far_half_height;
 
     far_top_left     = far_centre + far_vert_offset - far_horiz_offset;
     far_top_right    = far_centre + far_vert_offset + far_horiz_offset;
@@ -108,7 +106,7 @@ void Frustum::updateView(const vec3f& source, const vec3f& target, const vec3f& 
     planes[5] = Plane(far_top_right,     far_top_left,      far_bottom_left);
 }
 
-bool Frustum::contains(const vec3f& p) const {
+bool Frustum::contains(const vec3& p) const {
 
     for(int i=0; i < 6; i++) {
         float dist = planes[i].distance(p);
@@ -121,7 +119,7 @@ bool Frustum::contains(const vec3f& p) const {
 
 bool Frustum::intersects(const Bounds3D& bounds) const {
 
-    vec3f corner;
+    vec3 corner;
 
     for(int i=0; i<6; i++) {
 
@@ -138,7 +136,7 @@ bool Frustum::intersects(const Bounds3D& bounds) const {
 
 bool Frustum::intersects(const Bounds2D& bounds, float z) const {
 
-    vec3f corner;
+    vec3 corner;
 
     for(int i=0; i<6; i++) {
 

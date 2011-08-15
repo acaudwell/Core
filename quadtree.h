@@ -31,7 +31,7 @@
 #include <set>
 #include <list>
 
-#include "vectors.h"
+#include "gl.h"
 #include "bounds.h"
 #include "frustum.h"
 
@@ -62,7 +62,7 @@ class QuadNode {
 
     QuadTree* tree;
 
-    int getChildIndex(const vec2f & pos) const;
+    int getChildIndex(const vec2 & pos) const;
     void addToChild(QuadItem* item);
 
     int depth;
@@ -77,14 +77,14 @@ public:
 
     void addItem(QuadItem* item); //if not subdivided, subdivide, add to correct subdivided node.
 
-    int getItemsAt(std::set<QuadItem*>& itemset, vec2f pos);
+    int getItemsAt(std::set<QuadItem*>& itemset, vec2 pos);
     void getLeavesInFrustum(std::set<QuadNode*>& nodeset, Frustum& frustum);
     int getItemsInFrustum(std::set<QuadItem*>& itemset, Frustum& frustum);
     int getItemsInBounds(std::set<QuadItem*>& itemset, Bounds2D& bounds) const;
 
     void visitItemsInFrustum(const Frustum & frustum, VisitFunctor<QuadItem> & visit);
     void visitItemsInBounds(const Bounds2D & bounds, VisitFunctor<QuadItem> & visit);
-    void visitItemsAt(const vec2f & pos, VisitFunctor<QuadItem> & visit);
+    void visitItemsAt(const vec2 & pos, VisitFunctor<QuadItem> & visit);
     void visitLeavesInFrustum(const Frustum & frustum, VisitFunctor<QuadNode> & visit);
 
     bool empty();
@@ -105,12 +105,12 @@ public:
     int max_node_depth;
     int max_node_items;
 
-    int getItemsAt(std::set<QuadItem*>& itemset, vec2f pos);
+    int getItemsAt(std::set<QuadItem*>& itemset, vec2 pos);
     void getLeavesInFrustum(std::set<QuadNode*>& nodeset, Frustum& frustum);
     int getItemsInFrustum(std::set<QuadItem*>& itemset, Frustum& frustum);
     int getItemsInBounds(std::set<QuadItem*>& itemset, Bounds2D& bounds) const;
 
-    void visitItemsAt(const vec2f & pos, VisitFunctor<QuadItem> & visit);
+    void visitItemsAt(const vec2 & pos, VisitFunctor<QuadItem> & visit);
     void visitLeavesInFrustum(const Frustum & frustum, VisitFunctor<QuadNode> & visit);
     void visitItemsInFrustum(const Frustum & frustum, VisitFunctor<QuadItem> & visit);
     void visitItemsInBounds(const Bounds2D & bounds, VisitFunctor<QuadItem> & visit);

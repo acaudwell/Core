@@ -12,8 +12,8 @@ protected:
     float animation;
     float speed;
 
-    vec2f old_group_rect;
-    vec2f old_label_rect;
+    vec2 old_group_rect;
+    vec2 old_label_rect;
 
     bool open;
 public:
@@ -25,7 +25,7 @@ public:
     void setUI(UI* ui);
 
     bool elementsByType(std::list<UIElement*>& found, int type);
-    UIElement* elementAt(const vec2f& pos);
+    UIElement* elementAt(const vec2& pos);
 
     int getType() { return UI_GROUP; };
 
@@ -36,7 +36,7 @@ public:
     void toggle();
 
     void update(float dt);
-    void updatePos(const vec2f& pos);
+    void updatePos(const vec2& pos);
 
     void draw();
 };

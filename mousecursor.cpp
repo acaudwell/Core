@@ -114,7 +114,7 @@ void MouseCursor::setCursorTexture(TextureResource* texture) {
     cursortex = texture;
 }
 
-void MouseCursor::updatePos(const vec2f& pos) {
+void MouseCursor::updatePos(const vec2& pos) {
     mousepos = pos;
     idle     = 0.0f;
 }

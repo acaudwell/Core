@@ -7,7 +7,7 @@ class UIImage : public UIElement {
 public:
     float alpha;
     float shadow;
-    vec2f shadow_offset;
+    vec2  shadow_offset;
 
     UIImage(const std::string& path);
     ~UIImage();

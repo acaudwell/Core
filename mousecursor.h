@@ -32,7 +32,7 @@
 
 class MouseCursor {
 
-    vec2f mousepos;
+    vec2 mousepos;
 
     bool hidden;
     bool system_cursor;
@@ -48,7 +48,7 @@ public:
     MouseCursor();
     ~MouseCursor();
     
-    vec2f getPos() const { return mousepos; }
+    vec2 getPos() const { return mousepos; }
 
     bool leftButtonPressed() const;
     bool rightButtonPressed() const;
@@ -60,7 +60,7 @@ public:
     bool isVisible() const;
     bool hasFocus() const;
 
-    void updatePos(const vec2f& pos);
+    void updatePos(const vec2& pos);
 
     void showCursor(bool show);
     void useSystemCursor(bool system_cursor);

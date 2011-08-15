@@ -1,6 +1,6 @@
 #include "colour.h"
 
-UIColour::UIColour(vec3f* colour) : colour(colour), UIElement() {
+UIColour::UIColour(vec3* colour) : colour(colour), UIElement() {
     active = false;
     toHSL();
 }
@@ -9,7 +9,7 @@ void UIColour::toHSL() {
     toHSL(*colour, hue, saturation, lightness);
 }
 
-void UIColour::toHSL(const vec3f& colour, float& hue, float& saturation, float& lightness) {
+void UIColour::toHSL(const vec3& colour, float& hue, float& saturation, float& lightness) {
 
     float max = std::max(colour.x, std::max(colour.y, colour.z));
     float min = std::min(colour.x, std::min(colour.y, colour.z));
@@ -49,39 +49,39 @@ void UIColour::toColour() {
     *colour = toColour(hue, saturation, lightness);
 }
 
-vec3f UIColour::toColour(float hue, float saturation, float lightness) {
+vec3 UIColour::toColour(float hue, float saturation, float lightness) {
     
-    vec3f colour;
+    vec3 colour;
     
     if(hue < 0.16667f) {
         float h = hue / 0.16667f;
-        colour = vec3f(1.0f, 0.0f, 0.0f) * (1.0f - h) + vec3f(1.0f, 1.0f, 0.0f) * h;
+        colour = vec3(1.0f, 0.0f, 0.0f) * (1.0f - h) + vec3(1.0f, 1.0f, 0.0f) * h;
     } else if (hue < 0.33333f) {
         float h = (hue-0.16667f) / 0.16667f;
-        colour = vec3f(1.0f, 1.0f, 0.0f) * (1.0f - h) + vec3f(0.0f, 1.0f, 0.0f) * h;
+        colour = vec3(1.0f, 1.0f, 0.0f) * (1.0f - h) + vec3(0.0f, 1.0f, 0.0f) * h;
     } else if (hue < 0.5f) {
         float h = (hue-0.33333f) / 0.16667f;
-        colour = vec3f(0.0f, 1.0f, 0.0f) * (1.0f - h) + vec3f(0.0f, 1.0f, 1.0f) * h;   
+        colour = vec3(0.0f, 1.0f, 0.0f) * (1.0f - h) + vec3(0.0f, 1.0f, 1.0f) * h;   
     } else if (hue < 0.66667f) {        
         float h = (hue-0.5f)/0.16667f;
-        colour = vec3f(0.0f, 1.0f, 1.0f) * (1.0f - h) + vec3f(0.0f, 0.0f, 1.0f) * h;
+        colour = vec3(0.0f, 1.0f, 1.0f) * (1.0f - h) + vec3(0.0f, 0.0f, 1.0f) * h;
     } else if (hue < 0.83333f) {
         float h = (hue-0.66667f)/0.16667f;
-        colour = vec3f(0.0f, 0.0f, 1.0f) * (1.0f - h) + vec3f(1.0f, 0.0f, 1.0f) * h;
+        colour = vec3(0.0f, 0.0f, 1.0f) * (1.0f - h) + vec3(1.0f, 0.0f, 1.0f) * h;
     } else {
         float h = (hue-0.83333f)/0.16667f;
-        colour = vec3f(1.0f, 0.0f, 1.0f) * (1.0f - h) + vec3f(1.0f, 0.0f, 0.0f) * h;
+        colour = vec3(1.0f, 0.0f, 1.0f) * (1.0f - h) + vec3(1.0f, 0.0f, 0.0f) * h;
     }
   
     if(lightness < 0.5f) {
         float l = lightness/0.5f;
-        colour = vec3f(0.0f, 0.0f, 0.0f) * (1.0-l) + colour * l;
+        colour = vec3(0.0f, 0.0f, 0.0f) * (1.0f-l) + colour * l;
     } else {
         float l = (lightness-0.5)/0.5f;
-        colour = vec3f(1.0f, 1.0f, 1.0f) * l + colour * (1.0-l);
+        colour = vec3(1.0f, 1.0f, 1.0f) * l + colour * (1.0f-l);
     }
 
-    colour = colour * saturation + vec3f(lightness, lightness, lightness) * (1.0 - saturation);
+    colour = colour * saturation + vec3(lightness, lightness, lightness) * (1.0f - saturation);
         
     return colour;  
 }
@@ -102,22 +102,22 @@ void UIColour::drawContent() {
         glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
     }
 
-    drawQuad(vec2f(0.0f, 0.0f), vec2f(14.0f, 14.0f), vec4f(0.0f, 0.0f, 1.0f, 1.0f));
+    drawQuad(vec2(0.0f, 0.0f), vec2(14.0f, 14.0f), vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
     glColor4f(colour->x, colour->y, colour->z, 1.0f);
-    drawQuad(vec2f(1.0f, 1.0f), vec2f(12.0f, 12.0f), vec4f(0.0f, 0.0f, 1.0f, 1.0f));
+    drawQuad(vec2(1.0f, 1.0f), vec2(12.0f, 12.0f), vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
     glEnable(GL_TEXTURE_2D);
 }
 
 //UILabelColour
 
-UILabelColour::UILabelColour(const std::string& label, vec3f* value) : UILayout(true) {
+UILabelColour::UILabelColour(const std::string& label, vec3* value) : UILayout(true) {
 
     addElement(new UILabel(label));
     addElement(new UIColour(value));
 
-    padding = 5.0f;
+    padding = vec2(5.0f);
 }
 
 //UIColourSlider
@@ -133,20 +133,20 @@ void UIColourSlider::setColour(UIColour* colour) {
     this->attribute = 0;
 }
 
-void UIColourSlider::drawGradient(const vec2f& rect, const vec4f& colour1, const vec4f& colour2) {
+void UIColourSlider::drawGradient(const vec2& rect, const vec4& colour1, const vec4& colour2) {
 
     glBegin(GL_QUADS);
 
-        glColor4fv(colour1);
+        glColor4fv(glm::value_ptr(colour1));
         glVertex2f(0.0f,    0.0f);
 
-        glColor4fv(colour2);
+        glColor4fv(glm::value_ptr(colour2));
         glVertex2f(rect.x,  0.0f);
 
-        glColor4fv(colour2);
+        glColor4fv(glm::value_ptr(colour2));
         glVertex2f(rect.x, rect.y);
 
-        glColor4fv(colour1);
+        glColor4fv(glm::value_ptr(colour1));
         glVertex2f(0.0f,   rect.y);
 
     glEnd();
@@ -157,7 +157,7 @@ void UIColourSlider::updateRect() {
     rect.y = 16.0f;
 }
 
-void UIColourSlider::selectValueAt(const vec2f& pos) {
+void UIColourSlider::selectValueAt(const vec2& pos) {
     if(!attribute) return;
     *attribute = std::max(0.0f, std::min(1.0f, ((pos.x - this->pos.x) / slider_width)));
     colour->toColour();
@@ -179,16 +179,16 @@ void UILightnessSlider::drawContent() {
     glDisable(GL_TEXTURE_2D);
 
     //lightness gradient
-    vec4f colour1(0.0f, 0.0f, 0.0f, 1.0f);
-    vec4f colour2(colour->toColour(colour->hue, colour->saturation, 0.5f), 1.0f);
-    vec4f colour3(1.0f, 1.0f, 1.0f, 1.0f);
+    vec4 colour1(0.0f, 0.0f, 0.0f, 1.0f);
+    vec4 colour2(colour->toColour(colour->hue, colour->saturation, 0.5f), 1.0f);
+    vec4 colour3(1.0f, 1.0f, 1.0f, 1.0f);
 
     glPushMatrix();
 
-    drawGradient(vec2f(rect.x*0.5,rect.y), colour1, colour2);
+    drawGradient(vec2(rect.x*0.5,rect.y), colour1, colour2);
 
     glTranslatef(rect.x*0.5f, 0.0f, 0.0f);
-    drawGradient(vec2f(rect.x*0.5,rect.y), colour2, colour3);
+    drawGradient(vec2(rect.x*0.5,rect.y), colour2, colour3);
 
     glPopMatrix();
 
@@ -219,8 +219,8 @@ void UISatSlider::drawContent() {
     glDisable(GL_TEXTURE_2D);
     
     //saturation gradient
-    vec4f colour1 = vec4f(colour->toColour(colour->hue, 0.0f, lightness), 1.0f);    
-    vec4f colour2 = vec4f(colour->toColour(colour->hue, 1.0f, lightness), 1.0f);
+    vec4 colour1 = vec4(colour->toColour(colour->hue, 0.0f, lightness), 1.0f);    
+    vec4 colour2 = vec4(colour->toColour(colour->hue, 1.0f, lightness), 1.0f);
     
     drawGradient(rect, colour1, colour2);
 
@@ -253,38 +253,38 @@ void UIHueSlider::drawContent() {
 
     glPushMatrix();
     
-    vec4f colour1(colour->toColour(0.0f,     saturation, lightness), 1.0f);
-    vec4f colour2(colour->toColour(0.16667f, saturation, lightness), 1.0f);
-    vec4f colour3(colour->toColour(0.33333f, saturation, lightness), 1.0f);
-    vec4f colour4(colour->toColour(0.5f,     saturation, lightness), 1.0f);
-    vec4f colour5(colour->toColour(0.66667f, saturation, lightness), 1.0f);
-    vec4f colour6(colour->toColour(0.83333f, saturation, lightness), 1.0f);
-    vec4f colour7(colour->toColour(1.0f,     saturation, lightness), 1.0f);
+    vec4 colour1(colour->toColour(0.0f,     saturation, lightness), 1.0f);
+    vec4 colour2(colour->toColour(0.16667f, saturation, lightness), 1.0f);
+    vec4 colour3(colour->toColour(0.33333f, saturation, lightness), 1.0f);
+    vec4 colour4(colour->toColour(0.5f,     saturation, lightness), 1.0f);
+    vec4 colour5(colour->toColour(0.66667f, saturation, lightness), 1.0f);
+    vec4 colour6(colour->toColour(0.83333f, saturation, lightness), 1.0f);
+    vec4 colour7(colour->toColour(1.0f,     saturation, lightness), 1.0f);
     
     float width = rect.x*0.16667f;
     
     // draw hue
-    drawGradient(vec2f(width, rect.y), colour1, colour2);
+    drawGradient(vec2(width, rect.y), colour1, colour2);
 
     glTranslatef(width, 0.0f, 0.0f);
 
-    drawGradient(vec2f(width, rect.y), colour2, colour3);
-
-    glTranslatef(width, 0.0f, 0.0f);
-    
-    drawGradient(vec2f(width, rect.y), colour3, colour4);
+    drawGradient(vec2(width, rect.y), colour2, colour3);
 
     glTranslatef(width, 0.0f, 0.0f);
     
-    drawGradient(vec2f(width, rect.y), colour4, colour5);
+    drawGradient(vec2(width, rect.y), colour3, colour4);
 
     glTranslatef(width, 0.0f, 0.0f);
     
-    drawGradient(vec2f(width, rect.y), colour5, colour6);
+    drawGradient(vec2(width, rect.y), colour4, colour5);
 
     glTranslatef(width, 0.0f, 0.0f);
     
-    drawGradient(vec2f(width, rect.y), colour6, colour7);
+    drawGradient(vec2(width, rect.y), colour5, colour6);
+
+    glTranslatef(width, 0.0f, 0.0f);
+    
+    drawGradient(vec2(width, rect.y), colour6, colour7);
 
     
     glPopMatrix();

@@ -37,7 +37,7 @@ bool UI::elementsByType(std::list<UIElement*>& found, int type) {
     return success;
 }
 
-UIElement* UI::elementAt(const vec2f& pos) {
+UIElement* UI::elementAt(const vec2& pos) {
     UIElement* found = 0;
 
     foreach(UIElement* e, elements) {
@@ -47,7 +47,7 @@ UIElement* UI::elementAt(const vec2f& pos) {
     return 0;
 }
 
-UIElement* UI::selectElementAt(const vec2f& pos) {
+UIElement* UI::selectElementAt(const vec2& pos) {
 
     UIElement* found = 0;
 
@@ -80,7 +80,7 @@ void UI::update(float dt) {
     }
 
     foreach(UIElement* e, elements) {
-        e->updatePos(vec2f(0.0f, 0.0f));
+        e->updatePos(vec2(0.0f, 0.0f));
     }
 }
 

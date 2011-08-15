@@ -33,11 +33,11 @@
 
 class Bounds2D {
 public:
-    vec2f min;
-    vec2f max;
+    vec2 min;
+    vec2 max;
     bool first;
 
-    vec2f centre() const {
+    vec2 centre() const {
         return min + (max - min) * 0.5f;
     }
 
@@ -54,8 +54,8 @@ public:
     }
 
     void reset() {
-        min = vec2f(0.0, 0.0);
-        max = vec2f(0.0, 0.0);
+        min = vec2(0.0, 0.0);
+        max = vec2(0.0, 0.0);
         first = true;
     }
 
@@ -63,7 +63,7 @@ public:
         reset();
     }
 
-    Bounds2D(const vec2f& min, const vec2f& max) {
+    Bounds2D(const vec2& min, const vec2& max) {
         reset();
         update(min);
         update(max);
@@ -80,18 +80,18 @@ public:
         update(bounds);
     }
 
-    void set(vec2f point) {
+    void set(vec2 point) {
         reset();
         update(point);
     }
 
-    void set(const vec2f& a, const vec2f& b) {
+    void set(const vec2& a, const vec2& b) {
         reset();
         update(a);
         update(b);
     }
 
-    void update(const vec2f& point) {
+    void update(const vec2& point) {
         if(first) {
             min = point;
             max = point;
@@ -105,7 +105,7 @@ public:
         if(max.y < point.y) max.y = point.y;
     }
 
-    bool contains(const vec2f& point) const {
+    bool contains(const vec2& point) const {
         if(first) return false;
 
         if(min.x<=point.x && min.y<=point.y && max.x >= point.x && max.y >= point.y)
@@ -126,24 +126,24 @@ public:
 
     void draw() const{
         glBegin(GL_LINE_STRIP);
-            glVertex2fv(min);
+            glVertex2fv(glm::value_ptr(min));
             glVertex2f(max.x, min.y);
-            glVertex2fv(max);
+            glVertex2fv(glm::value_ptr(max));
             glVertex2f(min.x, max.y);
-            glVertex2fv(min);
+            glVertex2fv(glm::value_ptr(min));
         glEnd();
     }
 };
 
 class Bounds3D {
 public:
-    vec3f min;
-    vec3f max;
+    vec3 min;
+    vec3 max;
     bool first;
 
     void reset() {
-        min = vec3f(0.0, 0.0, 0.0);
-        max = vec3f(0.0, 0.0, 0.0);
+        min = vec3(0.0, 0.0, 0.0);
+        max = vec3(0.0, 0.0, 0.0);
         first  = true;
     }
 
@@ -151,7 +151,7 @@ public:
         reset();
     }
 
-    Bounds3D(vec3f min, vec3f max) {
+    Bounds3D(vec3 min, vec3 max) {
         reset();
         update(min);
         update(max);
@@ -173,11 +173,11 @@ public:
         return width() * height() * depth();
     }
 
-    vec3f centre() {
-         return min + ((max-min) * 0.5);
+    vec3 centre() {
+         return min + ((max-min) * 0.5f);
     }
 
-    void update(vec3f point) {
+    void update(vec3 point) {
         if(first) {
             min = point;
             max = point;
@@ -193,7 +193,7 @@ public:
         if(max.z < point.z) max.z = point.z;
     }
 
-    bool contains(vec3f& point) {
+    bool contains(vec3& point) {
         if(first) return false;
 
         if(min.x<=point.x && min.y<=point.y && min.z<=point.z && max.x >= point.x && max.y >= point.y && max.z >= point.z)
@@ -205,8 +205,8 @@ public:
     void draw() {
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         glBegin(GL_LINES);
-            glVertex3fv(min);
-            glVertex3fv(max);
+            glVertex3fv(glm::value_ptr(min));
+            glVertex3fv(glm::value_ptr(max));
         glEnd();
     }
 

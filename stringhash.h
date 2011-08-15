@@ -34,10 +34,10 @@
 
 //basic string hash algorithm
 int stringHash(std::string& str);
-vec2f vec2Hash(std::string& str);
-vec3f vec3Hash(std::string& str);
-vec3f colourHash(std::string& str);
-vec3f stylizedColourHash(std::string& str);
+vec2 vec2Hash(std::string& str);
+vec3 vec3Hash(std::string& str);
+vec3 colourHash(std::string& str);
+vec3 stylizedColourHash(std::string& str);
 
 extern int gStringHashSeed;
 

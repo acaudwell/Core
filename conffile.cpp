@@ -26,7 +26,7 @@ Regex ConfFile_float_value("^\\s*-?(\\d*\\.?\\d+)\\s*$");
 // parse key value pair, seperated by an equals sign, removing white space on key and front of the value
 Regex ConfFile_key_value("^\\s*([^=\\s]+)\\s*=\\s*([^\\s].*)?$");
 
-// vec2f, vec3f, or vec4f with liberal allowance for whitespace
+// vec2, vec3, or vec4 with liberal allowance for whitespace
 Regex ConfFile_vec2_value("^\\s*vec2\\(\\s*(-?[0-9.]+)\\s*,\\s*(-?[0-9.]+)\\s*\\)\\s*$");
 Regex ConfFile_vec3_value("^\\s*vec3\\(\\s*(-?[0-9.]+)\\s*,\\s*(-?[0-9.]+)\\s*,\\s*(-?[0-9.]+)\\s*\\)\\s*$");
 Regex ConfFile_vec4_value("^\\s*vec4\\(\\s*(-?[0-9.]+)\\s*,\\s*(-?[0-9.]+)\\s*,\\s*(-?[0-9.]+)\\s*,\\s*(-?[0-9.]+)\\s*\\)\\s*$");
@@ -59,17 +59,17 @@ ConfEntry::ConfEntry(const std::string& name, float value) {
     setFloat(value);
 }
 
-ConfEntry::ConfEntry(const std::string& name, vec2f value) {
+ConfEntry::ConfEntry(const std::string& name, vec2 value) {
     this->name  = name;
     setVec2(value);
 }
 
-ConfEntry::ConfEntry(const std::string& name, vec3f value) {
+ConfEntry::ConfEntry(const std::string& name, vec3 value) {
     this->name  = name;
     setVec3(value);
 }
 
-ConfEntry::ConfEntry(const std::string& name, vec4f value) {
+ConfEntry::ConfEntry(const std::string& name, vec4 value) {
     this->name  = name;
     setVec4(value);
 }
@@ -100,21 +100,21 @@ void ConfEntry::setBool(bool value) {
     this->value = std::string(value ? "yes" : "no");
 }
 
-void ConfEntry::setVec2(vec2f value) {
+void ConfEntry::setVec2(vec2 value) {
     char vectostr[256];
     sprintf(vectostr, "vec2(%.5f, %.5f)", value.x, value.y);
 
     this->value = std::string(vectostr);
 }
 
-void ConfEntry::setVec3(vec3f value) {
+void ConfEntry::setVec3(vec3 value) {
     char vectostr[256];
     sprintf(vectostr, "vec3(%.5f, %.5f, %.5f)", value.x, value.y, value.z);
 
     this->value = std::string(vectostr);
 }
 
-void ConfEntry::setVec4(vec4f value) {
+void ConfEntry::setVec4(vec4 value) {
     char vectostr[256];
     sprintf(vectostr, "vec4(%.5f, %.5f, %.5f, %.5f)", value.x, value.y, value.z, value.w);
 
@@ -177,15 +177,15 @@ bool ConfEntry::isVec2() {
     return false;
 }
 
-vec2f ConfEntry::getVec2() {
+vec2 ConfEntry::getVec2() {
 
     std::vector<std::string> matches;
 
     if(ConfFile_vec2_value.match(value, &matches)) {
-        return vec2f(atof(matches[0].c_str()), atof(matches[1].c_str()));
+        return vec2(atof(matches[0].c_str()), atof(matches[1].c_str()));
     }
 
-    return vec2f(0.0, 0.0);
+    return vec2(0.0, 0.0);
 }
 
 bool ConfEntry::isVec3() {
@@ -193,15 +193,15 @@ bool ConfEntry::isVec3() {
     return false;
 }
 
-vec3f ConfEntry::getVec3() {
+vec3 ConfEntry::getVec3() {
 
     std::vector<std::string> matches;
 
     if(ConfFile_vec3_value.match(value, &matches)) {
-        return vec3f(atof(matches[0].c_str()), atof(matches[1].c_str()), atof(matches[2].c_str()));
+        return vec3(atof(matches[0].c_str()), atof(matches[1].c_str()), atof(matches[2].c_str()));
     }
 
-    return vec3f(0.0, 0.0, 0.0);
+    return vec3(0.0, 0.0, 0.0);
 }
 
 bool ConfEntry::isVec4() {
@@ -209,15 +209,15 @@ bool ConfEntry::isVec4() {
     return false;
 }
 
-vec4f ConfEntry::getVec4() {
+vec4 ConfEntry::getVec4() {
 
     std::vector<std::string> matches;
 
     if(ConfFile_vec4_value.match(value, &matches)) {
-        return vec4f(atof(matches[0].c_str()), atof(matches[1].c_str()), atof(matches[2].c_str()), atof(matches[3].c_str()) );
+        return vec4(atof(matches[0].c_str()), atof(matches[1].c_str()), atof(matches[2].c_str()), atof(matches[3].c_str()) );
     }
 
-    return vec4f(0.0, 0.0, 0.0, 0.0);
+    return vec4(0.0, 0.0, 0.0, 0.0);
 }
 
 //ConfSection
@@ -374,20 +374,20 @@ bool ConfSection::getBool(const std::string& key) {
     return false;
 }
 
-vec3f ConfSection::getVec3(const std::string& key) {
+vec3 ConfSection::getVec3(const std::string& key) {
     ConfEntry* entry = getEntry(key);
 
     if(entry) return entry->getVec3();
 
-    return vec3f(0.0, 0.0, 0.0);
+    return vec3(0.0, 0.0, 0.0);
 }
 
-vec4f ConfSection::getVec4(const std::string& key) {
+vec4 ConfSection::getVec4(const std::string& key) {
     ConfEntry* entry = getEntry(key);
 
     if(entry) return entry->getVec4();
 
-    return vec4f(0.0, 0.0, 0.0, 0.0);
+    return vec4(0.0, 0.0, 0.0, 0.0);
 }
 
 void ConfSection::print(std::ostream& out) {
@@ -731,20 +731,20 @@ bool ConfFile::getBool(const std::string& section, const std::string& key) {
     return false;
 }
 
-vec3f ConfFile::getVec3(const std::string& section, const std::string& key) {
+vec3 ConfFile::getVec3(const std::string& section, const std::string& key) {
     ConfEntry* entry = getEntry(section, key);
 
     if(entry) return entry->getVec3();
 
-    return vec3f(0.0, 0.0, 0.0);
+    return vec3(0.0, 0.0, 0.0);
 }
 
-vec4f ConfFile::getVec4(const std::string& section, const std::string& key) {
+vec4 ConfFile::getVec4(const std::string& section, const std::string& key) {
     ConfEntry* entry = getEntry(section, key);
 
     if(entry) return entry->getVec4();
 
-    return vec4f(0.0, 0.0, 0.0, 0.0);
+    return vec4(0.0, 0.0, 0.0, 0.0);
 }
 
 void ConfFile::unknownOptionException(ConfEntry* entry) {

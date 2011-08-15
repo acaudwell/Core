@@ -10,19 +10,19 @@ class UIColour : public UIElement {
 public:
     bool active;
 
-    vec3f* colour;
+    vec3* colour;
 
     float hue;
     float saturation;
     float lightness;
 
-    UIColour(vec3f* colour);
+    UIColour(vec3* colour);
 
     void toHSL();
     void toColour();
 
-    static void  toHSL(const vec3f& colour, float& hue, float& saturation, float& lightness);
-    static vec3f toColour(float hue, float saturation, float lightness);
+    static void  toHSL(const vec3& colour, float& hue, float& saturation, float& lightness);
+    static vec3 toColour(float hue, float saturation, float lightness);
     
     int getType() { return UI_COLOUR; };
 
@@ -33,19 +33,19 @@ public:
 class UILabelColour : public UILayout {
 
 public:
-    UILabelColour(const std::string& label, vec3f* value);
+    UILabelColour(const std::string& label, vec3* value);
 };
 
 class UIColourSlider : public UISlider {
 protected:
-    void drawGradient(const vec2f& rect, const vec4f& colour1, const vec4f& colour2);
+    void drawGradient(const vec2& rect, const vec4& colour1, const vec4& colour2);
 public:
     UIColourSlider();
 
     UIColour* colour;
     float* attribute;
 
-    void selectValueAt(const vec2f& pos);
+    void selectValueAt(const vec2& pos);
 
     virtual void setColour(UIColour* colour);
 
