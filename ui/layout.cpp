@@ -36,8 +36,13 @@ void UILayout::update(float dt) {
         }
     }
 
-    rect.x += margin.x*2.0f + ((float)elements.size()-1.0f) * padding.x;
-    rect.y += margin.y*2.0f + ((float)elements.size()-1.0f) * padding.y;
+    if(horizontal) {
+        rect.x += margin.x*2.0f + ((float)elements.size()-1.0f) * padding.x;
+        rect.y += margin.y*2.0f;
+    } else {
+        rect.x += margin.x*2.0f;
+        rect.y += margin.y*2.0f + ((float)elements.size()-1.0f) * padding.y;
+    }
 }
 
 void UILayout::updatePos(const vec2& pos) {
