@@ -29,5 +29,5 @@ UILabelCheckbox::UILabelCheckbox(const std::string& label, bool* value) : UILayo
     addElement(new UILabel(label));
     addElement(new UICheckbox(value));
 
-    padding = vec2(5.0f);
+    padding = vec2(2.0f);
 }
