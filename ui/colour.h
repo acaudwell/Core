@@ -23,7 +23,7 @@ public:
 
     static void  toHSL(const vec3& colour, float& hue, float& saturation, float& lightness);
     static vec3 toColour(float hue, float saturation, float lightness);
-    
+
     int getType() { return UI_COLOUR; };
 
     void updateRect();
@@ -34,6 +34,8 @@ class UILabelColour : public UILayout {
 
 public:
     UILabelColour(const std::string& label, vec3* value);
+    UILabelColour(const std::string& label, vec3* a, vec3* b, vec3* c);
+
 };
 
 class UIColourSlider : public UISlider {
