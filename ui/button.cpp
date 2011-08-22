@@ -7,5 +7,5 @@ UIButton::UIButton(const std::string& name, void (*action)())
 }
 
 void UIButton::click() {
-    void (*action)();
+    action();
 }

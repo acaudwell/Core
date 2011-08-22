@@ -8,6 +8,8 @@ class UIButton : public UILabel {
 public:
     UIButton(const std::string& name, void (*action)());
 
+    int getType() { return UI_BUTTON; }
+
     void click();
 };
 
