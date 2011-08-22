@@ -2,6 +2,7 @@
 #include "checkbox.h"
 #include "group.h"
 #include "slider.h"
+#include "button.h"
 
 UI::UI() : selectedElement(0) {
     font = fontmanager.grab("FreeSans.ttf", 12);
@@ -53,7 +54,7 @@ void UI::deselect() {
     if(!selectedElement) return;
 
     selectedElement->setSelected(false);
-    selectedElement = 0;    
+    selectedElement = 0;
 }
 
 UIElement* UI::selectElementAt(const vec2& pos) {
@@ -119,12 +120,12 @@ char UI::toChar(SDL_KeyboardEvent *e) {
     if( unicode > 0x80 && unicode <= 0 ) return 0;
 
     char c         = unicode;
-    bool uppercase = SDL_GetModState() & KMOD_SHIFT;        
-    
+    bool uppercase = SDL_GetModState() & KMOD_SHIFT;
+
     if(uppercase) {
         return toupper(c);
     }
-    
+
     return c;
 }
 
@@ -139,18 +140,22 @@ bool UI::keyPress(SDL_KeyboardEvent *e) {
         return true;
     }
 
-    char c = toChar(e); 
-    
+    char c = toChar(e);
+
     if(!c) return false;
-    
+
     return selected->keyPress(e, c);
 }
 
 void UI::processMouse(const MouseCursor& cursor, bool left_click, bool left_down) {
-    
+
     UIElement* selected = getSelected();
 
     if(!selected) return;
+
+    if(selected->getType() == UI_BUTTON && left_click) {
+        ((UIButton*)selected)->click();
+    }
 
     if(selected->getType() == UI_CHECKBOX && left_click) {
         ((UICheckbox*)selected)->toggle();

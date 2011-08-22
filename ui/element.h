@@ -9,7 +9,7 @@
 
 #include "ui.h"
 
-enum { UI_LABEL, UI_IMAGE, UI_LAYOUT, UI_GROUP, UI_COLOUR, UI_SLIDER, UI_CHECKBOX };
+enum { UI_LABEL, UI_BUTTON, UI_IMAGE, UI_LAYOUT, UI_GROUP, UI_COLOUR, UI_SLIDER, UI_CHECKBOX };
 
 class UIElement {
 protected:
@@ -64,7 +64,7 @@ public:
     virtual void updateRect() {};
 
     virtual bool keyPress(SDL_KeyboardEvent *e, char c) { return false; };
-    
+
     virtual void update(float dt);
 
     virtual void mouseWheel(bool up) {};
