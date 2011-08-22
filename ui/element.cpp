@@ -76,6 +76,7 @@ void UIElement::draw() {
 }
 
 void UIElement::update(float dt) {
+    updateContent();
     updateRect();
 }
 

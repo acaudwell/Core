@@ -71,13 +71,17 @@ void UIFloatSlider::mouseWheel(bool up) {
         value_inc *= 0.1f;
     }
 
-    *value = std::max(std::min(max,*value+value_inc), min);
+    setValue(*value+value_inc);
 }
 
 void UIFloatSlider::selectValueAt(const vec2& pos) {
     float new_value = ((pos.x - this->pos.x) / slider_width) * (max-min) + min;
 
-    *value = std::max(std::min(max,new_value), min);
+    setValue(new_value);
+}
+
+void UIFloatSlider::setValue(float v) {
+    *value = std::max(std::min(max,v), min);
 }
 
 void UIFloatSlider::drawContent() {
@@ -98,13 +102,17 @@ void UIIntSlider::mouseWheel(bool up) {
 
     if(!up) value_inc = -value_inc;
 
-    *value = std::max(std::min(max,*value+value_inc), min);
+    setValue(*value+value_inc);
 }
 
 void UIIntSlider::selectValueAt(const vec2& pos) {
     int new_value = ((pos.x - this->pos.x) / slider_width) * (max-min) + min;
 
-    *value = std::max(std::min(max,new_value), min);
+    setValue(new_value);
+}
+
+void UIIntSlider::setValue(int v) {
+    *value = std::max(std::min(max,v), min);
 }
 
 void UIIntSlider::drawContent() {
@@ -118,9 +126,14 @@ void UIIntSlider::drawContent() {
 
 UILabelFloatSlider::UILabelFloatSlider(const std::string& label, float* value, float min, float max) : UILayout(true) {
 
+    UIFloatSlider* slider = new UIFloatSlider(value, min, max);
+    UIFloatLabel*  flabel = new UIFloatLabel(value, true);
+    
+    flabel->slider = slider;
+    
     addElement(new UILabel(label));
-    addElement(new UIFloatSlider(value, min, max));
-    addElement(new UIFloatLabel(value, true));
+    addElement(slider);
+    addElement(flabel);
 
     padding = vec2(5.0f, 0.0f);
 }
@@ -129,9 +142,14 @@ UILabelFloatSlider::UILabelFloatSlider(const std::string& label, float* value, f
 
 UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min, int max) : UILayout(true) {
 
+    UIIntSlider* slider = new UIIntSlider(value, min, max);
+    UIIntLabel*  ilabel = new UIIntLabel(value, true);
+    
+    ilabel->slider = slider;
+    
     addElement(new UILabel(label));
-    addElement(new UIIntSlider(value, min, max));
-    addElement(new UIIntLabel(value, true));
+    addElement(slider);
+    addElement(ilabel);
 
     padding = vec2(5.0f, 0.0f);
 }

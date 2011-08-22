@@ -30,6 +30,7 @@ public:
 
     void mouseWheel(bool up);
     void selectValueAt(const vec2& pos);
+    void setValue(float v);
 
     void drawContent();
 };
@@ -44,6 +45,7 @@ public:
 
     void mouseWheel(bool up);
     void selectValueAt(const vec2& pos);
+    void setValue(int v);
 
     void drawContent();
 };

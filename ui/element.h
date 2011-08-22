@@ -60,8 +60,11 @@ public:
     virtual int getType() { return -1; };
 
     virtual void updatePos(const vec2& pos) { this->pos = pos; };
+    virtual void updateContent() {};
     virtual void updateRect() {};
 
+    virtual bool keyPress(SDL_KeyboardEvent *e, char c) { return false; };
+    
     virtual void update(float dt);
 
     virtual void mouseWheel(bool up) {};

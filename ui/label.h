@@ -3,25 +3,34 @@
 
 #include "element.h"
 
+class UISlider;
+
 class UILabel : public UIElement {
 protected:
     std::vector<TextureResource*> labeltex;
 
-    bool editable;
     bool opaque;
 
     void drawBackground();
+    
+    float cursor_anim;
 public:
+    UISlider* slider;
+    bool editable;
     std::string text;
 
     UILabel(const std::string& text, bool editable = false, bool opaque = false);
     ~UILabel();
 
     float width;
-
+   
+    bool keyPress(SDL_KeyboardEvent *e, char c);
+    
     int getType() { return UI_LABEL; }
 
     void setText(const std::string& text);
+    
+    void update(float dt);
 
     void updateRect();
 
@@ -33,6 +42,9 @@ class UIIntLabel : public UILabel {
 public:
     UIIntLabel(int* value, bool editable);
 
+    bool keyPress(SDL_KeyboardEvent *e, char c);
+    
+    void updateContent();
     void updateRect();
 };
 
@@ -40,7 +52,10 @@ class UIFloatLabel : public UILabel {
     float* value;
 public:
     UIFloatLabel(float* value, bool editable);
-
+    
+    bool keyPress(SDL_KeyboardEvent *e, char c);
+    
+    void updateContent();
     void updateRect();
 };
 

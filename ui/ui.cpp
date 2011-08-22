@@ -1,5 +1,7 @@
 #include "ui.h"
-#include "element.h"
+#include "checkbox.h"
+#include "group.h"
+#include "slider.h"
 
 UI::UI() : selectedElement(0) {
     font = fontmanager.grab("FreeSans.ttf", 12);
@@ -45,6 +47,13 @@ UIElement* UI::elementAt(const vec2& pos) {
     }
 
     return 0;
+}
+
+void UI::deselect() {
+    if(!selectedElement) return;
+
+    selectedElement->setSelected(false);
+    selectedElement = 0;    
 }
 
 UIElement* UI::selectElementAt(const vec2& pos) {
@@ -100,5 +109,58 @@ void UI::draw() {
 void UI::drawOutline() {
     foreach(UIElement* e, elements) {
         e->drawOutline();
+    }
+}
+
+char UI::toChar(SDL_KeyboardEvent *e) {
+
+    int unicode = e->keysym.unicode;
+
+    if( unicode > 0x80 && unicode <= 0 ) return 0;
+
+    char c         = unicode;
+    bool uppercase = SDL_GetModState() & KMOD_SHIFT;        
+    
+    if(uppercase) {
+        return toupper(c);
+    }
+    
+    return c;
+}
+
+bool UI::keyPress(SDL_KeyboardEvent *e) {
+
+    UIElement* selected = getSelected();
+
+    if(!selected) return false;
+
+    if(e->keysym.unicode == SDLK_ESCAPE) {
+        deselect();
+        return true;
+    }
+
+    char c = toChar(e); 
+    
+    if(!c) return false;
+    
+    return selected->keyPress(e, c);
+}
+
+void UI::processMouse(const MouseCursor& cursor, bool left_click, bool left_down) {
+    
+    UIElement* selected = getSelected();
+
+    if(!selected) return;
+
+    if(selected->getType() == UI_CHECKBOX && left_click) {
+        ((UICheckbox*)selected)->toggle();
+    }
+
+    if(selected->getType() == UI_LABEL && (selected->parent != 0) && (selected->parent->getType() == UI_GROUP) && left_click) {
+        ((UIGroup*)selected->parent)->toggle();
+    }
+
+    if(selected->getType() == UI_SLIDER && left_down) {
+        ((UISlider*)selected)->selectValueAt(cursor.getPos());
     }
 }
