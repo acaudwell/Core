@@ -3,7 +3,7 @@
 
 //UILabel
 
-UILabel::UILabel(const std::string& text, bool editable, bool opaque) : text(text), editable(editable), opaque(opaque), UIElement() {
+UILabel::UILabel(const std::string& text, bool editable, bool opaque, float width) : text(text), editable(editable), opaque(opaque), width(width), UIElement() {
 
     if(opaque) {
         labeltex.resize(4);
@@ -20,7 +20,6 @@ UILabel::UILabel(const std::string& text, bool editable, bool opaque) : text(tex
         }
     }
     slider = 0;
-    width = 120.0f;
 }
 
 UILabel::~UILabel() {
@@ -30,8 +29,13 @@ UILabel::~UILabel() {
     labeltex.clear();
 }
 
+void UILabel::setWidth(float width) {
+    this->width = width;
+}
+
 void UILabel::setText(const std::string& text) {
     this->text = text;
+    width = ui->font.getWidth(text);
 }
 
 void UILabel::updateRect() {
@@ -98,21 +102,22 @@ bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
             text += c;
             break;
     }
-        
+
     return true;
 }
-    
+
 void UILabel::update(float dt) {
-        
+
     if(selected && editable) {
         cursor_anim += dt;
         if(cursor_anim>=2.0f) cursor_anim=0.0f;
     } else {
         updateContent();
+        if(width < 0.0f) width = ui->font.getWidth(text);
         cursor_anim = 0.0f;
     }
-    
-    updateRect();    
+
+    updateRect();
 }
 
 void UILabel::drawContent() {
@@ -155,19 +160,19 @@ UIIntLabel::UIIntLabel(int* value, bool editable) : value(value), UILabel("", ed
 }
 
 bool UIIntLabel::keyPress(SDL_KeyboardEvent *e, char c) {
- 
+
     bool changed = UILabel::keyPress(e,c);
 
     if(changed) {
         int v = atoi(text.c_str());
-        
+
         if(slider != 0) {
-            ((UIIntSlider*)slider)->setValue(v);            
+            ((UIIntSlider*)slider)->setValue(v);
         } else {
             *value = v;
         }
     }
-    
+
     return changed;
 }
 
@@ -192,20 +197,20 @@ UIFloatLabel::UIFloatLabel(float* value, bool editable) : value(value), UILabel(
 }
 
 bool UIFloatLabel::keyPress(SDL_KeyboardEvent *e, char c) {
- 
-    bool changed = UILabel::keyPress(e,c); 
-    
+
+    bool changed = UILabel::keyPress(e,c);
+
     if(changed) {
-        
+
         float v = atof(text.c_str());
 
         if(slider != 0) {
-            ((UIFloatSlider*)slider)->setValue(v);            
+            ((UIFloatSlider*)slider)->setValue(v);
         } else {
             *value = v;
-        }        
+        }
     }
-    
+
     return changed;
 }
 
@@ -217,13 +222,13 @@ void UIFloatLabel::updateContent() {
     //trim trailing zeros - ideally we should only do this when the value changes
     size_t dotsep = text.rfind(".");
     size_t tlen    = text.size();
-    
+
     if(tlen>1 && dotsep != std::string::npos && dotsep != tlen-1) {
 
         size_t zpos = tlen-1;
-        
+
         while(zpos>dotsep+1 && text[zpos] == '0') zpos--;
-      
+
         if(zpos<tlen-1) text.resize(zpos+1);
     }
 }

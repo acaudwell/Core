@@ -63,7 +63,7 @@ UIFloatSlider::UIFloatSlider(float* value, float min, float max) :
 void UIFloatSlider::mouseWheel(bool up) {
 
     float value_inc = (max-min) / 100.0f;
-   
+
     if(!up) value_inc = -value_inc;
 
     Uint8* keyState = SDL_GetKeyState(NULL);
@@ -128,10 +128,10 @@ UILabelFloatSlider::UILabelFloatSlider(const std::string& label, float* value, f
 
     UIFloatSlider* slider = new UIFloatSlider(value, min, max);
     UIFloatLabel*  flabel = new UIFloatLabel(value, true);
-    
+
     flabel->slider = slider;
-    
-    addElement(new UILabel(label));
+
+    addElement(new UILabel(label, false, false, 120.0f));
     addElement(slider);
     addElement(flabel);
 
@@ -144,10 +144,10 @@ UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min
 
     UIIntSlider* slider = new UIIntSlider(value, min, max);
     UIIntLabel*  ilabel = new UIIntLabel(value, true);
-    
+
     ilabel->slider = slider;
-    
-    addElement(new UILabel(label));
+
+    addElement(new UILabel(label, false, false, 120.0f));
     addElement(slider);
     addElement(ilabel);
 

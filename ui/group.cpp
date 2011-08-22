@@ -3,7 +3,7 @@
 //UIGroup
 
 UIGroup::UIGroup(const std::string& groupname, bool open) : open(open) {
-    label  = new UILabel(groupname, false, true);
+    label  = new UILabel(groupname, false, true, 120.0f);
     layout = new UILayout();
 
     label->setMargin(5.0f);
@@ -11,7 +11,7 @@ UIGroup::UIGroup(const std::string& groupname, bool open) : open(open) {
 
     layout->setMargin(vec2(0.0f, 5.0f));
     layout->setPadding(5.0f);
-    
+
     animation = 0.0f;
     speed     = 2.5f;
 }
@@ -33,7 +33,7 @@ void UIGroup::setTitle(const std::string& text) {
 void UIGroup::toggle() {
     open = !open;
     animation = 1.0f;
-    
+
     old_group_rect = rect;
     old_label_rect = label->rect;
 }
@@ -83,7 +83,7 @@ void UIGroup::update(float dt) {
     if(animation>0.0f) {
         rect        = lerp2::lerp(old_group_rect, rect,        1.0f-animation);
         label->rect = lerp2::lerp(old_label_rect, label->rect, 1.0f-animation);
-        
+
         animation -= dt*speed;
     }
 }
