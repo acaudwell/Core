@@ -74,7 +74,7 @@ void UILayout::updatePos(const vec2& pos) {
     if(right_align) {
         cursor = this->pos + vec2(rect.x - margin.x, margin.y);
     } else {
-        cursor = this->pos + margin;
+        cursor = this->pos + margin.xy;
     }
 
     foreach(UIElement* e, elements) {

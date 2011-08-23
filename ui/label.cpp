@@ -19,6 +19,7 @@ UILabel::UILabel(const std::string& text, bool editable, bool opaque, float widt
             t->setWrapStyle(GL_CLAMP);
         }
     }
+    inverted = false;
     slider = 0;
 }
 
@@ -39,8 +40,8 @@ void UILabel::setText(const std::string& text) {
 }
 
 void UILabel::updateRect() {
-    rect.x = width + margin.x*2.0f;
-    rect.y = 14.0f + margin.y*2.0f;
+    rect.x = width + margin.x + margin.z;
+    rect.y = 14.0f + margin.y + margin.w;
 }
 
 void UILabel::drawBackground() {
@@ -48,9 +49,31 @@ void UILabel::drawBackground() {
     vec4 texcoord;
 
     for(int i=0;i<4;i++) {
-        labeltex[i]->bind();
 
         glPushMatrix();
+
+        if(inverted) {
+            labeltex[(i+2)%4]->bind();
+
+            switch(i) {
+                case 0:
+                    texcoord = vec4(1.0f, 1.0f, 1.0-(rect.x/32.0f), 1.0-(rect.y/32.0f));
+                    break;
+                case 1:
+                    texcoord = vec4((rect.x/32.0f), 1.0f, 0.0, 1.0-(rect.y/32.0f));
+                    glTranslatef(rect.x*0.5, 0.0f, 0.0f);
+                    break;
+                case 2:
+                    texcoord = vec4(rect.x/32.0f, rect.y/32.0f, 0.0f, 0.0f);
+                    glTranslatef(rect.x*0.5, rect.y*0.5, 0.0f);
+                    break;
+                case 3:
+                    texcoord = vec4(1.0f, (rect.y/32.0f), 1.0f-(rect.x/32.0f), 0.0f);
+                    glTranslatef(0.0f, rect.y*0.5, 0.0f);
+                    break;
+            }
+        } else {
+            labeltex[i]->bind();
 
             switch(i) {
                 case 0:
@@ -69,6 +92,7 @@ void UILabel::drawBackground() {
                     glTranslatef(0.0f, rect.y*0.5, 0.0f);
                     break;
             }
+        }
 
             glBegin(GL_QUADS);
                 glTexCoord2f(texcoord.x,texcoord.y);
@@ -144,12 +168,12 @@ void UILabel::drawContent() {
         }
 
         if(int(cursor_anim)==0) {
-            ui->font.print(margin.x, rect.y-(3.0+margin.y), "%s_", text.c_str());
+            ui->font.print(margin.x, rect.y-(3.0+margin.w), "%s_", text.c_str());
         } else {
-            ui->font.draw(margin.x, rect.y-(3.0+margin.y), text);
+            ui->font.draw(margin.x, rect.y-(3.0+margin.w), text);
         }
     } else {
-        ui->font.draw(margin.x, rect.y-(3.0+margin.y), text);
+        ui->font.draw(margin.x, rect.y-(3.0+margin.w), text);
     }
 }
 
@@ -182,12 +206,6 @@ void UIIntLabel::updateContent() {
     snprintf(buff, 256, "%d", *value);
 
     text = std::string(buff);
-}
-
-void UIIntLabel::updateRect() {
-
-    rect.x = width + margin.x*2.0f;
-    rect.y = 14.0f + margin.y*2.0f;
 }
 
 //UIFloatLabel
@@ -233,8 +251,3 @@ void UIFloatLabel::updateContent() {
     }
 }
 
-void UIFloatLabel::updateRect() {
-
-    rect.x = width + margin.x*2.0f;
-    rect.y = 14.0f + margin.y*2.0f;
-}

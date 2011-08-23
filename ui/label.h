@@ -10,7 +10,7 @@ protected:
     std::vector<TextureResource*> labeltex;
 
     bool opaque;
-    bool fixed;
+    bool inverted;
 
     void drawBackground();
 
@@ -47,7 +47,6 @@ public:
     bool keyPress(SDL_KeyboardEvent *e, char c);
 
     void updateContent();
-    void updateRect();
 };
 
 class UIFloatLabel : public UILabel {
@@ -58,7 +57,6 @@ public:
     bool keyPress(SDL_KeyboardEvent *e, char c);
 
     void updateContent();
-    void updateRect();
 };
 
 #endif

@@ -24,13 +24,13 @@ public:
 
     // border around element between this element and other elements
     // doesnt affect the selectable area of the element
-    vec2 margin;
+    vec4 margin;
 
     // padding around elements inside this element
     // affects the selectable area of the element
     vec2 padding;
 
-    UIElement() : padding(0.0f, 0.0f), margin(0.0f, 0.0f), ui(0), disabled(false), selected(false), parent(0) {};
+    UIElement() : padding(0.0f, 0.0f), margin(0.0f, 0.0f, 0.0f, 0.0f), ui(0), disabled(false), selected(false), parent(0) {};
 
     virtual void setUI(UI* ui) { this->ui = ui; };
 
@@ -46,8 +46,9 @@ public:
     void setPadding(const vec2& padding) { this->padding = padding; };
     void setPadding(float padding)        { this->padding = vec2(padding, padding); };
 
-    void setMargin(const vec2& margin)  { this->margin  = margin; };
-    void setMargin(float margin)         { this->margin = vec2(margin, margin); };
+    void setMargin(const vec4& margin)  { this->margin  = margin; };
+    void setMargin(const vec2& margin)  { this->margin  = vec4(margin.xy, margin.xy); };
+    void setMargin(float margin)         { this->margin = vec4(margin); };
 
     void setPos(const vec2& pos) { this->pos = pos; };
 
