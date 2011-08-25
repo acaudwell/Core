@@ -5,11 +5,12 @@
 UIGroup::UIGroup(const std::string& groupname, bool open) : open(open) {
     label  = new UILabel(groupname, false, true, 120.0f);
     layout = new UILayout();
-
+   
     label->setMargin(5.0f);
     label->parent = this;
 
-    layout->setMargin(vec2(0.0f, 5.0f));
+    layout->background = vec4(0.3f, 0.3f, 0.3f, 0.5f);
+    layout->setMargin(vec2(5.0f, 5.0f));
     layout->setPadding(5.0f);
 
     animation = 0.0f;

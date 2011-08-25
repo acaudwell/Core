@@ -72,7 +72,7 @@ UIElement* UI::selectElementAt(const vec2& pos) {
     }
 
     if(!found) {
-        selectedElement  = 0;
+        selectedElement = 0;
         return 0;
     }
 

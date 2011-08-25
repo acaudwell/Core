@@ -2,6 +2,7 @@
 #define UI_LAYOUT_H
 
 #include "element.h"
+#include "label.h"
 
 enum {
     UI_LAYOUT_ALIGN_NONE,
@@ -17,8 +18,13 @@ protected:
     bool horizontal;
     std::vector<UIElement*> elements;
 public:
-    UILayout(bool horizontal = false);
+    vec4 background;
 
+    UILayout(bool horizontal = false);
+    ~UILayout();
+
+    void clear();
+    
     int getType() { return UI_LAYOUT; };
 
     void setUI(UI* ui);
@@ -42,6 +48,12 @@ public:
 
     void draw();
     void drawOutline();
+};
+
+
+class UILabelledElement : public UILayout {
+public:
+    UILabelledElement(const std::string text, UIElement* e, float width = 120.0f);
 };
 
 #endif

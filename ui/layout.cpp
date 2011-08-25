@@ -1,8 +1,19 @@
 #include "layout.h"
 
 UILayout::UILayout(bool horizontal) : horizontal(horizontal), UIElement() {
-    alignment = UI_LAYOUT_ALIGN_NONE;
+    alignment  = UI_LAYOUT_ALIGN_NONE;
+    background = vec4(0.0f);
+}
 
+UILayout::~UILayout() {
+    clear();
+}
+
+void UILayout::clear() {
+    foreach(UIElement* e, elements) {
+        delete e;
+    }    
+    elements.clear();
 }
 
 void UILayout::setHorizontal(bool horizontal) {
@@ -128,8 +139,23 @@ void UILayout::drawOutline() {
 }
 
 void UILayout::draw() {
+
+    if(background.w>0.0f) {
+        glDisable(GL_TEXTURE_2D);
+        glColor4fv(glm::value_ptr(background));
+        drawQuad(pos, rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
+        glEnable(GL_TEXTURE_2D);
+    }
+
     foreach(UIElement* e, elements) {
         e->draw();
     }
 
+}
+
+//UILabelledElement
+
+UILabelledElement::UILabelledElement(const std::string text, UIElement* e, float width) : UILayout(true) {
+    addElement(new UILabel(text, false, false, width));
+    addElement(e);
 }
