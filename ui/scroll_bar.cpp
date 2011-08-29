@@ -6,7 +6,7 @@ UIScrollBar::UIScrollBar(UIScrollLayout* parent, bool horizontal) : horizontal(h
     this->parent = parent;
 
     bartex.resize(4);
-    
+
     bartex[0] = texturemanager.grab("ui/label_tl.png", false);
     bartex[1] = texturemanager.grab("ui/label_tr.png", false);
     bartex[2] = texturemanager.grab("ui/label_br.png", false);
@@ -35,18 +35,52 @@ UIScrollBar::~UIScrollBar() {
     bartex.clear();
 }
 
+void UIScrollBar::scrollTo(const vec2& pos) {
+    if(bar_percent <= 0.0f) return;
+
+    if(horizontal) {
+        bar_offset = glm::clamp((pos.x - this->pos.x) / rect.x, 0.0f, 1.0f-bar_percent);
+    } else {
+        bar_offset = glm::clamp((pos.y - this->pos.y) / rect.y, 0.0f, 1.0f-bar_percent);
+    }
+}
+
+void UIScrollBar::mouseWheel(bool up) {
+    if(bar_percent <= 0.0f) return;
+
+    float value_inc = 0.1f * (1.0f-bar_percent);
+
+    if(up) value_inc = -value_inc;
+
+    Uint8* keyState = SDL_GetKeyState(NULL);
+
+    if(keyState[SDLK_LCTRL]) {
+        value_inc *= 0.1f;
+    }
+
+    bar_offset = glm::clamp(bar_offset+value_inc, 0.0f, 1.0f-bar_percent);
+}
+
 void UIScrollBar::updateRect() {
     if(parent==0) return;
-    
+
     if(horizontal) {
-        rect     = vec2(parent->rect.x, bar_width);       
-        pos      = vec2(parent->pos.x, parent->pos.y+rect.y-bar_width);
-        bar_rect = vec2(bar_percent * rect.x, bar_width);
+        rect        = vec2(parent->rect.x, bar_width);
+        pos         = vec2(parent->pos.x, parent->pos.y+rect.y-bar_width);
+        bar_percent = std::min(1.0f, parent->rect.x / ((UIScrollLayout*)parent)->inner_rect.x);
+
+        if(bar_percent>= 1.0f) bar_percent = 0.0f;
+
+        bar_rect    = vec2(bar_percent * rect.x, bar_width);
     } else {
-        rect     = vec2(bar_width, parent->rect.y);
-        pos      = vec2(parent->pos.x+rect.x-bar_width, parent->pos.y);
-        bar_rect = vec2(bar_width, bar_percent * rect.y);
-    }    
+        rect        = vec2(bar_width, parent->rect.y);
+        pos         = vec2(parent->pos.x+rect.x-bar_width, parent->pos.y);
+        bar_percent = std::min(1.0f, parent->rect.y / ((UIScrollLayout*)parent)->inner_rect.y);
+
+        if(bar_percent>= 1.0f) bar_percent = 0.0f;
+
+        bar_rect    = vec2(bar_width, bar_percent * rect.y);
+    }
 }
 
 void UIScrollBar::updatePos() {
@@ -64,20 +98,23 @@ void UIScrollBar::drawContent() {
 
     vec4 texcoord;
 
+    glEnable(GL_TEXTURE_2D);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
     glPushMatrix();
-    
+
     if(horizontal) {
         glTranslatef(bar_offset * rect.x, 0.0f, 0.0f);
     } else {
         glTranslatef(0.0f, bar_offset * rect.y, 0.0f);
-    }   
-    
+    }
+
     //fprintf(stderr, "rect = %.2f, %.2f\n", rect.x, rect.y);
-    
+
     for(int i=0;i<4;i++) {
 
         glPushMatrix();
-        
+
         if(inverted) {
             bartex[(i+2)%4]->bind();
 
@@ -136,7 +173,7 @@ void UIScrollBar::drawContent() {
 
         glPopMatrix();
     }
-    
+
     glPopMatrix();
 
 }

@@ -2,6 +2,7 @@
 #include "checkbox.h"
 #include "group.h"
 #include "slider.h"
+#include "scroll_bar.h"
 #include "button.h"
 
 UI::UI() : selectedElement(0) {
@@ -163,6 +164,10 @@ void UI::processMouse(const MouseCursor& cursor, bool left_click, bool left_down
 
     if(selected->getType() == UI_LABEL && (selected->parent != 0) && (selected->parent->getType() == UI_GROUP) && left_click) {
         ((UIGroup*)selected->parent)->toggle();
+    }
+
+    if(selected->getType() == UI_SCROLL_BAR && left_down) {
+        ((UIScrollBar*)selected)->scrollTo(cursor.getPos());
     }
 
     if(selected->getType() == UI_SLIDER && left_down) {
