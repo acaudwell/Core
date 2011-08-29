@@ -3,8 +3,8 @@
 UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir, const std::string& file) : UIGroup(title, true) {
     dir_path  = new UILabel(dir, true, false, 400.0f);
     listing   = new UIScrollLayout(vec2(520.0f, 100.0f));
-    file_path = new UILabel(file, true, false, 400.0f);   
-        
+    file_path = new UILabel(file, true, false, 400.0f);
+
 //    for(int i=0;i<10;i++) {
 //        listing->addElement(new UILabel("x"));
 //    }
@@ -20,18 +20,22 @@ UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir,
 
 void UIFileSelector::updateListing() {
     listing->clear();
-    
+
     if(dir_path->text.empty()) return;
-    
+
     boost::filesystem::path p(dir_path->text);
-    
+
     if(!is_directory(p)) return;
-    
-    
+
+
     std::vector<boost::filesystem::path> dir_listing;
     copy(boost::filesystem::directory_iterator(p), boost::filesystem::directory_iterator(), back_inserter(dir_listing));
-    
+
     foreach(boost::filesystem::path l, dir_listing) {
-        listing->addElement(new UILabel(l.filename().c_str()));        
+
+        std::wstring fw(l.filename().c_str());
+        std::string  f(fw.begin(), fw.end());
+
+        listing->addElement(new UILabel(f));
     }
 }
