@@ -122,6 +122,8 @@ bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
                 text.resize( text.size() - 1 );
             }
             break;
+        case SDLK_RETURN:
+            break;
         default:
             text += c;
             break;
