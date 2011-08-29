@@ -2,8 +2,9 @@
 #define UI_FILE_SELECTOR_H
 
 #include "group.h"
+#include "scroll_layout.h"
 
-//#include "boost/filesystem.hpp"
+#include <boost/filesystem.hpp>
 
 class UIFileSelector : public UIGroup {
 
