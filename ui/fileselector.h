@@ -4,6 +4,7 @@
 #include "group.h"
 #include "scroll_layout.h"
 
+#include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
 class UIFileSelectorLabel : public UILabel {
