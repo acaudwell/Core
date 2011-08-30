@@ -16,6 +16,7 @@ protected:
 
     float cursor_anim;
 public:
+    vec3 font_colour;
     UISlider* slider;
     bool editable;
     std::string text;

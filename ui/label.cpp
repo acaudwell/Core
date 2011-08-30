@@ -21,6 +21,7 @@ UILabel::UILabel(const std::string& text, bool editable, bool opaque, float widt
     }
     inverted = false;
     slider = 0;
+    font_colour = vec3(1.0f);
 }
 
 UILabel::~UILabel() {
@@ -155,6 +156,12 @@ void UILabel::drawContent() {
 
     ui->font.alignTop(false);
 
+    if(!disabled) {
+        ui->font.setColour(vec4(font_colour, 1.0f));
+    } else {
+        ui->font.setColour(vec4(font_colour*0.5f, 1.0f));
+    }
+
     if(selected && editable) {
         glDisable(GL_TEXTURE_2D);
 
@@ -162,12 +169,6 @@ void UILabel::drawContent() {
         drawQuad(rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
         glEnable(GL_TEXTURE_2D);
-
-        if(!disabled) {
-            ui->font.setColour(vec4(1.0, 1.0, 1.0, 1.0f));
-        } else {
-            ui->font.setColour(vec4(0.5, 0.5, 0.5, 1.0f));
-        }
 
         if(int(cursor_anim)==0) {
             ui->font.print(margin.x, rect.y-(3.0+margin.w), "%s_", text.c_str());
