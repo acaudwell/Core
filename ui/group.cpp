@@ -9,7 +9,7 @@ UIGroup::UIGroup(const std::string& groupname, bool open) : open(open) {
     label->setMargin(5.0f);
     label->parent = this;
 
-    layout->background = vec4(0.3f, 0.3f, 0.3f, 0.5f);
+    layout->background = vec4(0.3f, 0.3f, 0.3f, 0.67f);
     layout->setMargin(vec2(5.0f, 5.0f));
     layout->setPadding(5.0f);
 
