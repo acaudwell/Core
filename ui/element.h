@@ -58,6 +58,8 @@ public:
 
     virtual UIElement* elementAt(const vec2& pos);
 
+    virtual vec2 getRect() { return rect; };
+    
     virtual int getType() { return -1; };
 
     virtual void updatePos(const vec2& pos) { this->pos = pos; };
@@ -68,7 +70,7 @@ public:
 
     virtual void update(float dt);
 
-    virtual void mouseWheel(bool up) {};
+    virtual void mouseWheel(bool up);
 
     virtual void drawContent() {};
 

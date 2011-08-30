@@ -38,12 +38,14 @@ void UILayout::update(float dt) {
     foreach(UIElement* e, elements) {
         e->update(dt);
 
+        vec2 r = e->getRect();
+        
         if(horizontal) {
-            rect.x += e->rect.x;
-            rect.y = std::max(rect.y, e->rect.y);
+            rect.x += r.x;
+            rect.y = std::max(rect.y, r.y);
         } else {
-            rect.x = std::max(rect.x, e->rect.x);
-            rect.y += e->rect.y;
+            rect.x = std::max(rect.x, r.x);
+            rect.y += r.y;
         }
     }
 
@@ -90,16 +92,18 @@ void UILayout::updatePos(const vec2& pos) {
 
     foreach(UIElement* e, elements) {
 
+        vec2 r = e->getRect();
+
         if(right_align) {
-            e->updatePos(cursor - vec2(e->rect.x, 0.0f));
+            e->updatePos(cursor - vec2(r.x, 0.0f));
         } else {
             e->updatePos(cursor);
         }
 
         if(horizontal) {
-            cursor.x += e->rect.x + padding.x;
+            cursor.x += r.x + padding.x;
         } else {
-            cursor.y += e->rect.y + padding.y;
+            cursor.y += r.y + padding.y;
         }
     }
 
@@ -126,7 +130,7 @@ UIElement* UILayout::elementAt(const vec2& pos) {
         if((found = e->elementAt(pos)) != 0) return found;
     }
 
-    return 0;
+    return this;
 }
 
 void UILayout::drawOutline() {

@@ -32,10 +32,6 @@ void UIFileSelector::updateListing() {
     copy(boost::filesystem::directory_iterator(p), boost::filesystem::directory_iterator(), back_inserter(dir_listing));
 
     foreach(boost::filesystem::path l, dir_listing) {
-
-        std::wstring fw(l.filename().c_str());
-        std::string  f(fw.begin(), fw.end());
-
-        listing->addElement(new UILabel(f));
+        listing->addElement(new UILabel(l.filename().string(), false, false, 520.0f));
     }
 }

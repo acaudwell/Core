@@ -80,6 +80,11 @@ void UIElement::update(float dt) {
     updateRect();
 }
 
+
+void UIElement::mouseWheel(bool up) {
+    if(parent != 0) parent->mouseWheel(up);
+}
+
 bool UIElement::elementsByType(std::list<UIElement*>& found, int type) {
 
     if(getType() == type) {
@@ -91,6 +96,9 @@ bool UIElement::elementsByType(std::list<UIElement*>& found, int type) {
 }
 
 UIElement* UIElement::elementAt(const vec2& pos) {
+    
+    vec2 rect = getRect();
+    
     if(   pos.x >= this->pos.x && pos.x <= (this->pos.x + rect.x)
        && pos.y >= this->pos.y && pos.y <= (this->pos.y + rect.y)) {
         return this;

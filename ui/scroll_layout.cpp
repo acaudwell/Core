@@ -11,12 +11,23 @@ UIScrollLayout::~UIScrollLayout() {
     delete horizontal_scrollbar;
 }
 
+vec2 UIScrollLayout::getRect() {
+    return scroll_rect;
+}
+
+vec2 UIScrollLayout::getScrollRect() {
+    return scroll_rect;
+}
+
+vec2 UIScrollLayout::getInnerRect() {
+    return rect;
+}
+
 void UIScrollLayout::update(float dt) {
 
     UILayout::update(dt);
 
-    inner_rect = rect;
-    rect = scroll_rect;//glm::min( scroll_rect, rect );
+    //rect = scroll_rect;//glm::min( scroll_rect, rect );
 
     vertical_scrollbar->update(dt);
     horizontal_scrollbar->update(dt);
@@ -28,6 +39,10 @@ void UIScrollLayout::updatePos(const vec2& pos) {
 
     vertical_scrollbar->updatePos();
     horizontal_scrollbar->updatePos();
+}
+
+void UIScrollLayout::mouseWheel(bool up) {
+    vertical_scrollbar->mouseWheel(up);
 }
 
 UIElement* UIScrollLayout::elementAt(const vec2& pos) {
@@ -42,15 +57,18 @@ void UIScrollLayout::draw() {
 
     glEnable(GL_SCISSOR_TEST);
 
-    glScissor(pos.x, display.height-(pos.y+rect.y), rect.x, rect.y);
+    vec2 scroll_offset = vec2(horizontal_scrollbar->bar_offset * -rect.x, vertical_scrollbar->bar_offset * -rect.y);
 
-    UILayout::draw();
+    glPushMatrix();
+        glTranslatef(scroll_offset.x, scroll_offset.y, 0.0f);
+    
+        glScissor(pos.x, display.height-(pos.y+scroll_rect.y), scroll_rect.x, scroll_rect.y);
 
-    glDisable(GL_SCISSOR_TEST);
+        UILayout::draw();
 
-    vertical_scrollbar->bar_percent = 0.5f;
-    horizontal_scrollbar->bar_percent = 0.5f;
-
+        glDisable(GL_SCISSOR_TEST);
+    glPopMatrix();
+    
     vertical_scrollbar->draw();
     horizontal_scrollbar->draw();
 }

@@ -64,18 +64,21 @@ void UIScrollBar::mouseWheel(bool up) {
 void UIScrollBar::updateRect() {
     if(parent==0) return;
 
+    vec2 scroll_rect = ((UIScrollLayout*)parent)->getScrollRect();
+    vec2 inner_rect  = ((UIScrollLayout*)parent)->getInnerRect();
+
     if(horizontal) {
-        rect        = vec2(parent->rect.x, bar_width);
+        rect        = vec2(scroll_rect.x, bar_width);
         pos         = vec2(parent->pos.x, parent->pos.y+rect.y-bar_width);
-        bar_percent = std::min(1.0f, parent->rect.x / ((UIScrollLayout*)parent)->inner_rect.x);
+        bar_percent = std::min(1.0f, scroll_rect.x / inner_rect.x);
 
         if(bar_percent>= 1.0f) bar_percent = 0.0f;
 
         bar_rect    = vec2(bar_percent * rect.x, bar_width);
     } else {
-        rect        = vec2(bar_width, parent->rect.y);
+        rect        = vec2(bar_width, scroll_rect.y);
         pos         = vec2(parent->pos.x+rect.x-bar_width, parent->pos.y);
-        bar_percent = std::min(1.0f, parent->rect.y / ((UIScrollLayout*)parent)->inner_rect.y);
+        bar_percent = std::min(1.0f, scroll_rect.y / inner_rect.y);
 
         if(bar_percent>= 1.0f) bar_percent = 0.0f;
 
