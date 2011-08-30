@@ -6,6 +6,13 @@
 
 #include <boost/filesystem.hpp>
 
+class UIFileSelectorLabel : public UILabel {
+protected:
+    boost::filesystem::path path;
+public:
+    UIFileSelectorLabel(const boost::filesystem::path& path);
+};
+
 class UIFileSelector : public UIGroup {
 
     UILabel* dir_path;

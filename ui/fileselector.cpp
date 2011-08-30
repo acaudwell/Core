@@ -32,6 +32,17 @@ void UIFileSelector::updateListing() {
     copy(boost::filesystem::directory_iterator(p), boost::filesystem::directory_iterator(), back_inserter(dir_listing));
 
     foreach(boost::filesystem::path l, dir_listing) {
-        listing->addElement(new UILabel(l.filename().string(), false, false, 520.0f));
+        listing->addElement(new UIFileSelectorLabel(l));
     }
 }
+
+//UIFileSelectorLabel
+
+UIFileSelectorLabel::UIFileSelectorLabel(const boost::filesystem::path& path) : path(path), UILabel(path.filename().string(), false, false, 520.0f) {   
+    font_colour = is_directory(path) ? vec3(0.5f, 0.5f, 1.0f) : vec3(0.5f, 1.0f, 0.5f);
+}
+
+//UIDirPathLabel
+
+//UIFilePathLabel
+
