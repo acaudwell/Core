@@ -17,7 +17,7 @@ class UIFileSelector : public UIGroup {
 
     UILabel* dir_path;
     UILabel* file_path;
-    UILayout* listing;
+    UIScrollLayout* listing;
 public:
     UIFileSelector(const std::string& title, const std::string& dir, const std::string& file);
     

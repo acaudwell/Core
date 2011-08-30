@@ -25,6 +25,9 @@ UIScrollBar::UIScrollBar(UIScrollLayout* parent, bool horizontal) : horizontal(h
     bar_percent = 0.0f;
     bar_offset  = 0.0f;
     bar_width   = 12.0f;
+    bar_min     = 10.0f;
+    bar_step    = 0.1f;
+    bar_visual_offset = 0.0f;
 }
 
 UIScrollBar::~UIScrollBar() {
@@ -48,7 +51,7 @@ void UIScrollBar::scrollTo(const vec2& pos) {
 void UIScrollBar::mouseWheel(bool up) {
     if(bar_percent <= 0.0f) return;
 
-    float value_inc = 0.1f * (1.0f-bar_percent);
+    float value_inc = bar_step * (1.0f-bar_percent);
 
     if(up) value_inc = -value_inc;
 
@@ -58,7 +61,7 @@ void UIScrollBar::mouseWheel(bool up) {
         value_inc *= 0.1f;
     }
 
-    bar_offset = glm::clamp(bar_offset+value_inc, 0.0f, 1.0f-bar_percent);
+    bar_offset = glm::clamp(bar_offset+value_inc, 0.0f, 1.0f-bar_percent);    
 }
 
 void UIScrollBar::updateRect() {
@@ -74,7 +77,8 @@ void UIScrollBar::updateRect() {
 
         if(bar_percent>= 1.0f) bar_percent = 0.0f;
 
-        bar_rect    = vec2(bar_percent * rect.x, bar_width);
+        bar_rect          = vec2(std::max(bar_min / scroll_rect.x, bar_percent) * rect.x, bar_width);
+        bar_visual_offset = std::min(bar_offset, 1.0f - std::max(bar_min / ((UIScrollLayout*)parent)->getScrollRect().x, bar_percent));
     } else {
         rect        = vec2(bar_width, scroll_rect.y);
         pos         = vec2(parent->pos.x+rect.x-bar_width, parent->pos.y);
@@ -82,7 +86,8 @@ void UIScrollBar::updateRect() {
 
         if(bar_percent>= 1.0f) bar_percent = 0.0f;
 
-        bar_rect    = vec2(bar_width, bar_percent * rect.y);
+        bar_rect          = vec2(bar_width, std::max(bar_min / scroll_rect.y, bar_percent) * rect.y);
+        bar_visual_offset = std::min(bar_offset, 1.0f - std::max(bar_min / ((UIScrollLayout*)parent)->getScrollRect().y, bar_percent));
     }
 }
 
@@ -105,11 +110,11 @@ void UIScrollBar::drawContent() {
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
     glPushMatrix();
-
+    
     if(horizontal) {
-        glTranslatef(bar_offset * rect.x, 0.0f, 0.0f);
+        glTranslatef(bar_visual_offset * rect.x, 0.0f, 0.0f);
     } else {
-        glTranslatef(0.0f, bar_offset * rect.y, 0.0f);
+        glTranslatef(0.0f, bar_visual_offset * rect.y, 0.0f);
     }
 
     //fprintf(stderr, "rect = %.2f, %.2f\n", rect.x, rect.y);

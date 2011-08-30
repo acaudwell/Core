@@ -27,13 +27,16 @@ void UIFileSelector::updateListing() {
 
     if(!is_directory(p)) return;
 
-
     std::vector<boost::filesystem::path> dir_listing;
     copy(boost::filesystem::directory_iterator(p), boost::filesystem::directory_iterator(), back_inserter(dir_listing));
 
     foreach(boost::filesystem::path l, dir_listing) {
         listing->addElement(new UIFileSelectorLabel(l));
     }
+    
+    listing->update(0.1f);
+    
+    listing->vertical_scrollbar->bar_step = 1.0f / listing->getElementCount();
 }
 
 //UIFileSelectorLabel

@@ -12,8 +12,12 @@ public:
     bool inverted;
     bool horizontal;
     float bar_width;
-    float bar_offset;
+    float bar_min;
+    float bar_step;
     float bar_percent;
+    float bar_offset;
+    float bar_visual_offset;
+
     vec2 bar_rect;
 
     UIScrollBar(UIScrollLayout* parent, bool horizontal = false);
