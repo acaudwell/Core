@@ -26,6 +26,7 @@ protected:
     UIFileSelector* selector;
 public:
     UIFileSelectorLabel(UIFileSelector* selector, const boost::filesystem::path& path);
+    UIFileSelectorLabel(UIFileSelector* selector, const std::string& label, const boost::filesystem::path& path);
 
     void doubleClick();
     

@@ -51,16 +51,20 @@ void UIFileSelector::updateListing() {
 
     std::sort(dir_listing.begin(), dir_listing.end(), _listing_sort);
 
+    if(is_directory(p.parent_path())) {
+        listing->addElement(new UIFileSelectorLabel(this, "..", p.parent_path()));
+    }
+    
     foreach(boost::filesystem::path l, dir_listing) {
 
-        std::string fname(l.string());
+        std::string filename(l.filename().string());
 
-        if(fname.empty()) continue;
+        if(filename.empty()) continue;
 #ifdef _WIN32
-        DWORD win32_attr = GetFileAttributes(fname.c_str());
+        DWORD win32_attr = GetFileAttributes(l.string().c_str());
         if (win32_attr & FILE_ATTRIBUTE_HIDDEN || win32_attr & FILE_ATTRIBUTE_SYSTEM) continue;
 #else
-        if(fname[0] == '.') continue;
+        if(filename[0] == '.') continue;
 #endif
 
         listing->addElement(new UIFileSelectorLabel(this, l));
@@ -68,10 +72,18 @@ void UIFileSelector::updateListing() {
 
     listing->update(0.1f);
 
+    listing->horizontal_scrollbar->reset();
+    listing->vertical_scrollbar->reset();
+
     listing->vertical_scrollbar->bar_step = 1.0f / listing->getElementCount();
 }
 
 //UIFileSelectorLabel
+
+UIFileSelectorLabel::UIFileSelectorLabel(UIFileSelector* selector, const std::string& label, const boost::filesystem::path& path)
+    : selector(selector), path(path), UILabel(label, false, false, 520.0f) {    
+    directory = is_directory(path);
+}
 
 UIFileSelectorLabel::UIFileSelectorLabel(UIFileSelector* selector, const boost::filesystem::path& path)
     : selector(selector), path(path), UILabel(path.filename().string(), false, false, 520.0f) {
