@@ -54,7 +54,12 @@ void UIFileSelector::updateListing() {
 //UIFileSelectorLabel
 
 UIFileSelectorLabel::UIFileSelectorLabel(const boost::filesystem::path& path) : path(path), UILabel(path.filename().string(), false, false, 520.0f) {   
-    font_colour = is_directory(path) ? vec3(0.0f, 1.0f, 1.0f) : vec3(0.0f, 1.0f, 0.0f);
+    directory = is_directory(path);
+}
+
+void UIFileSelectorLabel::updateContent() {
+    font_colour = selected  ? vec3(1.0f) : 
+                  directory ? vec3(0.0f, 1.0f, 1.0f) : vec3(0.0f, 1.0f, 0.0f);
 }
 
 //UIDirPathLabel

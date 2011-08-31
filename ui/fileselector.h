@@ -10,8 +10,11 @@
 class UIFileSelectorLabel : public UILabel {
 protected:
     boost::filesystem::path path;
+    bool directory;
 public:
     UIFileSelectorLabel(const boost::filesystem::path& path);
+
+    void updateContent();
 };
 
 class UIFileSelector : public UIGroup {
