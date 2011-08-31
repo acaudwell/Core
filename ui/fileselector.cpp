@@ -27,7 +27,17 @@ bool _listing_sort (const boost::filesystem::path& a,const boost::filesystem::pa
     return boost::ilexicographical_compare(a.filename().string(), b.filename().string());
 }
 
+void UIFileSelector::changeDir(const boost::filesystem::path& dir) {
+
+    if(!is_directory(dir)) return;
+    
+    dir_path->setText(dir.string());
+
+    updateListing();
+}
+
 void UIFileSelector::updateListing() {
+
     listing->clear();
 
     if(dir_path->text.empty()) return;
@@ -43,7 +53,7 @@ void UIFileSelector::updateListing() {
     
     foreach(boost::filesystem::path l, dir_listing) {
         if(!l.filename().string().empty() && l.filename().string()[0] != '.') 
-        listing->addElement(new UIFileSelectorLabel(l));
+        listing->addElement(new UIFileSelectorLabel(this, l));
     }
     
     listing->update(0.1f);
@@ -53,13 +63,21 @@ void UIFileSelector::updateListing() {
 
 //UIFileSelectorLabel
 
-UIFileSelectorLabel::UIFileSelectorLabel(const boost::filesystem::path& path) : path(path), UILabel(path.filename().string(), false, false, 520.0f) {   
+UIFileSelectorLabel::UIFileSelectorLabel(UIFileSelector* selector, const boost::filesystem::path& path)
+    : selector(selector), path(path), UILabel(path.filename().string(), false, false, 520.0f) {   
     directory = is_directory(path);
 }
 
 void UIFileSelectorLabel::updateContent() {
     font_colour = selected  ? vec3(1.0f) : 
                   directory ? vec3(0.0f, 1.0f, 1.0f) : vec3(0.0f, 1.0f, 0.0f);
+}
+
+void UIFileSelectorLabel::doubleClick() {
+    if(directory) {
+        ui->deselect();
+        selector->changeDir(path);
+    }
 }
 
 //UIDirPathLabel

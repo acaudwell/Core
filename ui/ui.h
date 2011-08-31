@@ -14,6 +14,9 @@ class UI {
     UIElement* selectedElement;
     std::vector<UIElement*> elements;
 
+    float double_click_interval;
+    float double_click_timer;
+    
     char toChar(SDL_KeyboardEvent *e);
 public:
     FXFont font;
@@ -36,7 +39,8 @@ public:
     
     bool keyPress(SDL_KeyboardEvent *e);
 
-    void processMouse(const MouseCursor& cursor, bool left_click, bool left_down);
+    virtual void click(const MouseCursor& cursor);
+    virtual void drag(const MouseCursor& cursor);
 
     void update(float dt);
 

@@ -8,6 +8,8 @@
 UI::UI() : selectedElement(0) {
     font = fontmanager.grab("FreeSans.ttf", 12);
     font.dropShadow(true);
+    double_click_interval = 0.5f;
+    double_click_timer = double_click_interval;
 }
 
 UI::~UI() {
@@ -60,6 +62,8 @@ void UI::deselect() {
 
 UIElement* UI::selectElementAt(const vec2& pos) {
 
+    double_click_timer = 0.0f;
+
     UIElement* found = 0;
 
     foreach(UIElement* e, elements) {
@@ -86,6 +90,8 @@ UIElement* UI::selectElementAt(const vec2& pos) {
 
 void UI::update(float dt) {
 
+    if(double_click_timer<double_click_interval) double_click_timer += dt;
+    
     foreach(UIElement* e, elements) {
         e->update(dt);
     }
@@ -148,29 +154,33 @@ bool UI::keyPress(SDL_KeyboardEvent *e) {
     return selected->keyPress(e, c);
 }
 
-void UI::processMouse(const MouseCursor& cursor, bool left_click, bool left_down) {
-
+void UI::drag(const MouseCursor& cursor) {
+    
     UIElement* selected = getSelected();
 
     if(!selected) return;
-
-    if(selected->getType() == UI_BUTTON && left_click) {
-        ((UIButton*)selected)->click();
-    }
-
-    if(selected->getType() == UI_CHECKBOX && left_click) {
-        ((UICheckbox*)selected)->toggle();
-    }
-
-    if(selected->getType() == UI_LABEL && (selected->parent != 0) && (selected->parent->getType() == UI_GROUP) && left_click) {
-        ((UIGroup*)selected->parent)->toggle();
-    }
-
-    if(selected->getType() == UI_SCROLL_BAR && left_down) {
+    
+    if(selected->getType() == UI_SCROLL_BAR) {
         ((UIScrollBar*)selected)->scrollTo(cursor.getPos());
     }
 
-    if(selected->getType() == UI_SLIDER && left_down) {
+    if(selected->getType() == UI_SLIDER) {
         ((UISlider*)selected)->selectValueAt(cursor.getPos());
+    }
+}
+
+void UI::click(const MouseCursor& cursor) {
+    
+    UIElement* previous = getSelected();   
+    bool double_click   = double_click_timer < 0.5f;
+    
+    UIElement* selected = selectElementAt(cursor.getPos());
+
+    if(!selected) return;
+
+    if(previous == selected && double_click) {
+        selected->doubleClick();
+    } else {
+        selected->click();
     }
 }

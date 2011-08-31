@@ -72,6 +72,9 @@ public:
 
     virtual void mouseWheel(bool up);
 
+    virtual void click() {};
+    virtual void doubleClick() { click(); };
+    
     virtual void drawContent() {};
 
     virtual void draw();

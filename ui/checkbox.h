@@ -15,7 +15,7 @@ public:
 
     int getType() { return UI_CHECKBOX; };
 
-    void toggle();
+    void click();
 
     void drawContent();
 };

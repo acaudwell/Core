@@ -7,7 +7,7 @@ UICheckbox::UICheckbox(bool* value) : value(value), UIElement() {
     rect = vec2(16, 16.0f);
 }
 
-void UICheckbox::toggle() {
+void UICheckbox::click() {
     *value = !(*value);
 }
 
