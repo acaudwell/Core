@@ -3,7 +3,7 @@
 //UIGroup
 
 UIGroup::UIGroup(const std::string& groupname, bool open) : open(open) {
-    label  = new UILabel(groupname, false, true, 120.0f);
+    label  = new UIGroupLabel(groupname);
     layout = new UILayout();
    
     label->setMargin(5.0f);
@@ -31,7 +31,7 @@ void UIGroup::setTitle(const std::string& text) {
     label->setText(text);
 }
 
-void UIGroup::toggle() {
+void UIGroup::click() {
     open = !open;
     animation = 1.0f;
 
@@ -92,5 +92,14 @@ void UIGroup::update(float dt) {
 void UIGroup::draw() {
     label->draw();
     if(open && animation <= 0.0f) layout->draw();
+}
+
+//UIGroupLabel
+
+UIGroupLabel::UIGroupLabel(const std::string& text) : UILabel(text, false, true, 120.0f) {
+}
+
+void UIGroupLabel::click() {
+    parent->click();
 }
 

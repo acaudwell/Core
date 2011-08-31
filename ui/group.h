@@ -33,12 +33,18 @@ public:
 
     void setTitle(const std::string& text);
 
-    void toggle();
+    void click();
 
     void update(float dt);
     void updatePos(const vec2& pos);
 
     void draw();
+};
+
+class UIGroupLabel : public UILabel {
+public:
+    UIGroupLabel(const std::string& text);
+    void click();
 };
 
 #endif
