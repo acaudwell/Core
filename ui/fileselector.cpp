@@ -23,14 +23,14 @@ bool _listing_sort (const boost::filesystem::path& a,const boost::filesystem::pa
     bool dir_b = is_directory(b);
 
     if(dir_a != dir_b) return dir_b < dir_a;
-        
+
     return boost::ilexicographical_compare(a.filename().string(), b.filename().string());
 }
 
 void UIFileSelector::changeDir(const boost::filesystem::path& dir) {
 
     if(!is_directory(dir)) return;
-    
+
     dir_path->setText(dir.string());
 
     updateListing();
@@ -50,26 +50,36 @@ void UIFileSelector::updateListing() {
     copy(boost::filesystem::directory_iterator(p), boost::filesystem::directory_iterator(), back_inserter(dir_listing));
 
     std::sort(dir_listing.begin(), dir_listing.end(), _listing_sort);
-    
+
     foreach(boost::filesystem::path l, dir_listing) {
-        if(!l.filename().string().empty() && l.filename().string()[0] != '.') 
+
+        std::string fname(l.string());
+
+        if(fname.empty()) continue;
+#ifdef _WIN32
+        DWORD win32_attr = GetFileAttributes(fname.c_str());
+        if (win32_attr & FILE_ATTRIBUTE_HIDDEN || win32_attr & FILE_ATTRIBUTE_SYSTEM) continue;
+#else
+        if(fname[0] == '.') continue;
+#endif
+
         listing->addElement(new UIFileSelectorLabel(this, l));
     }
-    
+
     listing->update(0.1f);
-    
+
     listing->vertical_scrollbar->bar_step = 1.0f / listing->getElementCount();
 }
 
 //UIFileSelectorLabel
 
 UIFileSelectorLabel::UIFileSelectorLabel(UIFileSelector* selector, const boost::filesystem::path& path)
-    : selector(selector), path(path), UILabel(path.filename().string(), false, false, 520.0f) {   
+    : selector(selector), path(path), UILabel(path.filename().string(), false, false, 520.0f) {
     directory = is_directory(path);
 }
 
 void UIFileSelectorLabel::updateContent() {
-    font_colour = selected  ? vec3(1.0f) : 
+    font_colour = selected  ? vec3(1.0f) :
                   directory ? vec3(0.0f, 1.0f, 1.0f) : vec3(0.0f, 1.0f, 0.0f);
 }
 
