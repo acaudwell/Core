@@ -38,6 +38,17 @@ UIScrollBar::~UIScrollBar() {
     bartex.clear();
 }
 
+void UIScrollBar::reset() {
+    bar_offset = 0.0f;
+}
+
+UIElement* UIScrollBar::elementAt(const vec2& pos) {
+    //cant click bar if invisible
+    if(bar_percent <= 0.0f) return 0;
+    
+    return UIElement::elementAt(pos);
+}
+
 void UIScrollBar::scrollTo(const vec2& pos) {
     if(bar_percent <= 0.0f) return;
 

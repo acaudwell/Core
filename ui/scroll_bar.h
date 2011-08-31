@@ -28,6 +28,10 @@ public:
     void scrollTo(const vec2& pos);
     void mouseWheel(bool up);
 
+    UIElement* elementAt(const vec2& pos);
+        
+    void reset();
+    
     void updateRect();
     void updatePos();
     void drawContent();
