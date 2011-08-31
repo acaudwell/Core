@@ -50,7 +50,19 @@ UIElement* UIScrollLayout::elementAt(const vec2& pos) {
     if(vertical_scrollbar->elementAt(pos))   return vertical_scrollbar;
     if(horizontal_scrollbar->elementAt(pos)) return horizontal_scrollbar;
 
-    return UILayout::elementAt(pos);
+    if(!UIElement::elementAt(pos)) return 0;
+
+    //apply scroll offset to position
+    
+    vec2 scrolled_pos = vec2(horizontal_scrollbar->bar_offset * rect.x, vertical_scrollbar->bar_offset * rect.y) + pos;
+
+    UIElement* found = 0;
+
+    foreach(UIElement* e, elements) {
+        if((found = e->elementAt(scrolled_pos)) != 0) return found;
+    }
+
+    return this;
 }
 
 void UIScrollLayout::draw() {
