@@ -21,6 +21,7 @@ void UILayout::setHorizontal(bool horizontal) {
 };
 
 void UILayout::setUI(UI* ui) {
+    this->ui = ui;
     foreach(UIElement* e, elements) {
         e->setUI(ui);
     }
@@ -28,6 +29,8 @@ void UILayout::setUI(UI* ui) {
 
 void UILayout::addElement(UIElement* e) {
     e->parent = this;
+    if(ui!=0) e->setUI(ui);
+    
     elements.push_back(e);
 }
 
