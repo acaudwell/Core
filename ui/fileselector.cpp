@@ -58,8 +58,6 @@ bool UIFileSelector::changeDir(const boost::filesystem::path& dir) {
 
 void UIFileSelector::updateListing() {
 
-    listing->clear();
-
     if(dir_path->text.empty()) return;
 
     boost::filesystem::path p(dir_path->text);
@@ -67,7 +65,14 @@ void UIFileSelector::updateListing() {
     if(!is_directory(p)) return;
 
     std::vector<boost::filesystem::path> dir_listing;
-    copy(boost::filesystem::directory_iterator(p), boost::filesystem::directory_iterator(), back_inserter(dir_listing));
+
+    try {
+        copy(boost::filesystem::directory_iterator(p), boost::filesystem::directory_iterator(), back_inserter(dir_listing));
+    } catch(const boost::filesystem::filesystem_error& exception) {
+        // TODO: do something here?
+        return;
+    }
+    listing->clear();
 
     std::sort(dir_listing.begin(), dir_listing.end(), _listing_sort);
 
