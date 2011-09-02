@@ -1,21 +1,18 @@
 #include "fileselector.h"
 
 UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir, const std::string& file) : UIGroup(title, true) {
-    dir_path  = new UILabel(dir, true, false, 400.0f);
     listing   = new UIScrollLayout(vec2(520.0f, 100.0f));
-    file_path = new UILabel(file, true, false, 400.0f);
 
-//    for(int i=0;i<10;i++) {
-//        listing->addElement(new UILabel("x"));
-//    }
+    dir_path  = new UIDirSelectLabel(this, dir);
+    file_path = new UIFileSelectLabel(this, file);    
 
-    //listing->background = vec4(0.6, 0.6, 0.6, 1.0);
-
+    filter = "*.*";
+    
     layout->addElement(new UILabelledElement("Path",  dir_path,  120.0f));
     layout->addElement(listing);
     layout->addElement(new UILabelledElement("Name",  file_path, 120.0f));
 
-    updateListing();
+    if(!changeFilter(file)) updateListing();
 }
 
 bool _listing_sort (const boost::filesystem::path& a,const boost::filesystem::path& b) {
@@ -27,13 +24,36 @@ bool _listing_sort (const boost::filesystem::path& a,const boost::filesystem::pa
     return boost::ilexicographical_compare(a.filename().string(), b.filename().string());
 }
 
-void UIFileSelector::changeDir(const boost::filesystem::path& dir) {
+bool UIFileSelector::changeFilter(const std::string& filter) {
 
-    if(!is_directory(dir)) return;
+    //assume is a file filter if it has a wild card
+    if(filter.find('*') != std::string::npos) {
+        this->filter = filter;
+        updateListing();
+        return true;
+    }
+    
+    boost::filesystem::path filter_as_path(filter); 
+
+    //if its a directory change the directory instead
+    if(is_directory(filter_as_path)) {
+        //file_path->setText(this->filter);
+        changeDir(filter_as_path);
+        return true;
+    }
+    
+    return false;
+}
+
+bool UIFileSelector::changeDir(const boost::filesystem::path& dir) {
+
+    if(!is_directory(dir)) return false;
 
     dir_path->setText(dir.string());
 
     updateListing();
+    
+    return true;
 }
 
 void UIFileSelector::updateListing() {
@@ -102,7 +122,23 @@ void UIFileSelectorLabel::doubleClick() {
     }
 }
 
-//UIDirPathLabel
+//UIDirSelectLabel
+UIDirSelectLabel::UIDirSelectLabel(UIFileSelector* selector, const std::string& dirname) 
+    : selector(selector), UILabel(dirname, true, false, 400.0f) {
+}
 
-//UIFilePathLabel
 
+void UIDirSelectLabel::submit() {
+    selector->changeDir(text);
+}
+
+//UIFileSelectLabel
+UIFileSelectLabel::UIFileSelectLabel(UIFileSelector* selector, const std::string& filename) 
+    : selector(selector), UILabel(filename, true, false, 400.0f) {
+}
+
+void UIFileSelectLabel::submit() {
+    if(selector->changeFilter(text)) return;
+
+    //TODO: if this points to a file, prompt to replace file?
+}
