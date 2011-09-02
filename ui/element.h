@@ -71,8 +71,9 @@ public:
     virtual void update(float dt);
 
     virtual void mouseWheel(bool up);
-
+   
     virtual void click() {};
+    virtual void submit() {};
     virtual void doubleClick() { click(); };
     
     virtual void drawContent() {};

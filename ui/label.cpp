@@ -124,6 +124,7 @@ bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
             }
             break;
         case SDLK_RETURN:
+            submit();
             break;
         default:
             text += c;
