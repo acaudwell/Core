@@ -22,6 +22,7 @@ UILabel::UILabel(const std::string& text, bool editable, bool opaque, float widt
     inverted = false;
     slider = 0;
     font_colour = vec3(1.0f);
+    background = opaque ? vec4(1.0f) : vec4(0.0f);
 }
 
 UILabel::~UILabel() {
@@ -46,6 +47,16 @@ void UILabel::updateRect() {
 }
 
 void UILabel::drawBackground() {
+
+    glColor4fv(glm::value_ptr(background));
+
+    if(!opaque) {
+        if(background.w <= 0.0f) return;
+        glDisable(GL_TEXTURE_2D);
+        drawQuad(rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
+        glEnable(GL_TEXTURE_2D);
+        return;
+    }
 
     vec4 texcoord;
 
@@ -150,10 +161,7 @@ void UILabel::update(float dt) {
 
 void UILabel::drawContent() {
 
-    if(opaque) {
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        drawBackground();
-    }
+    drawBackground();
 
     ui->font.alignTop(false);
 
