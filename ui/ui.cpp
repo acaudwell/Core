@@ -3,6 +3,7 @@
 #include "group.h"
 #include "slider.h"
 #include "scroll_bar.h"
+#include "select.h"
 #include "button.h"
 
 UI::UI() : selectedElement(0) {

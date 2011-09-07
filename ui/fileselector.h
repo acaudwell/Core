@@ -2,6 +2,7 @@
 #define UI_FILE_SELECTOR_H
 
 #include "group.h"
+#include "select.h"
 #include "scroll_layout.h"
 
 #include <boost/algorithm/string.hpp>
@@ -12,11 +13,13 @@ class UIFileSelector : public UIGroup {
     UILabel* dir_path;
     UILabel* file_path;
     UIScrollLayout* listing;
-    std::string filter;
+    UISelect* filter_select;
+    
 public:
-    UIFileSelector(const std::string& title, const std::string& dir, const std::string& file);
+    UIFileSelector(const std::string& title, const std::string& dir);
 
-    bool changeFilter(const std::string& filter);
+    void addFilter(const std::string& name, const std::string& extension);
+    
     bool changeDir(const boost::filesystem::path& dir);    
     void updateListing();
 };
