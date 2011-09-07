@@ -38,7 +38,6 @@ void UILabel::setWidth(float width) {
 
 void UILabel::setText(const std::string& text) {
     this->text = text;
-    width = ui->font.getWidth(text);
 }
 
 void UILabel::updateRect() {
