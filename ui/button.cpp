@@ -1,6 +1,6 @@
 #include "button.h"
 
-UIButton::UIButton(const std::string& name, void (*action)())
+UIButton::UIButton(const std::string& name, UIAction* action)
     : action(action), UISolidLayout(true) {
 
     label = new UILabel(name, false, 50.0f);
@@ -12,7 +12,8 @@ UIButton::UIButton(const std::string& name, void (*action)())
 }
 
 void UIButton::click() {
-    action();
+    action->perform();
+
     inverted=true;
     button_anim = 0.25f;
     label->setMargin(vec4(2.0f, 3.0f, 2.0f, 1.0f));

@@ -3,13 +3,14 @@
 
 #include "solidlayout.h"
 #include "label.h"
+#include "action.h"
 
 class UIButton : public UISolidLayout {
-    void (*action)();
     float button_anim;
     UILabel* label;
+    UIAction* action;
 public:
-    UIButton(const std::string& name, void (*action)());
+    UIButton(const std::string& name, UIAction* action);
 
     int getType() { return UI_BUTTON; }
 
