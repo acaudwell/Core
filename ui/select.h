@@ -2,24 +2,49 @@
 #define UI_SELECT_H
 
 #include "label.h"
-#include "layout.h"
+#include "solidlayout.h"
 
-class UISelect : public UILabel {
-    std::vector< std::pair<std::string,std::string> > options;
+class UISelect;
+
+class UIOptionLabel : public UILabel {
+    UISelect* select;
+public:
+    std::string value;
+
+    UIOptionLabel(UISelect* select, const std::string& text, const std::string& value);
+
+    void click();
+};
+
+class UISelect : public UISolidLayout {
+    UILabel* label;
     UILayout* options_layout;
-    int selected_option;
+
+    UIOptionLabel* selected_option;
+    
+    bool open;
 public:
     UISelect();
     ~UISelect();
     
-    UIElement* elementAt(const vec2& pos);
-
     int getType() { return UI_SELECT; };
 
     void setUI(UI* ui);
 
-    void selectOption(int index);
+    void selectOption(UIOptionLabel* option);
+
+    UIOptionLabel* getSelectedOption();
+    
     void addOption(const std::string& name, const std::string& value);
+
+    void click();
+
+    UIElement* elementAt(const vec2& pos);
+        
+    void updatePos(const vec2& pos);
+    void update(float dt);
+
+    void draw();
 };
 
 #endif

@@ -135,15 +135,13 @@ bool UILayout::elementsByType(std::list<UIElement*>& found, int type) {
 
 UIElement* UILayout::elementAt(const vec2& pos) {
 
-    if(!UIElement::elementAt(pos)) return 0;
-
     UIElement* found = 0;
 
     foreach(UIElement* e, elements) {
         if((found = e->elementAt(pos)) != 0) return found;
     }
 
-    return this;
+    return UIElement::elementAt(pos);
 }
 
 void UILayout::drawOutline() {
