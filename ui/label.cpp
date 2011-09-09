@@ -34,8 +34,19 @@ void UILabel::drawBackground() {
 }
 
 bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
-    if(!editable) return false;
+    if(!editable) {
 
+        switch(c) {
+            case SDLK_RETURN:
+                submit();
+                return true;
+                break;
+        }
+                
+        return false;
+    }
+    
+    
     switch(c) {
         case SDLK_BACKSPACE:
             if(!text.empty()) {
