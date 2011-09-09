@@ -66,13 +66,13 @@ public:
     virtual void updateRect() {};
 
     virtual bool keyPress(SDL_KeyboardEvent *e, char c) { return false; };
+    virtual bool submit() { return false; };
 
     virtual void update(float dt);
 
     virtual void mouseWheel(bool up);
    
     virtual void click() { if(parent!=0) parent->click(); };
-    virtual void submit() {};
     virtual void doubleClick() { click(); };
     
     virtual void drawContent() {};

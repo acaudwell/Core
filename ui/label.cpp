@@ -38,8 +38,7 @@ bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
 
         switch(c) {
             case SDLK_RETURN:
-                submit();
-                return true;
+                if(submit()) return true;
                 break;
         }
                 

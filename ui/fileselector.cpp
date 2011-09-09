@@ -6,7 +6,6 @@ UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir)
     dir_path  = new UIDirSelectLabel(this, dir);
     file_path = new UIFileSelectLabel(this, "");
 
-    
     filter_select = new UISelect();
     
     layout->addElement(new UILabelledElement("Path",  dir_path,  120.0f));
@@ -55,6 +54,19 @@ void UIFileSelector::update(float dt) {
     }
 
     UIGroup::update(dt);
+}
+
+void UIFileSelector::selectPath(const boost::filesystem::path& path) {
+    this->selected_path = path;
+    
+    if(!is_directory(selected_path)) {
+        file_path->setText(selected_path.filename().string());
+    } else {
+        file_path->setText("");
+    }
+}
+
+void UIFileSelector::confirm() {
 }
 
 void UIFileSelector::updateListing() {
@@ -130,11 +142,25 @@ void UIFileSelectorLabel::updateContent() {
     bgcolour = selected ? vec4(1.0f, 1.0f, 1.0f, 0.15f) : vec4(0.0f);
 }
 
+void UIFileSelectorLabel::click() {
+    if(!directory) selector->selectPath(path);
+}
+
 void UIFileSelectorLabel::doubleClick() {
+    submit();
+}
+
+bool UIFileSelectorLabel::submit() {
+
     if(directory) {
         ui->deselect();
         selector->changeDir(path);
+    } else {
+        selector->selectPath(path);
+        selector->confirm();
     }
+    
+    return true;
 }
 
 //UIDirSelectLabel
@@ -143,8 +169,9 @@ UIDirSelectLabel::UIDirSelectLabel(UIFileSelector* selector, const std::string& 
 }
 
 
-void UIDirSelectLabel::submit() {
+bool UIDirSelectLabel::submit() {
     selector->changeDir(text);
+    return true;
 }
 
 //UIFileSelectLabel
@@ -152,8 +179,7 @@ UIFileSelectLabel::UIFileSelectLabel(UIFileSelector* selector, const std::string
     : selector(selector), UILabel(filename, true,  400.0f) {
 }
 
-void UIFileSelectLabel::submit() {
-    //if(selector->changeFilter(text)) return;
-
-    //TODO: if this points to a file, prompt to replace file?
+bool UIFileSelectLabel::submit() {
+    selector->confirm();
+    return true;
 }
