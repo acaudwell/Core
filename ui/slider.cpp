@@ -131,7 +131,7 @@ UILabelFloatSlider::UILabelFloatSlider(const std::string& label, float* value, f
 
     flabel->slider = slider;
 
-    addElement(new UILabel(label, false, false, 120.0f));
+    addElement(new UILabel(label, false, 120.0f));
     addElement(slider);
     addElement(flabel);
 
@@ -147,7 +147,7 @@ UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min
 
     ilabel->slider = slider;
 
-    addElement(new UILabel(label, false, false, 120.0f));
+    addElement(new UILabel(label, false, 120.0f));
     addElement(slider);
     addElement(ilabel);
 

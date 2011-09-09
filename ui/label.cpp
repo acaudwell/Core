@@ -3,33 +3,11 @@
 
 //UILabel
 
-UILabel::UILabel(const std::string& text, bool editable, bool opaque, float width) : text(text), editable(editable), opaque(opaque), width(width), UIElement() {
+UILabel::UILabel(const std::string& text, bool editable, float width) : text(text), editable(editable), width(width), UIElement() {
 
-    if(opaque) {
-        labeltex.resize(4);
-
-        labeltex[0] = texturemanager.grab("ui/label_tl.png", false);
-        labeltex[1] = texturemanager.grab("ui/label_tr.png", false);
-        labeltex[2] = texturemanager.grab("ui/label_br.png", false);
-        labeltex[3] = texturemanager.grab("ui/label_bl.png", false);
-
-        foreach(TextureResource* t, labeltex) {
-            t->bind();
-            t->setFiltering(GL_NEAREST, GL_NEAREST);
-            t->setWrapStyle(GL_CLAMP);
-        }
-    }
-    inverted = false;
-    slider = 0;
+    slider      = 0;
     font_colour = vec3(1.0f);
-    background = opaque ? vec4(1.0f) : vec4(0.0f);
-}
-
-UILabel::~UILabel() {
-    foreach(TextureResource* t, labeltex) {
-        texturemanager.release(t);
-    }
-    labeltex.clear();
+    bgcolour    = vec4(0.0f);
 }
 
 void UILabel::setWidth(float width) {
@@ -46,82 +24,13 @@ void UILabel::updateRect() {
 }
 
 void UILabel::drawBackground() {
+    if(bgcolour.w <= 0.0f) return;
 
-    glColor4fv(glm::value_ptr(background));
+    glColor4fv(glm::value_ptr(bgcolour));
 
-    if(!opaque) {
-        if(background.w <= 0.0f) return;
-        glDisable(GL_TEXTURE_2D);
-        drawQuad(rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
-        glEnable(GL_TEXTURE_2D);
-        return;
-    }
-
-    vec4 texcoord;
-
-    for(int i=0;i<4;i++) {
-
-        glPushMatrix();
-
-        if(inverted) {
-            labeltex[(i+2)%4]->bind();
-
-            switch(i) {
-                case 0:
-                    texcoord = vec4(1.0f, 1.0f, 1.0-(rect.x/32.0f), 1.0-(rect.y/32.0f));
-                    break;
-                case 1:
-                    texcoord = vec4((rect.x/32.0f), 1.0f, 0.0, 1.0-(rect.y/32.0f));
-                    glTranslatef(rect.x*0.5, 0.0f, 0.0f);
-                    break;
-                case 2:
-                    texcoord = vec4(rect.x/32.0f, rect.y/32.0f, 0.0f, 0.0f);
-                    glTranslatef(rect.x*0.5, rect.y*0.5, 0.0f);
-                    break;
-                case 3:
-                    texcoord = vec4(1.0f, (rect.y/32.0f), 1.0f-(rect.x/32.0f), 0.0f);
-                    glTranslatef(0.0f, rect.y*0.5, 0.0f);
-                    break;
-            }
-        } else {
-            labeltex[i]->bind();
-
-            switch(i) {
-                case 0:
-                    texcoord = vec4(0.0f, 0.0f, rect.x/32.0f, rect.y/32.0f);
-                    break;
-                case 1:
-                    texcoord = vec4(1.0f-(rect.x/32.0f), 0.0f, 1.0f, (rect.y/32.0f));
-                    glTranslatef(rect.x*0.5, 0.0f, 0.0f);
-                    break;
-                case 2:
-                    texcoord = vec4(1.0-rect.x/32.0f, 1.0-rect.y/32.0f, 1.0f, 1.0f);
-                    glTranslatef(rect.x*0.5, rect.y*0.5, 0.0f);
-                    break;
-                case 3:
-                    texcoord = vec4(0.0, 1.0-(rect.y/32.0f), (rect.x/32.0f), 1.0f);;
-                    glTranslatef(0.0f, rect.y*0.5, 0.0f);
-                    break;
-            }
-        }
-
-            glBegin(GL_QUADS);
-                glTexCoord2f(texcoord.x,texcoord.y);
-                glVertex2f(0.0f,    0.0f);
-
-                glTexCoord2f(texcoord.z,texcoord.y);
-                glVertex2f(rect.x*0.5,  0.0f);
-
-                glTexCoord2f(texcoord.z,texcoord.w);
-                glVertex2f(rect.x*0.5, rect.y*0.5);
-
-                glTexCoord2f(texcoord.x,texcoord.w);
-                glVertex2f(0.0f,   rect.y*0.5);
-            glEnd();
-
-        glPopMatrix();
-    }
-
+    glDisable(GL_TEXTURE_2D);
+    drawQuad(rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
+    glEnable(GL_TEXTURE_2D);
 }
 
 bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {

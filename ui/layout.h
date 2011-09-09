@@ -17,8 +17,10 @@ protected:
     int alignment;
     bool horizontal;
     std::vector<UIElement*> elements;
+    
+    virtual void drawBackground();
 public:
-    vec4 background;
+    vec4 bgcolour;
 
     UILayout(bool horizontal = false);
     ~UILayout();

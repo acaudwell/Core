@@ -7,22 +7,17 @@ class UISlider;
 
 class UILabel : public UIElement {
 protected:
-    std::vector<TextureResource*> labeltex;
-
-    bool opaque;
-    bool inverted;
-
-    void drawBackground();
-
     float cursor_anim;
+    
+    void drawBackground();
 public:
+    vec4 bgcolour;
     vec3 font_colour;
     UISlider* slider;
     bool editable;
     std::string text;
 
-    UILabel(const std::string& text, bool editable = false, bool opaque = false, float width = -1.0f);
-    ~UILabel();
+    UILabel(const std::string& text, bool editable = false, float width = -1.0f);
 
     float width;
 

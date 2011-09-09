@@ -1,8 +1,8 @@
 #include "layout.h"
 
 UILayout::UILayout(bool horizontal) : horizontal(horizontal), UIElement() {
-    alignment  = UI_LAYOUT_ALIGN_NONE;
-    background = vec4(0.0f);
+    alignment = UI_LAYOUT_ALIGN_NONE;
+    bgcolour  = vec4(0.0f);
 }
 
 UILayout::~UILayout() {
@@ -25,6 +25,16 @@ void UILayout::setUI(UI* ui) {
     foreach(UIElement* e, elements) {
         e->setUI(ui);
     }
+}
+
+void UILayout::drawBackground() {
+    if(bgcolour.w <= 0.0f) return;
+
+    glColor4fv(glm::value_ptr(bgcolour));
+
+    glDisable(GL_TEXTURE_2D);
+    drawQuad(pos, rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
+    glEnable(GL_TEXTURE_2D);
 }
 
 void UILayout::addElement(UIElement* e) {
@@ -147,13 +157,8 @@ void UILayout::drawOutline() {
 
 void UILayout::draw() {
 
-    if(background.w>0.0f) {
-        glDisable(GL_TEXTURE_2D);
-        glColor4fv(glm::value_ptr(background));
-        drawQuad(pos, rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
-        glEnable(GL_TEXTURE_2D);
-    }
-
+    drawBackground();
+    
     foreach(UIElement* e, elements) {
         e->draw();
     }
@@ -163,6 +168,6 @@ void UILayout::draw() {
 //UILabelledElement
 
 UILabelledElement::UILabelledElement(const std::string text, UIElement* e, float width) : UILayout(true) {
-    addElement(new UILabel(text, false, false, width));
+    addElement(new UILabel(text, false, width));
     addElement(e);
 }

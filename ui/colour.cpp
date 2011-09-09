@@ -114,7 +114,7 @@ void UIColour::drawContent() {
 
 UILabelColour::UILabelColour(const std::string& label, vec3* value) : UILayout(true) {
 
-    addElement(new UILabel(label, false, false, 120.0f));
+    addElement(new UILabel(label, false, 120.0f));
     addElement(new UIColour(value));
 
     padding = vec2(5.0f);
@@ -122,7 +122,7 @@ UILabelColour::UILabelColour(const std::string& label, vec3* value) : UILayout(t
 
 UILabelColour::UILabelColour(const std::string& label, vec3* a, vec3* b, vec3* c) : UILayout(true) {
 
-    addElement(new UILabel(label, false, false, 120.0f));
+    addElement(new UILabel(label, false, 120.0f));
     addElement(new UIColour(a));
     addElement(new UIColour(b));
     addElement(new UIColour(c));

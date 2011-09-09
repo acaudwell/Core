@@ -2,7 +2,15 @@
 #define UI_GROUP_h
 
 #include "label.h"
-#include "layout.h"
+#include "solidlayout.h"
+
+class UIGroupBar : public UISolidLayout {
+public:
+    UILabel* label;
+    UIGroupBar(const std::string& text);
+    void setText(const std::string& text);
+    void click();
+};
 
 class UIGroup : public UIElement {
 
@@ -17,7 +25,7 @@ protected:
 
     bool open;
 public:
-    UILabel*  label;
+    UIGroupBar* bar;
 
     UIGroup(const std::string& groupname, bool open = true);
     ~UIGroup();
@@ -39,12 +47,6 @@ public:
     void updatePos(const vec2& pos);
 
     void draw();
-};
-
-class UIGroupLabel : public UILabel {
-public:
-    UIGroupLabel(const std::string& text);
-    void click();
 };
 
 #endif

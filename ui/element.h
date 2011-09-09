@@ -17,7 +17,6 @@ protected:
 public:
     vec2  pos;
     vec2  rect;
-    vec4  background;
     bool   selected;
     bool   disabled;
     UIElement* parent;
@@ -72,7 +71,7 @@ public:
 
     virtual void mouseWheel(bool up);
    
-    virtual void click() {};
+    virtual void click() { if(parent!=0) parent->click(); };
     virtual void submit() {};
     virtual void doubleClick() { click(); };
     

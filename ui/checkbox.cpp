@@ -26,7 +26,7 @@ void UICheckbox::drawContent() {
 
 UILabelCheckbox::UILabelCheckbox(const std::string& label, bool* value) : UILayout(true) {
 
-    addElement(new UILabel(label, false, false, 120.0f));
+    addElement(new UILabel(label, false, 120.0f));
     addElement(new UICheckbox(value));
 
     padding = vec2(2.0f);

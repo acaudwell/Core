@@ -1,11 +1,13 @@
 #ifndef UI_BUTTON_H
 #define UI_BUTTON_H
 
+#include "solidlayout.h"
 #include "label.h"
 
-class UIButton : public UILabel {
+class UIButton : public UISolidLayout {
     void (*action)();
     float button_anim;
+    UILabel* label;
 public:
     UIButton(const std::string& name, void (*action)());
 

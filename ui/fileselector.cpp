@@ -93,19 +93,19 @@ void UIFileSelector::updateListing() {
 //UIFileSelectorLabel
 
 UIFileSelectorLabel::UIFileSelectorLabel(UIFileSelector* selector, const std::string& label, const boost::filesystem::path& path)
-    : selector(selector), path(path), UILabel(label, false, false, 520.0f) {
+    : selector(selector), path(path), UILabel(label, false, 520.0f) {
     directory = is_directory(path);
 }
 
 UIFileSelectorLabel::UIFileSelectorLabel(UIFileSelector* selector, const boost::filesystem::path& path)
-    : selector(selector), path(path), UILabel(path.filename().string(), false, false, 520.0f) {
+    : selector(selector), path(path), UILabel(path.filename().string(), false, 520.0f) {
     directory = is_directory(path);
 }
 
 void UIFileSelectorLabel::updateContent() {
     font_colour = selected  ? vec3(1.0f) :
                   directory ? vec3(0.0f, 1.0f, 1.0f) : vec3(0.0f, 1.0f, 0.0f);
-    background = selected ? vec4(1.0f, 1.0f, 1.0f, 0.15f) : vec4(0.0f);
+    bgcolour = selected ? vec4(1.0f, 1.0f, 1.0f, 0.15f) : vec4(0.0f);
 }
 
 void UIFileSelectorLabel::doubleClick() {
@@ -117,7 +117,7 @@ void UIFileSelectorLabel::doubleClick() {
 
 //UIDirSelectLabel
 UIDirSelectLabel::UIDirSelectLabel(UIFileSelector* selector, const std::string& dirname)
-    : selector(selector), UILabel(dirname, true, false, 400.0f) {
+    : selector(selector), UILabel(dirname, true, 400.0f) {
 }
 
 
@@ -127,7 +127,7 @@ void UIDirSelectLabel::submit() {
 
 //UIFileSelectLabel
 UIFileSelectLabel::UIFileSelectLabel(UIFileSelector* selector, const std::string& filename)
-    : selector(selector), UILabel(filename, true, false, 400.0f) {
+    : selector(selector), UILabel(filename, true,  400.0f) {
 }
 
 void UIFileSelectLabel::submit() {
