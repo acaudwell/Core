@@ -51,6 +51,8 @@ bool UIGroup::elementsByType(std::list<UIElement*>& found, int type) {
 
 UIElement* UIGroup::elementAt(const vec2& pos) {
 
+    if(hidden) return 0;
+    
     UIElement* found = 0;
 
     if((found = bar->elementAt(pos)) != 0) return found;

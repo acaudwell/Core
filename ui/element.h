@@ -19,6 +19,8 @@ public:
     vec2  rect;
     bool   selected;
     bool   disabled;
+    bool   hidden;
+
     UIElement* parent;
 
     // border around element between this element and other elements
@@ -29,7 +31,7 @@ public:
     // affects the selectable area of the element
     vec2 padding;
 
-    UIElement() : padding(0.0f, 0.0f), margin(0.0f, 0.0f, 0.0f, 0.0f), ui(0), disabled(false), selected(false), parent(0) {};
+    UIElement() : padding(0.0f, 0.0f), margin(0.0f, 0.0f, 0.0f, 0.0f), ui(0), disabled(false), selected(false), hidden(false), parent(0) {};
 
     virtual void setUI(UI* ui) { this->ui = ui; };
 
@@ -51,6 +53,10 @@ public:
 
     void setPos(const vec2& pos) { this->pos = pos; };
 
+    void hide() { hidden=true; };
+    void show() { hidden=false; };
+    void toggleVisibility() { hidden = !hidden; };
+    
     virtual void setSelected(bool selected) { this->selected = selected; };
 
     virtual bool elementsByType(std::list<UIElement*>& found, int type);

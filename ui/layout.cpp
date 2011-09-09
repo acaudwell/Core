@@ -48,26 +48,33 @@ void UILayout::update(float dt) {
 
     rect = vec2(0.0f, 0.0f);
 
+    int visible_elements = 0;
+    
     foreach(UIElement* e, elements) {
         e->update(dt);
 
-        vec2 r = e->getRect();
+        if(!e->hidden) {
+            visible_elements++;
         
-        if(horizontal) {
-            rect.x += r.x;
-            rect.y = std::max(rect.y, r.y);
-        } else {
-            rect.x = std::max(rect.x, r.x);
-            rect.y += r.y;
+            vec2 r = e->getRect();
+            
+            if(horizontal) {
+                rect.x += r.x;
+                rect.y = std::max(rect.y, r.y);
+            } else {
+                rect.x = std::max(rect.x, r.x);
+                rect.y += r.y;
+            }
         }
+        
     }
 
     if(horizontal) {
-        rect.x += margin.x*2.0f + ((float)elements.size()-1.0f) * padding.x;
+        rect.x += margin.x*2.0f + ((float)visible_elements-1) * padding.x;
         rect.y += margin.y*2.0f;
     } else {
         rect.x += margin.x*2.0f;
-        rect.y += margin.y*2.0f + ((float)elements.size()-1.0f) * padding.y;
+        rect.y += margin.y*2.0f + ((float)visible_elements-1) * padding.y;
     }
 }
 
@@ -105,6 +112,8 @@ void UILayout::updatePos(const vec2& pos) {
 
     foreach(UIElement* e, elements) {
 
+        if(e->hidden) continue;
+        
         vec2 r = e->getRect();
 
         if(right_align) {
@@ -135,6 +144,8 @@ bool UILayout::elementsByType(std::list<UIElement*>& found, int type) {
 
 UIElement* UILayout::elementAt(const vec2& pos) {
 
+    if(hidden) return 0;
+    
     UIElement* found = 0;
 
     foreach(UIElement* e, elements) {
@@ -149,7 +160,7 @@ void UILayout::drawOutline() {
     UIElement::drawOutline();
 
     foreach(UIElement* e, elements) {
-        e->drawOutline();
+        if(!e->hidden) e->drawOutline();
     }
 }
 
@@ -158,7 +169,7 @@ void UILayout::draw() {
     drawBackground();
     
     foreach(UIElement* e, elements) {
-        e->draw();
+        if(!e->hidden) e->draw();
     }
 
 }
