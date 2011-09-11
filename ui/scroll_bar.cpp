@@ -45,7 +45,7 @@ void UIScrollBar::reset() {
 UIElement* UIScrollBar::elementAt(const vec2& pos) {
     //cant click bar if invisible
     if(bar_percent <= 0.0f) return 0;
-    
+
     return UIElement::elementAt(pos);
 }
 
@@ -72,7 +72,7 @@ void UIScrollBar::mouseWheel(bool up) {
         value_inc *= 0.1f;
     }
 
-    bar_offset = glm::clamp(bar_offset+value_inc, 0.0f, 1.0f-bar_percent);    
+    bar_offset = glm::clamp(bar_offset+value_inc, 0.0f, 1.0f-bar_percent);
 }
 
 void UIScrollBar::updateRect() {
@@ -83,7 +83,6 @@ void UIScrollBar::updateRect() {
 
     if(horizontal) {
         rect        = vec2(scroll_rect.x, bar_width);
-        pos         = vec2(parent->pos.x, parent->pos.y+rect.y-bar_width);
         bar_percent = std::min(1.0f, scroll_rect.x / inner_rect.x);
 
         if(bar_percent>= 1.0f) bar_percent = 0.0f;
@@ -92,7 +91,6 @@ void UIScrollBar::updateRect() {
         bar_visual_offset = std::min(bar_offset, 1.0f - std::max(bar_min / ((UIScrollLayout*)parent)->getScrollRect().x, bar_percent));
     } else {
         rect        = vec2(bar_width, scroll_rect.y);
-        pos         = vec2(parent->pos.x+rect.x-bar_width, parent->pos.y);
         bar_percent = std::min(1.0f, scroll_rect.y / inner_rect.y);
 
         if(bar_percent>= 1.0f) bar_percent = 0.0f;
@@ -121,7 +119,7 @@ void UIScrollBar::drawContent() {
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
     glPushMatrix();
-    
+
     if(horizontal) {
         glTranslatef(bar_visual_offset * rect.x, 0.0f, 0.0f);
     } else {
