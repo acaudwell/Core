@@ -13,6 +13,11 @@ UISelect::UISelect() : UISolidLayout(true) {
     selected_option = 0;
     
     open = false;
+    
+    selectex = texturemanager.grab("ui/select.png", false);
+    selectex->bind();
+    selectex->setFiltering(GL_NEAREST, GL_NEAREST);
+    selectex->setWrapStyle(GL_CLAMP);
 }
 
 void UISelect::setUI(UI* ui) {
@@ -22,6 +27,7 @@ void UISelect::setUI(UI* ui) {
 
 UISelect::~UISelect() {
     delete options_layout;
+    if(selectex!=0) texturemanager.release(selectex);
 }
 
 void UISelect::click() {
@@ -64,14 +70,19 @@ void UISelect::updatePos(const vec2& pos) {
 
 void UISelect::update(float dt) {
     UISolidLayout::update(dt);
-    
     options_layout->update(dt);
-
 }
 
 void UISelect::draw() {
-    if(!open) UISolidLayout::draw();
-    else options_layout->draw();
+    if(!open) {
+        UISolidLayout::draw();
+
+        selectex->bind();
+        drawQuad(pos + vec2(rect.x-16.0f,1.0f), vec2(16.0f, 16.0f), vec4(0.0f, 0.0f, 1.0f, 1.0f));
+    }
+    else {
+        options_layout->draw();
+    }
 }
 
 UIOptionLabel::UIOptionLabel(UISelect* select, const std::string& text, const std::string& value)

@@ -22,8 +22,10 @@ class UISelect : public UISolidLayout {
 
     UIOptionLabel* selected_option;
     
-    bool open;
+    TextureResource* selectex;   
 public:
+    bool open;
+
     UISelect();
     ~UISelect();
     
