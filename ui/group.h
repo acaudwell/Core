@@ -23,7 +23,8 @@ protected:
     vec2 old_group_rect;
     vec2 old_label_rect;
 
-    bool open;
+    bool minimized;
+    bool minimizable;
 public:
     UIGroupBar* bar;
 

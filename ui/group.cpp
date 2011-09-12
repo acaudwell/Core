@@ -2,7 +2,7 @@
 
 //UIGroup
 
-UIGroup::UIGroup(const std::string& groupname, bool open) : open(open) {
+UIGroup::UIGroup(const std::string& groupname, bool minimized) : minimized(minimized) {
     bar    = new UIGroupBar(groupname);
     layout = new UILayout();
    
@@ -13,6 +13,8 @@ UIGroup::UIGroup(const std::string& groupname, bool open) : open(open) {
     layout->setMargin(vec2(5.0f, 5.0f));
     layout->setPadding(5.0f);
 
+    minimizable = true;
+    
     animation = 0.0f;
     speed     = 2.5f;
 }
@@ -32,7 +34,9 @@ void UIGroup::setTitle(const std::string& text) {
 }
 
 void UIGroup::click() {
-    open = !open;
+    if(!minimizable) return;
+
+    minimized = !minimized;
     animation = 1.0f;
 
     old_group_rect = rect;
@@ -56,7 +60,7 @@ UIElement* UIGroup::elementAt(const vec2& pos) {
     UIElement* found = 0;
 
     if((found = bar->elementAt(pos)) != 0) return found;
-    if(open && (found = layout->elementAt(pos)) != 0) return found;
+    if(minimized && (found = layout->elementAt(pos)) != 0) return found;
 
     return UIElement::elementAt(pos);
 }
@@ -74,7 +78,7 @@ void UIGroup::update(float dt) {
 
     rect = bar->rect;
 
-    if(open) {
+    if(minimized) {
         layout->update(dt);
         bar->rect.x =  std::max( bar->rect.x, layout->rect.x );
         rect = bar->rect;
@@ -91,7 +95,7 @@ void UIGroup::update(float dt) {
 
 void UIGroup::draw() {
     bar->draw();
-    if(open && animation <= 0.0f) layout->draw();
+    if(minimized && animation <= 0.0f) layout->draw();
 }
 
 //UIGroupBar
