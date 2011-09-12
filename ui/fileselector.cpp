@@ -1,25 +1,26 @@
 #include "fileselector.h"
 
-UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir) : UIGroup(title, true) {
+UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir, UIFileSelectorAction* action)
+    : action(action), UIGroup(title, true) {
 
     minimizable = false;
-    
+
     listing   = new UIScrollLayout(vec2(520.0f, 100.0f));
 
     dir_path  = new UIDirSelectLabel(this, dir);
     file_path = new UIFileSelectLabel(this, "");
 
     filter_select = new UISelect();
-    
+
     layout->addElement(new UILabelledElement("Path",  dir_path,  120.0f));
     layout->addElement(listing);
     layout->addElement(new UILabelledElement("Name",  file_path, 120.0f));
     layout->addElement(new UILabelledElement("Filter", filter_select, 120.0f));
 
     addFilter("All Files (*.*)", "");
-    
+
     current_filter = filter_select->getSelectedOption();
-    
+
     updateListing();
 }
 
@@ -48,9 +49,9 @@ bool UIFileSelector::changeDir(const boost::filesystem::path& dir) {
 }
 
 void UIFileSelector::update(float dt) {
-        
+
     UIOptionLabel* selected_filter = filter_select->getSelectedOption();
-    
+
     if(current_filter != selected_filter) {
         current_filter = selected_filter;
         updateListing();
@@ -76,7 +77,7 @@ void UIFileSelector::close() {
 
 void UIFileSelector::selectPath(const boost::filesystem::path& path) {
     this->selected_path = path;
-    
+
     if(!is_directory(selected_path)) {
         file_path->setText(selected_path.filename().string());
     } else {
@@ -85,6 +86,7 @@ void UIFileSelector::selectPath(const boost::filesystem::path& path) {
 }
 
 void UIFileSelector::confirm() {
+    action->perform(selected_path);
 }
 
 void UIFileSelector::updateListing() {
@@ -107,7 +109,7 @@ void UIFileSelector::updateListing() {
 
     std::sort(dir_listing.begin(), dir_listing.end(), _listing_sort);
 
-    if(is_directory(p.parent_path())) {        
+    if(is_directory(p.parent_path())) {
         listing->addElement(new UIFileSelectorLabel(this, "..", p.parent_path()));
     }
 
@@ -116,7 +118,7 @@ void UIFileSelector::updateListing() {
         std::string filename(l.filename().string());
 
         if(filename.empty()) continue;
-                
+
 #ifdef _WIN32
         DWORD win32_attr = GetFileAttributes(l.string().c_str());
         if (win32_attr & FILE_ATTRIBUTE_HIDDEN || win32_attr & FILE_ATTRIBUTE_SYSTEM) continue;
@@ -126,7 +128,7 @@ void UIFileSelector::updateListing() {
 
         if(current_filter != 0 && !current_filter->value.empty() && !is_directory(l)) {
             size_t at = filename.rfind(current_filter->value);
-            
+
             if(at == std::string::npos || at != (filename.size() - current_filter->value.size()))
                 continue;
         }
@@ -177,7 +179,7 @@ bool UIFileSelectorLabel::submit() {
         selector->selectPath(path);
         selector->confirm();
     }
-    
+
     return true;
 }
 

@@ -8,6 +8,12 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
+class UIFileSelectorAction {
+public:
+    UIFileSelectorAction() {};
+    virtual void perform(const  boost::filesystem::path& path) {};
+};
+
 class UIFileSelector : public UIGroup {
 
     UILabel* dir_path;
@@ -15,26 +21,28 @@ class UIFileSelector : public UIGroup {
 
     UIScrollLayout* listing;
     UISelect* filter_select;
-    
+
     boost::filesystem::path selected_path;
-    
-    UIOptionLabel* current_filter;    
+
+    UIOptionLabel* current_filter;
+
+    UIFileSelectorAction* action;
 public:
-    UIFileSelector(const std::string& title, const std::string& dir);
+    UIFileSelector(const std::string& title, const std::string& dir, UIFileSelectorAction* action);
 
     void addFilter(const std::string& name, const std::string& extension);
-    
-    bool changeDir(const boost::filesystem::path& dir);    
+
+    bool changeDir(const boost::filesystem::path& dir);
     void updateListing();
-    
+
     void selectPath(const boost::filesystem::path& path);
     void confirm();
-    
+
     void toggle();
     void open();
     void close();
-    
-    void update(float dt);    
+
+    void update(float dt);
 };
 
 class UIFileSelectorLabel : public UILabel {
@@ -50,12 +58,12 @@ public:
     void click();
 
     bool submit();
-    
+
     void updateContent();
 };
 
 class UIFileSelectLabel : public UILabel {
-    UIFileSelector* selector;    
+    UIFileSelector* selector;
 public:
     UIFileSelectLabel(UIFileSelector* selector, const std::string& filename);
 
@@ -69,6 +77,5 @@ public:
 
     bool submit();
 };
-
 
 #endif
