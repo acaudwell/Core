@@ -30,6 +30,10 @@ public:
     void selectPath(const boost::filesystem::path& path);
     void confirm();
     
+    void toggle();
+    void open();
+    void close();
+    
     void update(float dt);    
 };
 

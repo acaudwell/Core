@@ -1,6 +1,9 @@
 #include "fileselector.h"
 
 UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir) : UIGroup(title, true) {
+
+    minimizable = false;
+    
     listing   = new UIScrollLayout(vec2(520.0f, 100.0f));
 
     dir_path  = new UIDirSelectLabel(this, dir);
@@ -54,6 +57,21 @@ void UIFileSelector::update(float dt) {
     }
 
     UIGroup::update(dt);
+}
+
+void UIFileSelector::toggle() {
+    if(hidden) open();
+    else close();
+}
+
+void UIFileSelector::open() {
+    hidden=false;
+    updateListing();
+}
+
+void UIFileSelector::close() {
+    filter_select->open = false;
+    hidden=true;
 }
 
 void UIFileSelector::selectPath(const boost::filesystem::path& path) {
