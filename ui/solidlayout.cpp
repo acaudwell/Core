@@ -6,10 +6,10 @@ UISolidLayout::UISolidLayout(bool horizontal) : UILayout(horizontal) {
     
     bgtex.resize(4);
 
-    bgtex[0] = texturemanager.grab("ui/label_tl.png", false);
-    bgtex[1] = texturemanager.grab("ui/label_tr.png", false);
-    bgtex[2] = texturemanager.grab("ui/label_br.png", false);
-    bgtex[3] = texturemanager.grab("ui/label_bl.png", false);
+    bgtex[0] = texturemanager.grab("ui/layout_tl.png", false);
+    bgtex[1] = texturemanager.grab("ui/layout_tr.png", false);
+    bgtex[2] = texturemanager.grab("ui/layout_br.png", false);
+    bgtex[3] = texturemanager.grab("ui/layout_bl.png", false);
 
     foreach(TextureResource* t, bgtex) {
         t->bind();

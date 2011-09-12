@@ -7,10 +7,10 @@ UIScrollBar::UIScrollBar(UIScrollLayout* parent, bool horizontal) : horizontal(h
 
     bartex.resize(4);
 
-    bartex[0] = texturemanager.grab("ui/label_tl.png", false);
-    bartex[1] = texturemanager.grab("ui/label_tr.png", false);
-    bartex[2] = texturemanager.grab("ui/label_br.png", false);
-    bartex[3] = texturemanager.grab("ui/label_bl.png", false);
+    bartex[0] = texturemanager.grab("ui/layout_tl.png", false);
+    bartex[1] = texturemanager.grab("ui/layout_tr.png", false);
+    bartex[2] = texturemanager.grab("ui/layout_br.png", false);
+    bartex[3] = texturemanager.grab("ui/layout_bl.png", false);
 
     // NOTE: as the textures are shared this is doing
     // unnessisary work
