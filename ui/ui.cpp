@@ -18,6 +18,7 @@ UI::~UI() {
 }
 
 void UI::clear() {
+    deselect();
     foreach(UIElement* e, elements) {
         delete e;
     }
@@ -92,7 +93,7 @@ UIElement* UI::selectElementAt(const vec2& pos) {
 void UI::update(float dt) {
 
     if(double_click_timer<double_click_interval) double_click_timer += dt;
-    
+
     foreach(UIElement* e, elements) {
         e->update(dt);
     }
@@ -156,11 +157,11 @@ bool UI::keyPress(SDL_KeyboardEvent *e) {
 }
 
 void UI::drag(const MouseCursor& cursor) {
-    
+
     UIElement* selected = getSelected();
 
     if(!selected) return;
-    
+
     if(selected->getType() == UI_SCROLL_BAR) {
         ((UIScrollBar*)selected)->scrollTo(cursor.getPos());
     }
@@ -171,10 +172,10 @@ void UI::drag(const MouseCursor& cursor) {
 }
 
 void UI::click(const MouseCursor& cursor) {
-    
-    UIElement* previous = getSelected();   
+
+    UIElement* previous = getSelected();
     bool double_click   = double_click_timer < 0.5f;
-    
+
     UIElement* selected = selectElementAt(cursor.getPos());
 
     if(!selected) return;
