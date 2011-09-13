@@ -14,7 +14,7 @@ public:
 
     int getType() { return UI_BUTTON; }
 
-    void click();
+    void click(const vec2& pos);
 
     void update(float dt);
 };

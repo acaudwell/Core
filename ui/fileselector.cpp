@@ -162,11 +162,11 @@ void UIFileSelectorLabel::updateContent() {
     bgcolour = selected ? vec4(1.0f, 1.0f, 1.0f, 0.15f) : vec4(0.0f);
 }
 
-void UIFileSelectorLabel::click() {
+void UIFileSelectorLabel::click(const vec2& pos) {
     if(!directory) selector->selectPath(path);
 }
 
-void UIFileSelectorLabel::doubleClick() {
+void UIFileSelectorLabel::doubleClick(const vec2& pos) {
     submit();
 }
 

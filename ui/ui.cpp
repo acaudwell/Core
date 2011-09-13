@@ -162,13 +162,7 @@ void UI::drag(const MouseCursor& cursor) {
 
     if(!selected) return;
 
-    if(selected->getType() == UI_SCROLL_BAR) {
-        ((UIScrollBar*)selected)->scrollTo(cursor.getPos());
-    }
-
-    if(selected->getType() == UI_SLIDER) {
-        ((UISlider*)selected)->selectValueAt(cursor.getPos());
-    }
+    selected->drag(cursor.getPos());
 }
 
 void UI::click(const MouseCursor& cursor) {
@@ -176,13 +170,15 @@ void UI::click(const MouseCursor& cursor) {
     UIElement* previous = getSelected();
     bool double_click   = double_click_timer < 0.5f;
 
-    UIElement* selected = selectElementAt(cursor.getPos());
+    vec2 pos = cursor.getPos();
+    
+    UIElement* selected = selectElementAt(pos);
 
     if(!selected) return;
 
     if(previous == selected && double_click) {
-        selected->doubleClick();
+        selected->doubleClick(pos);
     } else {
-        selected->click();
+        selected->click(pos);
     }
 }

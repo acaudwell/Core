@@ -15,7 +15,7 @@ public:
 
     int getType() { return UI_CHECKBOX; };
 
-    void click();
+    void click(const vec2& pos);
 
     void drawContent();
 };

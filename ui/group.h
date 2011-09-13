@@ -9,7 +9,18 @@ public:
     UILabel* label;
     UIGroupBar(const std::string& text);
     void setText(const std::string& text);
-    void click();
+    void click(const vec2& pos);
+};
+
+class UIResizeButton : public UIElement {
+protected:
+    TextureResource* resizetex;
+public:
+    UIResizeButton();
+    ~UIResizeButton();
+    
+    void drag(const vec2& pos);
+    void draw();
 };
 
 class UIGroup : public UIElement {
@@ -28,7 +39,7 @@ protected:
 public:
     UIGroupBar* bar;
 
-    UIGroup(const std::string& groupname, bool open = true);
+    UIGroup(const std::string& groupname, bool minimized = true);
     ~UIGroup();
 
     void setUI(UI* ui);
@@ -42,11 +53,25 @@ public:
 
     void setTitle(const std::string& text);
 
-    void click();
+    void click(const vec2& pos);
 
     void update(float dt);
     void updatePos(const vec2& pos);
 
+    void draw();
+};
+
+class UIResizableGroup : public UIGroup {
+    UIResizeButton* resize_button;
+public:
+    UIResizableGroup(const std::string& groupname, bool minimized = true);
+    ~UIResizableGroup();
+
+    UIElement* elementAt(const vec2& pos);
+
+    void setUI(UI* ui);
+    void updatePos(const vec2& pos);
+    void update(float dt);
     void draw();
 };
 

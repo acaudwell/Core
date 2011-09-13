@@ -11,7 +11,7 @@ UIButton::UIButton(const std::string& name, UIAction* action)
     label->setMargin(2.0f);
 }
 
-void UIButton::click() {
+void UIButton::click(const vec2& pos) {
     action->perform();
 
     inverted=true;

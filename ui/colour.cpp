@@ -167,7 +167,7 @@ void UIColourSlider::updateRect() {
     rect.y = 16.0f;
 }
 
-void UIColourSlider::selectValueAt(const vec2& pos) {
+void UIColourSlider::drag(const vec2& pos) {
     if(!attribute) return;
     *attribute = std::max(0.0f, std::min(1.0f, ((pos.x - this->pos.x) / slider_width)));
     colour->toColour();

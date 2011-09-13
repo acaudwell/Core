@@ -25,7 +25,7 @@ public:
 
     int getType() { return UI_SCROLL_BAR; };
 
-    void scrollTo(const vec2& pos);
+    void drag(const vec2& pos);
     void mouseWheel(bool up);
 
     UIElement* elementAt(const vec2& pos);

@@ -30,7 +30,7 @@ UISelect::~UISelect() {
     if(selectex!=0) texturemanager.release(selectex);
 }
 
-void UISelect::click() {
+void UISelect::click(const vec2& pos) {
     open = !open;
 }
 
@@ -89,6 +89,6 @@ UIOptionLabel::UIOptionLabel(UISelect* select, const std::string& text, const st
     : select(select), value(value), UILabel(text, false, 150.0f) {
 }
 
-void UIOptionLabel::click() {
+void UIOptionLabel::click(const vec2& pos) {
     select->selectOption(this);
 }

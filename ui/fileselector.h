@@ -54,8 +54,8 @@ public:
     UIFileSelectorLabel(UIFileSelector* selector, const boost::filesystem::path& path);
     UIFileSelectorLabel(UIFileSelector* selector, const std::string& label, const boost::filesystem::path& path);
 
-    void doubleClick();
-    void click();
+    void doubleClick(const vec2& pos);
+    void click(const vec2& pos);
 
     bool submit();
 

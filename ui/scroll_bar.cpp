@@ -49,7 +49,8 @@ UIElement* UIScrollBar::elementAt(const vec2& pos) {
     return UIElement::elementAt(pos);
 }
 
-void UIScrollBar::scrollTo(const vec2& pos) {
+void UIScrollBar::drag(const vec2& pos) {
+
     if(bar_percent <= 0.0f) return;
 
     if(horizontal) {

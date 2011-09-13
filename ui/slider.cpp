@@ -74,7 +74,7 @@ void UIFloatSlider::mouseWheel(bool up) {
     setValue(*value+value_inc);
 }
 
-void UIFloatSlider::selectValueAt(const vec2& pos) {
+void UIFloatSlider::drag(const vec2& pos) {
     float new_value = ((pos.x - this->pos.x) / slider_width) * (max-min) + min;
 
     setValue(new_value);
@@ -105,7 +105,7 @@ void UIIntSlider::mouseWheel(bool up) {
     setValue(*value+value_inc);
 }
 
-void UIIntSlider::selectValueAt(const vec2& pos) {
+void UIIntSlider::drag(const vec2& pos) {
     int new_value = ((pos.x - this->pos.x) / slider_width) * (max-min) + min;
 
     setValue(new_value);

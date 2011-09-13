@@ -13,7 +13,7 @@ public:
 
     UIOptionLabel(UISelect* select, const std::string& text, const std::string& value);
 
-    void click();
+    void click(const vec2& pos);
 };
 
 class UISelect : public UISolidLayout {
@@ -39,7 +39,7 @@ public:
     
     void addOption(const std::string& name, const std::string& value);
 
-    void click();
+    void click(const vec2& pos);
 
     UIElement* elementAt(const vec2& pos);
         

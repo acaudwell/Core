@@ -16,8 +16,6 @@ public:
     UISlider(const std::string& slider_texure, float width);
 
     int getType() { return UI_SLIDER; };
-
-    virtual void selectValueAt(const vec2& pos) {};
 };
 
 class UIFloatSlider : public UISlider {
@@ -29,7 +27,7 @@ public:
     UIFloatSlider(float* value, float min, float max);
 
     void mouseWheel(bool up);
-    void selectValueAt(const vec2& pos);
+    void drag(const vec2& pos);
     void setValue(float v);
 
     void drawContent();
@@ -44,7 +42,7 @@ public:
     UIIntSlider(int* value, int min, int max);
 
     void mouseWheel(bool up);
-    void selectValueAt(const vec2& pos);
+    void drag(const vec2& pos);
     void setValue(int v);
 
     void drawContent();
