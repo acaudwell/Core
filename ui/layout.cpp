@@ -3,6 +3,7 @@
 UILayout::UILayout(bool horizontal) : horizontal(horizontal), UIElement() {
     alignment = UI_LAYOUT_ALIGN_NONE;
     bgcolour  = vec4(0.0f);
+    min_rect  = vec2(0.0f);
 }
 
 UILayout::~UILayout() {
@@ -12,7 +13,7 @@ UILayout::~UILayout() {
 void UILayout::clear() {
     foreach(UIElement* e, elements) {
         delete e;
-    }    
+    }
     elements.clear();
 }
 
@@ -40,42 +41,49 @@ void UILayout::drawBackground() {
 void UILayout::addElement(UIElement* e) {
     e->parent = this;
     if(ui!=0) e->setUI(ui);
-    
+
     elements.push_back(e);
 }
 
 void UILayout::update(float dt) {
 
-    rect = vec2(0.0f, 0.0f);
+    rect = min_rect;
+
+    vec2 inner = vec2(0.0f, 0.0f);
 
     int visible_elements = 0;
-    
+
     foreach(UIElement* e, elements) {
         e->update(dt);
 
         if(!e->hidden) {
             visible_elements++;
-        
+
             vec2 r = e->getRect();
-            
+
             if(horizontal) {
-                rect.x += r.x;
-                rect.y = std::max(rect.y, r.y);
+                inner.x += r.x;
+                inner.y = std::max(inner.y, r.y);
             } else {
-                rect.x = std::max(rect.x, r.x);
-                rect.y += r.y;
+                inner.x = std::max(inner.x, r.x);
+                inner.y += r.y;
             }
         }
-        
     }
 
     if(horizontal) {
-        rect.x += margin.x*2.0f + ((float)visible_elements-1) * padding.x;
-        rect.y += margin.y*2.0f;
+        inner.x += margin.x*2.0f + ((float)visible_elements-1) * padding.x;
+        inner.y += margin.y*2.0f;
     } else {
-        rect.x += margin.x*2.0f;
-        rect.y += margin.y*2.0f + ((float)visible_elements-1) * padding.y;
+        inner.x += margin.x*2.0f;
+        inner.y += margin.y*2.0f + ((float)visible_elements-1) * padding.y;
     }
+
+    rect = glm::max(rect, inner);
+}
+
+void UILayout::setMinRect(const vec2& min_rect) {
+    this->min_rect = min_rect;
 }
 
 void UILayout::updatePos(const vec2& pos) {
@@ -113,7 +121,7 @@ void UILayout::updatePos(const vec2& pos) {
     foreach(UIElement* e, elements) {
 
         if(e->hidden) continue;
-        
+
         vec2 r = e->getRect();
 
         if(right_align) {
@@ -145,7 +153,7 @@ bool UILayout::elementsByType(std::list<UIElement*>& found, int type) {
 UIElement* UILayout::elementAt(const vec2& pos) {
 
     if(hidden) return 0;
-    
+
     UIElement* found = 0;
 
     foreach(UIElement* e, elements) {
@@ -167,7 +175,7 @@ void UILayout::drawOutline() {
 void UILayout::draw() {
 
     drawBackground();
-    
+
     foreach(UIElement* e, elements) {
         if(!e->hidden) e->draw();
     }
@@ -179,4 +187,78 @@ void UILayout::draw() {
 UILabelledElement::UILabelledElement(const std::string text, UIElement* e, float width) : UILayout(true) {
     addElement(new UILabel(text, false, width));
     addElement(e);
+}
+
+//UIResizableLayout
+
+UIResizableLayout::UIResizableLayout(bool horizontal) : UILayout(horizontal) {
+    resize_button = new UIResizeButton();
+    resize_button->parent = this;
+}
+
+UIResizableLayout::~UIResizableLayout() {
+    if(resize_button != 0) delete resize_button;
+}
+
+UIElement* UIResizableLayout::elementAt(const vec2& pos) {
+
+    if(hidden) return 0;
+
+    UIElement* found = 0;
+
+    if((found = resize_button->elementAt(pos)) != 0) return found;
+
+    return UILayout::elementAt(pos);
+}
+
+
+void UIResizableLayout::setUI(UI* ui) {
+    UILayout::setUI(ui);
+    resize_button->setUI(ui);
+}
+
+void UIResizableLayout::updatePos(const vec2& pos) {
+    UILayout::updatePos(pos);
+    resize_button->updatePos(pos + rect - resize_button->getRect());
+}
+
+void UIResizableLayout::update(float dt) {
+    UILayout::update(dt);
+    resize_button->update(dt);
+}
+
+void UIResizableLayout::draw() {
+    UILayout::draw();
+    resize_button->draw();
+}
+
+//UIResizeButton
+
+UIResizeButton::UIResizeButton() {
+
+    resizetex = texturemanager.grab("ui/resize.png", false);
+    resizetex->bind();
+    resizetex->setFiltering(GL_NEAREST, GL_NEAREST);
+    resizetex->setWrapStyle(GL_CLAMP);
+
+    rect = vec2(16.0f, 16.0f);
+}
+
+UIResizeButton::~UIResizeButton() {
+    if(resizetex!=0) texturemanager.release(resizetex);
+}
+
+void UIResizeButton::drag(const vec2& pos) {
+
+    vec2 resize_pos = pos;
+
+    if(resize_pos.x > this->pos.x && resize_pos.y > this->pos.y)
+        resize_pos = glm::max(this->pos+rect, resize_pos);
+
+    ((UILayout*)parent)->setMinRect(glm::abs(parent->pos - resize_pos));
+}
+
+void UIResizeButton::drawContent() {
+    resizetex->bind();
+    drawQuad(rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
 }

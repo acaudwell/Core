@@ -2,10 +2,10 @@
 
 //UIGroup
 
-UIGroup::UIGroup(const std::string& groupname, bool minimized) : minimized(minimized) {
+UIGroup::UIGroup(const std::string& groupname, bool minimized, bool resizable) : minimized(minimized) {
     bar    = new UIGroupBar(groupname);
-    layout = new UILayout();
-   
+    layout = resizable ? new UIResizableLayout() : new UILayout();
+
     bar->setMargin(5.0f);
     bar->parent = this;
 
@@ -14,7 +14,7 @@ UIGroup::UIGroup(const std::string& groupname, bool minimized) : minimized(minim
     layout->setPadding(5.0f);
 
     minimizable = true;
-    
+
     animation = 0.0f;
     speed     = 2.5f;
 }
@@ -56,7 +56,7 @@ bool UIGroup::elementsByType(std::list<UIElement*>& found, int type) {
 UIElement* UIGroup::elementAt(const vec2& pos) {
 
     if(hidden) return 0;
-    
+
     UIElement* found = 0;
 
     if((found = bar->elementAt(pos)) != 0) return found;
@@ -111,69 +111,4 @@ void UIGroupBar::setText(const std::string& text) {
 
 void UIGroupBar::click(const vec2& pos) {
     parent->click(pos);
-}
-
-//UIResizableGroup
-
-UIResizableGroup::UIResizableGroup(const std::string& groupname, bool minimized) : UIGroup(groupname, minimized) {
-    resize_button = new UIResizeButton();
-}
-
-UIResizableGroup::~UIResizableGroup() {
-    if(resize_button != 0)    delete resize_button;
-}
-
-UIElement* UIResizableGroup::elementAt(const vec2& pos) {
-
-    if(hidden) return 0;
-    
-    UIElement* found = 0;
-
-    if((found = resize_button->elementAt(pos)) != 0) return found;
-
-    return UIGroup::elementAt(pos);
-}
-
-
-void UIResizableGroup::setUI(UI* ui) {
-    UIGroup::setUI(ui);
-    resize_button->setUI(ui);
-}
-
-void UIResizableGroup::updatePos(const vec2& pos) {
-    UIGroup::updatePos(pos);
-    resize_button->updatePos(pos);
-}
-
-void UIResizableGroup::update(float dt) {
-    UIGroup::update(dt);
-    resize_button->update(dt);
-}
-
-void UIResizableGroup::draw() {
-    UIGroup::draw();
-    resize_button->draw();
-}
-
-//UIResizeButton
-
-UIResizeButton::UIResizeButton() {
-
-    resizetex = texturemanager.grab("ui/resize.png", false);
-    resizetex->bind();
-    resizetex->setFiltering(GL_NEAREST, GL_NEAREST);
-    resizetex->setWrapStyle(GL_CLAMP);
-}
-
-UIResizeButton::~UIResizeButton() {
-    if(resizetex!=0) texturemanager.release(resizetex);
-}
-
-void UIResizeButton::drag(const vec2& pos) {
-
-}
-
-void UIResizeButton::draw() {
-    resizetex->bind();
-    drawQuad(pos, vec2(16.0f, 16.0f), vec4(0.0f, 0.0f, 1.0f, 1.0f));
 }

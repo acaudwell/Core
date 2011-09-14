@@ -17,7 +17,9 @@ protected:
     int alignment;
     bool horizontal;
     std::vector<UIElement*> elements;
-    
+
+    vec2 min_rect;
+
     virtual void drawBackground();
 public:
     vec4 bgcolour;
@@ -26,7 +28,7 @@ public:
     ~UILayout();
 
     void clear();
-    
+
     int getType() { return UI_LAYOUT; };
 
     void setUI(UI* ui);
@@ -36,6 +38,8 @@ public:
     void setHorizontal(bool horizontal);
     void setAlignment(int alignment) { this->alignment = alignment; };
 
+    void setMinRect(const vec2& min_rect);
+
     int getElementCount() { return elements.size(); };
 
     UIElement* getElement(int index) { return elements[index]; };
@@ -43,9 +47,9 @@ public:
     bool elementsByType(std::list<UIElement*>& found, int type);
 
     UIElement* elementAt(const vec2& pos);
-    
+
     void updatePos(const vec2& pos);
-    
+
     void update(float dt);
 
     void draw();
@@ -56,6 +60,32 @@ public:
 class UILabelledElement : public UILayout {
 public:
     UILabelledElement(const std::string text, UIElement* e, float width = 120.0f);
+};
+
+
+class UIResizeButton : public UIElement {
+protected:
+    TextureResource* resizetex;
+public:
+    UIResizeButton();
+    ~UIResizeButton();
+
+    void drag(const vec2& pos);
+    void drawContent();
+};
+
+class UIResizableLayout : public UILayout {
+    UIResizeButton* resize_button;
+public:
+    UIResizableLayout(bool horizontal = false);
+    ~UIResizableLayout();
+
+    UIElement* elementAt(const vec2& pos);
+
+    void setUI(UI* ui);
+    void updatePos(const vec2& pos);
+    void update(float dt);
+    void draw();
 };
 
 #endif
