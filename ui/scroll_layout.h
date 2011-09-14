@@ -6,6 +6,7 @@
 
 class UIScrollLayout : public UILayout {
     vec2 scroll_rect;
+    vec2 expanded_rect;
     vec2 inner_rect;
 public:
 
@@ -25,6 +26,9 @@ public:
     vec2 getScrollRect();
     vec2 getInnerRect();
     
+    void expandRect(const vec2& expand);
+    void resetRect();
+
     void update(float dt);
     void draw();
 };

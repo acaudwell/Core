@@ -53,12 +53,17 @@ void UILayout::update(float dt) {
 
     int visible_elements = 0;
 
+    std::list<UIElement*> fill_elements;
+    
     foreach(UIElement* e, elements) {
+        e->resetRect();
         e->update(dt);
 
         if(!e->hidden) {
             visible_elements++;
 
+            if(e->fill) fill_elements.push_back(e);
+            
             vec2 r = e->getRect();
 
             if(horizontal) {
@@ -78,8 +83,18 @@ void UILayout::update(float dt) {
         inner.x += margin.x*2.0f;
         inner.y += margin.y*2.0f + ((float)visible_elements-1) * padding.y;
     }
-
+    
     rect = glm::max(rect, inner);
+
+    if(!fill_elements.empty()) {
+
+        vec2 filler = glm::max(vec2(0.0f), vec2(rect-inner)) / (float) fill_elements.size();
+        
+        foreach(UIElement* e, fill_elements) {
+            e->expandRect(filler);
+            e->update(0.0f);
+        }        
+    }
 }
 
 void UILayout::setMinRect(const vec2& min_rect) {

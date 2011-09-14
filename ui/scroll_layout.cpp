@@ -4,6 +4,8 @@ UIScrollLayout::UIScrollLayout(const vec2& scroll_rect, bool horizontal) : scrol
 
     vertical_scrollbar   = new UIScrollBar(this, false);
     horizontal_scrollbar = new UIScrollBar(this, true);
+    expanded_rect = vec2(0.0f);
+    fill = true;
 }
 
 UIScrollLayout::~UIScrollLayout() {
@@ -12,15 +14,23 @@ UIScrollLayout::~UIScrollLayout() {
 }
 
 vec2 UIScrollLayout::getRect() {
-    return scroll_rect;
+    return scroll_rect+expanded_rect;
 }
 
 vec2 UIScrollLayout::getScrollRect() {
-    return scroll_rect;
+    return scroll_rect+expanded_rect;
 }
 
 vec2 UIScrollLayout::getInnerRect() {
     return rect;
+}
+
+void UIScrollLayout::expandRect(const vec2& expand) {
+    expanded_rect = expand;    
+}
+
+void UIScrollLayout::resetRect() {
+    expanded_rect = vec2(0.0f);    
 }
 
 void UIScrollLayout::update(float dt) {
@@ -74,7 +84,7 @@ void UIScrollLayout::draw() {
     glPushMatrix();
         glTranslatef(scroll_offset.x, scroll_offset.y, 0.0f);
     
-        glScissor(pos.x, display.height-(pos.y+scroll_rect.y), scroll_rect.x, scroll_rect.y);
+        glScissor(pos.x, display.height-(pos.y+scroll_rect.y+expanded_rect.y), scroll_rect.x+expanded_rect.x, scroll_rect.y+expanded_rect.y);
 
         UILayout::draw();
 

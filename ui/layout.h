@@ -23,7 +23,7 @@ protected:
     virtual void drawBackground();
 public:
     vec4 bgcolour;
-
+    
     UILayout(bool horizontal = false);
     ~UILayout();
 

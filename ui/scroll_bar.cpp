@@ -104,10 +104,12 @@ void UIScrollBar::updateRect() {
 void UIScrollBar::updatePos() {
     if(parent==0) return;
 
+    vec2 parent_rect = parent->getRect();
+    
     if(horizontal) {
-        pos = vec2(parent->pos.x, parent->pos.y+parent->rect.y-bar_width);
+        pos = vec2(parent->pos.x, parent->pos.y+parent_rect.y-bar_width);
     } else {
-        pos = vec2(parent->pos.x+parent->rect.x-bar_width, parent->pos.y);
+        pos = vec2(parent->pos.x+parent_rect.x-bar_width, parent->pos.y);
     }
 }
 
