@@ -9,6 +9,8 @@ class UILabel : public UIElement {
 protected:
     float cursor_anim;
     
+    bool text_changed;
+    
     void drawBackground();
 public:
     vec4 bgcolour;
@@ -16,6 +18,7 @@ public:
     UISlider* slider;
     bool editable;
     std::string text;
+    std::string display_text;
 
     UILabel(const std::string& text, bool editable = false, float width = -1.0f);
 

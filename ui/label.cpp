@@ -5,9 +5,10 @@
 
 UILabel::UILabel(const std::string& text, bool editable, float width) : text(text), editable(editable), width(width), UIElement() {
 
-    slider      = 0;
-    font_colour = vec3(1.0f);
-    bgcolour    = vec4(0.0f);
+    slider       = 0;
+    font_colour  = vec3(1.0f);
+    bgcolour     = vec4(0.0f);
+    text_changed = true;
 }
 
 void UILabel::setWidth(float width) {
@@ -16,6 +17,7 @@ void UILabel::setWidth(float width) {
 
 void UILabel::setText(const std::string& text) {
     this->text = text;
+    text_changed = true;
 }
 
 void UILabel::updateRect() {
@@ -44,8 +46,7 @@ bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
                 
         return false;
     }
-    
-    
+        
     switch(c) {
         case SDLK_BACKSPACE:
             if(!text.empty()) {
@@ -60,6 +61,8 @@ bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
             break;
     }
 
+    text_changed = true;
+
     return true;
 }
 
@@ -72,6 +75,17 @@ void UILabel::update(float dt) {
         updateContent();
         if(width < 0.0f) width = ui->font.getWidth(text);
         cursor_anim = 0.0f;
+    }
+
+    if(text_changed && width >= 0.0f && ui != 0) {
+        display_text = text;
+        float text_width = ui->font.getWidth(display_text);
+        
+        while(text_width+10.0f > width && !display_text.empty()) {
+            display_text = display_text.substr(1, display_text.size()-1);
+            text_width = ui->font.getWidth(display_text);            
+        }
+        text_changed = false;
     }
 
     updateRect();
@@ -98,12 +112,12 @@ void UILabel::drawContent() {
         glEnable(GL_TEXTURE_2D);
 
         if(int(cursor_anim)==0) {
-            ui->font.print(margin.x, rect.y-(3.0+margin.w), "%s_", text.c_str());
+            ui->font.print(margin.x, rect.y-(3.0+margin.w), "%s_", display_text.c_str());
         } else {
-            ui->font.draw(margin.x, rect.y-(3.0+margin.w), text);
+            ui->font.draw(margin.x, rect.y-(3.0+margin.w), display_text);
         }
     } else {
-        ui->font.draw(margin.x, rect.y-(3.0+margin.w), text);
+        ui->font.draw(margin.x, rect.y-(3.0+margin.w), display_text);
     }
 }
 
@@ -136,6 +150,7 @@ void UIIntLabel::updateContent() {
     snprintf(buff, 256, "%d", *value);
 
     text = std::string(buff);
+    text_changed = true;
 }
 
 //UIFloatLabel
@@ -166,7 +181,8 @@ void UIFloatLabel::updateContent() {
     char buff[256];
     snprintf(buff, 256, "%.5f", *value);
     text = std::string(buff);
-
+    text_changed = true;
+    
     //trim trailing zeros - ideally we should only do this when the value changes
     size_t dotsep = text.rfind(".");
     size_t tlen    = text.size();
