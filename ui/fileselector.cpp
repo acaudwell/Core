@@ -116,6 +116,7 @@ void UIFileSelector::updateListing() {
 
     try {
         copy(boost::filesystem::directory_iterator(p), boost::filesystem::directory_iterator(), back_inserter(dir_listing));
+        std::sort(dir_listing.begin(), dir_listing.end(), _listing_sort);
     } catch(const boost::filesystem::filesystem_error& exception) {
         
         //switch to previous directory if there is one
@@ -123,11 +124,11 @@ void UIFileSelector::updateListing() {
             dir_path->setText(previous_dir);
             previous_dir = "";
         }
+
         return;
     }
+    
     listing->clear();
-
-    std::sort(dir_listing.begin(), dir_listing.end(), _listing_sort);
 
     if(is_directory(p.parent_path())) {
         listing->addElement(new UIFileSelectorLabel(this, "..", p.parent_path()));
