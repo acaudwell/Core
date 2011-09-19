@@ -7,8 +7,8 @@ UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir,
 
     listing   = new UIScrollLayout(vec2(420.0f, 100.0f));
 
-    dir_path  = new UIDirSelectLabel(this, dir);
-    file_path = new UIFileSelectLabel(this, "");
+    dir_path  = new UIDirInputLabel(this, dir);
+    file_path = new UIFileInputLabel(this, "");
 
     filter_select = new UISelect();
 
@@ -41,6 +41,8 @@ bool UIFileSelector::changeDir(const boost::filesystem::path& dir) {
 
     if(!is_directory(dir)) return false;
 
+    previous_dir = dir_path->text;
+    
     dir_path->setText(dir.string());
 
     updateListing();
@@ -75,6 +77,12 @@ void UIFileSelector::close() {
     hidden=true;
 }
 
+void UIFileSelector::selectFile(const boost::filesystem::path& filename) {
+    selected_path = boost::filesystem::path(dir_path->text);
+    selected_path /= filename;    
+    fprintf(stderr, "selectedFile = %s\n", selected_path.string().c_str());
+}
+
 void UIFileSelector::selectPath(const boost::filesystem::path& path) {
     this->selected_path = path;
 
@@ -102,7 +110,12 @@ void UIFileSelector::updateListing() {
     try {
         copy(boost::filesystem::directory_iterator(p), boost::filesystem::directory_iterator(), back_inserter(dir_listing));
     } catch(const boost::filesystem::filesystem_error& exception) {
-        // TODO: do something here?
+        
+        //switch to previous directory if there is one
+        if(!previous_dir.empty() && is_directory(boost::filesystem::path(previous_dir))) {
+            dir_path->setText(previous_dir);
+            previous_dir = "";
+        }
         return;
     }
     listing->clear();
@@ -183,23 +196,24 @@ bool UIFileSelectorLabel::submit() {
     return true;
 }
 
-//UIDirSelectLabel
-UIDirSelectLabel::UIDirSelectLabel(UIFileSelector* selector, const std::string& dirname)
+//UIDirInputLabel
+UIDirInputLabel::UIDirInputLabel(UIFileSelector* selector, const std::string& dirname)
     : selector(selector), UILabel(dirname, true, 300.0f) {
 }
 
 
-bool UIDirSelectLabel::submit() {
+bool UIDirInputLabel::submit() {
     selector->changeDir(text);
     return true;
 }
 
-//UIFileSelectLabel
-UIFileSelectLabel::UIFileSelectLabel(UIFileSelector* selector, const std::string& filename)
+//UIFileInputLabel
+UIFileInputLabel::UIFileInputLabel(UIFileSelector* selector, const std::string& filename)
     : selector(selector), UILabel(filename, true,  300.0f) {
 }
 
-bool UIFileSelectLabel::submit() {
+bool UIFileInputLabel::submit() {
+    selector->selectFile(boost::filesystem::path(text));
     selector->confirm();
     return true;
 }

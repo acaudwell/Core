@@ -22,6 +22,8 @@ class UIFileSelector : public UIGroup {
     UIScrollLayout* listing;
     UISelect* filter_select;
 
+    std::string previous_dir;
+
     boost::filesystem::path selected_path;
 
     UIOptionLabel* current_filter;
@@ -35,6 +37,7 @@ public:
     bool changeDir(const boost::filesystem::path& dir);
     void updateListing();
 
+    void selectFile(const boost::filesystem::path& filename);
     void selectPath(const boost::filesystem::path& path);
     void confirm();
 
@@ -62,18 +65,18 @@ public:
     void updateContent();
 };
 
-class UIFileSelectLabel : public UILabel {
+class UIFileInputLabel : public UILabel {
     UIFileSelector* selector;
 public:
-    UIFileSelectLabel(UIFileSelector* selector, const std::string& filename);
+    UIFileInputLabel(UIFileSelector* selector, const std::string& filename);
 
     bool submit();
 };
 
-class UIDirSelectLabel : public UILabel {
+class UIDirInputLabel : public UILabel {
     UIFileSelector* selector;
 public:
-    UIDirSelectLabel(UIFileSelector* selector, const std::string& dirname);
+    UIDirInputLabel(UIFileSelector* selector, const std::string& dirname);
 
     bool submit();
 };
