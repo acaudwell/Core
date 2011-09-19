@@ -7,7 +7,14 @@ UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir,
 
     listing   = new UIScrollLayout(vec2(420.0f, 100.0f));
 
-    dir_path  = new UIDirInputLabel(this, dir);
+    std::string initial_dir = dir;
+    
+    // remove trailing slash
+    if(!initial_dir.empty() && initial_dir[initial_dir.size()-1] == '/' || initial_dir[initial_dir.size()-1] == '\\') {
+        initial_dir.resize(dir.size() - 1);        
+    }
+    
+    dir_path  = new UIDirInputLabel(this, initial_dir);
     file_path = new UIFileInputLabel(this, "");
 
     filter_select = new UISelect();
