@@ -17,6 +17,11 @@ public:
     float bar_percent;
     float bar_offset;
     float bar_visual_offset;
+    bool  flip_sides;
+
+    bool dragging;
+    vec2 drag_start;
+   
 
     vec2 bar_rect;
 
@@ -25,9 +30,13 @@ public:
 
     int getType() { return UI_SCROLL_BAR; };
 
+    void idle();
+    void setSelected(bool selected);
     void drag(const vec2& pos);
     void mouseWheel(bool up);
 
+    void flipSides(bool flip_sides);
+    
     UIElement* elementAt(const vec2& pos);
         
     void reset();

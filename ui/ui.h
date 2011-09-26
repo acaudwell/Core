@@ -17,6 +17,8 @@ class UI {
     float double_click_interval;
     float double_click_timer;
     
+    bool interaction;
+    
     char toChar(SDL_KeyboardEvent *e);
 public:
     FXFont font;

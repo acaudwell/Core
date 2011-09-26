@@ -14,7 +14,7 @@ UIScrollLayout::~UIScrollLayout() {
 }
 
 vec2 UIScrollLayout::getRect() {
-    return scroll_rect+expanded_rect;
+    return glm::min(scroll_rect,rect)+expanded_rect;
 }
 
 vec2 UIScrollLayout::getScrollRect() {

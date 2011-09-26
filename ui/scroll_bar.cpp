@@ -28,6 +28,9 @@ UIScrollBar::UIScrollBar(UIScrollLayout* parent, bool horizontal) : horizontal(h
     bar_min     = 10.0f;
     bar_step    = 0.1f;
     bar_visual_offset = 0.0f;
+    
+    flip_sides = false;
+    dragging   = false;
 }
 
 UIScrollBar::~UIScrollBar() {
@@ -49,14 +52,53 @@ UIElement* UIScrollBar::elementAt(const vec2& pos) {
     return UIElement::elementAt(pos);
 }
 
+void UIScrollBar::flipSides(bool flip_sides) {
+    this->flip_sides = flip_sides;    
+}
+
+void UIScrollBar::setSelected(bool selected) {
+    UIElement::setSelected(selected);
+    dragging = false;    
+}
+
+void UIScrollBar::idle() {
+    dragging = false;
+}
+
 void UIScrollBar::drag(const vec2& pos) {
 
     if(bar_percent <= 0.0f) return;
 
+    float click_offset;
+  
     if(horizontal) {
-        bar_offset = glm::clamp((pos.x - this->pos.x) / rect.x, 0.0f, 1.0f-bar_percent);
+        click_offset = glm::clamp((pos.x - this->pos.x) / rect.x, 0.0f, 1.0f-bar_percent);
     } else {
-        bar_offset = glm::clamp((pos.y - this->pos.y) / rect.y, 0.0f, 1.0f-bar_percent);
+        click_offset = glm::clamp((pos.y - this->pos.y) / rect.y, 0.0f, 1.0f-bar_percent);
+    }  
+
+    if(!dragging) {
+        if(click_offset < bar_offset || click_offset > bar_offset + bar_percent) {
+            bar_offset = click_offset;
+        }
+
+        drag_start = pos;
+        dragging   = true;
+        return;
+    }
+
+    vec2 delta = pos-drag_start;
+
+    drag_start = pos;    
+    
+    if(click_offset >= bar_offset && click_offset < bar_offset + bar_percent) {
+//        return;        
+    }
+    
+    if(horizontal) {
+        bar_offset = glm::clamp(bar_offset + (delta.x / rect.x), 0.0f, 1.0f-bar_percent);
+    } else {
+        bar_offset = glm::clamp(bar_offset + (delta.y / rect.y), 0.0f, 1.0f-bar_percent);
     }
 }
 
@@ -104,12 +146,20 @@ void UIScrollBar::updateRect() {
 void UIScrollBar::updatePos() {
     if(parent==0) return;
 
-    vec2 parent_rect = parent->getRect();
-    
-    if(horizontal) {
-        pos = vec2(parent->pos.x, parent->pos.y+parent_rect.y-bar_width);
+    vec2 parent_rect = ((UIScrollLayout*)parent)->getRect();
+
+    if(flip_sides) {
+        if(horizontal) {
+            pos = vec2(parent->pos.x, parent->pos.y-bar_width);
+        } else {
+            pos = vec2(parent->pos.x-bar_width, parent->pos.y);
+        }
     } else {
-        pos = vec2(parent->pos.x+parent_rect.x-bar_width, parent->pos.y);
+        if(horizontal) {
+            pos = vec2(parent->pos.x, parent->pos.y+parent_rect.y-bar_width);
+        } else {
+            pos = vec2(parent->pos.x+parent_rect.x-bar_width, parent->pos.y);
+        }
     }
 }
 

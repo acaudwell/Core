@@ -11,6 +11,7 @@ UI::UI() : selectedElement(0) {
     font.dropShadow(true);
     double_click_interval = 0.5f;
     double_click_timer = double_click_interval;
+    interaction = false;
 }
 
 UI::~UI() {
@@ -92,6 +93,14 @@ UIElement* UI::selectElementAt(const vec2& pos) {
 
 void UI::update(float dt) {
 
+    if(!interaction) {
+        UIElement* selected = getSelected();
+        
+        if(selected) selected->idle();
+
+        interaction = false;
+    }
+    
     if(double_click_timer<double_click_interval) double_click_timer += dt;
 
     foreach(UIElement* e, elements) {
@@ -158,6 +167,8 @@ bool UI::keyPress(SDL_KeyboardEvent *e) {
 
 void UI::drag(const MouseCursor& cursor) {
 
+    interaction = true;
+    
     UIElement* selected = getSelected();
 
     if(!selected) return;
@@ -166,6 +177,8 @@ void UI::drag(const MouseCursor& cursor) {
 }
 
 void UI::click(const MouseCursor& cursor) {
+
+    interaction = true;
 
     UIElement* previous = getSelected();
     bool double_click   = double_click_timer < 0.5f;

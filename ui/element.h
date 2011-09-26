@@ -58,6 +58,8 @@ public:
     void show() { hidden=false; };
     void toggleVisibility() { hidden = !hidden; };
     
+    virtual void idle() {};
+    
     virtual void setSelected(bool selected) { this->selected = selected; };
 
     virtual bool elementsByType(std::list<UIElement*>& found, int type);
