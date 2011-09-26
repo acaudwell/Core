@@ -42,7 +42,7 @@ public:
 
     void setTitle(const std::string& text);
 
-    void click(const vec2& pos);
+    void toggle();
 
     void update(float dt);
     void updatePos(const vec2& pos);

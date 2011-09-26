@@ -34,7 +34,7 @@ void UIGroup::setTitle(const std::string& text) {
     bar->setText(text);
 }
 
-void UIGroup::click(const vec2& pos) {
+void UIGroup::toggle() {
     if(!minimizable) return;
 
     minimized = !minimized;
@@ -111,5 +111,5 @@ void UIGroupBar::setText(const std::string& text) {
 }
 
 void UIGroupBar::click(const vec2& pos) {
-    parent->click(pos);
+    ((UIGroup*)parent)->toggle();
 }
