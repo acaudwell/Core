@@ -69,17 +69,18 @@ void UIScrollBar::drag(const vec2& pos) {
 
     if(bar_percent <= 0.0f) return;
 
-    float click_offset;
-  
-    if(horizontal) {
-        click_offset = glm::clamp((pos.x - this->pos.x) / rect.x, 0.0f, 1.0f-bar_percent);
-    } else {
-        click_offset = glm::clamp((pos.y - this->pos.y) / rect.y, 0.0f, 1.0f-bar_percent);
-    }  
-
     if(!dragging) {
-        if(click_offset < bar_offset || click_offset > bar_offset + bar_percent) {
-            bar_offset = click_offset;
+        
+        float click_percent;
+        
+        if(horizontal) {
+            click_percent = glm::max(0.0f, (pos.x - this->pos.x) / rect.x);
+        } else {
+            click_percent = glm::max(0.0f, (pos.y - this->pos.y) / rect.y);
+        }
+        
+        if(click_percent < bar_offset || click_percent > bar_offset + bar_percent) {
+            bar_offset = glm::min(click_percent, 1.0f-bar_percent);
         }
 
         drag_start = pos;
@@ -89,11 +90,7 @@ void UIScrollBar::drag(const vec2& pos) {
 
     vec2 delta = pos-drag_start;
 
-    drag_start = pos;    
-    
-    if(click_offset >= bar_offset && click_offset < bar_offset + bar_percent) {
-//        return;        
-    }
+    drag_start = pos;
     
     if(horizontal) {
         bar_offset = glm::clamp(bar_offset + (delta.x / rect.x), 0.0f, 1.0f-bar_percent);

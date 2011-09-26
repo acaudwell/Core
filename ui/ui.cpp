@@ -97,9 +97,9 @@ void UI::update(float dt) {
         UIElement* selected = getSelected();
         
         if(selected) selected->idle();
-
-        interaction = false;
     }
+
+    interaction = false;
     
     if(double_click_timer<double_click_interval) double_click_timer += dt;
 
