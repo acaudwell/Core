@@ -81,8 +81,8 @@ void UIElement::update(float dt) {
 }
 
 
-void UIElement::mouseWheel(bool up) {
-    if(parent != 0) parent->mouseWheel(up);
+void UIElement::scroll(bool up) {
+    if(parent != 0) parent->scroll(up);
 }
 
 bool UIElement::elementsByType(std::list<UIElement*>& found, int type) {

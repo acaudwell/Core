@@ -16,7 +16,7 @@ public:
     UIScrollLayout(const vec2& scroll_rect, bool horizontal = false);
     ~UIScrollLayout();
 
-    void mouseWheel(bool up);
+    void scroll(bool up);
     
     UIElement* elementAt(const vec2& pos);
 

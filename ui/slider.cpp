@@ -60,7 +60,7 @@ UIFloatSlider::UIFloatSlider(float* value, float min, float max) :
     min(min), max(max),  value(value), UISlider("ui/slider.png", 128.0f) {
 }
 
-void UIFloatSlider::mouseWheel(bool up) {
+void UIFloatSlider::scroll(bool up) {
 
     float value_inc = (max-min) / 100.0f;
 
@@ -97,7 +97,7 @@ UIIntSlider::UIIntSlider(int* value, int min, int max) :
     min(min), max(max),  value(value), UISlider("ui/slider.png", 128.0f) {
 }
 
-void UIIntSlider::mouseWheel(bool up) {
+void UIIntSlider::scroll(bool up) {
     int value_inc = 1; //std::max(1, (max-min) / 100);
 
     if(!up) value_inc = -value_inc;

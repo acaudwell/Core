@@ -82,7 +82,7 @@ public:
 
     virtual void update(float dt);
 
-    virtual void mouseWheel(bool up);
+    virtual void scroll(bool up);
    
     virtual void drag(const vec2& pos) {};
     virtual void click(const vec2& pos) { if(parent!=0) parent->click(pos); };

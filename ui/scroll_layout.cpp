@@ -51,8 +51,8 @@ void UIScrollLayout::updatePos(const vec2& pos) {
     horizontal_scrollbar->updatePos();
 }
 
-void UIScrollLayout::mouseWheel(bool up) {
-    vertical_scrollbar->mouseWheel(up);
+void UIScrollLayout::scroll(bool up) {
+    vertical_scrollbar->scroll(up);
 }
 
 UIElement* UIScrollLayout::elementAt(const vec2& pos) {

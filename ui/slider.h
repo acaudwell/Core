@@ -26,7 +26,7 @@ public:
 
     UIFloatSlider(float* value, float min, float max);
 
-    void mouseWheel(bool up);
+    void scroll(bool up);
     void drag(const vec2& pos);
     void setValue(float v);
 
@@ -41,7 +41,7 @@ public:
 
     UIIntSlider(int* value, int min, int max);
 
-    void mouseWheel(bool up);
+    void scroll(bool up);
     void drag(const vec2& pos);
     void setValue(int v);
 

@@ -102,7 +102,7 @@ void UIScrollBar::drag(const vec2& pos) {
     }
 }
 
-void UIScrollBar::mouseWheel(bool up) {
+void UIScrollBar::scroll(bool up) {
     if(bar_percent <= 0.0f) return;
 
     float value_inc = bar_step * (1.0f-bar_percent);

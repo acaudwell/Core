@@ -33,7 +33,7 @@ public:
     void idle();
     void setSelected(bool selected);
     void drag(const vec2& pos);
-    void mouseWheel(bool up);
+    void scroll(bool up);
 
     void flipSides(bool flip_sides);
     
