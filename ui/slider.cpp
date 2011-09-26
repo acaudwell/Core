@@ -74,6 +74,12 @@ void UIFloatSlider::scroll(bool up) {
     setValue(*value+value_inc);
 }
 
+void UIFloatSlider::click(const vec2& pos) {
+    float new_value = ((pos.x - this->pos.x) / slider_width) * (max-min) + min;
+
+    setValue(new_value);
+}
+
 void UIFloatSlider::drag(const vec2& pos) {
     float new_value = ((pos.x - this->pos.x) / slider_width) * (max-min) + min;
 
@@ -103,6 +109,12 @@ void UIIntSlider::scroll(bool up) {
     if(!up) value_inc = -value_inc;
 
     setValue(*value+value_inc);
+}
+
+void UIIntSlider::click(const vec2& pos) {
+    int new_value = ((pos.x - this->pos.x) / slider_width) * (max-min) + min;
+
+    setValue(new_value);
 }
 
 void UIIntSlider::drag(const vec2& pos) {
