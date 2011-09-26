@@ -19,11 +19,11 @@ protected:
     std::vector<UIElement*> elements;
 
     vec2 min_rect;
-
+    bool centre;
     virtual void drawBackground();
 public:
     vec4 bgcolour;
-    
+
     UILayout(bool horizontal = false);
     ~UILayout();
 
