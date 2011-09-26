@@ -12,6 +12,7 @@ UIGroup::UIGroup(const std::string& groupname, bool minimized, bool resizable) :
     layout->bgcolour = vec4(0.3f, 0.3f, 0.3f, 0.67f);
     layout->setMargin(vec2(5.0f, 5.0f));
     layout->setPadding(5.0f);
+    layout->parent = this;
 
     minimizable = true;
 
