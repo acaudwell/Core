@@ -6,12 +6,12 @@ UIGroup::UIGroup(const std::string& groupname, bool minimized, bool resizable) :
     bar    = new UIGroupBar(groupname);
     layout = resizable ? new UIResizableLayout() : new UILayout();
 
-    bar->setMargin(5.0f);
+    bar->setMargin(4.0f);
     bar->parent = this;
 
     layout->bgcolour = vec4(0.3f, 0.3f, 0.3f, 0.67f);
-    layout->setMargin(vec2(5.0f, 5.0f));
-    layout->setPadding(5.0f);
+    layout->setMargin(vec2(3.0f, 3.0f));
+    layout->setPadding(3.0f);
     layout->parent = this;
 
     minimizable = true;
