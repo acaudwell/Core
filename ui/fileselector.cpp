@@ -8,12 +8,12 @@ UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir,
     listing   = new UIScrollLayout(vec2(420.0f, 100.0f));
 
     std::string initial_dir = dir;
-    
+
     // remove trailing slash
-    if(!initial_dir.empty() && initial_dir[initial_dir.size()-1] == '/' || initial_dir[initial_dir.size()-1] == '\\') {
-        initial_dir.resize(dir.size() - 1);        
+    if(!initial_dir.size() > 2 && initial_dir[1] != ':' && (initial_dir[initial_dir.size()-1] == '/' || initial_dir[initial_dir.size()-1] == '\\')) {
+        initial_dir.resize(dir.size() - 1);
     }
-    
+
     dir_path  = new UIDirInputLabel(this, initial_dir);
     file_path = new UIFileInputLabel(this, "");
 
@@ -48,9 +48,17 @@ bool UIFileSelector::changeDir(const boost::filesystem::path& dir) {
 
     if(!is_directory(dir)) return false;
 
+    std::string path_string = dir.string();
+
+#ifdef _WIN32
+    if(path_string.size() == 2 && path_string[1] == ':') {
+        path_string += "\\";
+    }
+#endif
+
     previous_dir = dir_path->text;
-    
-    dir_path->setText(dir.string());
+
+    dir_path->setText(path_string);
 
     updateListing();
 
@@ -86,7 +94,7 @@ void UIFileSelector::close() {
 
 void UIFileSelector::selectFile(const boost::filesystem::path& filename) {
     selected_path = boost::filesystem::path(dir_path->text);
-    selected_path /= filename;    
+    selected_path /= filename;
     fprintf(stderr, "selectedFile = %s\n", selected_path.string().c_str());
 }
 
@@ -118,7 +126,7 @@ void UIFileSelector::updateListing() {
         copy(boost::filesystem::directory_iterator(p), boost::filesystem::directory_iterator(), back_inserter(dir_listing));
         std::sort(dir_listing.begin(), dir_listing.end(), _listing_sort);
     } catch(const boost::filesystem::filesystem_error& exception) {
-        
+
         //switch to previous directory if there is one
         if(!previous_dir.empty() && is_directory(boost::filesystem::path(previous_dir))) {
             dir_path->setText(previous_dir);
@@ -127,11 +135,13 @@ void UIFileSelector::updateListing() {
 
         return;
     }
-    
+
     listing->clear();
 
-    if(is_directory(p.parent_path())) {
-        listing->addElement(new UIFileSelectorLabel(this, "..", p.parent_path()));
+    boost::filesystem::path parent_path = p.parent_path();
+
+    if(is_directory(parent_path) && !(parent_path.string().size() == 2 && parent_path.string()[1] == ':')) {
+        listing->addElement(new UIFileSelectorLabel(this, "..", parent_path));
     }
 
     foreach(boost::filesystem::path l, dir_listing) {
