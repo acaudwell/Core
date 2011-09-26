@@ -43,10 +43,10 @@ bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
                 if(submit()) return true;
                 break;
         }
-                
+
         return false;
     }
-        
+
     switch(c) {
         case SDLK_BACKSPACE:
             if(!text.empty()) {
@@ -73,17 +73,23 @@ void UILabel::update(float dt) {
         if(cursor_anim>=2.0f) cursor_anim=0.0f;
     } else {
         updateContent();
-        if(width < 0.0f) width = ui->font.getWidth(text);
+        if(width < 0.0f) {
+            width = ui->font.getWidth(text) + 2.0f;
+        }
+
         cursor_anim = 0.0f;
     }
 
     if(text_changed && width >= 0.0f && ui != 0) {
         display_text = text;
         float text_width = ui->font.getWidth(display_text);
-        
-        while(text_width+10.0f > width && !display_text.empty()) {
+
+        //add space for cursor
+        float text_padding = (editable) ? 10.0f : 0.0f;
+
+        while(text_width+text_padding > width && !display_text.empty()) {
             display_text = display_text.substr(1, display_text.size()-1);
-            text_width = ui->font.getWidth(display_text);            
+            text_width = ui->font.getWidth(display_text);
         }
         text_changed = false;
     }
@@ -182,7 +188,7 @@ void UIFloatLabel::updateContent() {
     snprintf(buff, 256, "%.5f", *value);
     text = std::string(buff);
     text_changed = true;
-    
+
     //trim trailing zeros - ideally we should only do this when the value changes
     size_t dotsep = text.rfind(".");
     size_t tlen    = text.size();
