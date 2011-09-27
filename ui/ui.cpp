@@ -16,7 +16,7 @@ UI::UI() : selectedElement(0) {
     background_colour = vec4(0.3f, 0.3f, 0.3f, 0.67f);
     solid_colour      = vec4(0.7f, 0.7f, 0.7f, 1.0f);
     text_colour       = vec4(1.0f);
-    ui_alpha          = vec4(vec3(1.0f), 0.0f);
+    ui_alpha          = vec4(1.0f);
 }
 
 UI::~UI() {
