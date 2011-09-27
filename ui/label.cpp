@@ -103,12 +103,11 @@ void UILabel::drawContent() {
 
     ui->font.alignTop(false);
 
-    if(!disabled) {
-        ui->font.setColour(vec4(font_colour, 1.0f));
-    } else {
-        ui->font.setColour(vec4(font_colour*0.5f, 1.0f));
-    }
+    vec4 font_colour_alpha = vec4(font_colour,1.0f) * ui->getAlpha();
+    if(disabled) font_colour_alpha *= 0.5f;
 
+    ui->font.setColour(font_colour_alpha);
+    
     if(selected && editable) {
         glDisable(GL_TEXTURE_2D);
 

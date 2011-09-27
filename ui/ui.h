@@ -20,6 +20,11 @@ class UI {
     bool interaction;
     
     char toChar(SDL_KeyboardEvent *e);
+protected:
+    vec4 background_colour;
+    vec4 solid_colour;
+    vec4 text_colour;
+    vec4 ui_alpha;
 public:
     FXFont font;
 
@@ -44,6 +49,11 @@ public:
     virtual void click(const MouseCursor& cursor);
     virtual void drag(const MouseCursor& cursor);
 
+    virtual vec4 getSolidColour();
+    virtual vec4 getBackgroundColour();
+    virtual vec4 getTextColour();
+    virtual vec4 getAlpha();
+    
     void update(float dt);
 
     void draw();

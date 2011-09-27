@@ -9,9 +9,9 @@ UIGroup::UIGroup(const std::string& groupname, bool minimized, bool resizable) :
     bar->setMargin(4.0f);
     bar->parent = this;
 
-    layout->bgcolour = vec4(0.3f, 0.3f, 0.3f, 0.67f);
     layout->setMargin(vec2(3.0f, 3.0f));
     layout->setPadding(3.0f);
+    layout->setDrawBackground(true);
     layout->parent = this;
 
     minimizable = true;
@@ -27,7 +27,7 @@ UIGroup::~UIGroup() {
 
 void UIGroup::setUI(UI* ui) {
     bar->setUI(ui);
-    layout->setUI(ui);
+    layout->setUI(ui);    
 }
 
 void UIGroup::setTitle(const std::string& text) {

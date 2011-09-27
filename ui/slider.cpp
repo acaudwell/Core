@@ -15,13 +15,15 @@ void UISlider::drawSlider(float position) {
     //background
     //drawQuad(vec2(slider_width,16.0f), vec4(0.0f, 0.0f, 1.0f, 0.5f));
 
+    vec4 alpha = ui->getAlpha();
+    
     if(background) {
 
         glDisable(GL_TEXTURE_2D);
 
         glLineWidth(1.0f);
 
-        glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+        glColor4f(0.0f, 0.0f, 0.0f, alpha.w);
         glBegin(GL_QUADS);
             glVertex2f(0.0f, 3.0f);
             glVertex2f(slider_width, 3.0f);
@@ -33,7 +35,7 @@ void UISlider::drawSlider(float position) {
         glPushMatrix();
             glTranslatef(0.5f, 0.5f, 0.0f);
 
-            glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
+            glColor4f(0.0f, 1.0f, 0.0f, alpha.w);
             glBegin(GL_LINE_STRIP);
                 glVertex2f(0.0f, 3.0f);
                 glVertex2f(slider_width, 3.0f);
@@ -49,7 +51,8 @@ void UISlider::drawSlider(float position) {
 
     slidertex->bind();
 
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    glColor4fv(glm::value_ptr(ui->getSolidColour()));   
+   
     //slider
     drawQuad(vec2(slider_position-4.0, 0.0f), vec2(16.0,16.0), vec4(0.0f, 0.0f, 1.0f, 1.0f));
 }

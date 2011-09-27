@@ -78,6 +78,7 @@ void UISelect::draw() {
         UISolidLayout::draw();
 
         selectex->bind();
+        glColor4fv(glm::value_ptr(ui->getSolidColour()));
         drawQuad(pos + vec2(rect.x-16.0f,1.0f), vec2(16.0f, 16.0f), vec4(0.0f, 0.0f, 1.0f, 1.0f));
     }
     else {

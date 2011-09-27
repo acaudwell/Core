@@ -166,7 +166,7 @@ void UIScrollBar::drawContent() {
     vec4 texcoord;
 
     glEnable(GL_TEXTURE_2D);
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    glColor4fv(glm::value_ptr(ui->getSolidColour()));
 
     glPushMatrix();
 

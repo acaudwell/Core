@@ -12,6 +12,11 @@ UI::UI() : selectedElement(0) {
     double_click_interval = 0.5f;
     double_click_timer = double_click_interval;
     interaction = false;
+    
+    background_colour = vec4(0.3f, 0.3f, 0.3f, 0.67f);
+    solid_colour      = vec4(0.7f, 0.7f, 0.7f, 1.0f);
+    text_colour       = vec4(1.0f);
+    ui_alpha          = vec4(vec3(1.0f), 0.0f);
 }
 
 UI::~UI() {
@@ -33,6 +38,22 @@ void UI::addElement(UIElement* e) {
 
 UIElement* UI::getSelected() {
     return selectedElement;
+}
+
+vec4 UI::getBackgroundColour() {
+    return background_colour * ui_alpha;
+}
+
+vec4 UI::getSolidColour() {
+    return solid_colour * ui_alpha;
+}
+
+vec4 UI::getTextColour() {
+    return text_colour * ui_alpha;
+}
+
+vec4 UI::getAlpha() {
+    return ui_alpha;    
 }
 
 bool UI::elementsByType(std::list<UIElement*>& found, int type) {
@@ -93,6 +114,10 @@ UIElement* UI::selectElementAt(const vec2& pos) {
 
 void UI::update(float dt) {
 
+    if(ui_alpha.w < 1.0f) {
+        ui_alpha.w = glm::min(ui_alpha.w + dt * 0.5f, 1.0f);
+    }
+    
     if(!interaction) {
         UIElement* selected = getSelected();
         
@@ -116,7 +141,7 @@ void UI::update(float dt) {
 
 void UI::draw() {
     glDepthFunc(GL_LEQUAL);
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST); 
 
     foreach(UIElement* e, elements) {
         e->draw();

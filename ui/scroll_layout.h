@@ -26,6 +26,8 @@ public:
     vec2 getScrollRect();
     vec2 getInnerRect();
     
+    
+    void setUI(UI* ui); 
     void expandRect(const vec2& expand);
     void resetRect();
 

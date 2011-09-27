@@ -33,6 +33,13 @@ void UIScrollLayout::resetRect() {
     expanded_rect = vec2(0.0f);    
 }
 
+void UIScrollLayout::setUI(UI* ui) {
+    UILayout::setUI(ui);
+    
+    vertical_scrollbar->setUI(ui);
+    horizontal_scrollbar->setUI(ui);        
+}
+
 void UIScrollLayout::update(float dt) {
 
     UILayout::update(dt);

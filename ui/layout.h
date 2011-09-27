@@ -20,6 +20,8 @@ protected:
 
     vec2 min_rect;
     bool centre;
+    bool drawbg;
+
     virtual void drawBackground();
 public:
     vec4 bgcolour;
@@ -35,6 +37,7 @@ public:
 
     void addElement(UIElement* e);
 
+    void setDrawBackground(bool drawbg);
     void setHorizontal(bool horizontal);
     void setAlignment(int alignment) { this->alignment = alignment; };
 

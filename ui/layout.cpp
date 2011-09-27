@@ -5,10 +5,15 @@ UILayout::UILayout(bool horizontal) : horizontal(horizontal), UIElement() {
     bgcolour  = vec4(0.0f);
     min_rect  = vec2(0.0f);
     centre    = false;
+    drawbg    = false;
 }
 
 UILayout::~UILayout() {
     clear();
+}
+
+void UILayout::setDrawBackground(bool drawbg) {
+    this->drawbg = drawbg;
 }
 
 void UILayout::clear() {
@@ -30,9 +35,9 @@ void UILayout::setUI(UI* ui) {
 }
 
 void UILayout::drawBackground() {
-    if(bgcolour.w <= 0.0f) return;
+    if(!drawbg) return;
 
-    glColor4fv(glm::value_ptr(bgcolour));
+    glColor4fv(glm::value_ptr(ui->getBackgroundColour()));
 
     glDisable(GL_TEXTURE_2D);
     drawQuad(pos, rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
@@ -282,5 +287,6 @@ void UIResizeButton::drag(const vec2& pos) {
 
 void UIResizeButton::drawContent() {
     resizetex->bind();
+    glColor4fv(glm::value_ptr(ui->getSolidColour()));
     drawQuad(rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
 }

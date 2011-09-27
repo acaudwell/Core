@@ -1,7 +1,7 @@
 #include "solid_layout.h"
 
 UISolidLayout::UISolidLayout(bool horizontal) : UILayout(horizontal) {
-    bgcolour = vec4(1.0f);
+
     inverted = false;
     
     bgtex.resize(4);
@@ -31,7 +31,7 @@ void UISolidLayout::drawBackground() {
 
     glTranslatef(pos.x, pos.y, 0.0f);
     
-    glColor4fv(glm::value_ptr(bgcolour));
+    glColor4fv(glm::value_ptr(ui->getSolidColour()));
 
     glEnable(GL_TEXTURE_2D);
     
