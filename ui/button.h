@@ -1,7 +1,7 @@
 #ifndef UI_BUTTON_H
 #define UI_BUTTON_H
 
-#include "solidlayout.h"
+#include "solid_layout.h"
 #include "label.h"
 #include "action.h"
 

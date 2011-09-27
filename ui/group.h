@@ -2,7 +2,7 @@
 #define UI_GROUP_h
 
 #include "label.h"
-#include "solidlayout.h"
+#include "solid_layout.h"
 
 class UIGroupBar : public UISolidLayout {
 public:

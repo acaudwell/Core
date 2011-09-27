@@ -2,7 +2,7 @@
 #define UI_SELECT_H
 
 #include "label.h"
-#include "solidlayout.h"
+#include "solid_layout.h"
 
 class UISelect;
 
