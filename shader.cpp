@@ -40,6 +40,7 @@ void ShaderManager::enableWarnings(bool warnings) {
 }
 
 Regex Shader_pre_include("^\\s*#include\\s*\"([^\"]+)\"");
+Regex Shader_uniform_def("^\\s*uniform\\s+(\\w)\\s+(\\w)\\s*;\\s*$")
 
 Shader* ShaderManager::grab(const std::string& shader_prefix) {
     Resource* s = resources[shader_prefix];
@@ -79,6 +80,55 @@ void ShaderManager::reload() {
     for(std::map<std::string, Resource*>::iterator it= resources.begin(); it!=resources.end();it++) {
         ((Shader*)it->second)->load();
     }
+}
+
+//ShaderUniform
+
+ShaderUniform::ShaderUniform(Shader* shader, const std::string& name, int uniform_type)
+    : shader(shader), name(name), location(-1), modified(false), baked(false), uniform_type(uniform_type) {
+}
+
+const std::string& ShaderUniform::getName() {
+    return name;
+}
+
+int ShaderUniform::getLocation() {
+
+    if(location != -1) return location;
+
+    location = glGetUniformLocation( shader->getProgram(), name.c_str() );
+
+    return location;
+}
+
+//FloatShaderUniform
+
+FloatShaderUniform::FloatShaderUniform(Shader* shader, const std::string& name, float value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_FLOAT) {
+}
+
+void FloatShaderUniform::setValue(float value) {
+    this->value = value;
+    modified = true;
+}
+
+float FloatShaderUniform::getValue() const {
+    return value;
+}
+
+//IntShaderUniform
+
+IntShaderUniform::IntShaderUniform(Shader* shader, const std::string& name, int value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_INT) {
+}
+
+void IntShaderUniform::setValue(float value) {
+    this->value = value;
+    modified = true;
+}
+
+float IntShaderUniform::getValue() const {
+    return value;
 }
 
 //Shader
@@ -243,11 +293,11 @@ void Shader::checkShaderError(GLenum shaderType, GLenum shaderRef) {
 
 GLenum Shader::compile(GLenum shaderType) {
 
-    if(srcMap[shaderType].empty()) return 0;
+    if(source_code[shaderType].empty()) return 0;
 
     GLenum shaderRef = glCreateShader(shaderType);
 
-    std::string& src = srcMap[shaderType];
+    std::string& src = source_code[shaderType];
 
     const char* source_ptr = src.c_str();
     int source_len = src.size();
@@ -282,7 +332,7 @@ void Shader::includeSource(GLenum shaderType, const std::string& string) {
 
     std::stringstream in(string);
 
-    std::string& output = srcMap[shaderType];
+    std::string& output = source_code[shaderType];
 
     std::string line;
     while( std::getline(in,line) ) {
@@ -302,7 +352,7 @@ bool Shader::includeFile(GLenum shaderType, const std::string& filename) {
         throw SDLAppException("could not open '%s'", filename.c_str());
     }
 
-    std::string& output = srcMap[shaderType];
+    std::string& output = source_code[shaderType];
 
     std::string line;
     while( std::getline(in,line) ) {
@@ -327,15 +377,17 @@ GLenum Shader::getProgram() {
 
 GLint Shader::getVarLocation(const std::string& name) {
 
-    GLint loc = varMap[name] - 1;
+    std::map<std::string, GLint>::iterator it = uniform_location.find(name);
 
-    if(loc != -1) return loc;
+    if(it != uniform_location.end()) {
+        return it->second;
+    }
 
-    loc = glGetUniformLocation( program, name.c_str() );
+    GLint location = glGetUniformLocation( program, name.c_str() );
 
-    varMap[name] = loc + 1;
+    uniform_location[name] = location;
 
-    return loc;
+    return location;
 }
 
 void Shader::setFloat(const std::string& name, float value) {

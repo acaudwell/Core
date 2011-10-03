@@ -40,10 +40,67 @@
 #include <fstream>
 #include <sstream>
 
+enum { SHADER_UNIFORM_INVALID, SHADER_UNIFORM_FLOAT, SHADER_UNIFORM_INT, SHADER_UNIFORM_VEC2, SHADER_UNIFORM_VEC3, SHADER_UNIFORM_VEC4, SHADER_UNIFORM_MAT3, SHADER_UNIFORM_MAT4 };
+
+class Shader;
+
+class ShaderUniform {
+
+    std::string name;
+    GLint location;
+    Shader* shader;
+    int uniform_type;
+    bool modified;
+    bool baked;
+public:
+
+    ShaderUniform(Shader* shader, const std::string& name, int uniform_type);
+
+    int getType() { return uniform_type; };
+
+    const std::string& getName() const;
+    int   getLocation();
+
+    bool isBaked() const    { return baked; }
+    bool isModified{} const { return modified; };
+
+    void setBaked(bool baked)       { this->baked = baked; };
+    void setModified(bool modified) { this->modified = modified; };
+};
+
+class FloatShaderUniform : public ShaderUniform {
+    float value;
+public:
+    FloatShaderUniform(Shader* shader, const std::string& name, float value);
+
+    void setValue(float value);
+    float getValue() const;
+};
+
+class IntShaderUniform : public ShaderUniform {
+    int value;
+public:
+    IntShaderUniform(Shader* shader, const std::string& name, int value) : value(value), ShaderUniform(shader, name);
+
+    void setValue(int value);
+    float getValue() const;
+};
+
+
+class ShaderProgram {
+    GLint program_type;
+public:
+    ShaderProgram(GLint program_type);
+
+    GLint getType() { return program_type; };
+};
+
+class VertexShaderProgram : public ShaderProgram
+
 class Shader : public Resource {
 
-    std::map<std::string, GLint> varMap;
-    std::map<GLenum, std::string> srcMap;
+    std::map<std::string, ShaderUniform*> uniforms;
+    std::map<GLenum, std::string, ShaderProgram*> programs;
 
     GLenum geom_input_type;
     GLenum geom_output_type;
