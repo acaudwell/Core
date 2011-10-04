@@ -40,7 +40,7 @@
 #include <fstream>
 #include <sstream>
 
-enum { SHADER_UNIFORM_INVALID, SHADER_UNIFORM_FLOAT, SHADER_UNIFORM_INT, SHADER_UNIFORM_VEC2, SHADER_UNIFORM_VEC3, SHADER_UNIFORM_VEC4, SHADER_UNIFORM_MAT3, SHADER_UNIFORM_MAT4 };
+enum { SHADER_UNIFORM_FLOAT, SHADER_UNIFORM_INT, SHADER_UNIFORM_VEC2, SHADER_UNIFORM_VEC3, SHADER_UNIFORM_VEC4, SHADER_UNIFORM_MAT3, SHADER_UNIFORM_MAT4 };
 
 class Shader;
 
@@ -50,6 +50,7 @@ class ShaderUniform {
     GLint location;
     Shader* shader;
     int uniform_type;
+    std::string type_name;
     bool modified;
     bool baked;
 public:
@@ -58,6 +59,8 @@ public:
 
     int getType() { return uniform_type; };
 
+    virtual void write(std::string& content) {};
+    
     const std::string& getName() const;
     int   getLocation();
 
@@ -71,7 +74,7 @@ public:
 class FloatShaderUniform : public ShaderUniform {
     float value;
 public:
-    FloatShaderUniform(Shader* shader, const std::string& name, float value);
+    FloatShaderUniform(Shader* shader, const std::string& name, float value = 0.0f);
 
     void setValue(float value);
     float getValue() const;
@@ -80,12 +83,56 @@ public:
 class IntShaderUniform : public ShaderUniform {
     int value;
 public:
-    IntShaderUniform(Shader* shader, const std::string& name, int value) : value(value), ShaderUniform(shader, name);
+    IntShaderUniform(Shader* shader, const std::string& name, int value = 0) : value(value), ShaderUniform(shader, name);
 
     void setValue(int value);
     float getValue() const;
 };
 
+class Vec2ShaderUniform : public ShaderUniform {
+    vec2 value;
+public:
+    Vec2ShaderUniform(Shader* shader, const std::string& name, const vec2& value = vec2(0.0f)) : value(value), ShaderUniform(shader, name);
+
+    void setValue(const vec2& value);
+    const vec2& getValue() const;
+};
+
+class Vec3ShaderUniform : public ShaderUniform {
+    vec3 value;
+public:
+    Vec3ShaderUniform(Shader* shader, const std::string& name, const vec3& value = vec3(0.0f)) : value(value), ShaderUniform(shader, name);
+
+    void setValue(const vec3& value);
+    const vec3& getValue() const;
+};
+
+class Vec4ShaderUniform : public ShaderUniform {
+    vec4 value;
+public:
+    Vec4ShaderUniform(Shader* shader, const std::string& name, const vec4& value = vec4(0.0f)) : value(value), ShaderUniform(shader, name);
+
+    void setValue(const vec4& value);
+    const vec4& getValue() const;
+};
+
+class Mat3ShaderUniform : public ShaderUniform {
+    mat3 value;
+public:
+    Mat3ShaderUniform(Shader* shader, const std::string& name, const mat3& value = mat3(1.0f)) : value(value), ShaderUniform(shader, name);
+
+    void setValue(const mat3& value);
+    const mat3& getValue() const;
+};
+
+class Mat4ShaderUniform : public ShaderUniform {
+    mat4 value;
+public:
+    Mat4ShaderUniform(Shader* shader, const std::string& name, const mat4& value = mat4(1.0f)) : value(value), ShaderUniform(shader, name);
+
+    void setValue(const mat4& value);
+    const mat4& getValue() const;
+};
 
 class ShaderProgram {
     GLint program_type;

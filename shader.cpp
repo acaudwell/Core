@@ -105,6 +105,7 @@ int ShaderUniform::getLocation() {
 
 FloatShaderUniform::FloatShaderUniform(Shader* shader, const std::string& name, float value) :
     value(value), ShaderUniform(shader, name, SHADER_UNIFORM_FLOAT) {
+    type_name = "float";
 }
 
 void FloatShaderUniform::setValue(float value) {
@@ -116,10 +117,24 @@ float FloatShaderUniform::getValue() const {
     return value;
 }
 
+void FloatShaderUniform::write(std::string& content) const {
+
+    char buff[256];
+
+    if(bake) {
+        snprintf(buff, 256, "#define %s %.5f\n", name.c_str(), value);
+    } else {
+        snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+    }
+    
+    content += buff;
+}
+
 //IntShaderUniform
 
 IntShaderUniform::IntShaderUniform(Shader* shader, const std::string& name, int value) :
     value(value), ShaderUniform(shader, name, SHADER_UNIFORM_INT) {
+    type_name = "int";
 }
 
 void IntShaderUniform::setValue(float value) {
@@ -129,6 +144,172 @@ void IntShaderUniform::setValue(float value) {
 
 float IntShaderUniform::getValue() const {
     return value;
+}
+
+void IntShaderUniform::write(std::string& content) const {
+
+    char buff[256];
+
+    if(bake) {
+        snprintf(buff, 256, "#define %s %d\n", name.c_str(), value);
+    } else {
+        snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+    }
+    
+    content += buff;
+}
+
+
+//Vec2ShaderUniform
+
+Vec2ShaderUniform::Vec2ShaderUniform(Shader* shader, const std::string& name, const vec2& value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_VEC2) {
+    type_name = "vec2";
+}
+
+void Vec2ShaderUniform::setValue(const vec2& value) {
+    this->value = value;
+    modified = true;
+}
+
+const vec2& Vec2ShaderUniform::getValue() const {
+    return value;
+}
+
+void Vec2ShaderUniform::write(std::string& content) const {
+
+    char buff[256];
+
+    if(bake) {
+        snprintf(buff, 256, "#define %s vec2(%.5f, %.5f)\n", name.c_str(), value.x, value.y);
+    } else {
+        snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+    }
+    
+    content += buff;
+}
+
+//Vec3ShaderUniform
+
+Vec3ShaderUniform::Vec3ShaderUniform(Shader* shader, const std::string& name, const vec3& value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_VEC3) {
+    type_name = "vec3";
+}
+
+
+void Vec3ShaderUniform::setValue(const vec3& value) {
+    this->value = value;
+    modified = true;
+}
+
+const vec3& Vec3ShaderUniform::getValue() const {
+    return value;
+}
+
+void Vec3ShaderUniform::write(std::string& content) const {
+
+    char buff[256];
+
+    if(bake) {
+        snprintf(buff, 256, "#define %s vec3(%.5f, %.5f, %.5f)\n", name.c_str(), value.x, value.y, value.z);
+    } else {
+        snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+    }
+    
+    content += buff;
+}
+
+//Vec4ShaderUniform
+
+Vec4ShaderUniform::Vec4ShaderUniform(Shader* shader, const std::string& name, const vec4& value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_VEC4) {
+    type_name = "vec4";
+}
+
+void Vec4ShaderUniform::setValue(const vec4& value) {
+    this->value = value;
+    modified = true;
+}
+
+const vec4& Vec4ShaderUniform::getValue() const {
+    return value;
+}
+
+void Vec4ShaderUniform::write(std::string& content) const {
+
+    char buff[256];
+
+    if(bake) {
+        snprintf(buff, 256, "#define %s vec4(%.5f, %.5f, %.5f, %.5f)\n", name.c_str(), value.x, value.y, value.z, value.w);
+    } else {
+        snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+    }
+    
+    content += buff;
+}
+
+//Mat3ShaderUniform
+
+Mat3ShaderUniform::Mat3ShaderUniform(Shader* shader, const std::string& name, const mat3& value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_MAT3) {
+    type_name = "mat3";
+}
+
+void Mat3ShaderUniform::setValue(const mat3& value) {
+    this->value = value;
+    modified = true;
+}
+
+const mat3& Mat3ShaderUniform::getValue() const {
+    return value;
+}
+
+void Mat3ShaderUniform::write(std::string& content) const {
+
+    char buff[256];
+
+    if(bake) {
+        snprintf(buff, 256, "#define %s mat3(%.5f, %.5f, %.5f, %.5f, %.5f, %.5f, %.5f, %.5f, %.5f)\n",
+                value[0][0], value[1][0], value[2][0].
+                value[0][1], value[1][1], value[2][1],
+                value[0][2], value[1][2], value[2][2]);
+    } else {
+        snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+    }
+    
+    content += buff;
+}
+
+//Mat4ShaderUniform
+
+Mat4ShaderUniform::Mat4ShaderUniform(Shader* shader, const std::string& name, const mat4& value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_MAT4) {
+    type_name = "mat4";
+}
+
+void Mat4ShaderUniform::setValue(const mat4& value) {
+    this->value = value;
+    modified = true;
+}
+
+const mat4& Mat4ShaderUniform::getValue() const {
+    return value;
+}
+
+void Mat4ShaderUniform::write(std::string& content) const {
+
+    char buff[256];
+
+    if(bake) {
+        snprintf(buff, 256, "#define %s mat4(%.5f, %.5f, %.5f, %.5f, %.5f, %.5f, %.5f, %.5f, %.5f, %5f, %.5f, %.5f)\n",
+                value[0][0], value[1][0], value[2][0], value[3][0],
+                value[0][1], value[1][1], value[2][1], value[3][1],
+                value[0][2], value[1][2], value[2][2], value[3][2]);
+    } else {
+        snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+    }
+    
+    content += buff;
 }
 
 //Shader
