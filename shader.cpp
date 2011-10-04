@@ -126,7 +126,7 @@ void FloatShaderUniform::write(std::string& content) const {
     } else {
         snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
     }
-    
+
     content += buff;
 }
 
@@ -155,7 +155,7 @@ void IntShaderUniform::write(std::string& content) const {
     } else {
         snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
     }
-    
+
     content += buff;
 }
 
@@ -185,7 +185,7 @@ void Vec2ShaderUniform::write(std::string& content) const {
     } else {
         snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
     }
-    
+
     content += buff;
 }
 
@@ -215,7 +215,7 @@ void Vec3ShaderUniform::write(std::string& content) const {
     } else {
         snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
     }
-    
+
     content += buff;
 }
 
@@ -244,7 +244,7 @@ void Vec4ShaderUniform::write(std::string& content) const {
     } else {
         snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
     }
-    
+
     content += buff;
 }
 
@@ -276,7 +276,7 @@ void Mat3ShaderUniform::write(std::string& content) const {
     } else {
         snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
     }
-    
+
     content += buff;
 }
 
@@ -308,7 +308,7 @@ void Mat4ShaderUniform::write(std::string& content) const {
     } else {
         snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
     }
-    
+
     content += buff;
 }
 
@@ -317,11 +317,16 @@ Shader::Shader(const std::string& prefix) : Resource(prefix) {
 
     std::string shader_dir = shadermanager.getDir();
 
-    std::string vertexFile   = shader_dir + prefix + std::string(".vert");
-    std::string fragmentFile = shader_dir + prefix + std::string(".frag");
+    std::string vertex_file   = shader_dir + prefix + std::string(".vert");
+    std::string fragment_file = shader_dir + prefix + std::string(".frag");
 
-    includeFile(GL_VERTEX_SHADER,   vertexFile);
-    includeFile(GL_FRAGMENT_SHADER, fragmentFile);
+    VertexShader* vertex_shader = new VertexShader(this);
+    vertex_shader->includeFile(vertex_file);
+    parts[GL_VERTEX_SHADER]   = vertex_shader;
+
+    FragmentShader* fragment_shader = new FragmentShader(this);
+    fragment_shader->includeFile(fragment_file);
+    parts[GL_FRAGMENT_SHADER] = fragment_shader;
 
     setDefaults();
 
@@ -419,45 +424,41 @@ void Shader::checkProgramError() {
     }
 }
 
-void Shader::checkShaderError(GLenum shaderType, GLenum shaderRef) {
+//ShaderPart
+
+ShaderPart::ShaderPart(Shader* shader, GLint part_type, const std::string& part_desc) : shader(shader), part_type(part_type), part_desc(part_desc) {
+    shader_part = glCreateShader(part_type);
+}
+
+ShaderPart::~ShaderPart() {
+    glDeleteShader(shader_part);
+}
+
+void ShaderPart::checkError() {
 
     GLint compile_success;
-    glGetShaderiv(shaderRef, GL_COMPILE_STATUS, &compile_success);
+    glGetShaderiv(shader_part, GL_COMPILE_STATUS, &compile_success);
 
     GLint info_log_length;
-    glGetShaderiv(shaderRef, GL_INFO_LOG_LENGTH, &info_log_length);
+    glGetShaderiv(shader_part, GL_INFO_LOG_LENGTH, &info_log_length);
 
-    const char* shader_desc;
-
-    switch(shaderType) {
-        case GL_VERTEX_SHADER:
-            shader_desc = "vertex";
-            break;
-        case GL_FRAGMENT_SHADER:
-            shader_desc = "fragment";
-            break;
-        case GL_GEOMETRY_SHADER_EXT:
-            shader_desc = "geometry";
-            break;
-    }
-
-    const char* resource_desc = !resource_name.empty() ? resource_name.c_str() : "???";
+    const char* resource_desc = !shader->resource_name.empty() ? shader->resource_name.c_str() : "???";
 
     if(info_log_length > 1) {
         char info_log[info_log_length];
 
-        glGetShaderInfoLog(shaderRef, info_log_length, &info_log_length, info_log);
+        glGetShaderInfoLog(shader_part, info_log_length, &info_log_length, info_log);
 
         if(!compile_success) {
             throw SDLAppException("%s shader '%s' failed to compile:\n%s",
-                                  shader_desc,
+                                  part_desc.c_str(),
                                   resource_desc,
                                   info_log);
         }
 
         if(shadermanager.warnings) {
             fprintf(stderr, "%s shader '%s':\n%s",
-                            shader_desc,
+                            part_desc.c_str(),
                             resource_desc,
                             info_log);
         }
@@ -467,32 +468,25 @@ void Shader::checkShaderError(GLenum shaderType, GLenum shaderRef) {
 
     if(!compile_success) {
         throw SDLAppException("%s shader '%s' failed to compile",
-                              shader_desc,
+                              part_desc.c_str(),
                               resource_desc);
     }
 }
 
-GLenum Shader::compile(GLenum shaderType) {
+void ShaderPart::compile() {
 
-    if(source_code[shaderType].empty()) return 0;
+    if(source.empty()) return;
 
-    GLenum shaderRef = glCreateShader(shaderType);
+    const char* source_ptr = source.c_str();
+    int source_len = source.size();
 
-    std::string& src = source_code[shaderType];
+    glShaderSource(shader_part, 1, (const GLchar**) &source_ptr, &source_len);
+    glCompileShader(shader_part);
 
-    const char* source_ptr = src.c_str();
-    int source_len = src.size();
-
-    glShaderSource(shaderRef, 1, (const GLchar**) &source_ptr, &source_len);
-
-    glCompileShader(shaderRef);
-
-    checkShaderError(shaderType, shaderRef);
-
-    return shaderRef;
+    checkError();
 }
 
-bool Shader::preprocess(GLenum shaderType, const std::string& line) {
+bool ShaderPart::preprocess(const std::string& line) {
 
     std::vector<std::string> matches;
 
@@ -500,13 +494,41 @@ bool Shader::preprocess(GLenum shaderType, const std::string& line) {
 
         std::string include_file = shadermanager.getDir() + matches[0];
 
-        includeFile(shaderType, include_file);
+        includeFile(include_file);
 
         return true;
     }
 
     return false;
+}
 
+void ShaderPart::includeFile(const std::string& filename) {
+
+    // get length
+    std::ifstream in(filename.c_str());
+
+    if(!in.is_open()) {
+        throw SDLAppException("could not open '%s'", filename.c_str());
+    }
+
+    std::string line;
+    while( std::getline(in,line) ) {
+        if(!preprocess(shaderType, line)) {
+            source += line;
+            source += "\n";
+        }
+    }
+
+    in.close();
+}
+
+VertexShader::VertexShader() : ShaderPart(GL_VERTEX_SHADER, "vertex") {
+}
+
+FragmentShader::FragmentShader() : ShaderPart(GL_FRAGMENT_SHADER, "fragment") {
+}
+
+GeometryShader::GeometryShader() : ShaderPart(GL_GEOMETRY_SHADER_EXT, "geometry") {
 }
 
 void Shader::includeSource(GLenum shaderType, const std::string& string) {
@@ -524,28 +546,15 @@ void Shader::includeSource(GLenum shaderType, const std::string& string) {
     }
 }
 
-bool Shader::includeFile(GLenum shaderType, const std::string& filename) {
+ShaderPart* Shader::getShaderPart(GLenum part_type) {
 
-    // get length
-    std::ifstream in(filename.c_str());
+    std::map<std::string, ShaderPart*>::iterator it = parts.find(part_type);
 
-    if(!in.is_open()) {
-        throw SDLAppException("could not open '%s'", filename.c_str());
+    if(it != uniforms.end()) {
+        return it->second;
     }
 
-    std::string& output = source_code[shaderType];
-
-    std::string line;
-    while( std::getline(in,line) ) {
-        if(!preprocess(shaderType, line)) {
-            output += line;
-            output += "\n";
-        }
-    }
-
-    in.close();
-
-    return true;
+    return 0;
 }
 
 void Shader::use() {
@@ -556,55 +565,77 @@ GLenum Shader::getProgram() {
     return program;
 }
 
-GLint Shader::getVarLocation(const std::string& name) {
+ShaderUniform* Shader::getUniform(const std::string& name) {
+    std::map<std::string, ShaderUniform*>::iterator it = uniforms.find(name);
 
-    std::map<std::string, GLint>::iterator it = uniform_location.find(name);
-
-    if(it != uniform_location.end()) {
+    if(it != uniforms.end()) {
         return it->second;
     }
-
-    GLint location = glGetUniformLocation( program, name.c_str() );
-
-    uniform_location[name] = location;
-
-    return location;
+    return 0;
 }
 
 void Shader::setFloat(const std::string& name, float value) {
-    GLint loc = getVarLocation(name);
-    glUniform1f(loc, value);
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform) return;
+
+    glUniform1f(uniform->getLocation(), value);
 }
 
 void Shader::setVec2 (const std::string& name, const vec2& value) {
-    GLint loc = getVarLocation(name);
-    glUniform2fv(loc, 1, glm::value_ptr(value));
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform) return;
+
+    glUniform2fv(uniform->getLocation(), 1, glm::value_ptr(value));
 }
 
 void Shader::setVec3 (const std::string& name, const vec3& value) {
-    GLint loc = getVarLocation(name);
-    glUniform3fv(loc, 1, glm::value_ptr(value));
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform) return;
+
+    glUniform3fv(uniform->getLocation(), 1, glm::value_ptr(value));
 }
 
 void Shader::setVec4 (const std::string& name, const vec4& value) {
-    GLint loc = getVarLocation(name);
-    glUniform4fv(loc, 1, glm::value_ptr(value));
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform) return;
+
+    glUniform4fv(uniform->getLocation(), 1, glm::value_ptr(value));
 }
 
 void Shader::setMat3 (const std::string& name, const mat3& value) {
-    GLint loc = getVarLocation(name);
-    glUniformMatrix3fv(loc, 1, 0, glm::value_ptr(value));
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform) return;
+
+    glUniformMatrix3fv(uniform->getLocation(), 1, 0, glm::value_ptr(value));
 }
 
 void Shader::setMat4 (const std::string& name, const mat4& value) {
-    GLint loc = getVarLocation(name);
-    glUniformMatrix4fv(loc, 1, 0, glm::value_ptr(value));
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform) return;
+
+    glUniformMatrix4fv(uniform->getLocation(), 1, 0, glm::value_ptr(value));
 }
 
 void Shader::setInteger (const std::string& name, int value) {
-    GLint loc =  getVarLocation(name);
-    glUniform1i(loc, value);
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform) return;
+
+    glUniform1i(uniform->getLocation(), value);
 }
 
+//
+void Shader::bake() {
+    foreach(ShaderUniform* s, uniforms) {
+        s->setBaked(true);
+    }
 
+    recompile();
+}
 

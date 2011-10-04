@@ -60,7 +60,7 @@ public:
     int getType() { return uniform_type; };
 
     virtual void write(std::string& content) {};
-    
+
     const std::string& getName() const;
     int   getLocation();
 
@@ -134,28 +134,52 @@ public:
     const mat4& getValue() const;
 };
 
-class ShaderProgram {
-    GLint program_type;
-public:
-    ShaderProgram(GLint program_type);
+class ShaderPart {
+    GLint shader_type;
+    GLenum source_ref;
+    Shader* shader;
+    std::string source;
 
-    GLint getType() { return program_type; };
+    void preprocess(const std::string& line);
+public:
+    ShaderPart(Shader* shader, GLint part_type);
+
+    GLint getType() { return shader_type; };
+
+    void compile();
+
+    void checkError();
+
+    void includeFile(const std::string& filename);
 };
 
-class VertexShaderProgram : public ShaderProgram
+class VertexShader : public ShaderPart {
+public:
+    VertexShader();
+};
 
-class Shader : public Resource {
+class FragmentShader : public ShaderPart {
+public:
+    FragmentShader();
+};
 
-    std::map<std::string, ShaderUniform*> uniforms;
-    std::map<GLenum, std::string, ShaderProgram*> programs;
-
+class GeometryShader : public ShaderPart {
+public:
     GLenum geom_input_type;
     GLenum geom_output_type;
     GLuint geom_max_vertices;
 
+    GeometryShader();
+};
+
+class Shader : public Resource {
+
+    std::map<std::string, ShaderUniform*> uniforms;
+    std::map<GLenum, std::string, ShaderPart*> part;
+
     GLenum program;
 
-    GLint getVarLocation(const std::string& name);
+    ShaderUniform* getUniform(const std::string& name);
 
     bool preprocess(GLenum shaderType, const std::string& line);
 
@@ -163,6 +187,8 @@ class Shader : public Resource {
 
     void checkShaderError(GLenum shaderType, GLenum shaderRef);
     void checkProgramError();
+
+    ShaderPart* getShaderPart(GLenum part_type);
 
     void setDefaults();
 public:
