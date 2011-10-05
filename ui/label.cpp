@@ -35,6 +35,15 @@ void UILabel::drawBackground() {
     glEnable(GL_TEXTURE_2D);
 }
 
+void UILabel::backspace() {
+    if(!text.empty()) {
+        text.resize( text.size() - 1 );
+    }
+}
+
+void UILabel::tab() {
+}
+
 bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
     if(!editable) {
 
@@ -49,9 +58,10 @@ bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
 
     switch(c) {
         case SDLK_BACKSPACE:
-            if(!text.empty()) {
-                text.resize( text.size() - 1 );
-            }
+            backspace();
+            break;
+        case SDLK_TAB:
+            tab();
             break;
         case SDLK_RETURN:
             submit();
@@ -107,7 +117,7 @@ void UILabel::drawContent() {
     if(disabled) font_colour_alpha *= 0.5f;
 
     ui->font.setColour(font_colour_alpha);
-    
+
     if(selected && editable) {
         glDisable(GL_TEXTURE_2D);
 

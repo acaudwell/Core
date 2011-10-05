@@ -16,9 +16,9 @@ class UI {
 
     float double_click_interval;
     float double_click_timer;
-    
+
     bool interaction;
-    
+
     char toChar(SDL_KeyboardEvent *e);
 protected:
     vec4 background_colour;
@@ -42,8 +42,10 @@ public:
     UIElement* elementAt(const vec2& pos);
     UIElement* selectElementAt(const vec2& pos);
 
+    void selectElement(UIElement* element);
+
     void deselect();
-    
+
     bool keyPress(SDL_KeyboardEvent *e);
 
     virtual void click(const MouseCursor& cursor);
@@ -53,7 +55,7 @@ public:
     virtual vec4 getBackgroundColour();
     virtual vec4 getTextColour();
     virtual vec4 getAlpha();
-    
+
     void update(float dt);
 
     void draw();

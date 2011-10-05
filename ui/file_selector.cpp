@@ -85,6 +85,7 @@ void UIFileSelector::toggle() {
 void UIFileSelector::open() {
     hidden=false;
     updateListing();
+    if(ui!=0) ui->selectElement(file_path);
 }
 
 void UIFileSelector::close() {
@@ -93,8 +94,14 @@ void UIFileSelector::close() {
 }
 
 void UIFileSelector::selectFile(const boost::filesystem::path& filename) {
-    selected_path = boost::filesystem::path(dir_path->text);
-    selected_path /= filename;
+
+    if(exists(filename)) {
+        selected_path = filename;
+    } else {
+        selected_path = boost::filesystem::path(dir_path->text);
+        selected_path /= filename;
+    }
+
     fprintf(stderr, "selectedFile = %s\n", selected_path.string().c_str());
 }
 
@@ -175,6 +182,73 @@ void UIFileSelector::updateListing() {
     listing->vertical_scrollbar->bar_step = 1.0f / listing->getElementCount();
 }
 
+std::string UIFileSelector::autocomplete(const std::string& input, bool dirs_only) {
+
+    //find all files/dirs prefixed by input
+    //find minimum set of common characters to expand input by
+
+    int count = listing->getElementCount();
+
+    std::list<UIFileSelectorLabel*> matches;
+
+    //normalize
+    boost::filesystem::path input_path(input);
+
+    boost::filesystem::path parent_path = input_path.parent_path();
+
+    if(!is_directory(parent_path)) return input;
+
+    std::vector<boost::filesystem::path> dir_listing;
+
+    try {
+        copy(boost::filesystem::directory_iterator(parent_path), boost::filesystem::directory_iterator(), back_inserter(dir_listing));
+    } catch(const boost::filesystem::filesystem_error& exception) {
+        return input;
+    }
+
+    std::string input_path_string = input_path.string();
+
+    size_t input_path_size = input_path_string.size();
+
+    std::string match;
+
+    foreach(boost::filesystem::path l, dir_listing) {
+
+        if(dirs_only && !is_directory(l)) continue;
+
+        std::string path_string = l.string();
+        std::string filename(l.filename().string());
+
+        if(filename.empty()) continue;
+#ifdef _WIN32
+        DWORD win32_attr = GetFileAttributes(l.string().c_str());
+        if (win32_attr & FILE_ATTRIBUTE_HIDDEN || win32_attr & FILE_ATTRIBUTE_SYSTEM) continue;
+#else
+        if(filename[0] == '.') continue;
+#endif
+
+        //check if input is a prefix of this string
+        if(path_string.find(input_path_string) == 0) {
+
+            if(match.empty()) match = path_string;
+            else {
+                //find minimum subset of current match longer than input that
+                //is also a prefix of this string
+                while(!match.empty() && match.size() > input_path_size) {
+                    if(path_string.find(match) == 0) {
+                        break;
+                    }
+                    match.resize(match.size()-1);
+                }
+            }
+        }
+    }
+
+    if(match.size() > input.size()) return match;
+
+    return input;
+}
+
 //UIFileSelectorLabel
 
 UIFileSelectorLabel::UIFileSelectorLabel(UIFileSelector* selector, const std::string& label, const boost::filesystem::path& path)
@@ -225,13 +299,29 @@ bool UIDirInputLabel::submit() {
     return true;
 }
 
+void UIDirInputLabel::tab() {
+    setText(selector->autocomplete(text, true));
+}
+
 //UIFileInputLabel
 UIFileInputLabel::UIFileInputLabel(UIFileSelector* selector, const std::string& filename)
     : selector(selector), UILabel(filename, true,  300.0f) {
 }
 
+void UIFileInputLabel::tab() {
+    setText(selector->autocomplete(text));
+}
+
 bool UIFileInputLabel::submit() {
-    selector->selectFile(boost::filesystem::path(text));
+
+    boost::filesystem::path filepath(text);
+
+    if(is_directory(filepath)) {
+        selector->changeDir(filepath);
+        return true;
+    }
+
+    selector->selectFile(filepath);
     selector->confirm();
     return true;
 }

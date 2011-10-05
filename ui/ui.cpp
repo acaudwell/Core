@@ -12,7 +12,7 @@ UI::UI() : selectedElement(0) {
     double_click_interval = 0.5f;
     double_click_timer = double_click_interval;
     interaction = false;
-    
+
     background_colour = vec4(0.3f, 0.3f, 0.3f, 0.67f);
     solid_colour      = vec4(0.7f, 0.7f, 0.7f, 1.0f);
     text_colour       = vec4(1.0f);
@@ -53,7 +53,7 @@ vec4 UI::getTextColour() {
 }
 
 vec4 UI::getAlpha() {
-    return ui_alpha;    
+    return ui_alpha;
 }
 
 bool UI::elementsByType(std::list<UIElement*>& found, int type) {
@@ -82,6 +82,17 @@ void UI::deselect() {
 
     selectedElement->setSelected(false);
     selectedElement = 0;
+}
+
+void UI::selectElement(UIElement* element) {
+    if(selectedElement != 0) {
+        selectedElement->setSelected(false);
+    }
+    selectedElement = element;
+
+    if(element!=0) {
+        element->setSelected(true);
+    }
 }
 
 UIElement* UI::selectElementAt(const vec2& pos) {
@@ -117,15 +128,15 @@ void UI::update(float dt) {
     if(ui_alpha.w < 1.0f) {
         ui_alpha.w = glm::min(ui_alpha.w + dt * 0.5f, 1.0f);
     }
-    
+
     if(!interaction) {
         UIElement* selected = getSelected();
-        
+
         if(selected) selected->idle();
     }
 
     interaction = false;
-    
+
     if(double_click_timer<double_click_interval) double_click_timer += dt;
 
     foreach(UIElement* e, elements) {
@@ -141,7 +152,7 @@ void UI::update(float dt) {
 
 void UI::draw() {
     glDepthFunc(GL_LEQUAL);
-    glEnable(GL_DEPTH_TEST); 
+    glEnable(GL_DEPTH_TEST);
 
     foreach(UIElement* e, elements) {
         e->draw();
@@ -193,7 +204,7 @@ bool UI::keyPress(SDL_KeyboardEvent *e) {
 void UI::drag(const MouseCursor& cursor) {
 
     interaction = true;
-    
+
     UIElement* selected = getSelected();
 
     if(!selected) return;
@@ -209,7 +220,7 @@ void UI::click(const MouseCursor& cursor) {
     bool double_click   = double_click_timer < 0.5f;
 
     vec2 pos = cursor.getPos();
-    
+
     UIElement* selected = selectElementAt(pos);
 
     if(!selected) return;

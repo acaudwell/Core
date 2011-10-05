@@ -41,6 +41,8 @@ public:
     void selectPath(const boost::filesystem::path& path);
     void confirm();
 
+    std::string autocomplete(const std::string& input, bool dirs_only = false);
+
     void toggle();
     void open();
     void close();
@@ -57,6 +59,9 @@ public:
     UIFileSelectorLabel(UIFileSelector* selector, const boost::filesystem::path& path);
     UIFileSelectorLabel(UIFileSelector* selector, const std::string& label, const boost::filesystem::path& path);
 
+    bool isDir() const { return directory; };
+    const boost::filesystem::path& getPath() const { return path; };
+
     void doubleClick(const vec2& pos);
     void click(const vec2& pos);
 
@@ -70,6 +75,8 @@ class UIFileInputLabel : public UILabel {
 public:
     UIFileInputLabel(UIFileSelector* selector, const std::string& filename);
 
+    void tab();
+
     bool submit();
 };
 
@@ -77,6 +84,8 @@ class UIDirInputLabel : public UILabel {
     UIFileSelector* selector;
 public:
     UIDirInputLabel(UIFileSelector* selector, const std::string& dirname);
+
+    void tab();
 
     bool submit();
 };

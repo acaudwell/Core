@@ -8,9 +8,9 @@ class UISlider;
 class UILabel : public UIElement {
 protected:
     float cursor_anim;
-    
+
     bool text_changed;
-    
+
     void drawBackground();
 public:
     vec4 bgcolour;
@@ -27,6 +27,9 @@ public:
     bool keyPress(SDL_KeyboardEvent *e, char c);
 
     int getType() { return UI_LABEL; }
+
+    virtual void tab();
+    virtual void backspace();
 
     void setWidth(float width);
     void setText(const std::string& text);

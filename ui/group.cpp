@@ -26,8 +26,9 @@ UIGroup::~UIGroup() {
 }
 
 void UIGroup::setUI(UI* ui) {
+    this->ui = ui;
     bar->setUI(ui);
-    layout->setUI(ui);    
+    layout->setUI(ui);
 }
 
 void UIGroup::setTitle(const std::string& text) {
