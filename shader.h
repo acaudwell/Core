@@ -34,6 +34,7 @@
 #include "display.h"
 #include "sdlapp.h"
 #include "regex.h"
+#include "util.h"
 
 #include <list>
 #include <map>
@@ -58,9 +59,11 @@ public:
 
     ShaderUniform(Shader* shader, const std::string& name, int uniform_type, const std::string& type_name);
 
+    virtual void unload();
+
     int getType() { return uniform_type; };
 
-    virtual void write(std::string& content) {};
+    virtual void write(std::string& content) const {};
 
     const std::string& getName() const;
     GLint getLocation();
@@ -68,8 +71,8 @@ public:
     bool isBaked() const    { return baked; }
     bool isModified() const { return modified; };
 
-    void setBaked(bool baked)       { this->baked = baked; };
-    void setModified(bool modified) { this->modified = modified; };
+    virtual void setBaked(bool baked)       { this->baked = baked; };
+    virtual void setModified(bool modified) { this->modified = modified; };
 };
 
 class FloatShaderUniform : public ShaderUniform {
@@ -89,6 +92,30 @@ public:
     IntShaderUniform(Shader* shader, const std::string& name, int value = 0);
 
     void write(std::string& content) const;
+
+    void setValue(int value);
+    float getValue() const;
+};
+
+class BoolShaderUniform : public ShaderUniform {
+    bool value;
+public:
+    BoolShaderUniform(Shader* shader, const std::string& name, bool value = false);
+
+    void write(std::string& content) const;
+
+    void setValue(bool value);
+    float getValue() const;
+};
+
+class Sampler2DShaderUniform : public ShaderUniform {
+    int value;
+public:
+    Sampler2DShaderUniform(Shader* shader, const std::string& name, int value = 0);
+
+    void write(std::string& content) const;
+
+    void setBaked(bool baked);
 
     void setValue(int value);
     float getValue() const;
@@ -159,7 +186,7 @@ class ShaderPass {
     std::string source;
 
     std::list<ShaderUniform*> uniforms;
-    
+
     bool preprocess(const std::string& line);
 public:
     ShaderPass(Shader* parent, GLint shader_object_type, const std::string& shader_object_desc);
@@ -172,10 +199,10 @@ public:
 
     void checkError();
 
-    void addUniform(const std::string& name, const std::string& type, bool baked = false);   
-    
+    void addUniform(const std::string& name, const std::string& type, bool baked = false);
+
     virtual void attachTo(GLenum program);
-    
+
     void includeSource(const std::string& source);
     void includeFile(const std::string& filename);
 };
@@ -242,7 +269,7 @@ public:
 
     void use();
 
-    void bake();    
+    void bake();
 };
 
 class ShaderManager : public ResourceManager {
