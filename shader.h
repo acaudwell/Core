@@ -35,6 +35,7 @@
 #include "sdlapp.h"
 #include "regex.h"
 
+#include <list>
 #include <map>
 #include <string>
 #include <fstream>
@@ -45,7 +46,7 @@ enum { SHADER_UNIFORM_FLOAT, SHADER_UNIFORM_INT, SHADER_UNIFORM_VEC2, SHADER_UNI
 class Shader;
 
 class ShaderUniform {
-
+protected:
     std::string name;
     GLint location;
     Shader* shader;
@@ -55,17 +56,17 @@ class ShaderUniform {
     bool baked;
 public:
 
-    ShaderUniform(Shader* shader, const std::string& name, int uniform_type);
+    ShaderUniform(Shader* shader, const std::string& name, int uniform_type, const std::string& type_name);
 
     int getType() { return uniform_type; };
 
     virtual void write(std::string& content) {};
 
     const std::string& getName() const;
-    int   getLocation();
+    GLint getLocation();
 
     bool isBaked() const    { return baked; }
-    bool isModified{} const { return modified; };
+    bool isModified() const { return modified; };
 
     void setBaked(bool baked)       { this->baked = baked; };
     void setModified(bool modified) { this->modified = modified; };
@@ -76,6 +77,8 @@ class FloatShaderUniform : public ShaderUniform {
 public:
     FloatShaderUniform(Shader* shader, const std::string& name, float value = 0.0f);
 
+    void write(std::string& content) const;
+
     void setValue(float value);
     float getValue() const;
 };
@@ -83,7 +86,9 @@ public:
 class IntShaderUniform : public ShaderUniform {
     int value;
 public:
-    IntShaderUniform(Shader* shader, const std::string& name, int value = 0) : value(value), ShaderUniform(shader, name);
+    IntShaderUniform(Shader* shader, const std::string& name, int value = 0);
+
+    void write(std::string& content) const;
 
     void setValue(int value);
     float getValue() const;
@@ -92,7 +97,9 @@ public:
 class Vec2ShaderUniform : public ShaderUniform {
     vec2 value;
 public:
-    Vec2ShaderUniform(Shader* shader, const std::string& name, const vec2& value = vec2(0.0f)) : value(value), ShaderUniform(shader, name);
+    Vec2ShaderUniform(Shader* shader, const std::string& name, const vec2& value = vec2(0.0f)) ;
+
+    void write(std::string& content) const;
 
     void setValue(const vec2& value);
     const vec2& getValue() const;
@@ -101,7 +108,9 @@ public:
 class Vec3ShaderUniform : public ShaderUniform {
     vec3 value;
 public:
-    Vec3ShaderUniform(Shader* shader, const std::string& name, const vec3& value = vec3(0.0f)) : value(value), ShaderUniform(shader, name);
+    Vec3ShaderUniform(Shader* shader, const std::string& name, const vec3& value = vec3(0.0f));
+
+    void write(std::string& content) const;
 
     void setValue(const vec3& value);
     const vec3& getValue() const;
@@ -110,7 +119,9 @@ public:
 class Vec4ShaderUniform : public ShaderUniform {
     vec4 value;
 public:
-    Vec4ShaderUniform(Shader* shader, const std::string& name, const vec4& value = vec4(0.0f)) : value(value), ShaderUniform(shader, name);
+    Vec4ShaderUniform(Shader* shader, const std::string& name, const vec4& value = vec4(0.0f));
+
+    void write(std::string& content) const;
 
     void setValue(const vec4& value);
     const vec4& getValue() const;
@@ -119,7 +130,9 @@ public:
 class Mat3ShaderUniform : public ShaderUniform {
     mat3 value;
 public:
-    Mat3ShaderUniform(Shader* shader, const std::string& name, const mat3& value = mat3(1.0f)) : value(value), ShaderUniform(shader, name);
+    Mat3ShaderUniform(Shader* shader, const std::string& name, const mat3& value = mat3(1.0f));
+
+    void write(std::string& content) const;
 
     void setValue(const mat3& value);
     const mat3& getValue() const;
@@ -128,85 +141,96 @@ public:
 class Mat4ShaderUniform : public ShaderUniform {
     mat4 value;
 public:
-    Mat4ShaderUniform(Shader* shader, const std::string& name, const mat4& value = mat4(1.0f)) : value(value), ShaderUniform(shader, name);
+    Mat4ShaderUniform(Shader* shader, const std::string& name, const mat4& value = mat4(1.0f));
+
+    void write(std::string& content) const;
 
     void setValue(const mat4& value);
     const mat4& getValue() const;
 };
 
-class ShaderPart {
-    GLint shader_type;
-    GLenum source_ref;
-    Shader* shader;
+class ShaderPass {
+    GLint       shader_object_type;
+    std::string shader_object_desc;
+    GLenum      shader_object;
+
+    Shader* parent;
+
     std::string source;
 
-    void preprocess(const std::string& line);
+    std::list<ShaderUniform*> uniforms;
+    
+    bool preprocess(const std::string& line);
 public:
-    ShaderPart(Shader* shader, GLint part_type);
+    ShaderPass(Shader* parent, GLint shader_object_type, const std::string& shader_object_desc);
+    virtual ~ShaderPass();
 
-    GLint getType() { return shader_type; };
+    GLint getType() { return shader_object_type; };
 
+    void unload();
     void compile();
 
     void checkError();
 
+    void addUniform(const std::string& name, const std::string& type, bool baked = false);   
+    
+    virtual void attachTo(GLenum program);
+    
+    void includeSource(const std::string& source);
     void includeFile(const std::string& filename);
 };
 
-class VertexShader : public ShaderPart {
+class VertexShader : public ShaderPass {
 public:
-    VertexShader();
+    VertexShader(Shader* parent);
 };
 
-class FragmentShader : public ShaderPart {
+class FragmentShader : public ShaderPass {
 public:
-    FragmentShader();
+    FragmentShader(Shader* parent);
 };
 
-class GeometryShader : public ShaderPart {
+class GeometryShader : public ShaderPass {
 public:
-    GLenum geom_input_type;
-    GLenum geom_output_type;
-    GLuint geom_max_vertices;
+    GLenum input_type;
+    GLenum output_type;
+    GLuint max_vertices;
 
-    GeometryShader();
+    GeometryShader(Shader* parent, GLenum input_type = GL_POINTS, GLenum output_type = GL_POINTS, GLuint max_vertices = 1);
+
+    void attachTo(GLenum program);
 };
 
 class Shader : public Resource {
 
     std::map<std::string, ShaderUniform*> uniforms;
-    std::map<GLenum, std::string, ShaderPart*> part;
 
     GLenum program;
 
-    ShaderUniform* getUniform(const std::string& name);
-
-    bool preprocess(GLenum shaderType, const std::string& line);
-
-    GLenum compile(GLenum shaderType);
-
-    void checkShaderError(GLenum shaderType, GLenum shaderRef);
     void checkProgramError();
-
-    ShaderPart* getShaderPart(GLenum part_type);
 
     void setDefaults();
 public:
+    VertexShader*   vertex_shader;
+    GeometryShader* geometry_shader;
+    FragmentShader* fragment_shader;
+
     Shader();
     Shader(const std::string& prefix);
     ~Shader();
 
     GLenum getProgram();
-    GLenum getVertexShader();
-    GLenum getFragmentShader();
 
     void load();
     void unload();
 
-    void includeSource(GLenum shaderType, const std::string& source);
-    bool includeFile(GLenum shaderType,   const std::string& filename);
+    ShaderPass* grabShaderPass(GLenum shader_object_type);
 
-    void geometrySettings(GLenum input_type, GLenum  output_type, GLuint max_vertices);
+    void includeSource(GLenum shader_object_type, const std::string& source);
+    void includeFile(GLenum shader_object_type,   const std::string& filename);
+
+    void addUniform(ShaderUniform* uniform);
+    ShaderUniform* getUniform(const std::string& name);
 
     void setInteger (const std::string& name, int value);
     void setFloat(const std::string& name, float value);
@@ -217,6 +241,8 @@ public:
     void setMat4 (const std::string& name, const mat4& value);
 
     void use();
+
+    void bake();    
 };
 
 class ShaderManager : public ResourceManager {
