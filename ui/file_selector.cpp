@@ -102,14 +102,9 @@ void UIFileSelector::close() {
     hidden=true;
 }
 
-void UIFileSelector::selectFile(const boost::filesystem::path& filename) {
+void UIFileSelector::selectFile(const boost::filesystem::path& path) {
 
-    if(exists(filename)) {
-        selected_path = filename;
-    } else {
-        selected_path = boost::filesystem::path(dir_path->text);
-        selected_path /= filename;
-    }
+    selected_path = path;
 
     fprintf(stderr, "selectedFile = %s\n", selected_path.string().c_str());
 }
@@ -122,6 +117,10 @@ void UIFileSelector::selectPath(const boost::filesystem::path& path) {
     } else {
         file_path->setText("");
     }
+}
+
+const boost::filesystem::path& UIFileSelector::getCurrentDir() const {
+    return current_dir;    
 }
 
 void UIFileSelector::confirm() {
@@ -151,6 +150,8 @@ void UIFileSelector::updateListing() {
 
         return;
     }
+    
+    current_dir = p;
 
     listing->clear();
 
@@ -344,10 +345,16 @@ bool UIFileInputLabel::submit() {
 
     boost::filesystem::path filepath(text);
 
+    if(!exists(filepath)) {       
+        filepath = selector->getCurrentDir() / filepath;
+        if(!exists(filepath)) return false;
+    }
+    
+    //TODO: construct full path here first
+    
     if(is_directory(filepath)) {
         selector->changeDir(filepath);
-        selector->prettyDirectory(text);
-
+        setText("");
         return true;
     }
 

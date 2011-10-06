@@ -25,6 +25,7 @@ class UIFileSelector : public UIGroup {
     std::string previous_dir;
 
     boost::filesystem::path selected_path;
+    boost::filesystem::path current_dir;
 
     UIOptionLabel* current_filter;
 
@@ -45,6 +46,8 @@ public:
     void selectPath(const boost::filesystem::path& path);
     void confirm();
 
+    const boost::filesystem::path& getCurrentDir() const;
+    
     std::string autocomplete(const std::string& input, bool dirs_only = false);
 
     void toggle();
