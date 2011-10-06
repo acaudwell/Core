@@ -187,7 +187,7 @@ void BoolShaderUniform::write(std::string& content) const {
     char buff[256];
 
     if(baked) {
-        snprintf(buff, 256, "#define %s %d\n", name.c_str(), value);
+        snprintf(buff, 256, "#define %s %s\n", name.c_str(), value ? "true" : "false");
     } else {
         snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
     }
