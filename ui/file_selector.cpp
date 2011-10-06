@@ -14,7 +14,7 @@ UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir,
         initial_dir.resize(dir.size() - 1);
     }
 
-    dir_path  = new UIDirInputLabel(this, initial_dir);
+    dir_path  = new UIDirInputLabel(this, "");
     file_path = new UIFileInputLabel(this, "");
 
     filter_select = new UISelect();
@@ -28,7 +28,7 @@ UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir,
 
     current_filter = filter_select->getSelectedOption();
 
-    updateListing();
+    changeDir(initial_dir);
 }
 
 bool _listing_sort (const boost::filesystem::path& a,const boost::filesystem::path& b) {
@@ -44,21 +44,30 @@ void UIFileSelector::addFilter(const std::string& name, const std::string& exten
     filter_select->addOption(name, extension);
 }
 
+//standardize directory string appearance
+void UIFileSelector::prettyDirectory(std::string& dir_string) {
+    if(!dir_string.empty() && (dir_string[dir_string.size()-1] != '\\' && dir_string[dir_string.size()-1] != '/')) {
+        dir_string += "/";
+    }
+
+#ifdef _WIN32
+    std::replace(dir_string.begin(),dir_string.end(),'/','\\');
+#else
+    std::replace(dir_string.begin(),dir_string.end(),'\\','/');
+#endif
+}
+
 bool UIFileSelector::changeDir(const boost::filesystem::path& dir) {
 
     if(!is_directory(dir)) return false;
 
-    std::string path_string = dir.string();
+    std::string dir_string = dir.string();
 
-#ifdef _WIN32
-    if(path_string.size() == 2 && path_string[1] == ':') {
-        path_string += "\\";
-    }
-#endif
+    prettyDirectory(dir_string);
 
     previous_dir = dir_path->text;
 
-    dir_path->setText(path_string);
+    dir_path->setText(dir_string);
 
     updateListing();
 
@@ -145,9 +154,11 @@ void UIFileSelector::updateListing() {
 
     listing->clear();
 
-    boost::filesystem::path parent_path = p.parent_path();
+    //add .. if there is a parent directory
 
-    if(is_directory(parent_path) && !(parent_path.string().size() == 2 && parent_path.string()[1] == ':')) {
+    boost::filesystem::path parent_path;
+
+    if(parentPath(p, parent_path) && !(parent_path.string().size() == 2 && parent_path.string()[1] == ':')) {
         listing->addElement(new UIFileSelectorLabel(this, "..", parent_path));
     }
 
@@ -182,71 +193,88 @@ void UIFileSelector::updateListing() {
     listing->vertical_scrollbar->bar_step = 1.0f / listing->getElementCount();
 }
 
+//return true and set parent_path if there is one
+//handle boosts unhelpful treatment of trailing slash on directories
+bool UIFileSelector::parentPath(const boost::filesystem::path& path, boost::filesystem::path& parent_path) {
+
+    parent_path = path.parent_path();
+
+    if(path.filename().string() == ".") {
+        parent_path = parent_path.parent_path();
+    }
+
+    if(is_directory(parent_path)) return true;
+
+    return false;
+}
+
+
 std::string UIFileSelector::autocomplete(const std::string& input, bool dirs_only) {
 
     //find all files/dirs prefixed by input
     //find minimum set of common characters to expand input by
 
-    int count = listing->getElementCount();
-
-    std::list<UIFileSelectorLabel*> matches;
+    std::string result;
 
     //normalize
     boost::filesystem::path input_path(input);
 
-    boost::filesystem::path parent_path = input_path.parent_path();
+    boost::filesystem::path parent_path;
 
-    if(!is_directory(parent_path)) return input;
+    if(parentPath(input_path, parent_path)) {
 
-    std::vector<boost::filesystem::path> dir_listing;
+        try {
+            std::vector<boost::filesystem::path> dir_listing;
+            copy(boost::filesystem::directory_iterator(parent_path), boost::filesystem::directory_iterator(), back_inserter(dir_listing));
 
-    try {
-        copy(boost::filesystem::directory_iterator(parent_path), boost::filesystem::directory_iterator(), back_inserter(dir_listing));
-    } catch(const boost::filesystem::filesystem_error& exception) {
-        return input;
-    }
+            std::string input_path_string = input_path.string();
 
-    std::string input_path_string = input_path.string();
+            size_t input_path_size = input_path_string.size();
 
-    size_t input_path_size = input_path_string.size();
+            foreach(boost::filesystem::path l, dir_listing) {
 
-    std::string match;
+                if(dirs_only && !is_directory(l)) continue;
 
-    foreach(boost::filesystem::path l, dir_listing) {
+                std::string path_string = l.string();
+                std::string filename(l.filename().string());
 
-        if(dirs_only && !is_directory(l)) continue;
-
-        std::string path_string = l.string();
-        std::string filename(l.filename().string());
-
-        if(filename.empty()) continue;
+                if(filename.empty()) continue;
 #ifdef _WIN32
-        DWORD win32_attr = GetFileAttributes(l.string().c_str());
-        if (win32_attr & FILE_ATTRIBUTE_HIDDEN || win32_attr & FILE_ATTRIBUTE_SYSTEM) continue;
+                DWORD win32_attr = GetFileAttributes(l.string().c_str());
+                if (win32_attr & FILE_ATTRIBUTE_HIDDEN || win32_attr & FILE_ATTRIBUTE_SYSTEM) continue;
 #else
-        if(filename[0] == '.') continue;
+                if(filename[0] == '.') continue;
 #endif
 
-        //check if input is a prefix of this string
-        if(path_string.find(input_path_string) == 0) {
+                //check if input is a prefix of this string
+                if(path_string.find(input_path_string) == 0) {
 
-            if(match.empty()) match = path_string;
-            else {
-                //find minimum subset of current match longer than input that
-                //is also a prefix of this string
-                while(!match.empty() && match.size() > input_path_size) {
-                    if(path_string.find(match) == 0) {
-                        break;
+                    if(result.empty()) result = path_string;
+                    else {
+                        //find minimum subset of current match longer than input that
+                        //is also a prefix of this string
+                        while(!result.empty() && result.size() > input_path_size) {
+                            if(path_string.find(result) == 0) {
+                                break;
+                            }
+                            result.resize(result.size()-1);
+                        }
                     }
-                    match.resize(match.size()-1);
                 }
             }
+
+        } catch(const boost::filesystem::filesystem_error& exception) {
+            result = input;
         }
     }
 
-    if(match.size() > input.size()) return match;
+    if(result.size() < input.size()) result = input;
 
-    return input;
+    if(is_directory(boost::filesystem::path(result))) {
+        prettyDirectory(result);
+    }
+
+    return result;
 }
 
 //UIFileSelectorLabel
@@ -318,6 +346,8 @@ bool UIFileInputLabel::submit() {
 
     if(is_directory(filepath)) {
         selector->changeDir(filepath);
+        selector->prettyDirectory(text);
+
         return true;
     }
 

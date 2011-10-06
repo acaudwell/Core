@@ -29,8 +29,12 @@ class UIFileSelector : public UIGroup {
     UIOptionLabel* current_filter;
 
     UIFileSelectorAction* action;
+
+    bool parentPath(const boost::filesystem::path& path, boost::filesystem::path& parent_path);
 public:
     UIFileSelector(const std::string& title, const std::string& dir, UIFileSelectorAction* action);
+
+    void prettyDirectory(std::string& dir_string);
 
     void addFilter(const std::string& name, const std::string& extension);
 
