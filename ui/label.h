@@ -8,12 +8,17 @@ class UISlider;
 class UILabel : public UIElement {
 protected:
     float cursor_anim;
-
+    float expanded;
+    
     bool text_changed;
+
 
     void drawBackground();
 public:
     vec4 bgcolour;
+    vec4 selected_edit_bgcolour;
+    vec4 edit_bgcolour;
+
     vec3 font_colour;
     UISlider* slider;
     bool editable;
@@ -35,6 +40,9 @@ public:
     void setText(const std::string& text);
 
     void update(float dt);
+
+    void expandRect(const vec2& expand);
+    void resetRect();
 
     void updateRect();
 

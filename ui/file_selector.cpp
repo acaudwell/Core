@@ -14,9 +14,12 @@ UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir,
         initial_dir.resize(dir.size() - 1);
     }
 
-    dir_path  = new UIDirInputLabel(this, "");
-    file_path = new UIFileInputLabel(this, "");
+    dir_path = new UIDirInputLabel(this, "");
+    dir_path->setFillHorizontal(true);
 
+    file_path = new UIFileInputLabel(this, "");
+    file_path->setFillHorizontal(true);
+    
     filter_select = new UISelect();
 
     layout->addElement(new UILabelledElement("Path",  dir_path,  120.0f));
@@ -105,8 +108,6 @@ void UIFileSelector::close() {
 void UIFileSelector::selectFile(const boost::filesystem::path& path) {
 
     selected_path = path;
-
-    fprintf(stderr, "selectedFile = %s\n", selected_path.string().c_str());
 }
 
 void UIFileSelector::selectPath(const boost::filesystem::path& path) {

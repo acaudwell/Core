@@ -52,6 +52,7 @@ void UIElement::drawQuad(const vec2& pos, const vec2& rect, const vec4& texcoord
 }
 
 void UIElement::drawQuad(const vec2& rect, const vec4& texcoord) {
+    
     glBegin(GL_QUADS);
         glTexCoord2f(texcoord.x,texcoord.y);
         glVertex2f(0.0f,    0.0f);

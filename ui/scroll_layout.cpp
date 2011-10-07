@@ -5,7 +5,7 @@ UIScrollLayout::UIScrollLayout(const vec2& scroll_rect, bool horizontal) : scrol
     vertical_scrollbar   = new UIScrollBar(this, false);
     horizontal_scrollbar = new UIScrollBar(this, true);
     expanded_rect = vec2(0.0f);
-    fill = true;
+    setFill(true);
 }
 
 UIScrollLayout::~UIScrollLayout() {

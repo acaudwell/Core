@@ -9,6 +9,10 @@ UILabel::UILabel(const std::string& text, bool editable, float width) : text(tex
     font_colour  = vec3(1.0f);
     bgcolour     = vec4(0.0f);
     text_changed = true;
+    expanded     = 0.0f;
+    
+    selected_edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.5f);
+    edit_bgcolour          = vec4(0.0f, 0.0f, 0.0f, 0.2f);
 }
 
 void UILabel::setWidth(float width) {
@@ -23,6 +27,14 @@ void UILabel::setText(const std::string& text) {
 void UILabel::updateRect() {
     rect.x = width + margin.x + margin.z;
     rect.y = 14.0f + margin.y + margin.w;
+}
+
+void UILabel::expandRect(const vec2& expand) {
+    expanded = expand.x;
+}
+
+void UILabel::resetRect() {
+    //expanded = 0.0f;    
 }
 
 void UILabel::drawBackground() {
@@ -118,13 +130,20 @@ void UILabel::drawContent() {
 
     ui->font.setColour(font_colour_alpha);
 
+    vec2 rect2 = this->rect;
+    rect2.x += expanded;
+
+   
     if(selected && editable) {
-        glDisable(GL_TEXTURE_2D);
+        
+        if(selected_edit_bgcolour.w > 0.0f) {
+            glDisable(GL_TEXTURE_2D);
 
-        glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
-        drawQuad(rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
+            glColor4fv(glm::value_ptr(selected_edit_bgcolour));
+            drawQuad(rect2, vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-        glEnable(GL_TEXTURE_2D);
+            glEnable(GL_TEXTURE_2D);
+        }
 
         if(int(cursor_anim)==0) {
             ui->font.print(margin.x, rect.y-(3.0+margin.w), "%s_", display_text.c_str());
@@ -132,14 +151,28 @@ void UILabel::drawContent() {
             ui->font.draw(margin.x, rect.y-(3.0+margin.w), display_text);
         }
     } else {
+        if(editable && edit_bgcolour.w > 0.0f) {
+            glDisable(GL_TEXTURE_2D);
+
+            glColor4fv(glm::value_ptr(edit_bgcolour));
+            
+            drawQuad(rect2, vec4(0.0f, 0.0f, 1.0f, 1.0f));
+
+            glEnable(GL_TEXTURE_2D);
+        }
+
         ui->font.draw(margin.x, rect.y-(3.0+margin.w), display_text);
     }
+    
+    //NOTE: this is the wrong place for this, but it gets the desired result...
+    expanded = 0.0f;
 }
 
 //UIIntLabel
 
 UIIntLabel::UIIntLabel(int* value, bool editable) : value(value), UILabel("", editable) {
     width = 80.0f;
+    edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 bool UIIntLabel::keyPress(SDL_KeyboardEvent *e, char c) {
@@ -172,6 +205,7 @@ void UIIntLabel::updateContent() {
 
 UIFloatLabel::UIFloatLabel(float* value, bool editable) : value(value), UILabel("", editable) {
     width = 80.0f;
+    edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.0f);    
 }
 
 bool UIFloatLabel::keyPress(SDL_KeyboardEvent *e, char c) {

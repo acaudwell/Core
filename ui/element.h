@@ -14,13 +14,14 @@ enum { UI_LABEL, UI_BUTTON, UI_IMAGE, UI_LAYOUT, UI_GROUP, UI_COLOUR, UI_SELECT,
 class UIElement {
 protected:
     UI* ui;
+    bool   fill_horizontal;
+    bool   fill_vertical;
 public:
     vec2  pos;
     vec2  rect;
     bool   selected;
     bool   disabled;
     bool   hidden;
-    bool   fill;
 
     UIElement* parent;
 
@@ -32,7 +33,7 @@ public:
     // affects the selectable area of the element
     vec2 padding;
 
-    UIElement() : padding(0.0f, 0.0f), margin(0.0f, 0.0f, 0.0f, 0.0f), ui(0), disabled(false), selected(false), hidden(false), fill(false), parent(0) {};
+    UIElement() : padding(0.0f, 0.0f), margin(0.0f, 0.0f, 0.0f, 0.0f), ui(0), disabled(false), selected(false), hidden(false), fill_horizontal(false), fill_vertical(false), parent(0) {};
 
     virtual void setUI(UI* ui) { this->ui = ui; };
 
@@ -52,6 +53,13 @@ public:
     void setMargin(const vec2& margin)  { this->margin  = vec4(margin.xy, margin.xy); };
     void setMargin(float margin)        { this->margin = vec4(margin); };
 
+    void setFillHorizontal(bool fill) { this->fill_horizontal = fill; };
+    void setFillVertical  (bool fill) { this->fill_vertical  = fill; };
+    void setFill(bool fill)           { this->fill_horizontal = fill; this->fill_vertical = fill; };
+    
+    bool fillVertical()   const { return fill_vertical; }
+    bool fillHorizontal() const { return fill_horizontal; }
+    
     void setPos(const vec2& pos) { this->pos = pos; };
 
     void hide() { hidden=true; };

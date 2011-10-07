@@ -19,6 +19,7 @@ protected:
     std::vector<UIElement*> elements;
 
     vec2 min_rect;
+    vec2 expanded_rect;
     bool centre;
     bool drawbg;
 
@@ -33,6 +34,12 @@ public:
 
     int getType() { return UI_LAYOUT; };
 
+    vec2 getInnerRect();
+    vec2 getRect();
+    
+    void expandRect(const vec2& expand);
+    void resetRect();
+    
     void setUI(UI* ui);
 
     void addElement(UIElement* e);
