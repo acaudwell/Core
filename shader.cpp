@@ -169,7 +169,7 @@ void IntShaderUniform::write(std::string& content) const {
 //BoolShaderUniform
 
 BoolShaderUniform::BoolShaderUniform(Shader* shader, const std::string& name, bool value) :
-    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_INT, "bool") {
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_BOOL, "bool") {
 }
 
 void BoolShaderUniform::setValue(bool value) {
@@ -742,6 +742,14 @@ void Shader::includeFile(GLenum shader_object_type, const std::string& filename)
     ShaderPass* pass = grabShaderPass(shader_object_type);
 
     pass->includeFile(filename);
+}
+
+void Shader::setBool (const std::string& name, bool value) {
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform || uniform->getType() != SHADER_UNIFORM_BOOL) return;
+
+    ((BoolShaderUniform*)uniform)->setValue(value);
 }
 
 void Shader::setInteger (const std::string& name, int value) {

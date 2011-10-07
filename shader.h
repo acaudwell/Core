@@ -42,7 +42,7 @@
 #include <fstream>
 #include <sstream>
 
-enum { SHADER_UNIFORM_FLOAT, SHADER_UNIFORM_INT, SHADER_UNIFORM_VEC2, SHADER_UNIFORM_VEC3, SHADER_UNIFORM_VEC4, SHADER_UNIFORM_MAT3, SHADER_UNIFORM_MAT4 };
+enum { SHADER_UNIFORM_FLOAT, SHADER_UNIFORM_BOOL, SHADER_UNIFORM_INT, SHADER_UNIFORM_VEC2, SHADER_UNIFORM_VEC3, SHADER_UNIFORM_VEC4, SHADER_UNIFORM_MAT3, SHADER_UNIFORM_MAT4 };
 
 class Shader;
 
@@ -259,6 +259,7 @@ public:
     void addUniform(ShaderUniform* uniform);
     ShaderUniform* getUniform(const std::string& name);
 
+    void setBool(const std::string& name, bool value);
     void setInteger (const std::string& name, int value);
     void setFloat(const std::string& name, float value);
     void setVec2 (const std::string& name, const vec2& value);
