@@ -55,7 +55,7 @@ SDLAppSettings::SDLAppSettings() {
 void SDLAppSettings::setDisplayDefaults() {
     display_width  = 1024;
 #ifdef __APPLE__
-    display_height = 663;
+    display_height = 640;
 #else
     display_height = 768;
 #endif
