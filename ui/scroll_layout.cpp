@@ -4,7 +4,6 @@ UIScrollLayout::UIScrollLayout(const vec2& scroll_rect, bool horizontal) : scrol
 
     vertical_scrollbar   = new UIScrollBar(this, false);
     horizontal_scrollbar = new UIScrollBar(this, true);
-    expanded_rect = vec2(0.0f);
     setFill(true);
 }
 
@@ -25,19 +24,27 @@ vec2 UIScrollLayout::getInnerRect() {
     return rect;
 }
 
-void UIScrollLayout::expandRect(const vec2& expand) {
-    expanded_rect = expand;    
-}
-
-void UIScrollLayout::resetRect() {
-    expanded_rect = vec2(0.0f);    
-}
-
 void UIScrollLayout::setUI(UI* ui) {
     UILayout::setUI(ui);
     
     vertical_scrollbar->setUI(ui);
     horizontal_scrollbar->setUI(ui);        
+}
+
+void UIScrollLayout::drawBackground() {
+    if(!drawbg) return;
+
+    if(bgcolour.w > 0.0f) {
+        glColor4fv(glm::value_ptr(bgcolour));
+    } else {
+        glColor4fv(glm::value_ptr(ui->getBackgroundColour()));
+    }
+
+    vec2 rect = glm::max(getRect(),getInnerRect());
+
+    glDisable(GL_TEXTURE_2D);
+    drawQuad(pos, rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
+    glEnable(GL_TEXTURE_2D);
 }
 
 void UIScrollLayout::update(float dt) {

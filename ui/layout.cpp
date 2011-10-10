@@ -38,10 +38,14 @@ void UILayout::setUI(UI* ui) {
 void UILayout::drawBackground() {
     if(!drawbg) return;
 
-    glColor4fv(glm::value_ptr(ui->getBackgroundColour()));
+    if(bgcolour.w > 0.0f) {
+        glColor4fv(glm::value_ptr(bgcolour));
+    } else {
+        glColor4fv(glm::value_ptr(ui->getBackgroundColour()));
+    }
 
     glDisable(GL_TEXTURE_2D);
-    drawQuad(pos, rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
+    drawQuad(pos, getRect(), vec4(0.0f, 0.0f, 1.0f, 1.0f));
     glEnable(GL_TEXTURE_2D);
 }
 

@@ -45,6 +45,7 @@ public:
     void addElement(UIElement* e);
 
     void setDrawBackground(bool drawbg);
+
     void setHorizontal(bool horizontal);
     void setAlignment(int alignment) { this->alignment = alignment; };
 

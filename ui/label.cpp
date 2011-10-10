@@ -12,7 +12,7 @@ UILabel::UILabel(const std::string& text, bool editable, float width) : text(tex
     expanded     = 0.0f;
     
     selected_edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.5f);
-    edit_bgcolour          = vec4(0.0f, 0.0f, 0.0f, 0.2f);
+    edit_bgcolour          = vec4(0.0f, 0.0f, 0.0f, 0.25f);
 }
 
 void UILabel::setWidth(float width) {

@@ -5,9 +5,11 @@
 #include "scroll_bar.h"
 
 class UIScrollLayout : public UILayout {
+protected:
     vec2 scroll_rect;
-    vec2 expanded_rect;
     vec2 inner_rect;
+
+    void drawBackground();
 public:
 
     UIScrollBar* vertical_scrollbar;
@@ -26,10 +28,7 @@ public:
     vec2 getScrollRect();
     vec2 getInnerRect();
     
-    
     void setUI(UI* ui); 
-    void expandRect(const vec2& expand);
-    void resetRect();
 
     void update(float dt);
     void draw();

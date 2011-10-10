@@ -5,7 +5,10 @@ UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir,
 
     minimizable = false;
 
-    listing   = new UIScrollLayout(vec2(420.0f, 100.0f));
+    listing = new UIScrollLayout(vec2(420.0f, 100.0f));
+    listing->setDrawBackground(true);
+    listing->bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.25f);
+    listing->setFill(true);
 
     std::string initial_dir = dir;
 
@@ -184,7 +187,10 @@ void UIFileSelector::updateListing() {
                 continue;
         }
 
-        listing->addElement(new UIFileSelectorLabel(this, l));
+        UIFileSelectorLabel* file_label = new UIFileSelectorLabel(this, l);
+        file_label->setFillHorizontal(true);
+    
+        listing->addElement(file_label);
     }
 
     listing->update(0.1f);
