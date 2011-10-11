@@ -345,6 +345,28 @@ UIFileInputLabel::UIFileInputLabel(UIFileSelector* selector, const std::string& 
 }
 
 void UIFileInputLabel::tab() {
+    boost::filesystem::path filepath(text);
+        
+    if(!is_directory(filepath.parent_path())) {       
+        filepath = selector->getCurrentDir() / filepath;
+        if(!exists(filepath.parent_path())) return;
+        
+        std::string completed = selector->autocomplete(filepath.string());
+        
+        if(completed != filepath.string()) {
+            
+            std::string cur_dir = selector->getCurrentDir().string();
+            
+            size_t curr_len = selector->getCurrentDir().string().size();
+            
+            if(completed.size() > curr_len) {
+                completed = completed.substr(curr_len);
+            }
+            
+            setText(boost::filesystem::path(completed).string());
+        }
+    }
+    
     setText(selector->autocomplete(text));
 }
 
@@ -352,7 +374,7 @@ bool UIFileInputLabel::submit() {
 
     boost::filesystem::path filepath(text);
 
-    if(!exists(filepath)) {       
+    if(!exists(filepath) || filepath.is_relative()) {       
         filepath = selector->getCurrentDir() / filepath;
         if(!exists(filepath)) return false;
     }
