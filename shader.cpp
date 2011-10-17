@@ -128,7 +128,7 @@ void FloatShaderUniform::write(std::string& content) const {
     char buff[256];
 
     if(baked) {
-        snprintf(buff, 256, "#define %s %f\n", name.c_str(), value);
+        snprintf(buff, 256, "#define %s %e\n", name.c_str(), value);
     } else {
         snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
     }
@@ -243,7 +243,7 @@ void Vec2ShaderUniform::write(std::string& content) const {
     char buff[256];
 
     if(baked) {
-        snprintf(buff, 256, "#define %s vec2(%f, %f)\n", name.c_str(), value.x, value.y);
+        snprintf(buff, 256, "#define %s vec2(%e, %e)\n", name.c_str(), value.x, value.y);
     } else {
         snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
     }
@@ -273,7 +273,7 @@ void Vec3ShaderUniform::write(std::string& content) const {
     char buff[256];
 
     if(baked) {
-        snprintf(buff, 256, "#define %s vec3(%f, %f, %f)\n", name.c_str(), value.x, value.y, value.z);
+        snprintf(buff, 256, "#define %s vec3(%e, %e, %e)\n", name.c_str(), value.x, value.y, value.z);
     } else {
         snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
     }
@@ -302,7 +302,7 @@ void Vec4ShaderUniform::write(std::string& content) const {
     char buff[256];
 
     if(baked) {
-        snprintf(buff, 256, "#define %s vec4(%f, %f, %f, %f)\n", name.c_str(), value.x, value.y, value.z, value.w);
+        snprintf(buff, 256, "#define %s vec4(%e, %e, %e, %e)\n", name.c_str(), value.x, value.y, value.z, value.w);
     } else {
         snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
     }
@@ -331,7 +331,7 @@ void Mat3ShaderUniform::write(std::string& content) const {
     char buff[256];
 
     if(baked) {
-        snprintf(buff, 256, "#define %s mat3(%f, %f, %f, %f, %f, %f, %f, %f, %f)\n", name.c_str(),
+        snprintf(buff, 256, "#define %s mat3(%e, %e, %e, %e, %e, %e, %e, %e, %e)\n", name.c_str(),
                 value[0][0], value[0][1], value[0][2],
                 value[1][0], value[1][1], value[1][2],
                 value[2][0], value[2][1], value[2][2]);
@@ -364,7 +364,7 @@ void Mat4ShaderUniform::write(std::string& content) const {
     char buff[256];
 
     if(baked) {
-        snprintf(buff, 256, "#define %s mat4(%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f)\n", name.c_str(),
+        snprintf(buff, 256, "#define %s mat4(%e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e)\n", name.c_str(),
                 value[0][0], value[0][1], value[0][2], value[0][3],
                 value[1][0], value[1][1], value[1][2], value[1][3],
                 value[2][0], value[2][1], value[2][2], value[2][3],
@@ -449,7 +449,7 @@ void ShaderPass::compile() {
 
     shader_object_src += source;
 
-    //fprintf(stderr, "src:\n%s", shader_object_src.c_str());
+    fprintf(stderr, "src:\n%s", shader_object_src.c_str());
 
     const char* source_ptr = shader_object_src.c_str();
     int source_len = shader_object_src.size();
