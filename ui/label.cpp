@@ -228,7 +228,7 @@ bool UIFloatLabel::keyPress(SDL_KeyboardEvent *e, char c) {
 
 void UIFloatLabel::updateContent() {
     char buff[256];
-    snprintf(buff, 256, "%.5f", *value);
+    snprintf(buff, 256, "%f", *value);
     text = std::string(buff);
     text_changed = true;
 
