@@ -184,8 +184,11 @@ class ShaderPass {
     Shader* parent;
 
     std::string source;
+    std::string shader_object_source;
 
     std::list<ShaderUniform*> uniforms;
+
+    bool errorContext(const char* log_message, std::string& context);
 
     bool preprocess(const std::string& line);
 public:

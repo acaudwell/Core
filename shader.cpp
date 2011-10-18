@@ -41,6 +41,7 @@ void ShaderManager::enableWarnings(bool warnings) {
 
 Regex Shader_pre_include("^\\s*#include\\s*\"([^\"]+)\"");
 Regex Shader_uniform_def("^\\s*uniform\\s+(\\w+)\\s+(\\w+)\\s*;\\s*$");
+Regex Shader_error_line("^\\d*\\((\\d+)\\) : error ");
 
 Shader* ShaderManager::grab(const std::string& shader_prefix) {
     Resource* s = resources[shader_prefix];
@@ -328,16 +329,16 @@ const mat3& Mat3ShaderUniform::getValue() const {
 
 void Mat3ShaderUniform::write(std::string& content) const {
 
-    char buff[256];
+    char buff[1024];
 
     if(baked) {
-        snprintf(buff, 256, "#define %s mat3(%e, %e, %e, %e, %e, %e, %e, %e, %e)\n", name.c_str(),
+        snprintf(buff, 1024, "#define %s mat3(%e, %e, %e, %e, %e, %e, %e, %e, %e)\n", name.c_str(),
                 value[0][0], value[0][1], value[0][2],
                 value[1][0], value[1][1], value[1][2],
                 value[2][0], value[2][1], value[2][2]);
 
     } else {
-        snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+        snprintf(buff, 1024, "uniform %s %s;\n", type_name.c_str(), name.c_str());
     }
 
     content += buff;
@@ -361,16 +362,16 @@ const mat4& Mat4ShaderUniform::getValue() const {
 
 void Mat4ShaderUniform::write(std::string& content) const {
 
-    char buff[256];
+    char buff[1024];
 
     if(baked) {
-        snprintf(buff, 256, "#define %s mat4(%e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e)\n", name.c_str(),
+        snprintf(buff, 1024, "#define %s mat4(%e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e)\n", name.c_str(),
                 value[0][0], value[0][1], value[0][2], value[0][3],
                 value[1][0], value[1][1], value[1][2], value[1][3],
                 value[2][0], value[2][1], value[2][2], value[2][3],
                 value[3][0], value[3][1], value[3][2], value[3][3]);
     } else {
-        snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+        snprintf(buff, 1024, "uniform %s %s;\n", type_name.c_str(), name.c_str());
     }
 
     content += buff;
@@ -395,6 +396,34 @@ void ShaderPass::attachTo(GLenum program) {
     glAttachShader(program, shader_object);
 }
 
+bool ShaderPass::errorContext(const char* log_message, std::string& context) {
+
+    std::vector<std::string> matches;
+
+    if(!Shader_error_line.match(log_message, &matches)) return false;
+
+    int line_no = atoi(matches[0].c_str());
+
+    std::stringstream in(shader_object_source);
+
+    int i = 1;
+    int amount = 3;
+
+    char line_detail[1024];
+
+    std::string line;
+    while( std::getline(in,line) ) {
+
+        if(i==line_no || i<line_no && i+amount>=line_no || i>line_no && i-amount<=line_no) {
+            snprintf(line_detail, 1024, "%s%4d | %s\n", (i==line_no ? "-> ": "   "), i, line.c_str());
+            context += line_detail;
+        }
+        i++;
+    }
+
+    return true;
+}
+
 void ShaderPass::checkError() {
     if(!shader_object) return;
 
@@ -411,11 +440,17 @@ void ShaderPass::checkError() {
 
         glGetShaderInfoLog(shader_object, info_log_length, &info_log_length, info_log);
 
+        std::string context;
+        errorContext(info_log, context);
+
         if(!compile_success) {
-            throw SDLAppException("%s shader '%s' failed to compile:\n%s",
+            throw SDLAppException("%s shader '%s' failed to compile:\n%s\n%s",
                                   shader_object_desc.c_str(),
                                   resource_desc,
-                                  info_log);
+                                  info_log,
+                                  context.c_str());
+
+
         }
 
         if(shadermanager.warnings) {
@@ -423,6 +458,7 @@ void ShaderPass::checkError() {
                             shader_object_desc.c_str(),
                             resource_desc,
                             info_log);
+
         }
 
         return;
@@ -441,18 +477,18 @@ void ShaderPass::compile() {
 
     if(source.empty()) return;
 
-    std::string shader_object_src;
+    shader_object_source = "";
 
     foreach(ShaderUniform* u, uniforms) {
-        u->write(shader_object_src);
+        u->write(shader_object_source);
     }
 
-    shader_object_src += source;
+    shader_object_source += source;
 
     //fprintf(stderr, "src:\n%s", shader_object_src.c_str());
 
-    const char* source_ptr = shader_object_src.c_str();
-    int source_len = shader_object_src.size();
+    const char* source_ptr = shader_object_source.c_str();
+    int source_len = shader_object_source.size();
 
     glShaderSource(shader_object, 1, (const GLchar**) &source_ptr, &source_len);
     glCompileShader(shader_object);
