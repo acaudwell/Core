@@ -449,7 +449,7 @@ void ShaderPass::compile() {
 
     shader_object_src += source;
 
-    fprintf(stderr, "src:\n%s", shader_object_src.c_str());
+    //fprintf(stderr, "src:\n%s", shader_object_src.c_str());
 
     const char* source_ptr = shader_object_src.c_str();
     int source_len = shader_object_src.size();
