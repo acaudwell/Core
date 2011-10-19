@@ -71,7 +71,9 @@ public:
     bool isBaked() const    { return baked; }
     bool isModified() const { return modified; };
 
-    virtual void setBaked(bool baked)       { this->baked = baked; };
+    virtual void apply() {};
+    
+    virtual void setBaked(bool baked);
     virtual void setModified(bool modified) { this->modified = modified; };
 };
 
@@ -82,6 +84,7 @@ public:
 
     void write(std::string& content) const;
 
+    void apply();
     void setValue(float value);
     float getValue() const;
 };
@@ -93,6 +96,7 @@ public:
 
     void write(std::string& content) const;
 
+    void apply();
     void setValue(int value);
     float getValue() const;
 };
@@ -104,6 +108,7 @@ public:
 
     void write(std::string& content) const;
 
+    void apply();
     void setValue(bool value);
     float getValue() const;
 };
@@ -117,6 +122,7 @@ public:
 
     void setBaked(bool baked);
 
+    void apply();
     void setValue(int value);
     float getValue() const;
 };
@@ -128,6 +134,7 @@ public:
 
     void write(std::string& content) const;
 
+    void apply();
     void setValue(const vec2& value);
     const vec2& getValue() const;
 };
@@ -139,6 +146,7 @@ public:
 
     void write(std::string& content) const;
 
+    void apply();
     void setValue(const vec3& value);
     const vec3& getValue() const;
 };
@@ -150,6 +158,7 @@ public:
 
     void write(std::string& content) const;
 
+    void apply();
     void setValue(const vec4& value);
     const vec4& getValue() const;
 };
@@ -161,6 +170,7 @@ public:
 
     void write(std::string& content) const;
 
+    void apply();
     void setValue(const mat3& value);
     const mat3& getValue() const;
 };
@@ -172,6 +182,7 @@ public:
 
     void write(std::string& content) const;
 
+    void apply();
     void setValue(const mat4& value);
     const mat4& getValue() const;
 };
@@ -236,7 +247,8 @@ class Shader : public Resource {
     std::map<std::string, ShaderUniform*> uniforms;
 
     GLenum program;
-
+    bool dynamic_compile;
+    
     void checkProgramError();
 
     void setDefaults();
@@ -262,6 +274,11 @@ public:
     void addUniform(ShaderUniform* uniform);
     ShaderUniform* getUniform(const std::string& name);
 
+    void setDynamicCompile(bool dynamic_compile);   
+    bool needsCompile();
+    
+    void applyUniforms();   
+    
     void setBool(const std::string& name, bool value);
     void setInteger (const std::string& name, int value);
     void setFloat(const std::string& name, float value);
@@ -270,10 +287,10 @@ public:
     void setVec4 (const std::string& name, const vec4& value);
     void setMat3 (const std::string& name, const mat3& value);
     void setMat4 (const std::string& name, const mat4& value);
+    void setBaked(const std::string& name, bool baked);
+    void setBakedUniforms(bool baked);
 
     void use();
-
-    void bake();
 };
 
 class ShaderManager : public ResourceManager {

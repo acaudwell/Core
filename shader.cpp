@@ -108,6 +108,13 @@ GLint ShaderUniform::getLocation() {
     return location;
 }
 
+void ShaderUniform::setBaked(bool baked) {
+    if(this->baked == baked) return;
+    this->baked = baked;
+    modified = true;
+}
+
+    
 //FloatShaderUniform
 
 FloatShaderUniform::FloatShaderUniform(Shader* shader, const std::string& name, float value) :
@@ -115,8 +122,16 @@ FloatShaderUniform::FloatShaderUniform(Shader* shader, const std::string& name, 
 }
 
 void FloatShaderUniform::setValue(float value) {
+    if(baked && this->value == value) return;
+
     this->value = value;
     modified = true;
+
+    apply();
+}
+
+void FloatShaderUniform::apply() {
+    if(baked) return;
     glUniform1f(getLocation(), value);
 }
 
@@ -144,8 +159,16 @@ IntShaderUniform::IntShaderUniform(Shader* shader, const std::string& name, int 
 }
 
 void IntShaderUniform::setValue(int value) {
+    if(baked && this->value == value) return;
+
     this->value = value;
     modified = true;
+
+    apply();   
+}
+
+void IntShaderUniform::apply() {
+    if(baked) return;
     glUniform1i(getLocation(), value);
 }
 
@@ -174,8 +197,16 @@ BoolShaderUniform::BoolShaderUniform(Shader* shader, const std::string& name, bo
 }
 
 void BoolShaderUniform::setValue(bool value) {
+    if(baked && this->value == value) return;
+
     this->value = value;
     modified = true;
+
+    apply();
+}
+
+void BoolShaderUniform::apply() {
+    if(baked) return;
     glUniform1i(getLocation(), value);
 }
 
@@ -203,8 +234,16 @@ Sampler2DShaderUniform::Sampler2DShaderUniform(Shader* shader, const std::string
 }
 
 void Sampler2DShaderUniform::setValue(int value) {
+    if(baked && this->value == value) return;
+
     this->value = value;
     modified = true;
+
+    apply();
+}
+
+void Sampler2DShaderUniform::apply() {
+    if(baked) return;
     glUniform1i(getLocation(), value);
 }
 
@@ -230,8 +269,16 @@ Vec2ShaderUniform::Vec2ShaderUniform(Shader* shader, const std::string& name, co
 }
 
 void Vec2ShaderUniform::setValue(const vec2& value) {
+    if(baked && this->value == value) return;
+
     this->value = value;
     modified = true;
+
+    apply();
+}
+
+void Vec2ShaderUniform::apply() {
+    if(baked) return;
     glUniform2fv(getLocation(), 1, glm::value_ptr(value));
 }
 
@@ -260,10 +307,19 @@ Vec3ShaderUniform::Vec3ShaderUniform(Shader* shader, const std::string& name, co
 
 
 void Vec3ShaderUniform::setValue(const vec3& value) {
+    if(baked && this->value == value) return;
+
     this->value = value;
     modified = true;
+
+    apply();
+}
+
+void Vec3ShaderUniform::apply() {
+    if(baked) return;
     glUniform3fv(getLocation(), 1, glm::value_ptr(value));
 }
+
 
 const vec3& Vec3ShaderUniform::getValue() const {
     return value;
@@ -289,8 +345,16 @@ Vec4ShaderUniform::Vec4ShaderUniform(Shader* shader, const std::string& name, co
 }
 
 void Vec4ShaderUniform::setValue(const vec4& value) {
+    if(baked && this->value == value) return;
+
     this->value = value;
     modified = true;
+
+    apply();    
+}
+
+void Vec4ShaderUniform::apply() {
+    if(baked) return;
     glUniform4fv(getLocation(), 1, glm::value_ptr(value));
 }
 
@@ -318,8 +382,16 @@ Mat3ShaderUniform::Mat3ShaderUniform(Shader* shader, const std::string& name, co
 }
 
 void Mat3ShaderUniform::setValue(const mat3& value) {
+    if(baked && this->value == value) return;
+
     this->value = value;
     modified = true;
+
+    apply();
+}
+
+void Mat3ShaderUniform::apply() {
+    if(baked) return;
     glUniformMatrix3fv(getLocation(), 1, 0, glm::value_ptr(value));
 }
 
@@ -351,8 +423,15 @@ Mat4ShaderUniform::Mat4ShaderUniform(Shader* shader, const std::string& name, co
 }
 
 void Mat4ShaderUniform::setValue(const mat4& value) {
+    if(baked && this->value == value) return;
+
     this->value = value;
     modified = true;
+
+    apply();
+}
+
+void Mat4ShaderUniform::apply() {
     glUniformMatrix4fv(getLocation(), 1, 0, glm::value_ptr(value));
 }
 
@@ -481,6 +560,7 @@ void ShaderPass::compile() {
 
     foreach(ShaderUniform* u, uniforms) {
         u->write(shader_object_source);
+        u->setModified(false);
     }
 
     shader_object_source += source;
@@ -626,7 +706,7 @@ Shader::Shader(const std::string& prefix) : Resource(prefix) {
 
     fragment_shader = new FragmentShader(this);
     fragment_shader->includeFile(fragment_file);
-
+    
     load();
 }
 
@@ -634,11 +714,16 @@ Shader::Shader() {
     setDefaults();
 }
 
+void Shader::setDynamicCompile(bool dynamic_compile) {
+    this->dynamic_compile = dynamic_compile;
+}
+
 void Shader::setDefaults() {
     vertex_shader   = 0;
     fragment_shader = 0;
     geometry_shader = 0;
     program = 0;
+    dynamic_compile = false;    
 }
 
 Shader::~Shader() {
@@ -660,6 +745,8 @@ void Shader::unload() {
 }
 
 void Shader::load() {
+    fprintf(stderr, "load\n");
+    
     if(program !=0) unload();
 
     if(vertex_shader != 0)   vertex_shader->compile();
@@ -718,6 +805,11 @@ void Shader::checkProgramError() {
 }
 
 void Shader::use() {
+    if(dynamic_compile && needsCompile()) {
+        load();
+        applyUniforms();
+    }
+    
     glUseProgram(program);
 }
 
@@ -844,11 +936,37 @@ void Shader::setMat4 (const std::string& name, const mat4& value) {
     ((Mat4ShaderUniform*)uniform)->setValue(value);
 }
 
-void Shader::bake() {
+void Shader::setBaked(const std::string& name, bool baked) {
+    ShaderUniform* uniform = getUniform(name);
 
-    for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
-        it->second->setBaked(true);
-    }
-    load();
+    if(!uniform) return;
+
+    uniform->setBaked(baked);    
 }
 
+void Shader::setBakedUniforms(bool baked) {
+    for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
+        it->second->setBaked(baked);
+    }
+}
+
+
+void Shader::applyUniforms() {
+    for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
+        if(!it->second->isBaked()) it->second->apply();       
+    }
+}
+
+bool Shader::needsCompile() {
+
+    for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
+        ShaderUniform* u = it->second;
+        
+        if(u->isBaked() && u->isModified()) {
+            //fprintf(stderr, "baked uniform %s needs update\n", u->getName().c_str());
+            return true;
+        }
+    }
+    
+    return false;
+}
