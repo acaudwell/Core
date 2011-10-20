@@ -41,6 +41,7 @@ UIOptionLabel* UISelect::getSelectedOption() {
 void UISelect::selectOption(UIOptionLabel* option) {
     label->setText(option->text);
     selected_option = option;
+    selected_option->submit();
     open = false;
 }
 
@@ -86,8 +87,25 @@ void UISelect::draw() {
     }
 }
 
-UIOptionLabel::UIOptionLabel(UISelect* select, const std::string& text, const std::string& value)
-    : select(select), value(value), UILabel(text, false, 150.0f) {
+UIIntSelectAction::UIIntSelectAction(int* field, int value) : field(field), value(value) { 
+}
+
+void UIIntSelectAction::perform() {
+    *field = value;    
+}
+
+UIOptionLabel::UIOptionLabel(UISelect* select, const std::string& text, const std::string& value, UIAction* action)
+    : select(select), value(value), action(action), UILabel(text, false, 150.0f) {
+}
+
+bool UIOptionLabel::submit() {
+
+    if(action!=0) {
+        action->perform();   
+        return true;
+    }
+
+    return false;
 }
 
 void UIOptionLabel::click(const vec2& pos) {

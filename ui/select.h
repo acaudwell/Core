@@ -1,19 +1,32 @@
 #ifndef UI_SELECT_H
 #define UI_SELECT_H
 
+#include "action.h"
 #include "label.h"
 #include "solid_layout.h"
 
 class UISelect;
 
+class UIIntSelectAction : public UIAction {
+    int* field;
+    int value;
+public:
+    UIIntSelectAction(int* field, int value);
+    
+    void perform();
+};
+
 class UIOptionLabel : public UILabel {
     UISelect* select;
+    UIAction* action;
 public:
     std::string value;
-
-    UIOptionLabel(UISelect* select, const std::string& text, const std::string& value);
+    
+    UIOptionLabel(UISelect* select, const std::string& text, const std::string& value, UIAction* action = 0);
 
     void click(const vec2& pos);
+    
+    bool submit();
 };
 
 class UISelect : public UISolidLayout {
