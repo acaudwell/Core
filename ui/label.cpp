@@ -69,7 +69,11 @@ bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
     }
 
     switch(c) {
-        case SDLK_BACKSPACE:
+#ifdef __APPLE__
+        case SDLK_DELETE:
+#else
+	case SDLK_BACKSPACE:
+#endif
             backspace();
             break;
         case SDLK_TAB:
