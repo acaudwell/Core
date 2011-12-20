@@ -33,13 +33,19 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp> 
 #include <glm/gtc/matrix_access.hpp>
+#include <glm/gtx/norm.hpp>
 
 using glm::vec2;
 using glm::vec3;
 using glm::vec4;
 using glm::mat3;
 using glm::mat4;
-using glm::normalize;
+
+vec2 rotate_vec2(const vec2& v, float s, float c);
+
+vec2 normalize(const vec2& v);
+vec3 normalize(const vec3& v);
+vec4 normalize(const vec4& v);
 
 class lerp2 : public glm::vec2 {
 public:
