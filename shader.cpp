@@ -745,7 +745,7 @@ void Shader::unload() {
 }
 
 void Shader::load() {
-    fprintf(stderr, "load\n");
+    //fprintf(stderr, "load\n");
     
     if(program !=0) unload();
 
