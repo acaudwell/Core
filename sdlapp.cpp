@@ -274,6 +274,7 @@ void SDLApp::updateFramerate() {
     }
     fps_updater = 0;
     frame_count = 0;
+    min_delta_msec = 8;
 }
 
 bool SDLApp::isFinished() {
@@ -309,7 +310,7 @@ int SDLApp::run() {
 
         // cant have delta ticks be less than 8ms
         buffer_msec += delta_msec;
-        if(buffer_msec < 8) {
+        if(buffer_msec < min_delta_msec) {
             SDL_Delay(1);
             continue;
         }

@@ -87,9 +87,9 @@ class SDLApp {
     int fps_updater;
     int return_code;
 
-
     void updateFramerate();
 protected:
+    int  min_delta_msec;
     bool appFinished;
     void stop(int return_code);
 public:
