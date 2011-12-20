@@ -34,7 +34,7 @@ TextureManager texturemanager;
 
 TextureManager::TextureManager() : ResourceManager() {
     resource_seq = 0;
-    trilinear    = false;
+    trilinear    = true;
 }
 
 TextureResource* TextureManager::grabFile(const std::string& filename, bool mipmaps, GLint wrap) {
@@ -131,7 +131,7 @@ TextureResource::TextureResource(const std::string& filename, bool mipmaps, GLin
     data      = 0;
     format    = 0;
     textureid = 0;
-
+    
     //if doesnt have an absolute path, look in resource dir
     if(!external && !(filename.size() > 2 && filename[1] == ':') && !(filename.size() > 1 && filename[0] == '/')) {
         this->filename = texturemanager.getDir() + filename;
@@ -223,7 +223,7 @@ void TextureResource::createTexture() {
         }
 
         if(mipmaps) {
-            gluBuild2DMipmaps(GL_TEXTURE_2D, 4, w, h, format, GL_UNSIGNED_BYTE, data);
+            gluBuild2DMipmaps(GL_TEXTURE_2D, internalFormat, w, h, format, GL_UNSIGNED_BYTE, data);
         } else {
             glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, format, GL_UNSIGNED_BYTE, data);
         }
