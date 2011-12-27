@@ -31,7 +31,7 @@
 #define GLM_SWIZZLE_XYZW
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp> 
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtx/norm.hpp>
 
@@ -43,9 +43,9 @@ using glm::mat4;
 
 vec2 rotate_vec2(const vec2& v, float s, float c);
 
-vec2 normalize(const vec2& v);
-vec3 normalize(const vec3& v);
-vec4 normalize(const vec4& v);
+vec2 normalise(const vec2& v);
+vec3 normalise(const vec3& v);
+vec4 normalise(const vec4& v);
 
 class lerp2 : public glm::vec2 {
 public:

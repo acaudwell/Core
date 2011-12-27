@@ -59,9 +59,9 @@ void Frustum::updatePerspective(float fov, float near_distance, float far_distan
 
 void Frustum::updateView(const vec3& source, const vec3& target, const vec3& up) {
 
-    vec3 view_ray = normalize(target - source);
+    vec3 view_ray = normalise(target - source);
 
-    vec3 horiz_normal = normalize(glm::cross(view_ray,up));
+    vec3 horiz_normal = normalise(glm::cross(view_ray,up));
 
     vec3 vert_normal = glm::cross(horiz_normal, view_ray);
 

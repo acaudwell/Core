@@ -51,7 +51,7 @@ vec2 vec2Hash(std::string& str) {
     int x = ((hash/7) % 255) - 127;
     int y = ((hash/3) % 255) - 127;
 
-    vec2 v = normalize(vec2(x, y));
+    vec2 v = normalise(vec2(x, y));
 
     return v;
 }
@@ -63,7 +63,7 @@ vec3 vec3Hash(std::string& str) {
     int y = ((hash/3) % 255) - 127;
     int z = hash % 255;
 
-    vec3 v = normalize(vec3(x, y, z));
+    vec3 v = normalise(vec3(x, y, z));
 
     return v;
 }
@@ -77,7 +77,7 @@ vec3 colourHash(std::string& str) {
     if(g<0) g=0;
     int b = hash % 255;
 
-    vec3 colour = normalize(vec3(r, g, b));
+    vec3 colour = normalise(vec3(r, g, b));
 
     return colour;
 }
