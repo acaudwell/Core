@@ -73,7 +73,7 @@ void ShaderManager::manage(Shader* shader) {
 
 void ShaderManager::unload() {
     for(std::map<std::string, Resource*>::iterator it= resources.begin(); it!=resources.end();it++) {
-        ((Shader*)it->second)->load();
+        ((Shader*)it->second)->unload();
     }
 }
 
@@ -114,7 +114,7 @@ void ShaderUniform::setBaked(bool baked) {
     modified = true;
 }
 
-    
+
 //FloatShaderUniform
 
 FloatShaderUniform::FloatShaderUniform(Shader* shader, const std::string& name, float value) :
@@ -164,7 +164,7 @@ void IntShaderUniform::setValue(int value) {
     this->value = value;
     modified = true;
 
-    apply();   
+    apply();
 }
 
 void IntShaderUniform::apply() {
@@ -350,7 +350,7 @@ void Vec4ShaderUniform::setValue(const vec4& value) {
     this->value = value;
     modified = true;
 
-    apply();    
+    apply();
 }
 
 void Vec4ShaderUniform::apply() {
@@ -706,7 +706,7 @@ Shader::Shader(const std::string& prefix) : Resource(prefix) {
 
     fragment_shader = new FragmentShader(this);
     fragment_shader->includeFile(fragment_file);
-    
+
     load();
 }
 
@@ -723,7 +723,7 @@ void Shader::setDefaults() {
     fragment_shader = 0;
     geometry_shader = 0;
     program = 0;
-    dynamic_compile = false;    
+    dynamic_compile = false;
 }
 
 Shader::~Shader() {
@@ -746,7 +746,7 @@ void Shader::unload() {
 
 void Shader::load() {
     //fprintf(stderr, "load\n");
-    
+
     if(program !=0) unload();
 
     if(vertex_shader != 0)   vertex_shader->compile();
@@ -809,7 +809,7 @@ void Shader::use() {
         load();
         applyUniforms();
     }
-    
+
     glUseProgram(program);
 }
 
@@ -941,7 +941,7 @@ void Shader::setBaked(const std::string& name, bool baked) {
 
     if(!uniform) return;
 
-    uniform->setBaked(baked);    
+    uniform->setBaked(baked);
 }
 
 void Shader::setBakedUniforms(bool baked) {
@@ -953,7 +953,7 @@ void Shader::setBakedUniforms(bool baked) {
 
 void Shader::applyUniforms() {
     for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
-        if(!it->second->isBaked()) it->second->apply();       
+        if(!it->second->isBaked()) it->second->apply();
     }
 }
 
@@ -961,12 +961,12 @@ bool Shader::needsCompile() {
 
     for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
         ShaderUniform* u = it->second;
-        
+
         if(u->isBaked() && u->isModified()) {
             //fprintf(stderr, "baked uniform %s needs update\n", u->getName().c_str());
             return true;
         }
     }
-    
+
     return false;
 }
