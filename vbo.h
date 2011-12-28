@@ -58,27 +58,57 @@ public:
 
 class quadbuf_buffer {
 public:
+    GLuint id;
+    int capacity;
+
     quadbuf_buffer() {
         id = 0;
-        size = 0;
+        capacity = 0;
     }
     ~quadbuf_buffer() {
-        if(id !=0) glDeleteBuffers(1, &id);
+        unload();
     }
 
-    GLuint id;
-    int size;
+    void init() {
+        if(!id) glGenBuffers(1, &id);
+    }
+
+    void unload() {
+        capacity = 0;
+        if(id != 0) {
+            glDeleteBuffers(1, &id);
+            id = 0;
+        }
+    }
+    
+    void bind() {
+        if(!id) init();
+        glBindBuffer(GL_ARRAY_BUFFER, id);
+    }
+    
+    void buffer(int item_count, int item_size, int item_capacity, GLvoid* data, GLenum usage) {
+
+        if(capacity < item_count) {
+            capacity = item_capacity;
+            glBufferData(GL_ARRAY_BUFFER, capacity * item_size, data, usage);
+        } else {
+            glBufferSubData(GL_ARRAY_BUFFER, 0, item_count * item_size, data);
+        }
+    }
+    
+    void unbind() {
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }   
 };
 
 class quadbuf {
 
     quadbuf_vertex* data;
-    int data_size;
+    int vertex_capacity;
 
     std::vector<quadbuf_tex> textures;
 
-    std::vector<quadbuf_buffer> buffers;
-    int curr_buffer;
+    quadbuf_buffer buf;
 
     int vertex_count;
 
@@ -87,6 +117,7 @@ public:
     quadbuf(int data_size = 0);
     ~quadbuf();
 
+    void unload();
     void reset();
 
     size_t vertices();

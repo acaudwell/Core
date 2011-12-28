@@ -29,13 +29,10 @@
 
 //quadbuf
 
-quadbuf::quadbuf(int data_size) : data_size(data_size) {
+quadbuf::quadbuf(int vertex_capacity) : vertex_capacity(vertex_capacity) {
     vertex_count = 0;
-    curr_buffer =-1;
 
-    buffers.resize(1);
-
-    data = data_size > 0 ? new quadbuf_vertex[data_size] : 0;
+    data = vertex_capacity > 0 ? new quadbuf_vertex[vertex_capacity] : 0;
 
     //fprintf(stderr, "size of quadbuf_vertex = %d\n", sizeof(quadbuf_vertex));
 }
@@ -44,17 +41,21 @@ quadbuf::~quadbuf() {
     if(data!=0) delete[] data;
 }
 
+void quadbuf::unload() {
+    buf.unload();
+}
+
 void quadbuf::resize(int new_size) {
 
     quadbuf_vertex* _data = data;
 
     data = new quadbuf_vertex[new_size];
 
-    for(int i=0;i<data_size;i++) {
+    for(int i=0;i<vertex_capacity;i++) {
         data[i] = _data[i];
     }
 
-    data_size = new_size;
+    vertex_capacity = new_size;
 
     if(_data != 0) delete[] _data;
 }
@@ -69,7 +70,7 @@ size_t quadbuf::vertices() {
 }
 
 size_t quadbuf::capacity() {
-    return data_size;
+    return vertex_capacity;
 }
 
 size_t quadbuf::texture_changes() {
@@ -94,7 +95,7 @@ void quadbuf::add(GLuint textureid, const vec2& pos, const vec2& dims, const vec
 
     vertex_count += 4;
 
-    if(vertex_count > data_size) {
+    if(vertex_count > vertex_capacity) {
         resize(vertex_count*2);
     }
 
@@ -114,7 +115,7 @@ void quadbuf::add(GLuint textureid, const quadbuf_vertex& v1, const quadbuf_vert
 
     vertex_count += 4;
 
-    if(vertex_count > data_size) {
+    if(vertex_count > vertex_capacity) {
         resize(vertex_count*2);
     }
 
@@ -131,31 +132,18 @@ void quadbuf::add(GLuint textureid, const quadbuf_vertex& v1, const quadbuf_vert
 void quadbuf::update() {
     if(vertex_count==0) return;
 
-    curr_buffer = (curr_buffer + 1) % buffers.size();
-
-    quadbuf_buffer* buf = &(buffers[curr_buffer]);
-
-    if(!buf->id) {
-        glGenBuffers(1, &(buf->id));
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, buf->id);
+    buf.bind();
 
     //recreate buffer if less than the vertex_count
-    if(buf->size < vertex_count) {
-        buf->size = data_size;
-        glBufferData(GL_ARRAY_BUFFER, buf->size*sizeof(quadbuf_vertex), &(data[0].pos.x), GL_DYNAMIC_DRAW);
-    } else {
-        glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count*sizeof(quadbuf_vertex), &(data[0].pos.x));
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    buf.buffer( vertex_count, sizeof(quadbuf_vertex), vertex_capacity, &(data[0].pos.x), GL_DYNAMIC_DRAW );
+    
+    buf.unbind();
 }
 
 void quadbuf::draw() {
-    if(vertex_count==0 || curr_buffer==-1) return;
-
-    glBindBuffer(GL_ARRAY_BUFFER, buffers[curr_buffer].id);
+    if(vertex_count==0) return;
+   
+    buf.bind();
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
@@ -196,5 +184,5 @@ void quadbuf::draw() {
     glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    buf.unbind();
 }
