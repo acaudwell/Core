@@ -106,10 +106,10 @@ void FXGlyph::drawToVBO(quadbuf& buffer, const vec2& pos, const vec4& colour) co
 void FXGlyph::draw(const vec2& pos) const {
     for(int i=0;i<4;i++) {
         vec2 pos_offset = vertex_positions[i] + pos + corner;
-        
+
         glTexCoord2fv(glm::value_ptr(vertex_texcoords[i]));
         glVertex2fv(glm::value_ptr(pos_offset));
-        
+
     }
 }
 
@@ -500,6 +500,13 @@ void FXFontManager::init() {
     if(FT_Init_FreeType( &library ))
         throw FXFontException("Failed to init FreeType");
     use_vbo = false;
+}
+
+void FXFontManager::unload() {
+    font_vbo.unload();
+}
+
+void FXFontManager::reload() {
 }
 
 void FXFontManager::startBuffer() {

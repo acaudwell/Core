@@ -222,6 +222,10 @@ public:
 
     void setDir(std::string font_dir);
     void init();
+
+    void unload();
+    void reload();
+
     void destroy();
     void purge();
 
