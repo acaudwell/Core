@@ -15,6 +15,10 @@ protected:
 public:
     UISlider(const std::string& slider_texure, float width);
 
+    bool keyPress(SDL_KeyboardEvent *e, char c);
+
+    virtual void scroll(bool up) {}; 
+
     int getType() { return UI_SLIDER; };
 };
 
