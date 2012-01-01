@@ -42,6 +42,7 @@ void ShaderManager::enableWarnings(bool warnings) {
 Regex Shader_pre_include("^\\s*#include\\s*\"([^\"]+)\"");
 Regex Shader_uniform_def("^\\s*uniform\\s+(\\w+)\\s+(\\w+)\\s*;\\s*$");
 Regex Shader_error_line("^\\d*\\((\\d+)\\) : error ");
+Regex Shader_error2_line("^ERROR: \\d+:(\\d+):");
 
 Shader* ShaderManager::grab(const std::string& shader_prefix) {
     Resource* s = resources[shader_prefix];
@@ -479,7 +480,9 @@ bool ShaderPass::errorContext(const char* log_message, std::string& context) {
 
     std::vector<std::string> matches;
 
-    if(!Shader_error_line.match(log_message, &matches)) return false;
+    if(   !Shader_error_line.match(log_message, &matches)
+       && !Shader_error2_line.match(log_message, &matches))
+        return false;
 
     int line_no = atoi(matches[0].c_str());
 
