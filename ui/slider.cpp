@@ -89,9 +89,15 @@ void UIFloatSlider::scroll(bool up) {
     if(!up) value_inc = -value_inc;
 
     Uint8* keyState = SDL_GetKeyState(NULL);
+
     if(keyState[SDLK_LCTRL]) {
         value_inc *= 0.1f;
     }
+
+    if(keyState[SDLK_LSHIFT]) {
+        value_inc *= 0.1f;
+    }
+
 
     setValue(*value+value_inc);
 }
