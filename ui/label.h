@@ -9,7 +9,7 @@ class UILabel : public UIElement {
 protected:
     float cursor_anim;
     float expanded;
-    
+
     bool text_changed;
 
 
@@ -55,6 +55,7 @@ public:
     UIIntLabel(int* value, bool editable);
 
     bool keyPress(SDL_KeyboardEvent *e, char c);
+    bool submit();
 
     void updateContent();
 };
@@ -65,6 +66,10 @@ public:
     UIFloatLabel(float* value, bool editable);
 
     bool keyPress(SDL_KeyboardEvent *e, char c);
+    bool submit();
+
+
+    void setSelected(bool selected);
 
     void updateContent();
 };

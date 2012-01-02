@@ -10,7 +10,7 @@ UILabel::UILabel(const std::string& text, bool editable, float width) : text(tex
     bgcolour     = vec4(0.0f);
     text_changed = true;
     expanded     = 0.0f;
-    
+
     selected_edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.5f);
     edit_bgcolour          = vec4(0.0f, 0.0f, 0.0f, 0.25f);
 }
@@ -34,7 +34,7 @@ void UILabel::expandRect(const vec2& expand) {
 }
 
 void UILabel::resetRect() {
-    //expanded = 0.0f;    
+    //expanded = 0.0f;
 }
 
 void UILabel::drawBackground() {
@@ -57,6 +57,7 @@ void UILabel::tab() {
 }
 
 bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
+
     if(!editable) {
 
         switch(c) {
@@ -137,9 +138,9 @@ void UILabel::drawContent() {
     vec2 rect2 = this->rect;
     rect2.x += expanded;
 
-   
+
     if(selected && editable) {
-        
+
         if(selected_edit_bgcolour.w > 0.0f) {
             glDisable(GL_TEXTURE_2D);
 
@@ -159,7 +160,7 @@ void UILabel::drawContent() {
             glDisable(GL_TEXTURE_2D);
 
             glColor4fv(glm::value_ptr(edit_bgcolour));
-            
+
             drawQuad(rect2, vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
             glEnable(GL_TEXTURE_2D);
@@ -167,7 +168,7 @@ void UILabel::drawContent() {
 
         ui->font.draw(margin.x, rect.y-(3.0+margin.w), display_text);
     }
-    
+
     //NOTE: this is the wrong place for this, but it gets the desired result...
     expanded = 0.0f;
 }
@@ -183,17 +184,19 @@ bool UIIntLabel::keyPress(SDL_KeyboardEvent *e, char c) {
 
     bool changed = UILabel::keyPress(e,c);
 
-    if(changed) {
-        int v = atoi(text.c_str());
+    return changed;
+}
 
-        if(slider != 0) {
-            ((UIIntSlider*)slider)->setValue(v);
-        } else {
-            *value = v;
-        }
+bool UIIntLabel::submit() {
+    int v = atoi(text.c_str());
+
+    if(slider != 0) {
+        ((UIIntSlider*)slider)->setValue(v);
+    } else {
+        *value = v;
     }
 
-    return changed;
+    return true;
 }
 
 void UIIntLabel::updateContent() {
@@ -209,25 +212,32 @@ void UIIntLabel::updateContent() {
 
 UIFloatLabel::UIFloatLabel(float* value, bool editable) : value(value), UILabel("", editable) {
     width = 80.0f;
-    edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.0f);    
+    edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 bool UIFloatLabel::keyPress(SDL_KeyboardEvent *e, char c) {
 
     bool changed = UILabel::keyPress(e,c);
 
-    if(changed) {
+    return changed;
+}
 
-        float v = atof(text.c_str());
+bool UIFloatLabel::submit() {
 
-        if(slider != 0) {
-            ((UIFloatSlider*)slider)->setValue(v);
-        } else {
-            *value = v;
-        }
+    float v = atof(text.c_str());
+
+    if(slider != 0) {
+        ((UIFloatSlider*)slider)->setValue(v);
+    } else {
+        *value = v;
     }
 
-    return changed;
+    return true;
+}
+
+void UIFloatLabel::setSelected(bool selected) {
+    UILabel::setSelected(selected);
+    if(selected && editable) updateContent();
 }
 
 void UIFloatLabel::updateContent() {
@@ -238,13 +248,15 @@ void UIFloatLabel::updateContent() {
 
     //trim trailing zeros - ideally we should only do this when the value changes
     size_t dotsep = text.rfind(".");
-    size_t tlen    = text.size();
+    size_t tlen   = text.size();
+
+    size_t dotstop = selected ? dotsep-1 : dotsep+1;
 
     if(tlen>1 && dotsep != std::string::npos && dotsep != tlen-1) {
 
         size_t zpos = tlen-1;
 
-        while(zpos>dotsep+1 && text[zpos] == '0') zpos--;
+        while(zpos>dotstop && (text[zpos] == '0' || text[zpos] == '.')) zpos--;
 
         if(zpos<tlen-1) text.resize(zpos+1);
     }
