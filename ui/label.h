@@ -21,7 +21,6 @@ public:
 
     vec3 font_colour;
     UISlider* slider;
-    bool editable;
     std::string text;
     std::string display_text;
 

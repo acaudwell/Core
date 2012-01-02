@@ -191,7 +191,7 @@ bool UI::keyPress(SDL_KeyboardEvent *e) {
 
     if(e->keysym.unicode == SDLK_ESCAPE) {
         deselect();
-        return true;
+        return selected->isEditable();
     }
 
     char c = toChar(e);

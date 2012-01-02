@@ -6,6 +6,7 @@ UISlider::UISlider(const std::string& slider_texture, float width) : slider_widt
     slidertex  = texturemanager.grab(slider_texture);
     rect       = vec2(slider_width, 16.0f);
     background = true;
+    editable   = true;
 }
 
 void UISlider::drawSlider(float position) {

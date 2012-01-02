@@ -3,13 +3,15 @@
 
 //UILabel
 
-UILabel::UILabel(const std::string& text, bool editable, float width) : text(text), editable(editable), width(width), UIElement() {
+UILabel::UILabel(const std::string& text, bool editable, float width) : text(text), width(width), UIElement() {
 
     slider       = 0;
     font_colour  = vec3(1.0f);
     bgcolour     = vec4(0.0f);
     text_changed = true;
     expanded     = 0.0f;
+
+    this->editable = editable;
 
     selected_edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.5f);
     edit_bgcolour          = vec4(0.0f, 0.0f, 0.0f, 0.25f);

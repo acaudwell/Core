@@ -2,18 +2,18 @@
 
 UISelect::UISelect() : UISolidLayout(true) {
 
-    label = new UILabel("Select", false, 150.0f);   
+    label = new UILabel("Select", false, 150.0f);
     addElement(label);
 
     options_layout = new UISolidLayout(false);
     options_layout->setMargin(2.0f);
     options_layout->parent = this;
-    
+
     setMargin(vec4(2.0f,2.0f,2.0f,2.0f));
     selected_option = 0;
-    
+
     open = false;
-    
+
     selectex = texturemanager.grab("ui/select.png", false);
     selectex->bind();
     selectex->setFiltering(GL_NEAREST, GL_NEAREST);
@@ -47,8 +47,8 @@ void UISelect::selectOption(UIOptionLabel* option) {
 
 void UISelect::addOption(const std::string& name, const std::string& value) {
     UIOptionLabel* option = new UIOptionLabel(this, name, value);
-    
-    options_layout->addElement(option);   
+
+    options_layout->addElement(option);
 
     selectOption(option);
 }
@@ -87,11 +87,11 @@ void UISelect::draw() {
     }
 }
 
-UIIntSelectAction::UIIntSelectAction(int* field, int value) : field(field), value(value) { 
+UIIntSelectAction::UIIntSelectAction(int* field, int value) : field(field), value(value) {
 }
 
 void UIIntSelectAction::perform() {
-    *field = value;    
+    *field = value;
 }
 
 UIOptionLabel::UIOptionLabel(UISelect* select, const std::string& text, const std::string& value, UIAction* action)
@@ -101,7 +101,7 @@ UIOptionLabel::UIOptionLabel(UISelect* select, const std::string& text, const st
 bool UIOptionLabel::submit() {
 
     if(action!=0) {
-        action->perform();   
+        action->perform();
         return true;
     }
 
