@@ -16,7 +16,7 @@ void UISlider::drawSlider(float position) {
     //drawQuad(vec2(slider_width,16.0f), vec4(0.0f, 0.0f, 1.0f, 0.5f));
 
     vec4 alpha = ui->getAlpha();
-    
+
     if(background) {
 
         glDisable(GL_TEXTURE_2D);
@@ -35,7 +35,9 @@ void UISlider::drawSlider(float position) {
         glPushMatrix();
             glTranslatef(0.5f, 0.5f, 0.0f);
 
-            glColor4f(0.0f, 1.0f, 0.0f, alpha.w);
+            if(selected) glColor4f(0.75f, 1.0f, 0.75f, alpha.w);
+            else glColor4f(0.0f, 1.0f, 0.0f, alpha.w);
+
             glBegin(GL_LINE_STRIP);
                 glVertex2f(0.0f, 3.0f);
                 glVertex2f(slider_width, 3.0f);
@@ -51,22 +53,23 @@ void UISlider::drawSlider(float position) {
 
     slidertex->bind();
 
-    glColor4fv(glm::value_ptr(ui->getSolidColour()));   
-   
+    glColor4fv(glm::value_ptr(ui->getSolidColour()));
+
     //slider
     drawQuad(vec2(slider_position-4.0, 0.0f), vec2(16.0,16.0), vec4(0.0f, 0.0f, 1.0f, 1.0f));
 }
 
 bool UISlider::keyPress(SDL_KeyboardEvent *e, char c) {
 
-    if(e->keysym.sym == SDLK_LEFT) {
-        scroll(false);
-        return true;
-    }
-
-    if(e->keysym.sym == SDLK_RIGHT) {
-        scroll(true);
-        return true;
+    switch(e->keysym.sym) {
+        case SDLK_MINUS:
+                scroll(false);
+                return true;
+            break;
+        case SDLK_EQUALS:
+                scroll(true);
+                return true;
+            break;
     }
 
     return false;
