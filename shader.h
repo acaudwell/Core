@@ -36,6 +36,7 @@
 #include "regex.h"
 #include "util.h"
 
+#include <boost/format.hpp>
 #include <list>
 #include <map>
 #include <string>
@@ -192,6 +193,9 @@ class ShaderPass {
     std::string shader_object_desc;
     GLenum      shader_object;
 
+    int version;
+    std::map<std::string,std::string> extensions;
+    
     Shader* parent;
 
     std::string source;
@@ -248,7 +252,7 @@ class Shader : public Resource {
 
     GLenum program;
     bool dynamic_compile;
-    
+        
     void checkProgramError();
 
     void setDefaults();

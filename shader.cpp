@@ -39,6 +39,8 @@ void ShaderManager::enableWarnings(bool warnings) {
     this->warnings = warnings;
 }
 
+Regex Shader_pre_version("^\\s*#version\\s*(\\d+)\\s*$");
+Regex Shader_pre_extension("^\\s*#extension\\s*([a-zA-Z0-9_]+)\\s+:\\s+(enable|require|warn|disable)\\s*$");
 Regex Shader_pre_include("^\\s*#include\\s*\"([^\"]+)\"");
 Regex Shader_uniform_def("^\\s*uniform\\s+(\\w+)\\s+(\\w+)\\s*;\\s*$");
 Regex Shader_error_line("^\\d*\\((\\d+)\\) : error ");
@@ -461,6 +463,7 @@ void Mat4ShaderUniform::write(std::string& content) const {
 
 ShaderPass::ShaderPass(Shader* parent, GLint shader_object_type, const std::string& shader_object_desc) : parent(parent), shader_object_type(shader_object_type), shader_object_desc(shader_object_desc) {
     shader_object = 0;
+    version = 0;
 }
 
 ShaderPass::~ShaderPass() {
@@ -561,6 +564,14 @@ void ShaderPass::compile() {
 
     shader_object_source = "";
 
+    if(version!=0) {       
+        shader_object_source.append(str(boost::format("#version %d\n") % version));
+    }
+    
+    for(std::map<std::string, std::string>::iterator it = extensions.begin(); it != extensions.end(); it++) {
+        shader_object_source.append(str(boost::format("#extension %s : %s\n") % it->first % it->second));
+    }
+        
     foreach(ShaderUniform* u, uniforms) {
         u->write(shader_object_source);
         u->setModified(false);
@@ -620,6 +631,16 @@ bool ShaderPass::preprocess(const std::string& line) {
 
     std::vector<std::string> matches;
 
+    if(Shader_pre_version.match(line, &matches)) {
+        version = atoi(matches[0].c_str());
+        return true;
+    }
+
+    if(Shader_pre_extension.match(line, &matches)) {
+        extensions[matches[0]] = matches[1];
+        return true;
+    }
+    
     if(Shader_pre_include.match(line, &matches)) {
 
         std::string include_file = shadermanager.getDir() + matches[0];
