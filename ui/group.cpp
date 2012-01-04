@@ -40,7 +40,7 @@ void UIGroup::toggle() {
 
     minimized = !minimized;
     animation = 1.0f;
-
+    
     old_group_rect = rect;
     old_label_rect = bar->rect;
 }
@@ -62,7 +62,7 @@ UIElement* UIGroup::elementAt(const vec2& pos) {
     UIElement* found = 0;
 
     if((found = bar->elementAt(pos)) != 0) return found;
-    if(minimized && (found = layout->elementAt(pos)) != 0) return found;
+    if(!minimized && (found = layout->elementAt(pos)) != 0) return found;
 
     return UIElement::elementAt(pos);
 }
@@ -80,11 +80,12 @@ void UIGroup::update(float dt) {
 
     rect = bar->rect;
 
-    if(minimized) {
+    if(!minimized) {
         layout->update(dt);
         bar->rect.x =  std::max( bar->rect.x, layout->rect.x );
         rect = bar->rect;
         rect.y += layout->rect.y;
+    } else {
     }
 
     if(animation>0.0f) {
@@ -97,7 +98,7 @@ void UIGroup::update(float dt) {
 
 void UIGroup::draw() {
     bar->draw();
-    if(minimized && animation <= 0.0f) layout->draw();
+    if(!minimized && animation <= 0.0f) layout->draw();
 }
 
 //UIGroupBar

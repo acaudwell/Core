@@ -28,7 +28,7 @@ protected:
 public:
     UIGroupBar* bar;
 
-    UIGroup(const std::string& groupname, bool minimized = true, bool resizable = false);
+    UIGroup(const std::string& groupname, bool minimized = false, bool resizable = false);
     ~UIGroup();
 
     void setUI(UI* ui);

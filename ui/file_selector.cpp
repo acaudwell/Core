@@ -1,7 +1,7 @@
 #include "file_selector.h"
 
 UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir, UIFileSelectorAction* action)
-    : action(action), UIGroup(title, true, true) {
+    : action(action), UIGroup(title, false, true) {
 
     minimizable = false;
 
