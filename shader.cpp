@@ -564,14 +564,14 @@ void ShaderPass::compile() {
 
     shader_object_source = "";
 
-    if(version!=0) {       
+    if(version!=0) {
         shader_object_source.append(str(boost::format("#version %d\n") % version));
     }
-    
+
     for(std::map<std::string, std::string>::iterator it = extensions.begin(); it != extensions.end(); it++) {
         shader_object_source.append(str(boost::format("#extension %s : %s\n") % it->first % it->second));
     }
-        
+
     foreach(ShaderUniform* u, uniforms) {
         u->write(shader_object_source);
         u->setModified(false);
@@ -640,7 +640,7 @@ bool ShaderPass::preprocess(const std::string& line) {
         extensions[matches[0]] = matches[1];
         return true;
     }
-    
+
     if(Shader_pre_include.match(line, &matches)) {
 
         std::string include_file = shadermanager.getDir() + matches[0];
@@ -701,17 +701,11 @@ VertexShader::VertexShader(Shader* parent) : ShaderPass(parent, GL_VERTEX_SHADER
 FragmentShader::FragmentShader(Shader* parent) : ShaderPass(parent, GL_FRAGMENT_SHADER, "fragment") {
 }
 
-GeometryShader::GeometryShader(Shader* parent, GLenum input_type, GLenum output_type, GLuint max_vertices)
-    : input_type(input_type), output_type(output_type), max_vertices(max_vertices),
-      ShaderPass(parent, GL_GEOMETRY_SHADER_EXT, "geometry") {
+GeometryShader::GeometryShader(Shader* parent) : ShaderPass(parent, GL_GEOMETRY_SHADER_ARB, "geometry") {
 }
 
 void GeometryShader::attachTo(GLenum program) {
     ShaderPass::attachTo(program);
-
-    glProgramParameteriEXT(program, GL_GEOMETRY_INPUT_TYPE_EXT,   input_type);
-    glProgramParameteriEXT(program, GL_GEOMETRY_OUTPUT_TYPE_EXT,  output_type);
-    glProgramParameteriEXT(program, GL_GEOMETRY_VERTICES_OUT_EXT, max_vertices);
 }
 
 //Shader
@@ -868,7 +862,7 @@ ShaderPass* Shader::grabShaderPass(GLenum shader_object_type) {
             if(!vertex_shader) vertex_shader = new VertexShader(this);
             shader_pass = vertex_shader;
             break;
-        case GL_GEOMETRY_SHADER_EXT:
+        case GL_GEOMETRY_SHADER_ARB:
             if(!geometry_shader) geometry_shader = new GeometryShader(this);
             shader_pass = geometry_shader;
             break;

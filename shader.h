@@ -73,7 +73,7 @@ public:
     bool isModified() const { return modified; };
 
     virtual void apply() {};
-    
+
     virtual void setBaked(bool baked);
     virtual void setModified(bool modified) { this->modified = modified; };
 };
@@ -195,7 +195,7 @@ class ShaderPass {
 
     int version;
     std::map<std::string,std::string> extensions;
-    
+
     Shader* parent;
 
     std::string source;
@@ -237,11 +237,7 @@ public:
 
 class GeometryShader : public ShaderPass {
 public:
-    GLenum input_type;
-    GLenum output_type;
-    GLuint max_vertices;
-
-    GeometryShader(Shader* parent, GLenum input_type = GL_POINTS, GLenum output_type = GL_POINTS, GLuint max_vertices = 1);
+    GeometryShader(Shader* parent);
 
     void attachTo(GLenum program);
 };
@@ -252,7 +248,7 @@ class Shader : public Resource {
 
     GLenum program;
     bool dynamic_compile;
-        
+
     void checkProgramError();
 
     void setDefaults();
@@ -278,11 +274,11 @@ public:
     void addUniform(ShaderUniform* uniform);
     ShaderUniform* getUniform(const std::string& name);
 
-    void setDynamicCompile(bool dynamic_compile);   
+    void setDynamicCompile(bool dynamic_compile);
     bool needsCompile();
-    
-    void applyUniforms();   
-    
+
+    void applyUniforms();
+
     void setBool(const std::string& name, bool value);
     void setInteger (const std::string& name, int value);
     void setFloat(const std::string& name, float value);
