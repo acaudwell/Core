@@ -120,21 +120,27 @@ void UIScrollBar::updateRect() {
 
     vec2 scroll_rect = ((UIScrollLayout*)parent)->getScrollRect();
     vec2 inner_rect  = ((UIScrollLayout*)parent)->getInnerRect();
-
+    
     if(horizontal) {
         rect        = vec2(scroll_rect.x, bar_width);
         bar_percent = std::min(1.0f, scroll_rect.x / inner_rect.x);
 
-        if(bar_percent>= 1.0f) bar_percent = 0.0f;
-
+        if(bar_percent >= 1.0f) {
+            bar_percent = 0.0f;
+            bar_offset  = 0.0f;
+        }
+        
         bar_rect          = vec2(std::max(bar_min / scroll_rect.x, bar_percent) * rect.x, bar_width);
         bar_visual_offset = std::min(bar_offset, 1.0f - std::max(bar_min / ((UIScrollLayout*)parent)->getScrollRect().x, bar_percent));
     } else {
         rect        = vec2(bar_width, scroll_rect.y);
         bar_percent = std::min(1.0f, scroll_rect.y / inner_rect.y);
 
-        if(bar_percent>= 1.0f) bar_percent = 0.0f;
-
+        if(bar_percent >= 1.0f) {
+            bar_percent = 0.0f;
+            bar_offset  = 0.0f;
+        }
+        
         bar_rect          = vec2(bar_width, std::max(bar_min / scroll_rect.y, bar_percent) * rect.y);
         bar_visual_offset = std::min(bar_offset, 1.0f - std::max(bar_min / ((UIScrollLayout*)parent)->getScrollRect().y, bar_percent));
     }
