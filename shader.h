@@ -43,7 +43,7 @@
 #include <fstream>
 #include <sstream>
 
-enum { SHADER_UNIFORM_FLOAT, SHADER_UNIFORM_BOOL, SHADER_UNIFORM_INT, SHADER_UNIFORM_VEC2, SHADER_UNIFORM_VEC3, SHADER_UNIFORM_VEC4, SHADER_UNIFORM_MAT3, SHADER_UNIFORM_MAT4 };
+enum { SHADER_UNIFORM_FLOAT, SHADER_UNIFORM_BOOL, SHADER_UNIFORM_SAMPLER_1D, SHADER_UNIFORM_SAMPLER_2D, SHADER_UNIFORM_INT, SHADER_UNIFORM_VEC2, SHADER_UNIFORM_VEC3, SHADER_UNIFORM_VEC4, SHADER_UNIFORM_MAT3, SHADER_UNIFORM_MAT4 };
 
 class Shader;
 
@@ -111,6 +111,20 @@ public:
 
     void apply();
     void setValue(bool value);
+    float getValue() const;
+};
+
+class Sampler1DShaderUniform : public ShaderUniform {
+    int value;
+public:
+    Sampler1DShaderUniform(Shader* shader, const std::string& name, int value = 0);
+
+    void write(std::string& content) const;
+
+    void setBaked(bool baked);
+
+    void apply();
+    void setValue(int value);
     float getValue() const;
 };
 
@@ -281,6 +295,8 @@ public:
 
     void setBool(const std::string& name, bool value);
     void setInteger (const std::string& name, int value);
+    void setSampler1D(const std::string& name, int value);
+    void setSampler2D(const std::string& name, int value);
     void setFloat(const std::string& name, float value);
     void setVec2 (const std::string& name, const vec2& value);
     void setVec3 (const std::string& name, const vec3& value);

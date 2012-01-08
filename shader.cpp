@@ -192,7 +192,6 @@ void IntShaderUniform::write(std::string& content) const {
     content += buff;
 }
 
-
 //BoolShaderUniform
 
 BoolShaderUniform::BoolShaderUniform(Shader* shader, const std::string& name, bool value) :
@@ -230,10 +229,43 @@ void BoolShaderUniform::write(std::string& content) const {
     content += buff;
 }
 
+//Sampler1DShaderUniform
+
+Sampler1DShaderUniform::Sampler1DShaderUniform(Shader* shader, const std::string& name, int value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_SAMPLER_1D, "sampler1D") {
+}
+
+void Sampler1DShaderUniform::setValue(int value) {
+    if(baked && this->value == value) return;
+
+    this->value = value;
+    modified = true;
+
+    apply();
+}
+
+void Sampler1DShaderUniform::setBaked(bool baked) {
+}
+
+void Sampler1DShaderUniform::write(std::string& content) const {
+    char buff[256];
+    snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+    content += buff;
+}
+
+void Sampler1DShaderUniform::apply() {
+    if(baked) return;
+    glUniform1i(getLocation(), value);
+}
+
+float Sampler1DShaderUniform::getValue() const {
+    return value;
+}
+
 //Sampler2DShaderUniform
 
 Sampler2DShaderUniform::Sampler2DShaderUniform(Shader* shader, const std::string& name, int value) :
-    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_INT, "sampler2D") {
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_SAMPLER_2D, "sampler2D") {
 }
 
 void Sampler2DShaderUniform::setValue(int value) {
@@ -603,6 +635,8 @@ void ShaderPass::addUniform(const std::string& name, const std::string& type, bo
             uniform = new IntShaderUniform(parent, name);
         } else if(type == "bool") {
             uniform = new BoolShaderUniform(parent, name);
+        } else if(type == "sampler1D") {
+            uniform = new Sampler1DShaderUniform(parent, name);
         } else if(type == "sampler2D") {
             uniform = new Sampler2DShaderUniform(parent, name);
         } else if(type == "vec2") {
@@ -904,6 +938,22 @@ void Shader::setInteger (const std::string& name, int value) {
     if(!uniform || uniform->getType() != SHADER_UNIFORM_INT) return;
 
     ((IntShaderUniform*)uniform)->setValue(value);
+}
+
+void Shader::setSampler1D (const std::string& name, int value) {
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform || uniform->getType() != SHADER_UNIFORM_SAMPLER_1D) return;
+
+    ((Sampler1DShaderUniform*)uniform)->setValue(value);
+}
+
+void Shader::setSampler2D (const std::string& name, int value) {
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform || uniform->getType() != SHADER_UNIFORM_SAMPLER_2D) return;
+
+    ((Sampler2DShaderUniform*)uniform)->setValue(value);
 }
 
 void Shader::setFloat(const std::string& name, float value) {
