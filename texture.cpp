@@ -74,9 +74,11 @@ void TextureManager::addResource(TextureResource* r) {
     r->addref();
 }
 
-TextureResource* TextureManager::create() {
+TextureResource* TextureManager::create(GLenum target) {
 
     TextureResource* r = new TextureResource();
+    r->target = target;
+    
     r->load();
 
     addResource(r);
@@ -118,6 +120,7 @@ TextureResource::TextureResource() {
     format    = 0;
     data      = 0;
     wrap      = GL_CLAMP_TO_EDGE;
+    target    = GL_TEXTURE_2D;
     mipmaps   = false;
 
     setDefaultFiltering();
@@ -131,6 +134,7 @@ TextureResource::TextureResource(const std::string& filename, bool mipmaps, GLin
     data      = 0;
     format    = 0;
     textureid = 0;
+    target    = GL_TEXTURE_2D;
     
     //if doesnt have an absolute path, look in resource dir
     if(!external && !(filename.size() > 2 && filename[1] == ':') && !(filename.size() > 1 && filename[0] == '/')) {
@@ -149,6 +153,7 @@ TextureResource::TextureResource(int width, int height, bool mipmaps, GLint wrap
     this->format    = format;
     this->mipmaps   = mipmaps;
     this->wrap      = wrap;
+    this->target    = GL_TEXTURE_2D;
 
     textureid = 0;
 
@@ -183,16 +188,16 @@ void TextureResource::setFiltering(GLint min_filter, GLint mag_filter) {
     this->min_filter = min_filter;
     this->mag_filter = mag_filter;
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, min_filter);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, mag_filter);
 }
 
 void TextureResource::setWrapStyle(GLint wrap) {
 
     this->wrap = wrap;
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
+    glTexParameteri(target, GL_TEXTURE_WRAP_S, wrap);
+    glTexParameteri(target, GL_TEXTURE_WRAP_T, wrap);
 }
 
 
@@ -204,8 +209,8 @@ void TextureResource::unload() {
 void TextureResource::createTexture() {
 
     glGenTextures(1, &textureid);
-    glBindTexture(GL_TEXTURE_2D, textureid);
-
+    glBindTexture(target, textureid);
+    
     if(w != 0 && format != 0) {
 
         GLint internalFormat = 0;
@@ -223,9 +228,9 @@ void TextureResource::createTexture() {
         }
 
         if(mipmaps) {
-            gluBuild2DMipmaps(GL_TEXTURE_2D, internalFormat, w, h, format, GL_UNSIGNED_BYTE, data);
+            gluBuild2DMipmaps(target, internalFormat, w, h, format, GL_UNSIGNED_BYTE, data);
         } else {
-            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, format, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(target, 0, internalFormat, w, h, 0, format, GL_UNSIGNED_BYTE, data);
         }
     }
 
@@ -284,4 +289,10 @@ GLenum TextureResource::colourFormat(SDL_Surface* surface) {
     }
 
     return format;
+}
+
+void TextureResource::bind() {
+
+    if(!textureid) load();
+    glBindTexture(target, textureid);
 }

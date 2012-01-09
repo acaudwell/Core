@@ -48,6 +48,7 @@ class TextureResource : public Resource {
     GLenum colourFormat(SDL_Surface* surface);
 public:
     int w, h;
+    GLenum target;
     GLenum format;
     GLuint textureid;
     GLubyte* data;
@@ -61,7 +62,7 @@ public:
     void setFiltering(GLint min_filter, GLint mag_filter);
     void setDefaultFiltering();
 
-    inline void bind() { if(!textureid) load(); glBindTexture(GL_TEXTURE_2D, textureid); };
+    void bind();
 
     void createTexture();
 
@@ -84,7 +85,7 @@ public:
     TextureResource*     grab(const std::string& filename, bool mipmaps = true, GLint wrap = GL_CLAMP_TO_EDGE, bool external_file = false);
 
     TextureResource* create(int width, int height, bool mipmaps, GLint wrap, GLenum format, GLubyte* data  = 0);
-    TextureResource* create();
+    TextureResource* create(GLenum target = GL_TEXTURE_2D);
 
     void unload();
     void reload();
