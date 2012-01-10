@@ -47,7 +47,12 @@ FrameExporter::FrameExporter() {
 
     cond   = SDL_CreateCond();
     mutex  = SDL_CreateMutex();
+
+#if SDL_VERSION_ATLEAST(1,3,0)
+    thread = SDL_CreateThread( dumper_thread, "frame_exporter", this );
+#else
     thread = SDL_CreateThread( dumper_thread, this );
+#endif
 }
 
 FrameExporter::~FrameExporter() {

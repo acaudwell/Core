@@ -88,16 +88,28 @@ void UIFloatSlider::scroll(bool up) {
 
     if(!up) value_inc = -value_inc;
 
-    Uint8* keyState = SDL_GetKeyState(NULL);
+    bool left_ctrl  = false;
+    bool left_shift = false;
 
-    if(keyState[SDLK_LCTRL]) {
+#if SDL_VERSION_ATLEAST(1,3,0)
+    Uint8* keystate = SDL_GetKeyboardState(NULL);
+
+    if(keystate[SDL_SCANCODE_LCTRL])  left_ctrl  = true;
+    if(keystate[SDL_SCANCODE_LSHIFT]) left_shift = true;
+#else
+    Uint8* keystate = SDL_GetKeyState(NULL);
+
+    if(keystate[SDLK_LCTRL])  left_ctrl  = true;
+    if(keystate[SDLK_LSHIFT]) left_shift = true;
+#endif
+
+    if(left_ctrl) {
         value_inc *= 0.1f;
     }
 
-    if(keyState[SDLK_LSHIFT]) {
+    if(left_shift) {
         value_inc *= 0.1f;
     }
-
 
     setValue(*value+value_inc);
 }

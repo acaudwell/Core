@@ -65,6 +65,11 @@ int SDLAppDisplay::SDLFlags(bool fullscreen) {
     if (resizable && !fullscreen) flags |= SDL_RESIZABLE;
     if (fullscreen) flags |= SDL_FULLSCREEN;
 
+    //SDL 1.3 vsync
+#ifdef SDL_RENDERER_PRESENTVSYNC
+    if (!vsync) flags |= SDL_RENDERER_PRESENTVSYNC;
+#endif
+
     return flags;
 }
 
@@ -113,9 +118,11 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
 
     int flags = SDLFlags(fullscreen);
 
-    //vsync
+    //SDL 1.2 vsync 
+#ifdef SDL_GL_SWAP_CONTROL
     if(vsync) SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
     else SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 0);
+#endif
 
     if(multi_sample > 0) {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
