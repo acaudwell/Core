@@ -42,7 +42,7 @@ void ShaderManager::enableWarnings(bool warnings) {
 Regex Shader_pre_version("^\\s*#version\\s*(\\d+)\\s*$");
 Regex Shader_pre_extension("^\\s*#extension\\s*([a-zA-Z0-9_]+)\\s+:\\s+(enable|require|warn|disable)\\s*$");
 Regex Shader_pre_include("^\\s*#include\\s*\"([^\"]+)\"");
-Regex Shader_uniform_def("^\\s*uniform\\s+(\\w+)\\s+(\\w+)\\s*;\\s*$");
+Regex Shader_uniform_def("^\\s*uniform\\s+(\\w+)\\s+(\\w+)(?:\\[(\\d+)\\])?\\s*;\\s*$");
 Regex Shader_error_line("^\\d*\\((\\d+)\\) : error ");
 Regex Shader_error2_line("^ERROR: \\d+:(\\d+):");
 
@@ -147,6 +147,7 @@ void FloatShaderUniform::write(std::string& content) const {
     char buff[256];
 
     if(baked) {
+//        snprintf(buff, 256, "const %s %s = %e;\n", type_name.c_str(), name.c_str(), value);
         snprintf(buff, 256, "#define %s %e\n", name.c_str(), value);
     } else {
         snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
@@ -491,6 +492,51 @@ void Mat4ShaderUniform::write(std::string& content) const {
     content += buff;
 }
 
+//Vec3ArrayShaderUniform
+
+Vec3ArrayShaderUniform::Vec3ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, vec3* value) :
+    value(value), length(length), ShaderUniform(shader, name, SHADER_UNIFORM_VEC3_ARRAY, "vec3") {
+}
+
+const vec3* Vec3ArrayShaderUniform::getValue() const {
+    return value;
+}
+
+void Vec3ArrayShaderUniform::setValue(vec3* value) {
+    if(baked && this->value == value) return;
+
+    this->value = value;
+    modified = true;
+
+    apply();
+}
+
+void Vec3ArrayShaderUniform::apply() {
+    glUniform3fv(getLocation(), length, glm::value_ptr(value[0]));
+}
+
+void Vec3ArrayShaderUniform::write(std::string& content) const {
+
+    char buff[1024];
+
+    if(baked) {
+        snprintf(buff, 1024, "%s[%d] %s = %s[] (\n", type_name.c_str(), length, name.c_str(), type_name.c_str());
+        
+        content += buff;
+
+        for(size_t i=0; i<length; i++) {
+            snprintf(buff, 1024, "    %s(%e, %e, %e)", type_name.c_str(), value[i].x, value[i].y, value[i].z);
+            content += buff;
+            if(i<length-1) content += ",\n";
+            else           content += ");\n";
+        }
+                
+    } else {
+        snprintf(buff, 1024, "uniform %s %s[%d];\n", type_name.c_str(), name.c_str(), length);
+        content += buff;
+    }
+}
+
 //ShaderPass
 
 ShaderPass::ShaderPass(Shader* parent, GLint shader_object_type, const std::string& shader_object_desc) : parent(parent), shader_object_type(shader_object_type), shader_object_desc(shader_object_desc) {
@@ -567,6 +613,7 @@ void ShaderPass::checkError() {
                                   info_log,
                                   context.c_str());
 
+            
 
         }
 
@@ -623,37 +670,51 @@ void ShaderPass::compile() {
 }
 
 //add uniform, unless parent Shader has this in which case link to it
-void ShaderPass::addUniform(const std::string& name, const std::string& type, bool baked) {
+void ShaderPass::addUniform(const std::string& name, const std::string& type, size_t length) {
 
     ShaderUniform* uniform = 0;
 
     if((uniform = parent->getUniform(name)) == 0) {
 
-        if(type == "float") {
-            uniform = new FloatShaderUniform(parent, name);
-        } else if(type == "int") {
-            uniform = new IntShaderUniform(parent, name);
-        } else if(type == "bool") {
-            uniform = new BoolShaderUniform(parent, name);
-        } else if(type == "sampler1D") {
-            uniform = new Sampler1DShaderUniform(parent, name);
-        } else if(type == "sampler2D") {
-            uniform = new Sampler2DShaderUniform(parent, name);
-        } else if(type == "vec2") {
-            uniform = new Vec2ShaderUniform(parent, name);
-        } else if(type == "vec3") {
-            uniform = new Vec3ShaderUniform(parent, name);
-        } else if(type == "vec4") {
-            uniform = new Vec4ShaderUniform(parent, name);
-        } else if(type == "mat3") {
-            uniform = new Mat3ShaderUniform(parent, name);
-        } else if(type == "mat4") {
-            uniform = new Mat4ShaderUniform(parent, name);
-        } else {
-            throw SDLAppException("unsupported shader uniform type '%s'", type.c_str());
-        }
+        //arrays
+        if(length > 1) {
+            if(type == "vec3") {
+                uniform = new Vec3ArrayShaderUniform(parent, name, length);
+            }
 
-        if(baked) uniform->setBaked(true);
+        } else {
+
+            if(length > 1) {
+                throw SDLAppException("shader uniform arrays for type '%s' not implemented", type.c_str());
+            }
+            
+            if(type == "float") {
+                uniform = new FloatShaderUniform(parent, name);
+            } else if(type == "int") {
+                uniform = new IntShaderUniform(parent, name);
+            } else if(type == "bool") {
+                uniform = new BoolShaderUniform(parent, name);
+            } else if(type == "sampler1D") {
+                uniform = new Sampler1DShaderUniform(parent, name);
+            } else if(type == "sampler2D") {
+                uniform = new Sampler2DShaderUniform(parent, name);
+            } else if(type == "vec2") {
+                uniform = new Vec2ShaderUniform(parent, name);
+            } else if(type == "vec3") {
+                uniform = new Vec3ShaderUniform(parent, name);
+            } else if(type == "vec4") {
+                uniform = new Vec4ShaderUniform(parent, name);
+            } else if(type == "mat3") {
+                uniform = new Mat3ShaderUniform(parent, name);
+            } else if(type == "mat4") {
+                uniform = new Mat4ShaderUniform(parent, name);
+            } else {
+                throw SDLAppException("unsupported shader uniform type '%s'", type.c_str());
+            }
+
+        }
+        
+        //if(baked) uniform->setBaked(true);
 
         parent->addUniform(uniform);
     }
@@ -687,8 +748,13 @@ bool ShaderPass::preprocess(const std::string& line) {
     if(Shader_uniform_def.match(line, &matches)) {
         std::string uniform_type = matches[0];
         std::string uniform_name = matches[1];
-
-        addUniform(uniform_name, uniform_type);
+        size_t uniform_length    = 1;
+        
+        if(matches.size() > 2) {
+            uniform_length = atoi(matches[2].c_str());
+        }
+        
+        addUniform(uniform_name, uniform_type, uniform_length);
 
         return true;
     }
@@ -978,6 +1044,14 @@ void Shader::setVec3 (const std::string& name, const vec3& value) {
     if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC3) return;
 
     ((Vec3ShaderUniform*)uniform)->setValue(value);
+}
+
+void Shader::setVec3Array (const std::string& name, vec3* value) {
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC3_ARRAY) return;
+
+    ((Vec3ArrayShaderUniform*)uniform)->setValue(value);
 }
 
 void Shader::setVec4 (const std::string& name, const vec4& value) {

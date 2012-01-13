@@ -43,7 +43,18 @@
 #include <fstream>
 #include <sstream>
 
-enum { SHADER_UNIFORM_FLOAT, SHADER_UNIFORM_BOOL, SHADER_UNIFORM_SAMPLER_1D, SHADER_UNIFORM_SAMPLER_2D, SHADER_UNIFORM_INT, SHADER_UNIFORM_VEC2, SHADER_UNIFORM_VEC3, SHADER_UNIFORM_VEC4, SHADER_UNIFORM_MAT3, SHADER_UNIFORM_MAT4 };
+enum { SHADER_UNIFORM_FLOAT,
+       SHADER_UNIFORM_BOOL,
+       SHADER_UNIFORM_SAMPLER_1D,
+       SHADER_UNIFORM_SAMPLER_2D,
+       SHADER_UNIFORM_INT,
+       SHADER_UNIFORM_VEC2,
+       SHADER_UNIFORM_VEC3,
+       SHADER_UNIFORM_VEC4,
+       SHADER_UNIFORM_MAT3,
+       SHADER_UNIFORM_MAT4,
+       SHADER_UNIFORM_VEC3_ARRAY
+};
 
 class Shader;
 
@@ -202,6 +213,19 @@ public:
     const mat4& getValue() const;
 };
 
+class Vec3ArrayShaderUniform : public ShaderUniform {
+    vec3* value;
+    size_t length;
+public:
+    Vec3ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, vec3* value = 0);
+
+    void write(std::string& content) const;
+
+    void apply();
+    void setValue(vec3* value);
+    const vec3* getValue() const;
+};
+
 class ShaderPass {
     GLint       shader_object_type;
     std::string shader_object_desc;
@@ -231,7 +255,7 @@ public:
 
     void checkError();
 
-    void addUniform(const std::string& name, const std::string& type, bool baked = false);
+    void addUniform(const std::string& name, const std::string& type, size_t length);
 
     virtual void attachTo(GLenum program);
 
@@ -303,6 +327,9 @@ public:
     void setVec4 (const std::string& name, const vec4& value);
     void setMat3 (const std::string& name, const mat3& value);
     void setMat4 (const std::string& name, const mat4& value);
+    
+    void setVec3Array(const std::string& name, vec3* value);
+
     void setBaked(const std::string& name, bool baked);
     void setBakedUniforms(bool baked);
 
