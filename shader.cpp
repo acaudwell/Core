@@ -494,18 +494,42 @@ void Mat4ShaderUniform::write(std::string& content) const {
 
 //Vec3ArrayShaderUniform
 
-Vec3ArrayShaderUniform::Vec3ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, vec3* value) :
-    value(value), length(length), ShaderUniform(shader, name, SHADER_UNIFORM_VEC3_ARRAY, "vec3") {
+Vec3ArrayShaderUniform::Vec3ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec3* value) :
+    length(length), ShaderUniform(shader, name, SHADER_UNIFORM_VEC3_ARRAY, "vec3") {
+    this->value = new vec3[length];
+    if(value != 0) copyValue(value);
+}
+
+Vec3ArrayShaderUniform::~Vec3ArrayShaderUniform() {
+    if(value) delete[] value;
 }
 
 const vec3* Vec3ArrayShaderUniform::getValue() const {
     return value;
 }
 
-void Vec3ArrayShaderUniform::setValue(vec3* value) {
-    if(baked && this->value == value) return;
+void Vec3ArrayShaderUniform::copyValue(const vec3* value) {
+    for(size_t i=0; i<length; i++) {
+        this->value[i] = value[i];
+    }
+}
 
-    this->value = value;
+void Vec3ArrayShaderUniform::setValue(const vec3* value) {
+    if(baked) {
+        bool match = true;
+
+        for(size_t i=0;i<length;i++) {
+            if(value[i] != this->value[i]) {
+                match = false;
+                break;
+            }
+        }
+
+        if(match) return;
+    }
+
+    copyValue(value);
+
     modified = true;
 
     apply();
@@ -521,7 +545,7 @@ void Vec3ArrayShaderUniform::write(std::string& content) const {
 
     if(baked) {
         snprintf(buff, 1024, "%s[%d] %s = %s[] (\n", type_name.c_str(), length, name.c_str(), type_name.c_str());
-        
+
         content += buff;
 
         for(size_t i=0; i<length; i++) {
@@ -530,7 +554,7 @@ void Vec3ArrayShaderUniform::write(std::string& content) const {
             if(i<length-1) content += ",\n";
             else           content += ");\n";
         }
-                
+
     } else {
         snprintf(buff, 1024, "uniform %s %s[%d];\n", type_name.c_str(), name.c_str(), length);
         content += buff;
@@ -613,7 +637,7 @@ void ShaderPass::checkError() {
                                   info_log,
                                   context.c_str());
 
-            
+
 
         }
 
@@ -687,7 +711,7 @@ void ShaderPass::addUniform(const std::string& name, const std::string& type, si
             if(length > 1) {
                 throw SDLAppException("shader uniform arrays for type '%s' not implemented", type.c_str());
             }
-            
+
             if(type == "float") {
                 uniform = new FloatShaderUniform(parent, name);
             } else if(type == "int") {
@@ -713,7 +737,7 @@ void ShaderPass::addUniform(const std::string& name, const std::string& type, si
             }
 
         }
-        
+
         //if(baked) uniform->setBaked(true);
 
         parent->addUniform(uniform);
@@ -749,11 +773,11 @@ bool ShaderPass::preprocess(const std::string& line) {
         std::string uniform_type = matches[0];
         std::string uniform_name = matches[1];
         size_t uniform_length    = 1;
-        
+
         if(matches.size() > 2) {
             uniform_length = atoi(matches[2].c_str());
         }
-        
+
         addUniform(uniform_name, uniform_type, uniform_length);
 
         return true;
