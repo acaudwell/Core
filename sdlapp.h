@@ -63,10 +63,10 @@ public:
     SDLAppException(const char* str, ...) : showhelp(false) {
 
         va_list vl;
-        char msg[1024];
+        char msg[4096];
 
         va_start(vl, str);
-            vsnprintf(msg, 1024, str, vl);
+            vsnprintf(msg, 4096, str, vl);
         va_end(vl);
 
         message = std::string(msg);
