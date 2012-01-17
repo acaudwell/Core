@@ -561,6 +561,76 @@ void Vec3ArrayShaderUniform::write(std::string& content) const {
     }
 }
 
+//Vec4ArrayShaderUniform
+
+Vec4ArrayShaderUniform::Vec4ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec4* value) :
+    length(length), ShaderUniform(shader, name, SHADER_UNIFORM_VEC4_ARRAY, "vec4") {
+    this->value = new vec4[length];
+    if(value != 0) copyValue(value);
+}
+
+Vec4ArrayShaderUniform::~Vec4ArrayShaderUniform() {
+    if(value) delete[] value;
+}
+
+const vec4* Vec4ArrayShaderUniform::getValue() const {
+    return value;
+}
+
+void Vec4ArrayShaderUniform::copyValue(const vec4* value) {
+    for(size_t i=0; i<length; i++) {
+        this->value[i] = value[i];
+    }
+}
+
+void Vec4ArrayShaderUniform::setValue(const vec4* value) {
+    if(baked) {
+        bool match = true;
+
+        for(size_t i=0;i<length;i++) {
+            if(value[i] != this->value[i]) {
+                match = false;
+                break;
+            }
+        }
+
+        if(match) return;
+    }
+
+    copyValue(value);
+
+    modified = true;
+
+    apply();
+}
+
+void Vec4ArrayShaderUniform::apply() {
+    glUniform4fv(getLocation(), length, glm::value_ptr(value[0]));
+}
+
+void Vec4ArrayShaderUniform::write(std::string& content) const {
+
+    char buff[1024];
+
+    if(baked) {
+        snprintf(buff, 1024, "%s[%d] %s = %s[] (\n", type_name.c_str(), length, name.c_str(), type_name.c_str());
+
+        content += buff;
+
+        for(size_t i=0; i<length; i++) {
+            snprintf(buff, 1024, "    %s(%e, %e, %e, %e)", type_name.c_str(), value[i].x, value[i].y, value[i].z, value[i].w);
+            content += buff;
+            if(i<length-1) content += ",\n";
+            else           content += ");\n";
+        }
+              
+    } else {
+        snprintf(buff, 1024, "uniform %s %s[%d];\n", type_name.c_str(), name.c_str(), length);
+        content += buff;
+    }
+    
+}
+
 //ShaderPass
 
 ShaderPass::ShaderPass(Shader* parent, GLint shader_object_type, const std::string& shader_object_desc) : parent(parent), shader_object_type(shader_object_type), shader_object_desc(shader_object_desc) {
@@ -704,13 +774,13 @@ void ShaderPass::addUniform(const std::string& name, const std::string& type, si
         if(length > 1) {
             if(type == "vec3") {
                 uniform = new Vec3ArrayShaderUniform(parent, name, length);
+            } else if(type == "vec4") {
+                uniform = new Vec4ArrayShaderUniform(parent, name, length);
+            } else {
+                throw SDLAppException("shader uniform arrays for type '%s' not implemented", type.c_str());
             }
 
         } else {
-
-            if(length > 1) {
-                throw SDLAppException("shader uniform arrays for type '%s' not implemented", type.c_str());
-            }
 
             if(type == "float") {
                 uniform = new FloatShaderUniform(parent, name);
@@ -1076,6 +1146,14 @@ void Shader::setVec3Array (const std::string& name, vec3* value) {
     if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC3_ARRAY) return;
 
     ((Vec3ArrayShaderUniform*)uniform)->setValue(value);
+}
+
+void Shader::setVec4Array (const std::string& name, vec4* value) {
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC4_ARRAY) return;
+
+    ((Vec4ArrayShaderUniform*)uniform)->setValue(value);
 }
 
 void Shader::setVec4 (const std::string& name, const vec4& value) {

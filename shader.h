@@ -53,7 +53,8 @@ enum { SHADER_UNIFORM_FLOAT,
        SHADER_UNIFORM_VEC4,
        SHADER_UNIFORM_MAT3,
        SHADER_UNIFORM_MAT4,
-       SHADER_UNIFORM_VEC3_ARRAY
+       SHADER_UNIFORM_VEC3_ARRAY,
+       SHADER_UNIFORM_VEC4_ARRAY
 };
 
 class Shader;
@@ -229,6 +230,22 @@ public:
     const vec3* getValue() const;
 };
 
+class Vec4ArrayShaderUniform : public ShaderUniform {
+    vec4* value;
+    size_t length;
+
+    void copyValue(const vec4* value);
+public:
+    Vec4ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec4* value = 0);
+    ~Vec4ArrayShaderUniform();
+
+    void write(std::string& content) const;
+
+    void apply();
+    void setValue(const vec4* value);
+    const vec4* getValue() const;
+};
+
 class ShaderPass {
     GLint       shader_object_type;
     std::string shader_object_desc;
@@ -332,6 +349,7 @@ public:
     void setMat4 (const std::string& name, const mat4& value);
 
     void setVec3Array(const std::string& name, vec3* value);
+    void setVec4Array(const std::string& name, vec4* value);
 
     void setBaked(const std::string& name, bool baked);
     void setBakedUniforms(bool baked);
