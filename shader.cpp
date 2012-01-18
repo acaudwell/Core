@@ -129,12 +129,9 @@ void FloatShaderUniform::setValue(float value) {
 
     this->value = value;
     modified = true;
-
-    apply();
 }
 
 void FloatShaderUniform::apply() {
-    if(baked) return;
     glUniform1f(getLocation(), value);
 }
 
@@ -167,12 +164,9 @@ void IntShaderUniform::setValue(int value) {
 
     this->value = value;
     modified = true;
-
-    apply();
 }
 
 void IntShaderUniform::apply() {
-    if(baked) return;
     glUniform1i(getLocation(), value);
 }
 
@@ -204,12 +198,9 @@ void BoolShaderUniform::setValue(bool value) {
 
     this->value = value;
     modified = true;
-
-    apply();
 }
 
 void BoolShaderUniform::apply() {
-    if(baked) return;
     glUniform1i(getLocation(), value);
 }
 
@@ -241,8 +232,6 @@ void Sampler1DShaderUniform::setValue(int value) {
 
     this->value = value;
     modified = true;
-
-    apply();
 }
 
 void Sampler1DShaderUniform::setBaked(bool baked) {
@@ -255,7 +244,6 @@ void Sampler1DShaderUniform::write(std::string& content) const {
 }
 
 void Sampler1DShaderUniform::apply() {
-    if(baked) return;
     glUniform1i(getLocation(), value);
 }
 
@@ -274,12 +262,9 @@ void Sampler2DShaderUniform::setValue(int value) {
 
     this->value = value;
     modified = true;
-
-    apply();
 }
 
 void Sampler2DShaderUniform::apply() {
-    if(baked) return;
     glUniform1i(getLocation(), value);
 }
 
@@ -309,12 +294,9 @@ void Vec2ShaderUniform::setValue(const vec2& value) {
 
     this->value = value;
     modified = true;
-
-    apply();
 }
 
 void Vec2ShaderUniform::apply() {
-    if(baked) return;
     glUniform2fv(getLocation(), 1, glm::value_ptr(value));
 }
 
@@ -347,12 +329,9 @@ void Vec3ShaderUniform::setValue(const vec3& value) {
 
     this->value = value;
     modified = true;
-
-    apply();
 }
 
 void Vec3ShaderUniform::apply() {
-    if(baked) return;
     glUniform3fv(getLocation(), 1, glm::value_ptr(value));
 }
 
@@ -385,12 +364,9 @@ void Vec4ShaderUniform::setValue(const vec4& value) {
 
     this->value = value;
     modified = true;
-
-    apply();
 }
 
 void Vec4ShaderUniform::apply() {
-    if(baked) return;
     glUniform4fv(getLocation(), 1, glm::value_ptr(value));
 }
 
@@ -422,12 +398,9 @@ void Mat3ShaderUniform::setValue(const mat3& value) {
 
     this->value = value;
     modified = true;
-
-    apply();
 }
 
 void Mat3ShaderUniform::apply() {
-    if(baked) return;
     glUniformMatrix3fv(getLocation(), 1, 0, glm::value_ptr(value));
 }
 
@@ -463,8 +436,6 @@ void Mat4ShaderUniform::setValue(const mat4& value) {
 
     this->value = value;
     modified = true;
-
-    apply();
 }
 
 void Mat4ShaderUniform::apply() {
@@ -531,8 +502,6 @@ void Vec3ArrayShaderUniform::setValue(const vec3* value) {
     copyValue(value);
 
     modified = true;
-
-    apply();
 }
 
 void Vec3ArrayShaderUniform::apply() {
@@ -600,8 +569,6 @@ void Vec4ArrayShaderUniform::setValue(const vec4* value) {
     copyValue(value);
 
     modified = true;
-
-    apply();
 }
 
 void Vec4ArrayShaderUniform::apply() {
@@ -1016,13 +983,24 @@ void Shader::checkProgramError() {
     }
 }
 
+void Shader::bind() {
+    glUseProgram(program);
+}
+
+void Shader::unbind() {
+    glUseProgram(0);
+}
+
 void Shader::use() {
-    if(dynamic_compile && needsCompile()) {
+
+    if(dynamic_compile && needsCompile()) {        
         load();
-        applyUniforms();
+        fprintf(stderr, "shader '%s' recompiled\n", resource_name.c_str());
     }
 
-    glUseProgram(program);
+    bind();
+
+    applyUniforms();
 }
 
 GLenum Shader::getProgram() {

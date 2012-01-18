@@ -269,7 +269,7 @@ public:
     virtual ~ShaderPass();
 
     GLint getType() { return shader_object_type; };
-
+   
     void unload();
     void compile();
 
@@ -353,7 +353,10 @@ public:
 
     void setBaked(const std::string& name, bool baked);
     void setBakedUniforms(bool baked);
-
+    
+    void bind();
+    void unbind();
+    
     void use();
 };
 
