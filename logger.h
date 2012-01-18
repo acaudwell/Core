@@ -27,7 +27,7 @@
 
 #ifndef LOGGER_H
 #define LOGGER_H
- 
+
 #include "gl.h"
 
 #include <map>
@@ -60,14 +60,14 @@ protected:
 public:
 
     void setLevel(int level)   { this->level = level; };
-    const int getLevel() const { return level; }
-    
+    int getLevel() const { return level; }
+
     Logger();
     Logger(int level, FILE* stream, int history_capacity = 0);
-        
+
     void init(int level, FILE* stream, int history_capacity);
 
-    void message(int level, const std::string& message);   
+    void message(int level, const std::string& message);
 };
 
 void warnLog(const char *args, ...);
