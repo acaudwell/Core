@@ -31,3 +31,13 @@ UILabelCheckbox::UILabelCheckbox(const std::string& label, bool* value) : UILayo
 
     padding = vec2(2.0f);
 }
+
+UILabelCheckboxSet::UILabelCheckboxSet(const std::string& label, bool* value1, bool* value2, bool* value3) : UILayout(true) {
+
+    addElement(new UILabel(label, false, 120.0f));
+    addElement(new UICheckbox(value1));
+    addElement(new UICheckbox(value2));
+    addElement(new UICheckbox(value3));
+
+    padding = vec2(2.0f);
+}

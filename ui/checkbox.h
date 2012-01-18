@@ -27,4 +27,10 @@ public:
     UILabelCheckbox(const std::string& label, bool* value);
 };
 
+class UILabelCheckboxSet : public UILayout {
+
+public:
+    UILabelCheckboxSet(const std::string& label, bool* value1, bool* value2, bool* value3);
+};
+
 #endif
