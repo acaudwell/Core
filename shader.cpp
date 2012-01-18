@@ -679,7 +679,7 @@ void ShaderPass::checkError() {
         }
 
         if(shadermanager.warnings) {
-            fprintf(stderr, "%s shader '%s':\n%s",
+            warnLog("%s shader '%s':\n%s",
                             shader_object_desc.c_str(),
                             resource_desc,
                             info_log);
@@ -969,7 +969,7 @@ void Shader::checkProgramError() {
         }
 
         if(shadermanager.warnings) {
-            fprintf(stderr, "shader '%s':\n%s",
+            warnLog("shader '%s':\n%s",
                             resource_desc,
                             info_log);
         }
@@ -992,10 +992,11 @@ void Shader::unbind() {
 }
 
 void Shader::use() {
-
-    if(dynamic_compile && needsCompile()) {        
+       
+    if(dynamic_compile && needsCompile()) {
+        unbind();
         load();
-        fprintf(stderr, "shader '%s' recompiled\n", resource_name.c_str());
+        infoLog("shader '%s' recompiled", resource_name.c_str());
     }
 
     bind();
@@ -1185,7 +1186,7 @@ bool Shader::needsCompile() {
         ShaderUniform* u = it->second;
 
         if(u->isBaked() && u->isModified()) {
-            //fprintf(stderr, "baked uniform %s needs update\n", u->getName().c_str());
+            //infoLog("baked uniform %s needs update", u->getName().c_str());
             return true;
         }
     }

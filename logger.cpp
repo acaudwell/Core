@@ -68,6 +68,21 @@ void Logger::init(int level, FILE* stream, int hist_capacity) {
     history.push_back(LoggerMessage(level, message));    
 }
 
+void warnLog(const char *str, ...) {
+
+    if(!logger || logger->getLevel() > LOG_LEVEL_WARN) return;
+    
+    char msgbuff[65536];
+
+    va_list vl;
+
+    va_start(vl, str);
+        vsnprintf(msgbuff, 65536, str, vl);
+    va_end(vl);
+
+    logger->message( LOG_LEVEL_WARN, msgbuff );
+}
+
 void debugLog(const char *str, ...) {
 
     if(!logger || logger->getLevel() > LOG_LEVEL_DEBUG) return;
