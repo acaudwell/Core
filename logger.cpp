@@ -25,44 +25,92 @@
     THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-//#define SDLAPP_DEBUG_LOG "debug.log"
-
 #include "logger.h"
 
-bool firstEntry = true;
+std::map<int,std::string> log_levels = boost::assign::map_list_of
+    (LOG_LEVEL_DEBUG,    "DEBUG" )
+    (LOG_LEVEL_INFO,     "INFO " )
+    (LOG_LEVEL_ERROR,    "ERROR" )
+    (LOG_LEVEL_INFINITY, "????"  );
+
+// LoggerMessage
+    
+LoggerMessage::LoggerMessage(int level, const std::string& message)
+    : level(level), message(message) {
+}
+
+// Logger
+    
+Logger::Logger(int level, FILE* stream, int hist_capacity) {
+    init(level, stream, hist_capacity);
+}
+    
+void Logger::init(int level, FILE* stream, int hist_capacity) {
+    this->level         = level;
+    this->stream        = stream;
+    this->hist_capacity = hist_capacity;
+}
+
+    void Logger::message(int level, const std::string& message) {
+
+    if(this->level > level) return;
+    
+    if(stream != 0) {
+        fprintf(stderr, "%s: %s\n", log_levels[level].c_str(), message.c_str());
+    }
+
+    if(!hist_capacity) return;
+
+    while(history.size() >= hist_capacity) {
+        history.pop_front();
+    }
+
+    history.push_back(LoggerMessage(level, message));    
+}
 
 void debugLog(const char *str, ...) {
-#ifdef SDLAPP_DEBUG_LOG
 
-    FILE *log;
-
-    if (firstEntry) {
-
-        log = fopen(SDLAPP_DEBUG_LOG, "w");
-
-        if(log==0) {
-            fprintf(stderr, "could not create %s\n", SDLAPP_DEBUG_LOG);
-            exit(1);
-        }
-
-        firstEntry=false;
-    } else {
-
-        log = fopen(SDLAPP_DEBUG_LOG, "a");
-
-        if(log==0) {
-            fprintf(stderr, "could not append to %s\n", SDLAPP_DEBUG_LOG);
-            exit(1);
-        }
-    }
+    if(!logger || logger->getLevel() > LOG_LEVEL_DEBUG) return;
+    
+    char msgbuff[65536];
 
     va_list vl;
 
     va_start(vl, str);
-        vfprintf(log, str, vl);
+        vsnprintf(msgbuff, 65536, str, vl);
+    va_end(vl);    
+
+    logger->message( LOG_LEVEL_DEBUG, msgbuff );
+}
+
+void infoLog(const char *str, ...) {
+
+    if(!logger || logger->getLevel() > LOG_LEVEL_INFO) return;
+    
+    char msgbuff[65536];
+
+    va_list vl;
+
+    va_start(vl, str);
+        vsnprintf(msgbuff, 65536, str, vl);
+    va_end(vl);    
+
+    logger->message( LOG_LEVEL_INFO, msgbuff );
+}
+
+void errorLog(const char *str, ...) {
+
+    if(!logger || logger->getLevel() > LOG_LEVEL_ERROR) return;
+    
+    char msgbuff[65536];
+
+    va_list vl;
+
+    va_start(vl, str);
+        vsnprintf(msgbuff, 65536, str, vl);
     va_end(vl);
 
-    fclose(log);
-
-#endif
+    logger->message( LOG_LEVEL_ERROR, msgbuff );
 }
+
+Logger* logger = new Logger(LOG_LEVEL_ERROR, stderr, 0);

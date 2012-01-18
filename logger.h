@@ -28,10 +28,52 @@
 #ifndef LOGGER_H
 #define LOGGER_H
  
+#include "gl.h"
+
+#include <map>
+#include <deque>
+#include <string>
+
+#include <boost/assign/list_of.hpp>
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 
+enum logger_level { LOG_LEVEL_DEBUG, LOG_LEVEL_ERROR, LOG_LEVEL_INFO, LOG_LEVEL_INFINITY };
+
+class LoggerMessage {
+
+public:
+    LoggerMessage(int level, const std::string& message);
+
+    int level;
+    std::string message;
+};
+
+class Logger {
+protected:
+    std::deque<LoggerMessage> history;
+    int hist_capacity;
+    FILE* stream;
+    int level;
+public:
+
+    void setLevel(int level)   { this->level = level; };
+    const int getLevel() const { return level; }
+    
+    Logger();
+    Logger(int level, FILE* stream, int history_capacity = 0);
+        
+    void init(int level, FILE* stream, int history_capacity);
+
+    void message(int level, const std::string& message);   
+};
+
 void debugLog(const char *args, ...);
+void infoLog(const char *args, ...);
+void errLog(const char *args, ...);
+
+extern Logger* logger;
 
 #endif
