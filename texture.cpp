@@ -244,7 +244,7 @@ void TextureResource::load() {
     SDL_Surface *surface = 0;
 
     if(!filename.empty()) {
-        debugLog("creating texture from %s\n", filename.c_str());
+        debugLog("creating texture from %s", filename.c_str());
 
         surface = IMG_Load(filename.c_str());
 

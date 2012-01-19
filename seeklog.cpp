@@ -42,7 +42,7 @@ StreamLog::StreamLog() {
     int ret = fcntl(STDIN_FILENO, F_GETFL, 0);
 
     if (fcntl (STDIN_FILENO, F_SETFL, ret | O_NONBLOCK) < 0) {
-        debugLog("fcntl(stdin) failed\n");
+        debugLog("fcntl(stdin) failed");
         fcntl_fail = true;
     }
 #endif
@@ -214,7 +214,7 @@ bool SeekLog::isFinished() {
     bool finished = false;
 
     if(stream->fail() || stream->eof()) {
-        debugLog("stream is finished\n");
+        //debugLog("stream is finished");
         finished=true;
     }
 
