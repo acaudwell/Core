@@ -9,28 +9,53 @@ class UICheckbox : public UIElement {
 protected:
     TextureResource* checktex;
 
-    bool* value;
 public:
-    UICheckbox(bool* value);
+    UICheckbox();
 
     int getType() { return UI_CHECKBOX; };
 
-    void click(const vec2& pos);
-
+    virtual void click(const vec2& pos) {};
+    virtual bool isChecked() { return false; };
     void drawContent();
 };
 
-
-class UILabelCheckbox : public UILayout {
-
+class UIBoolCheckbox : public UICheckbox {
+protected:
+    bool* value;
 public:
-    UILabelCheckbox(const std::string& label, bool* value);
+    UIBoolCheckbox(bool* value);
+
+    void click(const vec2& pos);
+    bool isChecked();
 };
 
-class UILabelCheckboxSet : public UILayout {
+class UIFloatCheckbox : public UICheckbox {
+protected:
+    float* value;
+public:
+    UIFloatCheckbox(float* value);
+
+    void click(const vec2& pos);
+    
+    bool isChecked();
+};
+
+class UILabelBoolCheckbox : public UILayout {
 
 public:
-    UILabelCheckboxSet(const std::string& label, bool* value1, bool* value2, bool* value3);
+    UILabelBoolCheckbox(const std::string& label, bool* value);
+};
+
+class UILabelBoolCheckboxSet : public UILayout {
+
+public:
+    UILabelBoolCheckboxSet(const std::string& label, bool* value1, bool* value2, bool* value3);
+};
+
+class UILabelFloatCheckboxSet : public UILayout {
+
+public:
+    UILabelFloatCheckboxSet(const std::string& label, float* value1, float* value2, float* value3);
 };
 
 #endif
