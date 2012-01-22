@@ -590,12 +590,12 @@ void Vec4ArrayShaderUniform::write(std::string& content) const {
             if(i<length-1) content += ",\n";
             else           content += ");\n";
         }
-              
+
     } else {
         snprintf(buff, 1024, "uniform %s %s[%d];\n", type_name.c_str(), name.c_str(), length);
         content += buff;
     }
-    
+
 }
 
 //ShaderPass
@@ -696,28 +696,35 @@ void ShaderPass::checkError() {
     }
 }
 
+void ShaderPass::toString(std::string& out) {
+    if(version!=0) {
+        out.append(str(boost::format("#version %d\n") % version));
+    }
+
+    for(std::map<std::string, std::string>::iterator it = extensions.begin(); it != extensions.end(); it++) {
+        out.append(str(boost::format("#extension %s : %s\n") % it->first % it->second));
+    }
+
+    foreach(ShaderUniform* u, uniforms) {
+        u->write(out);
+    }
+
+    out.append(source);
+}
+
 void ShaderPass::compile() {
 
     if(!shader_object) shader_object = glCreateShader(shader_object_type);
 
     if(source.empty()) return;
 
-    shader_object_source = "";
+    shader_object_source.clear();
 
-    if(version!=0) {
-        shader_object_source.append(str(boost::format("#version %d\n") % version));
-    }
-
-    for(std::map<std::string, std::string>::iterator it = extensions.begin(); it != extensions.end(); it++) {
-        shader_object_source.append(str(boost::format("#extension %s : %s\n") % it->first % it->second));
-    }
+    toString(shader_object_source);
 
     foreach(ShaderUniform* u, uniforms) {
-        u->write(shader_object_source);
         u->setModified(false);
     }
-
-    shader_object_source += source;
 
     //fprintf(stderr, "src:\n%s", shader_object_src.c_str());
 
@@ -906,12 +913,24 @@ void Shader::setDefaults() {
 }
 
 Shader::~Shader() {
+    clear();
+}
+
+void Shader::clear() {
     unload();
 
     for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
         delete it->second;
     }
     uniforms.clear();
+
+    if(vertex_shader != 0)   delete vertex_shader;
+    if(geometry_shader != 0) delete geometry_shader;
+    if(fragment_shader != 0) delete fragment_shader;
+
+    vertex_shader   = 0;
+    geometry_shader = 0;
+    fragment_shader = 0;
 }
 
 void Shader::unload() {
@@ -992,7 +1011,7 @@ void Shader::unbind() {
 }
 
 void Shader::use() {
-       
+
     if(dynamic_compile && needsCompile()) {
         unbind();
         load();

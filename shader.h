@@ -269,7 +269,9 @@ public:
     virtual ~ShaderPass();
 
     GLint getType() { return shader_object_type; };
-   
+
+    void toString(std::string& out);
+
     void unload();
     void compile();
 
@@ -321,6 +323,8 @@ public:
 
     GLenum getProgram();
 
+    void clear();
+
     void load();
     void unload();
 
@@ -353,10 +357,10 @@ public:
 
     void setBaked(const std::string& name, bool baked);
     void setBakedUniforms(bool baked);
-    
+
     void bind();
     void unbind();
-    
+
     void use();
 };
 
