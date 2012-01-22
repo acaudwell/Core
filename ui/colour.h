@@ -48,6 +48,7 @@ public:
     float* attribute;
 
     void drag(const vec2& pos);
+    void setValue(float value);
 
     virtual void setColour(UIColour* colour);
 

@@ -168,8 +168,12 @@ void UIColourSlider::updateRect() {
 }
 
 void UIColourSlider::drag(const vec2& pos) {
+    setValue((pos.x - this->pos.x) / slider_width);
+}
+
+void UIColourSlider::setValue(float value) {
     if(!attribute) return;
-    *attribute = std::max(0.0f, std::min(1.0f, ((pos.x - this->pos.x) / slider_width)));
+    *attribute = glm::clamp(value, 0.0f, 1.0f);
     colour->toColour();
 }
 

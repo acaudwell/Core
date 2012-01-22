@@ -4,6 +4,8 @@
 #include "element.h"
 
 class UISlider;
+class UIFloatSlider;
+class UIColourSlider;
 
 class UILabel : public UIElement {
 protected:
@@ -60,15 +62,25 @@ public:
 };
 
 class UIFloatLabel : public UILabel {
+protected:
     float* value;
 public:
     UIFloatLabel(float* value, bool editable);
+    UIFloatLabel(UIFloatSlider* slider, bool editable);
 
     bool keyPress(SDL_KeyboardEvent *e, char c);
     bool submit();
 
-
     void setSelected(bool selected);
+
+    void updateContent();
+};
+
+class UIColourLabel : public UIFloatLabel {
+public:
+    UIColourLabel(UIColourSlider* slider, bool editable);
+
+    bool submit();
 
     void updateContent();
 };

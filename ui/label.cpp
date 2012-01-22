@@ -1,5 +1,6 @@
 #include "label.h"
 #include "slider.h"
+#include "colour.h"
 
 //UILabel
 
@@ -212,6 +213,12 @@ void UIIntLabel::updateContent() {
 
 //UIFloatLabel
 
+UIFloatLabel::UIFloatLabel(UIFloatSlider* slider, bool editable) : value(slider->value), UILabel("", editable) {
+    this->slider = slider;
+    width = 80.0f;
+    edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+}
+
 UIFloatLabel::UIFloatLabel(float* value, bool editable) : value(value), UILabel("", editable) {
     width = 80.0f;
     edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -243,6 +250,8 @@ void UIFloatLabel::setSelected(bool selected) {
 }
 
 void UIFloatLabel::updateContent() {
+    if(!value) return;
+
     char buff[256];
     snprintf(buff, 256, "%f", *value);
     text = std::string(buff);
@@ -264,3 +273,22 @@ void UIFloatLabel::updateContent() {
     }
 }
 
+UIColourLabel::UIColourLabel(UIColourSlider* slider, bool editable) : UIFloatLabel((float*)0, editable) {
+    this->slider = slider;
+    width = 80.0f;
+    edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+}
+
+bool UIColourLabel::submit() {
+
+    float v = atof(text.c_str());
+
+    ((UIColourSlider*)slider)->setValue(v);
+
+    return true;
+}
+
+void UIColourLabel::updateContent() {
+    value = ((UIColourSlider*)slider)->attribute;
+    UIFloatLabel::updateContent();
+}
