@@ -46,8 +46,13 @@ SDLAppDisplay::SDLAppDisplay() {
     desktop_height  = 0;
     windowed_width  = 0;
     windowed_height = 0;
+#if SDL_VERSION_ATLEAST(1,3,0)
     sdl_window = 0;
     gl_context = 0;
+#else
+    surface = 0;
+#endif
+
 }
 
 SDLAppDisplay::~SDLAppDisplay() {
@@ -123,22 +128,22 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
     Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
     if(resizable && !fullscreen) flags |= SDL_WINDOW_RESIZABLE;
     if(fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
-   
+
     if(gl_context != 0) SDL_GL_DeleteContext(gl_context);
-    if(sdl_window != 0) SDL_DestroyWindow(sdl_window); 
- 
+    if(sdl_window != 0) SDL_DestroyWindow(sdl_window);
+
     sdl_window = SDL_CreateWindow(
 	gSDLAppTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         width, height, flags);
 
-    
+
     if (!sdl_window) {
         std::string sdlerr(SDL_GetError());
         throw SDLInitException(sdlerr);
     }
-    
+
     gl_context = SDL_GL_CreateContext(sdl_window);
- 
+
     if(vsync) SDL_GL_SetSwapInterval(1);
 #else
     int depth = 32;
@@ -222,7 +227,7 @@ void SDLAppDisplay::toggleFullscreen() {
 
 #if SDL_VERSION_ATLEAST(1,3,0)
     SDL_GetWindowSize(sdl_window, &resized_width, &resized_height);
-#else    
+#else
     const SDL_VideoInfo* display_info = SDL_GetVideoInfo();
 
     resized_width  = display_info->current_w;
