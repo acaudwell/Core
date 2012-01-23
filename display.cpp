@@ -46,6 +46,8 @@ SDLAppDisplay::SDLAppDisplay() {
     desktop_height  = 0;
     windowed_width  = 0;
     windowed_height = 0;
+    sdl_window = 0;
+    gl_context = 0;
 }
 
 SDLAppDisplay::~SDLAppDisplay() {
@@ -113,16 +115,38 @@ bool SDLAppDisplay::multiSamplingEnabled() {
 }
 
 void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
+#if SDL_VERSION_ATLEAST(1,3,0)
 
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+    Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
+    if(resizable && !fullscreen) flags |= SDL_WINDOW_RESIZABLE;
+    if(fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
+   
+    if(gl_context != 0) SDL_GL_DeleteContext(gl_context);
+    if(sdl_window != 0) SDL_DestroyWindow(sdl_window); 
+ 
+    sdl_window = SDL_CreateWindow(
+	gSDLAppTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        width, height, flags);
+
+    
+    if (!sdl_window) {
+        std::string sdlerr(SDL_GetError());
+        throw SDLInitException(sdlerr);
+    }
+    
+    gl_context = SDL_GL_CreateContext(sdl_window);
+ 
+    if(vsync) SDL_GL_SetSwapInterval(1);
+#else
     int depth = 32;
 
     int flags = SDLFlags(fullscreen);
 
-    //SDL 1.2 vsync 
-#ifdef SDL_GL_SWAP_CONTROL
     if(vsync) SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
     else SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 0);
-#endif
 
     if(multi_sample > 0) {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
@@ -165,6 +189,7 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
             throw SDLInitException(sdlerr);
         }
     }
+#endif
 
     setupExtensions();
 }
@@ -193,25 +218,45 @@ void SDLAppDisplay::toggleFullscreen() {
 
     setVideoMode(width, height, fullscreen);
 
+    int resized_width, resized_height;
+
+#if SDL_VERSION_ATLEAST(1,3,0)
+    SDL_GetWindowSize(sdl_window, &resized_width, &resized_height);
+#else    
     const SDL_VideoInfo* display_info = SDL_GetVideoInfo();
 
-    //set viewport to match what we ended up on
-    glViewport(0, 0, display_info->current_w, display_info->current_h);
+    resized_width  = display_info->current_w;
+    resized_height = display_info->current_h;
+#endif
 
-    this->width  = display_info->current_w;
-    this->height = display_info->current_h;
+    //set viewport to match what we ended up on
+    glViewport(0, 0, resized_width, resized_height);
+
+    this->width  = resized_width;
+    this->height = resized_height;
 }
 
 void SDLAppDisplay::resize(int width, int height) {
+    debugLog("resize to %dx%d", width, height);
 
     setVideoMode(width, height, fullscreen);
 
+    int resized_width, resized_height;
+
+#if SDL_VERSION_ATLEAST(1,3,0)
+    SDL_GetWindowSize(sdl_window, &resized_width, &resized_height);
+#else
     const SDL_VideoInfo* display_info = SDL_GetVideoInfo();
 
-    glViewport(0, 0, display_info->current_w, display_info->current_h);
+    resized_width  = display_info->current_w;
+    resized_height = display_info->current_h;
+#endif
 
-    this->width  = display_info->current_w;
-    this->height = display_info->current_h;
+    //set viewport to match what we ended up on
+    glViewport(0, 0, resized_width, resized_height);
+
+    this->width  = resized_width;
+    this->height = resized_height;
 }
 
 void SDLAppDisplay::init(std::string window_title, int width, int height, bool fullscreen) {
@@ -230,7 +275,10 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
 
     SDL_EnableUNICODE(1);
 
+#if SDL_VERSION_ATLEAST(1,3,0)
+#else
     SDL_WM_SetCaption(window_title.c_str(),0);
+#endif
 
     setVideoMode(width, height, fullscreen);
 
@@ -244,6 +292,12 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
 }
 
 void SDLAppDisplay::quit() {
+
+#if SDL_VERSION_ATLEAST(1,3,0)
+    if(gl_context != 0) SDL_GL_DeleteContext(gl_context);
+    if(sdl_window != 0) SDL_DestroyWindow(sdl_window);
+#endif
+
     texturemanager.purge();
     shadermanager.purge();
     fontmanager.purge();
@@ -251,7 +305,11 @@ void SDLAppDisplay::quit() {
 }
 
 void SDLAppDisplay::update() {
+#if SDL_VERSION_ATLEAST(1,3,0)
+    SDL_GL_SwapWindow(sdl_window);
+#else
     SDL_GL_SwapBuffers();
+#endif
 }
 
 void SDLAppDisplay::clear() {

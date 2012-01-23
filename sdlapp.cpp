@@ -340,13 +340,25 @@ int SDLApp::run() {
                     appFinished=true;
                     break;
 
-                case SDL_VIDEORESIZE:
-                    resize(&event.resize);
-                    break;
-
                 case SDL_MOUSEMOTION:
                     mouseMove(&event.motion);
                     break;
+
+#if SDL_VERSION_ATLEAST(1,3,0)
+                case SDL_MOUSEWHEEL:
+                    mouseWheel(&event.wheel);
+                    break;
+
+		case SDL_WINDOWEVENT:
+		    if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
+			resize(&event.window);
+		    }
+                    break;
+#else
+                case SDL_VIDEORESIZE:
+                    resize(&event.resize);
+                    break;
+#endif
 
                 case SDL_MOUSEBUTTONDOWN:
                     mouseClick(&event.button);

@@ -55,7 +55,6 @@ public:
 };
 
 class SDLAppDisplay {
-    SDL_Surface *surface;
 
     bool enable_shaders;
     bool enable_alpha;
@@ -71,6 +70,13 @@ public:
     int width, height;
     int desktop_width, desktop_height;
     int windowed_width, windowed_height;
+
+#if SDL_VERSION_ATLEAST(1,3,0)
+    SDL_Window*   sdl_window;
+    SDL_GLContext gl_context;
+#else
+    SDL_Surface *surface;
+#endif
 
     bool fullscreen;
     vec4 clearColour;

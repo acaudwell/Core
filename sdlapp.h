@@ -100,7 +100,11 @@ public:
 
     int run();
 
+#if SDL_VERSION_ATLEAST(1,3,0)
+    virtual void resize(SDL_WindowEvent* e) {};
+#else
     virtual void resize(SDL_ResizeEvent* e) {};
+#endif
 
     virtual void update(float t, float dt) {};
     virtual void init() {};
@@ -111,6 +115,10 @@ public:
     virtual void mouseMove(SDL_MouseMotionEvent *e) {};
     virtual void mouseClick(SDL_MouseButtonEvent *e) {};
     virtual void keyPress(SDL_KeyboardEvent *e) {};
+
+#if SDL_VERSION_ATLEAST(1,3,0)
+    virtual void mouseWheel(SDL_MouseWheelEvent *e) {};
+#endif
 
     int returnCode();
     bool isFinished();
