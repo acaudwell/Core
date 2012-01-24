@@ -356,7 +356,7 @@ int SDLApp::run() {
                     break;
 #else
                 case SDL_VIDEORESIZE:
-                    resize(&event.resize);
+                    resize(event.resize.w, event.resize.h);
                     break;
 #endif
 
