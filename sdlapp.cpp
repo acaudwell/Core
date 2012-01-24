@@ -351,7 +351,7 @@ int SDLApp::run() {
 
 		case SDL_WINDOWEVENT:
 		    if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
-			resize(&event.window);
+			resize(event.window.data1, event.window.data2);
 		    }
                     break;
 #else

@@ -242,15 +242,14 @@ void SDLAppDisplay::toggleFullscreen() {
 }
 
 void SDLAppDisplay::resize(int width, int height) {
-    debugLog("resize to %dx%d", width, height);
-
-    setVideoMode(width, height, fullscreen);
 
     int resized_width, resized_height;
 
 #if SDL_VERSION_ATLEAST(1,3,0)
     SDL_GetWindowSize(sdl_window, &resized_width, &resized_height);
 #else
+    setVideoMode(width, height, fullscreen);
+    
     const SDL_VideoInfo* display_info = SDL_GetVideoInfo();
 
     resized_width  = display_info->current_w;
