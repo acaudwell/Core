@@ -513,7 +513,7 @@ void Vec3ArrayShaderUniform::write(std::string& content) const {
     char buff[1024];
 
     if(baked) {
-        snprintf(buff, 1024, "%s[%d] %s = %s[] (\n", type_name.c_str(), length, name.c_str(), type_name.c_str());
+        snprintf(buff, 1024, "%s[%ld] %s = %s[] (\n", type_name.c_str(), length, name.c_str(), type_name.c_str());
 
         content += buff;
 
@@ -525,7 +525,7 @@ void Vec3ArrayShaderUniform::write(std::string& content) const {
         }
 
     } else {
-        snprintf(buff, 1024, "uniform %s %s[%d];\n", type_name.c_str(), name.c_str(), length);
+        snprintf(buff, 1024, "uniform %s %s[%ld];\n", type_name.c_str(), name.c_str(), length);
         content += buff;
     }
 }
@@ -580,7 +580,7 @@ void Vec4ArrayShaderUniform::write(std::string& content) const {
     char buff[1024];
 
     if(baked) {
-        snprintf(buff, 1024, "%s[%d] %s = %s[] (\n", type_name.c_str(), length, name.c_str(), type_name.c_str());
+        snprintf(buff, 1024, "%s[%ld] %s = %s[] (\n", type_name.c_str(), length, name.c_str(), type_name.c_str());
 
         content += buff;
 
@@ -592,7 +592,7 @@ void Vec4ArrayShaderUniform::write(std::string& content) const {
         }
 
     } else {
-        snprintf(buff, 1024, "uniform %s %s[%d];\n", type_name.c_str(), name.c_str(), length);
+        snprintf(buff, 1024, "uniform %s %s[%ld];\n", type_name.c_str(), name.c_str(), length);
         content += buff;
     }
 
