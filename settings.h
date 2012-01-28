@@ -32,15 +32,18 @@ protected:
 
     virtual void commandLineOption(const std::string& name, const std::string& value) {}
 
-    bool parseRectangle(const std::string& value, int* x=0, int* y=0);
+    bool parseRectangle(const std::string& value, int& x, int& y);
+    bool parseViewport(const std::string& value, int& x, int& y, bool& no_resize);
+
 public:
     int display_width;
     int display_height;
     bool multisample;
     bool fullscreen;
     bool transparent;
+    bool resizable;
     bool vsync;
-    
+
     std::string output_ppm_filename;
     int output_framerate;
 

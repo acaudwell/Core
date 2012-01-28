@@ -18,6 +18,7 @@
 #include "settings.h"
 
 Regex SDLAppSettings_rect_regex("^([0-9.]+)x([0-9.]+)$");
+Regex SDLAppSettings_viewport_regex("^([0-9.]+)x([0-9.]+)(!)?$");
 
 SDLAppSettings::SDLAppSettings() {
     setDisplayDefaults();
@@ -62,6 +63,7 @@ void SDLAppSettings::setDisplayDefaults() {
     fullscreen     = false;
     multisample    = false;
     transparent    = false;
+    resizable      = true;
     vsync          = true;
 
     output_ppm_filename = "";
@@ -73,7 +75,7 @@ void SDLAppSettings::exportDisplaySettings(ConfFile& conf) {
     ConfSection* section = new ConfSection("display");
 
     char viewportbuff[256];
-    snprintf(viewportbuff, 256, "%dx%d", display_width, display_height);
+    snprintf(viewportbuff, 256, "%dx%d%s", display_width, display_height, resizable ? "" : "!" );
 
     std::string viewport = std::string(viewportbuff);
 
@@ -86,24 +88,43 @@ void SDLAppSettings::exportDisplaySettings(ConfFile& conf) {
         section->setEntry(new ConfEntry("multi-sampling", multisample));
 
     if(!vsync) {
-        section->setEntry(new ConfEntry("no-vsync", vsync));
+        section->setEntry(new ConfEntry("no-vsync", true));
     }
-    
+
     conf.setSection(section);
 }
 
-bool SDLAppSettings::parseRectangle(const std::string& value, int* x, int* y) {
+bool SDLAppSettings::parseRectangle(const std::string& value, int& x, int& y) {
 
     std::vector<std::string> matches;
 
     if(SDLAppSettings_rect_regex.match(value, &matches)) {
-        if(x!=0) *x = atoi(matches[0].c_str());
-        if(y!=0) *y = atoi(matches[1].c_str());
+
+        x = atoi(matches[0].c_str());
+        y = atoi(matches[1].c_str());
+
         return true;
     }
 
     return false;
 }
+
+bool SDLAppSettings::parseViewport(const std::string& value, int& x, int& y, bool& no_resize) {
+
+    std::vector<std::string> matches;
+
+    if(SDLAppSettings_viewport_regex.match(value, &matches)) {
+        x = atoi(matches[0].c_str());
+        y = atoi(matches[1].c_str());
+
+        if(matches.size()>2) no_resize = true;
+
+        if(x>0 && y>0) return true;
+    }
+
+    return false;
+}
+
 
 void SDLAppSettings::parseArgs(int argc, char *argv[], ConfFile& conffile, std::vector<std::string>* files) {
 
@@ -153,8 +174,9 @@ void SDLAppSettings::parseArgs(const std::vector<std::string>& arguments, ConfFi
 
             int width  = 0;
             int height = 0;
+            bool no_resize = false;
 
-            if(parseRectangle(displayarg, &width, &height)) {
+            if(parseViewport(displayarg, width, height, no_resize)) {
                 if(width>0 && height>0) {
 
                     ConfSection* display_settings = conffile.getSection("display");
@@ -163,7 +185,8 @@ void SDLAppSettings::parseArgs(const std::vector<std::string>& arguments, ConfFi
                         display_settings = conffile.addSection("display");
                     }
 
-                    display_settings->setEntry("viewport", args);
+                    display_settings->setEntry("viewport", displayarg);
+
                     continue;
                 }
             }
@@ -235,22 +258,16 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
 
         std::string viewport = entry->getString();
 
+
+
         int width  = 0;
         int height = 0;
+        bool no_resize = false;
 
-        size_t x = viewport.rfind("x");
-
-        if(x != std::string::npos && x != 0 && x != viewport.size()-1) {
-            std::string widthstr  = viewport.substr(0, x);
-            std::string heightstr = viewport.substr(x+1);
-
-            width  = atoi(widthstr.c_str());
-            height = atoi(heightstr.c_str());
-        }
-
-        if(width>0 && height>0) {
-            display_width  = width;
-            display_height = height;
+        if(parseViewport(viewport, width, height, no_resize)) {
+            display_width   = width;
+            display_height  = height;
+            if(no_resize) resizable = false;
         } else {
             conffile.invalidValueException(entry);
         }
@@ -275,7 +292,7 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
     if(display_settings->getBool("no-vsync")) {
         vsync = false;
     }
-    
+
     if((entry = display_settings->getEntry("output-ppm-stream")) != 0) {
 
         if(!entry->hasValue()) {
