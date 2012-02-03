@@ -264,6 +264,7 @@ SDLApp::SDLApp() {
     fps=0;
     return_code=0;
     appFinished=false;
+    min_delta_msec = 8;
 }
 
 void SDLApp::updateFramerate() {
@@ -274,7 +275,6 @@ void SDLApp::updateFramerate() {
     }
     fps_updater = 0;
     frame_count = 0;
-    min_delta_msec = 8;
 }
 
 bool SDLApp::isFinished() {
@@ -302,11 +302,15 @@ int SDLApp::run() {
     msec = SDL_GetTicks();
     last_msec = msec;
 
+    debugLog("while");
+
     while(!appFinished) {
         last_msec = msec;
         msec      = SDL_GetTicks();
 
         Uint32 delta_msec = msec - last_msec;
+
+        debugLog("SDL_Delay buffer_msec=%d, delta_msec=%d, min_delta_msec=%ud", buffer_msec, delta_msec, min_delta_msec );
 
         // cant have delta ticks be less than 8ms
         buffer_msec += delta_msec;
@@ -326,10 +330,14 @@ int SDLApp::run() {
 
         fps_updater += delta_msec;
 
+        debugLog("fps_updater");
+
         //update framerate if a second has passed
         if (fps_updater >= 1000) {
             updateFramerate();
         }
+
+        debugLog("SDL_PollEvent");
 
         //process new events
         SDL_Event event;
