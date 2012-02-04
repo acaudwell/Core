@@ -67,6 +67,7 @@ protected:
     int uniform_type;
     std::string type_name;
     bool modified;
+    bool initialized;
     bool baked;
 public:
 
@@ -79,10 +80,13 @@ public:
     virtual void write(std::string& content) const {};
 
     const std::string& getName() const;
+    bool  isInitialized() const { return initialized; };
     GLint getLocation();
 
-    bool isBaked() const    { return baked; }
+    bool isBaked() const    { return baked; };
     bool isModified() const { return modified; };
+
+    void setInitialized(bool initialized) { this->initialized = initialized; };
 
     virtual void apply() {};
 

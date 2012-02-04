@@ -43,8 +43,9 @@ Regex Shader_pre_version("^\\s*#version\\s*(\\d+)\\s*$");
 Regex Shader_pre_extension("^\\s*#extension\\s*([a-zA-Z0-9_]+)\\s+:\\s+(enable|require|warn|disable)\\s*$");
 Regex Shader_pre_include("^\\s*#include\\s*\"([^\"]+)\"");
 Regex Shader_uniform_def("^\\s*uniform\\s+(\\w+)\\s+(\\w+)(?:\\[(\\d+)\\])?\\s*;\\s*$");
-Regex Shader_error_line("^\\d*\\((\\d+)\\) : error ");
-Regex Shader_error2_line("^ERROR: \\d+:(\\d+):");
+Regex Shader_error_line("\\b\\d*\\((\\d+)\\) : error ");
+Regex Shader_error2_line("\\bERROR: \\d+:(\\d+):");
+Regex Shader_warning_line("\\b\\d*\\((\\d+)\\) : warning ");
 
 Shader* ShaderManager::grab(const std::string& shader_prefix) {
     Resource* s = resources[shader_prefix];
@@ -89,7 +90,7 @@ void ShaderManager::reload() {
 //ShaderUniform
 
 ShaderUniform::ShaderUniform(Shader* shader, const std::string& name, int uniform_type, const std::string& type_name)
-    : shader(shader), name(name), location(-1), modified(false), baked(false), uniform_type(uniform_type), type_name(type_name) {
+    : shader(shader), name(name), location(-1), initialized(false), modified(false), baked(false), uniform_type(uniform_type), type_name(type_name) {
 }
 
 void ShaderUniform::unload() {
@@ -129,6 +130,7 @@ void FloatShaderUniform::setValue(float value) {
 
     this->value = value;
     modified = true;
+    initialized = true;
 }
 
 void FloatShaderUniform::apply() {
@@ -164,6 +166,7 @@ void IntShaderUniform::setValue(int value) {
 
     this->value = value;
     modified = true;
+    initialized = true;
 }
 
 void IntShaderUniform::apply() {
@@ -198,6 +201,7 @@ void BoolShaderUniform::setValue(bool value) {
 
     this->value = value;
     modified = true;
+    initialized = true;
 }
 
 void BoolShaderUniform::apply() {
@@ -232,6 +236,7 @@ void Sampler1DShaderUniform::setValue(int value) {
 
     this->value = value;
     modified = true;
+    initialized = true;
 }
 
 void Sampler1DShaderUniform::setBaked(bool baked) {
@@ -262,6 +267,7 @@ void Sampler2DShaderUniform::setValue(int value) {
 
     this->value = value;
     modified = true;
+    initialized = true;
 }
 
 void Sampler2DShaderUniform::apply() {
@@ -294,6 +300,7 @@ void Vec2ShaderUniform::setValue(const vec2& value) {
 
     this->value = value;
     modified = true;
+    initialized = true;
 }
 
 void Vec2ShaderUniform::apply() {
@@ -329,6 +336,7 @@ void Vec3ShaderUniform::setValue(const vec3& value) {
 
     this->value = value;
     modified = true;
+    initialized = true;
 }
 
 void Vec3ShaderUniform::apply() {
@@ -364,6 +372,7 @@ void Vec4ShaderUniform::setValue(const vec4& value) {
 
     this->value = value;
     modified = true;
+    initialized = true;
 }
 
 void Vec4ShaderUniform::apply() {
@@ -398,6 +407,7 @@ void Mat3ShaderUniform::setValue(const mat3& value) {
 
     this->value = value;
     modified = true;
+    initialized = true;
 }
 
 void Mat3ShaderUniform::apply() {
@@ -436,6 +446,7 @@ void Mat4ShaderUniform::setValue(const mat4& value) {
 
     this->value = value;
     modified = true;
+    initialized = true;
 }
 
 void Mat4ShaderUniform::apply() {
@@ -502,6 +513,7 @@ void Vec3ArrayShaderUniform::setValue(const vec3* value) {
     copyValue(value);
 
     modified = true;
+    initialized = true;
 }
 
 void Vec3ArrayShaderUniform::apply() {
@@ -569,6 +581,7 @@ void Vec4ArrayShaderUniform::setValue(const vec4* value) {
     copyValue(value);
 
     modified = true;
+    initialized = true;
 }
 
 void Vec4ArrayShaderUniform::apply() {
@@ -623,7 +636,8 @@ bool ShaderPass::errorContext(const char* log_message, std::string& context) {
     std::vector<std::string> matches;
 
     if(   !Shader_error_line.match(log_message, &matches)
-       && !Shader_error2_line.match(log_message, &matches))
+       && !Shader_error2_line.match(log_message, &matches)
+       && !(shadermanager.warnings && Shader_warning_line.match(log_message, &matches)))
         return false;
 
     int line_no = atoi(matches[0].c_str());
@@ -679,10 +693,11 @@ void ShaderPass::checkError() {
         }
 
         if(shadermanager.warnings) {
-            warnLog("%s shader '%s':\n%s",
+            warnLog("%s shader '%s':\n%s\n%s",
                             shader_object_desc.c_str(),
                             resource_desc,
-                            info_log);
+                            info_log,
+                            context.c_str());
 
         }
 
@@ -781,6 +796,8 @@ void ShaderPass::addUniform(const std::string& name, const std::string& type, si
             }
 
         }
+
+        uniform->setInitialized(false);
 
         //if(baked) uniform->setBaked(true);
 
@@ -1011,6 +1028,14 @@ void Shader::unbind() {
 }
 
 void Shader::use() {
+
+    if(shadermanager.warnings) {
+        for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
+            ShaderUniform* u = it->second;
+
+            if(!u->isInitialized()) warnLog("shader '%s': uniform '%s' was never initialized", (!resource_name.empty() ? resource_name.c_str() : "???"), u->getName().c_str());
+        }
+    }
 
     if(dynamic_compile && needsCompile()) {
         unbind();
