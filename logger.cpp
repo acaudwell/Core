@@ -28,23 +28,24 @@
 #include "logger.h"
 
 std::map<int,std::string> log_levels = boost::assign::map_list_of
+    (LOG_LEVEL_WARN,     " WARN" )
     (LOG_LEVEL_DEBUG,    "DEBUG" )
-    (LOG_LEVEL_INFO,     "INFO " )
+    (LOG_LEVEL_INFO,     " INFO" )
     (LOG_LEVEL_ERROR,    "ERROR" )
     (LOG_LEVEL_INFINITY, "????"  );
 
 // LoggerMessage
-    
+
 LoggerMessage::LoggerMessage(int level, const std::string& message)
     : level(level), message(message) {
 }
 
 // Logger
-    
+
 Logger::Logger(int level, FILE* stream, int hist_capacity) {
     init(level, stream, hist_capacity);
 }
-    
+
 void Logger::init(int level, FILE* stream, int hist_capacity) {
     this->level         = level;
     this->stream        = stream;
@@ -54,7 +55,7 @@ void Logger::init(int level, FILE* stream, int hist_capacity) {
     void Logger::message(int level, const std::string& message) {
 
     if(this->level > level) return;
-    
+
     if(stream != 0) {
         fprintf(stderr, "%s: %s\n", log_levels[level].c_str(), message.c_str());
     }
@@ -65,13 +66,13 @@ void Logger::init(int level, FILE* stream, int hist_capacity) {
         history.pop_front();
     }
 
-    history.push_back(LoggerMessage(level, message));    
+    history.push_back(LoggerMessage(level, message));
 }
 
 void warnLog(const char *str, ...) {
 
     if(!logger || logger->getLevel() > LOG_LEVEL_WARN) return;
-    
+
     char msgbuff[65536];
 
     va_list vl;
@@ -86,14 +87,14 @@ void warnLog(const char *str, ...) {
 void debugLog(const char *str, ...) {
 
     if(!logger || logger->getLevel() > LOG_LEVEL_DEBUG) return;
-    
+
     char msgbuff[65536];
 
     va_list vl;
 
     va_start(vl, str);
         vsnprintf(msgbuff, 65536, str, vl);
-    va_end(vl);    
+    va_end(vl);
 
     logger->message( LOG_LEVEL_DEBUG, msgbuff );
 }
@@ -101,14 +102,14 @@ void debugLog(const char *str, ...) {
 void infoLog(const char *str, ...) {
 
     if(!logger || logger->getLevel() > LOG_LEVEL_INFO) return;
-    
+
     char msgbuff[65536];
 
     va_list vl;
 
     va_start(vl, str);
         vsnprintf(msgbuff, 65536, str, vl);
-    va_end(vl);    
+    va_end(vl);
 
     logger->message( LOG_LEVEL_INFO, msgbuff );
 }
@@ -116,7 +117,7 @@ void infoLog(const char *str, ...) {
 void errorLog(const char *str, ...) {
 
     if(!logger || logger->getLevel() > LOG_LEVEL_ERROR) return;
-    
+
     char msgbuff[65536];
 
     va_list vl;
