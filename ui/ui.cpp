@@ -212,7 +212,7 @@ void UI::drag(const MouseCursor& cursor) {
     selected->drag(cursor.getPos());
 }
 
-void UI::click(const MouseCursor& cursor) {
+UIElement* UI::click(const MouseCursor& cursor) {
 
     interaction = true;
 
@@ -223,11 +223,13 @@ void UI::click(const MouseCursor& cursor) {
 
     UIElement* selected = selectElementAt(pos);
 
-    if(!selected) return;
+    if(!selected) return 0;
 
     if(previous == selected && double_click) {
         selected->doubleClick(pos);
     } else {
         selected->click(pos);
     }
+
+    return selected;
 }

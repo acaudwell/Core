@@ -48,7 +48,7 @@ public:
 
     bool keyPress(SDL_KeyboardEvent *e);
 
-    virtual void click(const MouseCursor& cursor);
+    virtual UIElement* click(const MouseCursor& cursor);
     virtual void drag(const MouseCursor& cursor);
 
     virtual vec4 getSolidColour();
