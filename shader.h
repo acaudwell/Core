@@ -281,7 +281,7 @@ public:
 
     void checkError();
 
-    void addUniform(const std::string& name, const std::string& type, size_t length);
+    ShaderUniform* addUniform(const std::string& name, const std::string& type, size_t length = 1);
 
     virtual void attachTo(GLenum program);
 

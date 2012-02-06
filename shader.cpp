@@ -753,7 +753,7 @@ void ShaderPass::compile() {
 }
 
 //add uniform, unless parent Shader has this in which case link to it
-void ShaderPass::addUniform(const std::string& name, const std::string& type, size_t length) {
+ShaderUniform* ShaderPass::addUniform(const std::string& name, const std::string& type, size_t length) {
 
     ShaderUniform* uniform = 0;
 
@@ -805,6 +805,8 @@ void ShaderPass::addUniform(const std::string& name, const std::string& type, si
     }
 
     uniforms.push_back(uniform);
+
+    return uniform;
 }
 
 bool ShaderPass::preprocess(const std::string& line) {
