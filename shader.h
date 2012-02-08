@@ -223,6 +223,7 @@ class Vec3ArrayShaderUniform : public ShaderUniform {
     size_t length;
 
     void copyValue(const vec3* value);
+    void copyValue(const std::vector<vec3>& value);
 public:
     Vec3ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec3* value = 0);
     ~Vec3ArrayShaderUniform();
@@ -230,7 +231,10 @@ public:
     void write(std::string& content) const;
 
     void apply();
+
     void setValue(const vec3* value);
+    void setValue(const std::vector<vec3>& value);
+
     const vec3* getValue() const;
 };
 
@@ -239,6 +243,7 @@ class Vec4ArrayShaderUniform : public ShaderUniform {
     size_t length;
 
     void copyValue(const vec4* value);
+    void copyValue(const std::vector<vec4>& value);
 public:
     Vec4ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec4* value = 0);
     ~Vec4ArrayShaderUniform();
@@ -246,7 +251,10 @@ public:
     void write(std::string& content) const;
 
     void apply();
+
     void setValue(const vec4* value);
+    void setValue(const std::vector<vec4>& value);
+
     const vec4* getValue() const;
 };
 
@@ -357,7 +365,10 @@ public:
     void setMat4 (const std::string& name, const mat4& value);
 
     void setVec3Array(const std::string& name, vec3* value);
+    void setVec3Array(const std::string& name, std::vector<vec3>& value);
+
     void setVec4Array(const std::string& name, vec4* value);
+    void setVec4Array(const std::string& name, std::vector<vec4>& value);
 
     void setBaked(const std::string& name, bool baked);
     void setBakedUniforms(bool baked);

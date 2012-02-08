@@ -496,7 +496,33 @@ void Vec3ArrayShaderUniform::copyValue(const vec3* value) {
     }
 }
 
+void Vec3ArrayShaderUniform::copyValue(const std::vector<vec3>& value) {
+    for(size_t i=0; i<length; i++) {
+        this->value[i] = value[i];
+    }
+}
+
 void Vec3ArrayShaderUniform::setValue(const vec3* value) {
+    if(baked) {
+        bool match = true;
+
+        for(size_t i=0;i<length;i++) {
+            if(value[i] != this->value[i]) {
+                match = false;
+                break;
+            }
+        }
+
+        if(match) return;
+    }
+
+    copyValue(value);
+
+    modified = true;
+    initialized = true;
+}
+
+void Vec3ArrayShaderUniform::setValue(const std::vector<vec3>& value) {
     if(baked) {
         bool match = true;
 
@@ -558,6 +584,12 @@ const vec4* Vec4ArrayShaderUniform::getValue() const {
     return value;
 }
 
+void Vec4ArrayShaderUniform::copyValue(const std::vector<vec4>& value) {
+    for(size_t i=0; i<length; i++) {
+        this->value[i] = value[i];
+    }
+}
+
 void Vec4ArrayShaderUniform::copyValue(const vec4* value) {
     for(size_t i=0; i<length; i++) {
         this->value[i] = value[i];
@@ -565,6 +597,26 @@ void Vec4ArrayShaderUniform::copyValue(const vec4* value) {
 }
 
 void Vec4ArrayShaderUniform::setValue(const vec4* value) {
+    if(baked) {
+        bool match = true;
+
+        for(size_t i=0;i<length;i++) {
+            if(value[i] != this->value[i]) {
+                match = false;
+                break;
+            }
+        }
+
+        if(match) return;
+    }
+
+    copyValue(value);
+
+    modified = true;
+    initialized = true;
+}
+
+void Vec4ArrayShaderUniform::setValue(const std::vector<vec4>& value) {
     if(baked) {
         bool match = true;
 
@@ -1173,7 +1225,23 @@ void Shader::setVec3Array (const std::string& name, vec3* value) {
     ((Vec3ArrayShaderUniform*)uniform)->setValue(value);
 }
 
+void Shader::setVec3Array (const std::string& name, std::vector<vec3>& value) {
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC3_ARRAY) return;
+
+    ((Vec3ArrayShaderUniform*)uniform)->setValue(value);
+}
+
 void Shader::setVec4Array (const std::string& name, vec4* value) {
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC4_ARRAY) return;
+
+    ((Vec4ArrayShaderUniform*)uniform)->setValue(value);
+}
+
+void Shader::setVec4Array (const std::string& name, std::vector<vec4>& value) {
     ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC4_ARRAY) return;
