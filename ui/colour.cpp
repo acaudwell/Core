@@ -6,6 +6,8 @@ UIColour::UIColour(vec3* colour) : colour(colour), UIElement() {
 }
 
 void UIColour::toHSL() {
+    if(!colour) return;
+
     toHSL(*colour, hue, saturation, lightness);
 }
 
@@ -46,7 +48,14 @@ void UIColour::toHSL(const vec3& colour, float& hue, float& saturation, float& l
 }
 
 void UIColour::toColour() {
+    if(!colour) return;
+
     *colour = toColour(hue, saturation, lightness);
+}
+
+void UIColour::setColour(vec3* colour) {
+    this->colour = colour;
+    toHSL();
 }
 
 vec3 UIColour::toColour(float hue, float saturation, float lightness) {
@@ -92,6 +101,7 @@ void UIColour::updateRect() {
 }
 
 void UIColour::drawContent() {
+    if(!colour) return;
 
     glDisable(GL_TEXTURE_2D);
 
@@ -112,15 +122,30 @@ void UIColour::drawContent() {
 
 //UILabelColour
 
+UILabelColour::UILabelColour(const std::string& label) : UILayout(true) {
+
+    addElement(new UILabel(label, false, 120.0f));
+
+    ui_colour = new UIColour(0);
+    addElement(ui_colour);
+
+    padding = vec2(5.0f);
+}
+
+
 UILabelColour::UILabelColour(const std::string& label, vec3* value) : UILayout(true) {
 
     addElement(new UILabel(label, false, 120.0f));
-    addElement(new UIColour(value));
+
+    ui_colour = new UIColour(value);
+    addElement(ui_colour);
 
     padding = vec2(5.0f);
 }
 
 UILabelColour::UILabelColour(const std::string& label, vec3* a, vec3* b, vec3* c) : UILayout(true) {
+
+    ui_colour = 0;
 
     addElement(new UILabel(label, false, 120.0f));
     addElement(new UIColour(a));
@@ -128,6 +153,12 @@ UILabelColour::UILabelColour(const std::string& label, vec3* a, vec3* b, vec3* c
     addElement(new UIColour(c));
 
     padding = vec2(5.0f);
+}
+
+void UILabelColour::setColour(vec3* value) {
+    if(ui_colour) {
+        ui_colour->setColour(value);
+    }
 }
 
 //UIColourSlider
@@ -184,7 +215,12 @@ UILightnessSlider::UILightnessSlider() {
 
 void UILightnessSlider::setColour(UIColour* colour) {
     this->colour    = colour;
-    this->attribute = &(colour->lightness);
+
+    if(colour) {
+        attribute = &(colour->lightness);
+    } else {
+        attribute = 0;
+    }
 }
 
 void UILightnessSlider::drawContent() {
@@ -222,7 +258,12 @@ UISatSlider::UISatSlider() {
 
 void UISatSlider::setColour(UIColour* colour) {
     this->colour    = colour;
-    this->attribute = &(colour->saturation);
+
+    if(colour) {
+        attribute = &(colour->saturation);
+    } else {
+        attribute = 0;
+    }
 }
 
 void UISatSlider::drawContent() {
@@ -254,7 +295,12 @@ UIHueSlider::UIHueSlider() {
 
 void UIHueSlider::setColour(UIColour* colour) {
     this->colour    = colour;
-    this->attribute = &(colour->hue);
+
+    if(colour) {
+        attribute = &(colour->hue);
+    } else {
+        attribute = 0;
+    }
 }
 
 void UIHueSlider::drawContent() {
