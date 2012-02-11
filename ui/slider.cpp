@@ -88,20 +88,8 @@ void UIFloatSlider::scroll(bool up) {
 
     if(!up) value_inc = -value_inc;
 
-    bool left_ctrl  = false;
-    bool left_shift = false;
-
-#if SDL_VERSION_ATLEAST(1,3,0)
-    Uint8* keystate = SDL_GetKeyboardState(NULL);
-
-    if(keystate[SDL_SCANCODE_LCTRL])  left_ctrl  = true;
-    if(keystate[SDL_SCANCODE_LSHIFT]) left_shift = true;
-#else
-    Uint8* keystate = SDL_GetKeyState(NULL);
-
-    if(keystate[SDLK_LCTRL])  left_ctrl  = true;
-    if(keystate[SDLK_LSHIFT]) left_shift = true;
-#endif
+    bool left_ctrl, left_shift;
+    getModifiers(left_ctrl, left_shift);
 
     if(left_ctrl) {
         value_inc *= 0.1f;
@@ -112,6 +100,26 @@ void UIFloatSlider::scroll(bool up) {
     }
 
     setValue(*value+value_inc);
+}
+
+void UIFloatSlider::scale(bool up) {
+
+    float value_scale = 0.25f;
+
+    bool left_ctrl, left_shift;
+    getModifiers(left_ctrl, left_shift);
+
+    if(left_ctrl) {
+        value_scale *= 0.1f;
+    }
+
+    if(left_shift) {
+        value_scale *= 0.1f;
+    }
+
+    if(!up) value_scale = -value_scale;
+
+    setValue(*value*(1.0+value_scale));
 }
 
 void UIFloatSlider::click(const vec2& pos) {
@@ -195,6 +203,10 @@ void UILabelFloatSlider::scroll(bool up) {
     slider->scroll(up);
 }
 
+void UILabelFloatSlider::scale(bool up) {
+    slider->scale(up);
+}
+
 // UILabelIntSlider
 
 UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min, int max) : UILayout(true) {
@@ -214,4 +226,8 @@ UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min
 
 void UILabelIntSlider::scroll(bool up) {
     slider->scroll(up);
+}
+
+void UILabelIntSlider::scale(bool up) {
+    slider->scale(up);
 }
