@@ -9,6 +9,7 @@
 #include <list>
 
 class UIElement;
+class UIColour;
 
 class UI {
     UIElement* selectedElement;
@@ -55,6 +56,8 @@ public:
     virtual vec4 getBackgroundColour();
     virtual vec4 getTextColour();
     virtual vec4 getAlpha();
+
+    UIColour* getActiveColour();
 
     void update(float dt);
 

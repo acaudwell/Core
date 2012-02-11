@@ -5,6 +5,7 @@
 #include "scroll_bar.h"
 #include "select.h"
 #include "button.h"
+#include "colour.h"
 
 UI::UI() : selectedElement(0) {
     font = fontmanager.grab("FreeSans.ttf", 12);
@@ -232,4 +233,18 @@ UIElement* UI::click(const MouseCursor& cursor) {
     }
 
     return selected;
+}
+
+UIColour* UI::getActiveColour() {
+
+    std::list<UIElement*> found;
+    elementsByType(found, UI_COLOUR);
+
+    foreach(UIElement* e, found) {
+        UIColour* c = (UIColour*)e;
+
+        if(c->active) return c;
+    }
+
+    return 0;
 }
