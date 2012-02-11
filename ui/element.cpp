@@ -24,6 +24,23 @@ void UIElement::drawOutline() {
     glEnable(GL_TEXTURE_2D);
 }
 
+void UIElement::getModifiers(bool& left_ctrl, bool& left_shift) const {
+
+    left_ctrl = left_shift = false;
+
+#if SDL_VERSION_ATLEAST(1,3,0)
+    Uint8* keystate = SDL_GetKeyboardState(NULL);
+
+    if(keystate[SDL_SCANCODE_LCTRL])  left_ctrl  = true;
+    if(keystate[SDL_SCANCODE_LSHIFT]) left_shift = true;
+#else
+    Uint8* keystate = SDL_GetKeyState(NULL);
+
+    if(keystate[SDLK_LCTRL])  left_ctrl  = true;
+    if(keystate[SDLK_LSHIFT]) left_shift = true;
+#endif
+}
+
 void UIElement::drawOutline(const vec2& rect) {
     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
@@ -52,7 +69,7 @@ void UIElement::drawQuad(const vec2& pos, const vec2& rect, const vec4& texcoord
 }
 
 void UIElement::drawQuad(const vec2& rect, const vec4& texcoord) {
-    
+
     glBegin(GL_QUADS);
         glTexCoord2f(texcoord.x,texcoord.y);
         glVertex2f(0.0f,    0.0f);
@@ -97,11 +114,11 @@ bool UIElement::elementsByType(std::list<UIElement*>& found, int type) {
 }
 
 UIElement* UIElement::elementAt(const vec2& pos) {
-    
+
     if(hidden) return 0;
-    
+
     vec2 rect = getRect();
-    
+
     if(   pos.x >= this->pos.x && pos.x <= (this->pos.x + rect.x)
        && pos.y >= this->pos.y && pos.y <= (this->pos.y + rect.y)) {
         return this;

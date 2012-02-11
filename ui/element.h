@@ -44,6 +44,8 @@ public:
 
     void drawOutline(const vec2& rect);
 
+    void getModifiers(bool& left_ctrl, bool& left_shift) const;
+
     void drawQuad(const vec2& rect, const vec4& texcoord);
     void drawQuad(const vec2& pos, const vec2& rect, const vec4& texcoord);
 
