@@ -50,10 +50,10 @@ protected:
     SDL_cond* cond;
     int dumper_thread_state;
 
-    void stopDumpThr();
 public:
     FrameExporter();
     virtual ~FrameExporter();
+    void stop();
     void dump();
     void dumpThr();
     virtual void dumpImpl() {};

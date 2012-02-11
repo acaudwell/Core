@@ -56,7 +56,7 @@ FrameExporter::FrameExporter() {
 }
 
 FrameExporter::~FrameExporter() {
-    stopDumpThr();
+    stop();
 
     SDL_KillThread(thread);
     SDL_DestroyCond(cond);
@@ -69,8 +69,8 @@ FrameExporter::~FrameExporter() {
     delete[] pixels_out;
 }
 
-void FrameExporter::stopDumpThr() {
-    if(dumper_thread_state == FRAME_EXPORTER_STOPPED) return;
+void FrameExporter::stop() {
+    if(dumper_thread_state == FRAME_EXPORTER_STOPPED || dumper_thread_state == FRAME_EXPORTER_EXIT) return;
 
     SDL_mutexP(mutex);
 
@@ -166,7 +166,7 @@ PPMExporter::PPMExporter(std::string outputfile) {
 }
 
 PPMExporter::~PPMExporter() {
-    stopDumpThr();
+    stop();
 
     if(filename.size()>0)
         ((std::fstream*)output)->close();
