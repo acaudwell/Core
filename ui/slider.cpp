@@ -178,7 +178,8 @@ void UIIntSlider::drawContent() {
 
 UILabelFloatSlider::UILabelFloatSlider(const std::string& label, float* value, float min, float max) : UILayout(true) {
 
-    UIFloatSlider* slider = new UIFloatSlider(value, min, max);
+    slider = new UIFloatSlider(value, min, max);
+
     UIFloatLabel*  flabel = new UIFloatLabel(value, true);
 
     flabel->slider = slider;
@@ -190,11 +191,16 @@ UILabelFloatSlider::UILabelFloatSlider(const std::string& label, float* value, f
     padding = vec2(5.0f, 0.0f);
 }
 
+void UILabelFloatSlider::scroll(bool up) {
+    slider->scroll(up);
+}
+
 // UILabelIntSlider
 
 UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min, int max) : UILayout(true) {
 
-    UIIntSlider* slider = new UIIntSlider(value, min, max);
+    slider = new UIIntSlider(value, min, max);
+
     UIIntLabel*  ilabel = new UIIntLabel(value, true);
 
     ilabel->slider = slider;
@@ -204,4 +210,8 @@ UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min
     addElement(ilabel);
 
     padding = vec2(5.0f, 0.0f);
+}
+
+void UILabelIntSlider::scroll(bool up) {
+    slider->scroll(up);
 }

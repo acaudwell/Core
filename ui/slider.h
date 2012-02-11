@@ -17,7 +17,7 @@ public:
 
     bool keyPress(SDL_KeyboardEvent *e, char c);
 
-    virtual void scroll(bool up) {}; 
+    virtual void scroll(bool up) {};
 
     int getType() { return UI_SLIDER; };
 };
@@ -56,14 +56,20 @@ public:
 
 class UILabelFloatSlider : public UILayout {
 
+    UIFloatSlider* slider;
 public:
     UILabelFloatSlider(const std::string& label, float* value, float min, float max);
+
+    void scroll(bool up);
 };
 
 class UILabelIntSlider : public UILayout {
 
+    UIIntSlider* slider;
 public:
     UILabelIntSlider(const std::string& label, int* value, int min, int max);
+
+    void scroll(bool up);
 };
 
 #endif
