@@ -52,8 +52,8 @@ public:
     void setPadding(const vec2& padding) { this->padding = padding; };
     void setPadding(float padding)        { this->padding = vec2(padding, padding); };
 
-    void setMargin(const vec4& margin)  { this->margin  = margin; };
-    void setMargin(const vec2& margin)  { this->margin  = vec4(margin.xy, margin.xy); };
+    void setMargin(const vec4& margin)  { this->margin = margin; };
+    void setMargin(const vec2& margin)  { this->margin = vec4(margin.x, margin.y, margin.x, margin.y); };
     void setMargin(float margin)        { this->margin = vec4(margin); };
 
     void setFillHorizontal(bool fill) { this->fill_horizontal = fill; };
