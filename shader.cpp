@@ -805,53 +805,61 @@ void ShaderPass::compile() {
 }
 
 //add uniform, unless parent Shader has this in which case link to it
-ShaderUniform* ShaderPass::addUniform(const std::string& name, const std::string& type, size_t length) {
+ShaderUniform* ShaderPass::addArrayUniform(const std::string& name, const std::string& type, size_t length) {
 
     ShaderUniform* uniform = 0;
 
     if((uniform = parent->getUniform(name)) == 0) {
 
-        //arrays
-        if(length > 1) {
-            if(type == "vec3") {
-                uniform = new Vec3ArrayShaderUniform(parent, name, length);
-            } else if(type == "vec4") {
-                uniform = new Vec4ArrayShaderUniform(parent, name, length);
-            } else {
-                throw SDLAppException("shader uniform arrays for type '%s' not implemented", type.c_str());
-            }
-
+        if(type == "vec3") {
+            uniform = new Vec3ArrayShaderUniform(parent, name, length);
+        } else if(type == "vec4") {
+            uniform = new Vec4ArrayShaderUniform(parent, name, length);
         } else {
-
-            if(type == "float") {
-                uniform = new FloatShaderUniform(parent, name);
-            } else if(type == "int") {
-                uniform = new IntShaderUniform(parent, name);
-            } else if(type == "bool") {
-                uniform = new BoolShaderUniform(parent, name);
-            } else if(type == "sampler1D") {
-                uniform = new Sampler1DShaderUniform(parent, name);
-            } else if(type == "sampler2D") {
-                uniform = new Sampler2DShaderUniform(parent, name);
-            } else if(type == "vec2") {
-                uniform = new Vec2ShaderUniform(parent, name);
-            } else if(type == "vec3") {
-                uniform = new Vec3ShaderUniform(parent, name);
-            } else if(type == "vec4") {
-                uniform = new Vec4ShaderUniform(parent, name);
-            } else if(type == "mat3") {
-                uniform = new Mat3ShaderUniform(parent, name);
-            } else if(type == "mat4") {
-                uniform = new Mat4ShaderUniform(parent, name);
-            } else {
-                throw SDLAppException("unsupported shader uniform type '%s'", type.c_str());
-            }
-
+            throw SDLAppException("shader uniform arrays for type '%s' not implemented", type.c_str());
         }
 
         uniform->setInitialized(false);
 
-        //if(baked) uniform->setBaked(true);
+        parent->addUniform(uniform);
+    }
+
+    uniforms.push_back(uniform);
+
+    return uniform;
+}
+
+ShaderUniform* ShaderPass::addUniform(const std::string& name, const std::string& type) {
+
+    ShaderUniform* uniform = 0;
+
+    if((uniform = parent->getUniform(name)) == 0) {
+
+        if(type == "float") {
+            uniform = new FloatShaderUniform(parent, name);
+        } else if(type == "int") {
+            uniform = new IntShaderUniform(parent, name);
+        } else if(type == "bool") {
+            uniform = new BoolShaderUniform(parent, name);
+        } else if(type == "sampler1D") {
+            uniform = new Sampler1DShaderUniform(parent, name);
+        } else if(type == "sampler2D") {
+            uniform = new Sampler2DShaderUniform(parent, name);
+        } else if(type == "vec2") {
+            uniform = new Vec2ShaderUniform(parent, name);
+        } else if(type == "vec3") {
+            uniform = new Vec3ShaderUniform(parent, name);
+        } else if(type == "vec4") {
+            uniform = new Vec4ShaderUniform(parent, name);
+        } else if(type == "mat3") {
+            uniform = new Mat3ShaderUniform(parent, name);
+        } else if(type == "mat4") {
+            uniform = new Mat4ShaderUniform(parent, name);
+        } else {
+            throw SDLAppException("unsupported shader uniform type '%s'", type.c_str());
+        }
+
+        uniform->setInitialized(false);
 
         parent->addUniform(uniform);
     }
@@ -887,13 +895,13 @@ bool ShaderPass::preprocess(const std::string& line) {
     if(Shader_uniform_def.match(line, &matches)) {
         std::string uniform_type = matches[0];
         std::string uniform_name = matches[1];
-        size_t uniform_length    = 1;
 
         if(matches.size() > 2) {
-            uniform_length = atoi(matches[2].c_str());
+            size_t uniform_length = atoi(matches[2].c_str());
+            addArrayUniform(uniform_name, uniform_type, uniform_length);
+        } else {
+            addUniform(uniform_name, uniform_type);
         }
-
-        addUniform(uniform_name, uniform_type, uniform_length);
 
         return true;
     }
