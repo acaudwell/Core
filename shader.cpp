@@ -474,6 +474,101 @@ void Mat4ShaderUniform::write(std::string& content) const {
     content += buff;
 }
 
+
+//Vec2ArrayShaderUniform
+
+Vec2ArrayShaderUniform::Vec2ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec2* value) :
+    length(length), ShaderUniform(shader, name, SHADER_UNIFORM_VEC2_ARRAY, "vec2") {
+    this->value = new vec2[length];
+    if(value != 0) copyValue(value);
+}
+
+Vec2ArrayShaderUniform::~Vec2ArrayShaderUniform() {
+    if(value) delete[] value;
+}
+
+const vec2* Vec2ArrayShaderUniform::getValue() const {
+    return value;
+}
+
+void Vec2ArrayShaderUniform::copyValue(const vec2* value) {
+    for(size_t i=0; i<length; i++) {
+        this->value[i] = value[i];
+    }
+}
+
+void Vec2ArrayShaderUniform::copyValue(const std::vector<vec2>& value) {
+    for(size_t i=0; i<length; i++) {
+        this->value[i] = value[i];
+    }
+}
+
+void Vec2ArrayShaderUniform::setValue(const vec2* value) {
+    if(baked) {
+        bool match = true;
+
+        for(size_t i=0;i<length;i++) {
+            if(value[i] != this->value[i]) {
+                match = false;
+                break;
+            }
+        }
+
+        if(match) return;
+    }
+
+    copyValue(value);
+
+    modified = true;
+    initialized = true;
+}
+
+void Vec2ArrayShaderUniform::setValue(const std::vector<vec2>& value) {
+    if(baked) {
+        bool match = true;
+
+        for(size_t i=0;i<length;i++) {
+            if(value[i] != this->value[i]) {
+                match = false;
+                break;
+            }
+        }
+
+        if(match) return;
+    }
+
+    copyValue(value);
+
+    modified = true;
+    initialized = true;
+}
+
+void Vec2ArrayShaderUniform::apply() {
+    glUniform2fv(getLocation(), length, glm::value_ptr(value[0]));
+}
+
+void Vec2ArrayShaderUniform::write(std::string& content) const {
+
+    char buff[1024];
+
+    if(baked) {
+        snprintf(buff, 1024, "%s[%ld] %s = %s[] (\n", type_name.c_str(), length, name.c_str(), type_name.c_str());
+
+        content += buff;
+
+        for(size_t i=0; i<length; i++) {
+            snprintf(buff, 1024, "    %s(%e, %e)", type_name.c_str(), value[i].x, value[i].y);
+            content += buff;
+            if(i<length-1) content += ",\n";
+            else           content += ");\n";
+        }
+
+    } else {
+        snprintf(buff, 1024, "uniform %s %s[%ld];\n", type_name.c_str(), name.c_str(), length);
+        content += buff;
+    }
+}
+
 //Vec3ArrayShaderUniform
 
 Vec3ArrayShaderUniform::Vec3ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec3* value) :
@@ -811,7 +906,9 @@ ShaderUniform* ShaderPass::addArrayUniform(const std::string& name, const std::s
 
     if((uniform = parent->getUniform(name)) == 0) {
 
-        if(type == "vec3") {
+        if(type == "vec2") {
+            uniform = new Vec2ArrayShaderUniform(parent, name, length);
+        } else if(type == "vec3") {
             uniform = new Vec3ArrayShaderUniform(parent, name, length);
         } else if(type == "vec4") {
             uniform = new Vec4ArrayShaderUniform(parent, name, length);
@@ -1223,6 +1320,22 @@ void Shader::setVec3 (const std::string& name, const vec3& value) {
     if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC3) return;
 
     ((Vec3ShaderUniform*)uniform)->setValue(value);
+}
+
+void Shader::setVec2Array (const std::string& name, vec2* value) {
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC2_ARRAY) return;
+
+    ((Vec2ArrayShaderUniform*)uniform)->setValue(value);
+}
+
+void Shader::setVec2Array (const std::string& name, std::vector<vec2>& value) {
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC2_ARRAY) return;
+
+    ((Vec2ArrayShaderUniform*)uniform)->setValue(value);
 }
 
 void Shader::setVec3Array (const std::string& name, vec3* value) {

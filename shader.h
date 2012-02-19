@@ -53,6 +53,7 @@ enum { SHADER_UNIFORM_FLOAT,
        SHADER_UNIFORM_VEC4,
        SHADER_UNIFORM_MAT3,
        SHADER_UNIFORM_MAT4,
+       SHADER_UNIFORM_VEC2_ARRAY,
        SHADER_UNIFORM_VEC3_ARRAY,
        SHADER_UNIFORM_VEC4_ARRAY
 };
@@ -218,6 +219,26 @@ public:
     const mat4& getValue() const;
 };
 
+class Vec2ArrayShaderUniform : public ShaderUniform {
+    vec2* value;
+    size_t length;
+
+    void copyValue(const vec2* value);
+    void copyValue(const std::vector<vec2>& value);
+public:
+    Vec2ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec2* value = 0);
+    ~Vec2ArrayShaderUniform();
+
+    void write(std::string& content) const;
+
+    void apply();
+
+    void setValue(const vec2* value);
+    void setValue(const std::vector<vec2>& value);
+
+    const vec2* getValue() const;
+};
+
 class Vec3ArrayShaderUniform : public ShaderUniform {
     vec3* value;
     size_t length;
@@ -364,6 +385,9 @@ public:
     void setVec4 (const std::string& name, const vec4& value);
     void setMat3 (const std::string& name, const mat3& value);
     void setMat4 (const std::string& name, const mat4& value);
+
+    void setVec2Array(const std::string& name, vec2* value);
+    void setVec2Array(const std::string& name, std::vector<vec2>& value);
 
     void setVec3Array(const std::string& name, vec3* value);
     void setVec3Array(const std::string& name, std::vector<vec3>& value);
