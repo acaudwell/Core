@@ -68,6 +68,8 @@ public:
     UIFloatLabel(float* value, bool editable);
     UIFloatLabel(UIFloatSlider* slider, bool editable);
 
+    void setValue(float* value);
+
     bool keyPress(SDL_KeyboardEvent *e, char c);
     bool submit();
 

@@ -84,6 +84,8 @@ UIFloatSlider::UIFloatSlider(float* value, float min, float max) :
 
 void UIFloatSlider::scroll(bool up) {
 
+    if(!value) return;
+
     float value_inc = (max-min) / 100.0f;
 
     if(!up) value_inc = -value_inc;
@@ -103,6 +105,8 @@ void UIFloatSlider::scroll(bool up) {
 }
 
 void UIFloatSlider::scale(bool up) {
+
+    if(!value) return;
 
     float value_scale = 0.25f;
 
@@ -134,12 +138,18 @@ void UIFloatSlider::drag(const vec2& pos) {
     setValue(new_value);
 }
 
+void UIFloatSlider::setFloat(float* f) {
+    value = f;
+}
+
 void UIFloatSlider::setValue(float v) {
+    if(!value) return;
+
     *value = std::max(std::min(max,v), min);
 }
 
 void UIFloatSlider::drawContent() {
-
+    if(!value) return;
     float position = std::min(1.0f, ((*value) - min) / ((float)max-min));
 
     drawSlider(position);
@@ -188,8 +198,7 @@ UILabelFloatSlider::UILabelFloatSlider(const std::string& label, float* value, f
 
     slider = new UIFloatSlider(value, min, max);
 
-    UIFloatLabel*  flabel = new UIFloatLabel(value, true);
-
+    flabel = new UIFloatLabel(value, true);
     flabel->slider = slider;
 
     addElement(new UILabel(label, false, 120.0f));
@@ -197,6 +206,12 @@ UILabelFloatSlider::UILabelFloatSlider(const std::string& label, float* value, f
     addElement(flabel);
 
     padding = vec2(5.0f, 0.0f);
+}
+
+void UILabelFloatSlider::setFloat(float* f) {
+    slider->setFloat(f);
+    flabel->setValue(f);
+  //  flabel->updateContent();
 }
 
 void UILabelFloatSlider::scroll(bool up) {

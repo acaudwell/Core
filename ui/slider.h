@@ -35,6 +35,9 @@ public:
     void scroll(bool up);
     void click(const vec2& pos);
     void drag(const vec2& pos);
+
+    void setFloat(float* f);
+
     void setValue(float v);
 
     void drawContent();
@@ -59,8 +62,11 @@ public:
 class UILabelFloatSlider : public UILayout {
 
     UIFloatSlider* slider;
+    UIFloatLabel*  flabel;
 public:
     UILabelFloatSlider(const std::string& label, float* value, float min, float max);
+
+    void setFloat(float* f);
 
     void scale(bool up);
     void scroll(bool up);

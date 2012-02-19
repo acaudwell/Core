@@ -231,6 +231,10 @@ bool UIFloatLabel::keyPress(SDL_KeyboardEvent *e, char c) {
     return changed;
 }
 
+void UIFloatLabel::setValue(float* value) {
+    this->value = value;
+}
+
 bool UIFloatLabel::submit() {
 
     float v = atof(text.c_str());
@@ -250,7 +254,13 @@ void UIFloatLabel::setSelected(bool selected) {
 }
 
 void UIFloatLabel::updateContent() {
-    if(!value) return;
+    if(!value) {
+        if(!text.empty()) {
+            text.resize(0);
+            text_changed = true;
+        }
+        return;
+    }
 
     char buff[256];
     snprintf(buff, 256, "%f", *value);
