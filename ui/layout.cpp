@@ -19,6 +19,10 @@ void UILayout::setDrawBackground(bool drawbg) {
 
 void UILayout::clear() {
     foreach(UIElement* e, elements) {
+        if(e->selected && ui) {
+            ui->deselect();
+        }
+
         delete e;
     }
     elements.clear();
@@ -100,24 +104,24 @@ void UILayout::update(float dt) {
     rect = glm::max(rect, inner);
 
     vec2 filler = glm::max(vec2(0.0f), vec2(rect-inner));
-    
+
     if(glm::length(filler) > 1.0f && !(fill_vert_elements.empty() && fill_horiz_elements.empty())) {
-                        
+
         if(horizontal) {
             filler.x /= (float) fill_horiz_elements.size();
         } else {
             filler.y /= (float) fill_vert_elements.size();
         }
-        
+
         std::list<UIElement*> fill_elements;
         fill_elements.insert(fill_elements.end(), fill_horiz_elements.begin(), fill_horiz_elements.end());
         fill_elements.insert(fill_elements.end(), fill_vert_elements.begin(), fill_vert_elements.end());
-        
+
         fill_elements.unique();
-        
+
         vec2 horiz_filler(filler.x, 0.0f);
-        vec2 vert_filler(0.0f, filler.y);        
-        
+        vec2 vert_filler(0.0f, filler.y);
+
         foreach(UIElement* e, fill_elements) {
 
                 if(e->fillVertical() && e->fillHorizontal()) {
@@ -135,7 +139,7 @@ void UILayout::update(float dt) {
 
 void UILayout::expandRect(const vec2& expand) {
     expanded_rect = expand;
-    
+
     if(glm::length(expanded_rect) <= 0.0f) return;
 
     std::list<UIElement*> fill_vert_elements;
@@ -149,7 +153,7 @@ void UILayout::expandRect(const vec2& expand) {
     if(fill_vert_elements.empty() && fill_horiz_elements.empty()) return;
 
     vec2 filler = expanded_rect;
-                
+
     if(horizontal) {
         filler.x /= (float) fill_horiz_elements.size();
     } else {
@@ -159,12 +163,12 @@ void UILayout::expandRect(const vec2& expand) {
     std::list<UIElement*> fill_elements;
     fill_elements.insert(fill_elements.end(), fill_horiz_elements.begin(), fill_horiz_elements.end());
     fill_elements.insert(fill_elements.end(), fill_vert_elements.begin(), fill_vert_elements.end());
-    
+
     fill_elements.unique();
 
     vec2 horiz_filler(filler.x, 0.0f);
-    vec2 vert_filler(0.0f, filler.y);        
-        
+    vec2 vert_filler(0.0f, filler.y);
+
     foreach(UIElement* e, fill_elements) {
         e->resetRect();
 
@@ -177,11 +181,11 @@ void UILayout::expandRect(const vec2& expand) {
         }
 
         e->update(0.0f);
-    }    
+    }
 }
 
 void UILayout::resetRect() {
-    expanded_rect = vec2(0.0f);    
+    expanded_rect = vec2(0.0f);
 }
 
 vec2 UILayout::getInnerRect() {
@@ -189,7 +193,7 @@ vec2 UILayout::getInnerRect() {
 }
 
 vec2 UILayout::getRect() {
-    return rect + expanded_rect;    
+    return rect + expanded_rect;
 }
 
 
@@ -200,7 +204,7 @@ void UILayout::setMinRect(const vec2& min_rect) {
 void UILayout::updatePos(const vec2& pos) {
 
     vec2 rect = getRect();
-    
+
     switch(alignment) {
         case UI_LAYOUT_ALIGN_TOP_LEFT:
             this->pos = vec2(0.0f, 0.0f);
