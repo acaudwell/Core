@@ -1,19 +1,31 @@
 #include "image.h"
 
-UIImage::UIImage(const std::string& path) {
-    imagetex = texturemanager.grab(path);
-    shadow_offset = vec2(1.0f, 1.0f);
-    shadow = 0.0f;
-    alpha = 1.0f;
+UIImage::UIImage(const std::string& image_path)
+    : image_path(image_path), rect(0.0f, 0.0f), coords(0.0f, 0.0f, 1.0f, 1.0f) {
+
+    init();
+}
+
+UIImage::UIImage(const std::string& image_path, const vec2& rect, const vec4& coords)
+    : image_path(image_path), rect(rect), coords(coords) {
+
+    init();
 }
 
 UIImage::~UIImage() {
     if(imagetex != 0) texturemanager.release(imagetex);
 }
 
-void UIImage::updateRect() {
-    rect.x = imagetex->w;
-    rect.y = imagetex->h;
+void UIImage::init() {
+    imagetex = texturemanager.grab(image_path);
+
+    colour        = vec4(1.0f);
+    shadow_offset = vec2(1.0f, 1.0f);
+    shadow        = 0.0f;
+
+    if(glm::length(rect) < 1.0f) {
+        rect = vec2(imagetex->w, imagetex->h);
+    }
 }
 
 void UIImage::drawContent() {
@@ -21,9 +33,9 @@ void UIImage::drawContent() {
 
     if(shadow > 0.0f) {
         glColor4f(0.0f, 0.0f, 0.0f, shadow);
-        drawQuad(rect + shadow_offset, vec4(0.0f, 0.0f, 1.0f, 1.0f));
+        drawQuad(rect + shadow_offset, coords);
     }
 
-    glColor4f(1.0f, 1.0f, 1.0f, alpha);
-    drawQuad(rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
+    glColor4fv(glm::value_ptr(colour));
+    drawQuad(rect, coords);
 }

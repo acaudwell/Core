@@ -6,16 +6,22 @@
 class UIImage : public UIElement {
     TextureResource* imagetex;
 public:
-    float alpha;
+    std::string image_path;
+    vec2 rect;
+    vec4 coords;
     float shadow;
     vec2  shadow_offset;
+    vec4  colour;
 
-    UIImage(const std::string& path);
+    UIImage(const std::string& image_path);
+    UIImage(const std::string& image_path, const vec2& rect, const vec4& coords);
+
+    void init();
+
     ~UIImage();
 
     int getType() { return UI_IMAGE; }
 
-    void updateRect();
     void drawContent();
 };
 
