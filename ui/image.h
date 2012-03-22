@@ -7,7 +7,6 @@ class UIImage : public UIElement {
     TextureResource* imagetex;
 public:
     std::string image_path;
-    vec2 rect;
     vec4 coords;
     float shadow;
     vec2  shadow_offset;
