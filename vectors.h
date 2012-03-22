@@ -54,11 +54,9 @@ public:
     lerp2() : vec2(), p(), l() {
     }
 
-    lerp2(const vec2& vec) : vec2(vec) {
-    }
-
-    void snap() {
+    const lerp2& snap() {
         p = *this;
+        return *this;
     }
 
     static vec2 lerp(const vec2& a, const vec2& b, float n) {
@@ -66,8 +64,14 @@ public:
     }
 
     const vec2& lerp(float n) {
-        l = *this + (p - *this) * n;
+        l = p + (*this - p) * n;
         return l;
+    }
+    
+    const lerp2& operator= (const vec2& vec) {
+        this->x = vec.x;
+        this->y = vec.y;
+        return *this;
     }
 };
 
@@ -79,11 +83,9 @@ public:
     lerp3() : vec3(), p(), l() {
     }
 
-    lerp3(const vec3& vec) : vec3(vec) {
-    }
-
-    void snap() {
+    const lerp3& snap() {
         p = *this;
+        return *this;
     }
 
     static vec3 lerp(const vec3& a, const vec3& b, float n) {
@@ -91,8 +93,15 @@ public:
     }
 
     const vec3& lerp(float n) {
-        l = *this + (p - *this) * n;
+        l = p + (*this - p) * n;
         return l;
+    }
+
+    const lerp3& operator= (const vec3& vec) {
+        this->x = vec.x;
+        this->y = vec.y;
+        this->z = vec.z;
+        return *this;
     }
 };
 
