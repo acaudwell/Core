@@ -34,8 +34,9 @@ public:
 
 class UILabelColour : public UILayout {
 
-    UIColour* ui_colour;
 public:
+    UIColour* ui_colour;
+
     UILabelColour(const std::string& label);
     UILabelColour(const std::string& label, vec3* value);
     UILabelColour(const std::string& label, vec3* a, vec3* b, vec3* c);
