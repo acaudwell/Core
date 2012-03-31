@@ -106,6 +106,20 @@ UIElement* UI::selectElementAt(const vec2& pos) {
         if((found = e->elementAt(pos)) != 0) break;
     }
 
+    if(!found) {
+
+        std::list<UIElement*> selects;
+        elementsByType(selects, UI_SELECT);
+
+        foreach(UIElement* e, selects) {
+            UISelect* select = (UISelect*)e;
+
+            if(select->open && (found = select->elementAt(pos)) != 0) {
+                break;
+            }
+        }
+    }
+
     if(selectedElement == found) return selectedElement;
 
     if(selectedElement != 0) {

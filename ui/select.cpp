@@ -45,12 +45,20 @@ void UISelect::selectOption(UIOptionLabel* option) {
     open = false;
 }
 
-void UISelect::addOption(const std::string& name, const std::string& value) {
+void UISelect::addOption(const std::string& name, const std::string& value, bool select_option) {
     UIOptionLabel* option = new UIOptionLabel(this, name, value);
 
     options_layout->addElement(option);
 
-    selectOption(option);
+    if(!selected_option || select_option) selectOption(option);
+}
+
+void UISelect::addOption(const std::string& name, UIAction* action, bool select_option) {
+    UIOptionLabel* option = new UIOptionLabel(this, name, action);
+
+    options_layout->addElement(option);
+
+    if(!selected_option || select_option) selectOption(option);
 }
 
 UIElement* UISelect::elementAt(const vec2& pos) {
@@ -96,6 +104,10 @@ void UIIntSelectAction::perform() {
 
 UIOptionLabel::UIOptionLabel(UISelect* select, const std::string& text, const std::string& value, UIAction* action)
     : select(select), value(value), action(action), UILabel(text, false, 150.0f) {
+}
+
+UIOptionLabel::UIOptionLabel(UISelect* select, const std::string& text, UIAction* action)
+    : select(select), value(text), action(action), UILabel(text, false, 150.0f) {
 }
 
 bool UIOptionLabel::submit() {
