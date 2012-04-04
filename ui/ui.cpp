@@ -37,6 +37,11 @@ void UI::addElement(UIElement* e) {
     elements.push_back(e);
 }
 
+void UI::removeElement(UIElement* e) {
+    elements.erase(std::remove(elements.begin(), elements.end(), e), elements.end());
+    e->setUI(0);
+}
+
 UIElement* UI::getSelected() {
     return selectedElement;
 }
@@ -114,15 +119,15 @@ UIElement* UI::selectElementAt(const vec2& pos) {
             break;
         }
     }
-    
+
     if(!found) {
         // check other elements
-        
+
         foreach(UIElement* e, elements) {
             if((found = e->elementAt(pos)) != 0) break;
         }
     }
-    
+
     if(selectedElement == found) return selectedElement;
 
     if(selectedElement != 0) {

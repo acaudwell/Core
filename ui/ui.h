@@ -35,6 +35,7 @@ public:
     void clear();
 
     void addElement(UIElement* e);
+    void removeElement(UIElement* e);
 
     UIElement* getSelected();
 
