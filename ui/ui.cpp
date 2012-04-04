@@ -102,24 +102,27 @@ UIElement* UI::selectElementAt(const vec2& pos) {
 
     UIElement* found = 0;
 
-    foreach(UIElement* e, elements) {
-        if((found = e->elementAt(pos)) != 0) break;
-    }
+    // check against any open select list
 
-    if(!found) {
+    std::list<UIElement*> selects;
+    elementsByType(selects, UI_SELECT);
 
-        std::list<UIElement*> selects;
-        elementsByType(selects, UI_SELECT);
+    foreach(UIElement* e, selects) {
+        UISelect* select = (UISelect*)e;
 
-        foreach(UIElement* e, selects) {
-            UISelect* select = (UISelect*)e;
-
-            if(select->open && (found = select->elementAt(pos)) != 0) {
-                break;
-            }
+        if(select->open && (found = select->elementAt(pos)) != 0) {
+            break;
         }
     }
-
+    
+    if(!found) {
+        // check other elements
+        
+        foreach(UIElement* e, elements) {
+            if((found = e->elementAt(pos)) != 0) break;
+        }
+    }
+    
     if(selectedElement == found) return selectedElement;
 
     if(selectedElement != 0) {

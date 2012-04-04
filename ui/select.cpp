@@ -38,10 +38,10 @@ UIOptionLabel* UISelect::getSelectedOption() {
     return selected_option;
 }
 
-void UISelect::selectOption(UIOptionLabel* option) {
+void UISelect::selectOption(UIOptionLabel* option, bool submit) {
     label->setText(option->text);
     selected_option = option;
-    selected_option->submit();
+    if(submit) selected_option->submit();
     open = false;
 }
 
@@ -50,7 +50,10 @@ void UISelect::addOption(const std::string& name, const std::string& value, bool
 
     options_layout->addElement(option);
 
-    if(!selected_option || select_option) selectOption(option);
+    if(select_option) selectOption(option);
+    
+    // if we have no selected option select option but dont submit
+    if(!selected_option) selectOption(option, false);
 }
 
 void UISelect::addOption(const std::string& name, UIAction* action, bool select_option) {
@@ -73,8 +76,15 @@ UIElement* UISelect::elementAt(const vec2& pos) {
 }
 
 void UISelect::updatePos(const vec2& pos) {
-    UISolidLayout::updatePos(pos);
-    options_layout->updatePos(pos);
+   
+    vec2 adjusted_pos = pos;
+       
+    if(open && parent && adjusted_pos.y + options_layout->getRect().y > parent->getRect().y) {
+        adjusted_pos.y -= options_layout->getRect().y - this->getRect().y;
+    }
+
+    UISolidLayout::updatePos(adjusted_pos);
+    options_layout->updatePos(adjusted_pos);
 }
 
 void UISelect::update(float dt) {

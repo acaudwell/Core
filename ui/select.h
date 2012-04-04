@@ -47,7 +47,7 @@ public:
 
     void setUI(UI* ui);
 
-    void selectOption(UIOptionLabel* option);
+    void selectOption(UIOptionLabel* option, bool submit = true);
 
     UIOptionLabel* getSelectedOption();
 
