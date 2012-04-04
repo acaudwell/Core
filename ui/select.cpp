@@ -61,7 +61,10 @@ void UISelect::addOption(const std::string& name, UIAction* action, bool select_
 
     options_layout->addElement(option);
 
-    if(!selected_option || select_option) selectOption(option);
+    if(select_option) selectOption(option);
+    
+    // if we have no selected option select option but dont submit
+    if(!selected_option) selectOption(option, false);
 }
 
 UIElement* UISelect::elementAt(const vec2& pos) {
