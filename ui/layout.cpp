@@ -227,13 +227,13 @@ void UILayout::updatePos(const vec2& pos) {
                         || alignment == UI_LAYOUT_ALIGN_BOTTOM_RIGHT) ?
                        true : false;
 
+    bool bottom_align   = (   alignment == UI_LAYOUT_ALIGN_BOTTOM_LEFT
+                           || alignment == UI_LAYOUT_ALIGN_BOTTOM_RIGHT) ?
+                       true : false;
     vec2 cursor;
 
-    if(right_align) {
-        cursor = this->pos + vec2(rect.x - margin.x, margin.y);
-    } else {
-        cursor = this->pos + vec2(margin.x, margin.y);
-    }
+    cursor = this->pos + vec2( (right_align  ? rect.x - margin.x : margin.x) ,
+                               (bottom_align ? rect.y - margin.y : margin.y) );
 
     foreach(UIElement* e, elements) {
 
@@ -247,10 +247,8 @@ void UILayout::updatePos(const vec2& pos) {
             } else {
                 e->updatePos(vec2((int)(this->pos.x + rect.x*0.5f - r.x*0.5f), cursor.y));
             }
-        } else if(right_align) {
-            e->updatePos(cursor - vec2(r.x, 0.0f));
         } else {
-            e->updatePos(cursor);
+            e->updatePos(cursor - vec2(right_align ? r.x : 0.0, bottom_align ? r.y : 0.0f));
         }
 
         if(horizontal) {
