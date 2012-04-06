@@ -560,7 +560,7 @@ void Vec2ArrayShaderUniform::write(std::string& content) const {
             snprintf(buff, 1024, "    %s(%e, %e)", type_name.c_str(), value[i].x, value[i].y);
             content += buff;
             if(i<length-1) content += ",\n";
-            else           content += ");\n";
+            else           content += "\n);\n";
         }
 
     } else {
@@ -654,7 +654,7 @@ void Vec3ArrayShaderUniform::write(std::string& content) const {
             snprintf(buff, 1024, "    %s(%e, %e, %e)", type_name.c_str(), value[i].x, value[i].y, value[i].z);
             content += buff;
             if(i<length-1) content += ",\n";
-            else           content += ");\n";
+            else           content += "\n);\n";
         }
 
     } else {
@@ -748,7 +748,7 @@ void Vec4ArrayShaderUniform::write(std::string& content) const {
             snprintf(buff, 1024, "    %s(%e, %e, %e, %e)", type_name.c_str(), value[i].x, value[i].y, value[i].z, value[i].w);
             content += buff;
             if(i<length-1) content += ",\n";
-            else           content += ");\n";
+            else           content += "\n);\n";
         }
 
     } else {
