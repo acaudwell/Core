@@ -73,7 +73,7 @@ public:
 void warnLog(const char *args, ...);
 void debugLog(const char *args, ...);
 void infoLog(const char *args, ...);
-void errLog(const char *args, ...);
+void errorLog(const char *args, ...);
 
 extern Logger* logger;
 
