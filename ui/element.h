@@ -23,6 +23,7 @@ public:
     bool  selected;
     bool  disabled;
     bool  hidden;
+    bool  scrollable;
 
     UIElement* parent;
 
@@ -34,7 +35,7 @@ public:
     // affects the selectable area of the element
     vec2 padding;
 
-    UIElement() : padding(0.0f, 0.0f), margin(0.0f, 0.0f, 0.0f, 0.0f), ui(0), disabled(false), selected(false), editable(false), hidden(false), fill_horizontal(false), fill_vertical(false), parent(0) {};
+    UIElement() : padding(0.0f, 0.0f), margin(0.0f, 0.0f, 0.0f, 0.0f), ui(0), disabled(false), selected(false), editable(false), hidden(false), fill_horizontal(false), fill_vertical(false), scrollable(false), parent(0) {};
 
     virtual void setUI(UI* ui) { this->ui = ui; };
 
@@ -100,7 +101,8 @@ public:
     virtual void doubleClick(const vec2& pos) { click(pos); };
 
     virtual bool isEditable() { return editable; };
-
+    virtual bool isScrollable() { return scrollable; };
+ 
     virtual void drawContent() {};
 
     virtual void draw();

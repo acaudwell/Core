@@ -7,6 +7,7 @@ UISlider::UISlider(const std::string& slider_texture, float width) : slider_widt
     rect       = vec2(slider_width, 16.0f);
     background = true;
     editable   = true;
+    scrollable = true;
 }
 
 void UISlider::drawSlider(float position) {
@@ -206,6 +207,7 @@ UILabelFloatSlider::UILabelFloatSlider(const std::string& label, float* value, f
     addElement(flabel);
 
     padding = vec2(5.0f, 0.0f);
+    scrollable = true;
 }
 
 void UILabelFloatSlider::setFloat(float* f) {
@@ -237,6 +239,8 @@ UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min
     addElement(ilabel);
 
     padding = vec2(5.0f, 0.0f);
+    scrollable = true;
+
 }
 
 void UILabelIntSlider::scroll(bool up) {
