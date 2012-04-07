@@ -28,6 +28,16 @@
 #ifndef SDLAPP_H
 #define SDLAPP_H
 
+#ifdef _WIN32
+
+#ifdef _WIN32_WINNT
+#undef _WIN32_WINNT
+#endif
+
+#define _WIN32_WINNT 0x0501
+#include "windows.h"
+#endif
+
 #include "display.h"
 #include "logger.h"
 
@@ -42,6 +52,9 @@ extern std::string gSDLAppTitle;
 extern std::string gSDLAppExec;
 
 #ifdef _WIN32
+extern HWND gSDLAppConsoleWindow;
+
+bool SDLAppAttachToConsole();
 void SDLAppCreateWindowsConsole();
 void SDLAppResizeWindowsConsole(int height);
 #endif

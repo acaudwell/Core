@@ -41,15 +41,33 @@ std::string gSDLAppExec  = "sdlapp";
 
 #ifdef _WIN32
 HWND gSDLAppConsoleWindow = 0;
+bool using_parent_console = false;
+
+bool SDLAppAttachToConsole() {
+    if(using_parent_console || gSDLAppConsoleWindow != 0) return using_parent_console;
+
+    if(AttachConsole(ATTACH_PARENT_PROCESS)) {
+        freopen("conin$", "r", stdin);
+        freopen("conout$","w", stdout);
+        freopen("conout$","w", stderr);
+        using_parent_console = true;
+    }
+
+    return using_parent_console;
+}
 
 void SDLAppCreateWindowsConsole() {
-    if(gSDLAppConsoleWindow !=0) return;
+    if(using_parent_console || gSDLAppConsoleWindow != 0) return;
+
+    //try to attach to the available console if there is one
+
+    if(SDLAppAttachToConsole()) return;
 
     //create a console on Windows so users can see messages
-
     //find an available name for our window
-    int console_suffix = 0;
+
     char consoleTitle[512];
+    int console_suffix = 0;
     sprintf(consoleTitle, "%s Console", gSDLAppTitle.c_str());
 
     while(FindWindow(0, consoleTitle)) {
@@ -72,7 +90,7 @@ void SDLAppCreateWindowsConsole() {
         SDL_Delay(100);
     }
 
-    //disable the close button so the user cant crash gource
+    //disable the close button so the user cant crash the application
     HMENU hm = GetSystemMenu(gSDLAppConsoleWindow, false);
     DeleteMenu(hm, SC_CLOSE, MF_BYCOMMAND);
 }
@@ -113,8 +131,10 @@ void SDLAppInfo(std::string msg) {
     printf("%s\n", msg.c_str());
 
 #ifdef _WIN32
-    printf("\nPress Enter\n");
-    getchar();
+    if(gSDLAppConsoleWindow) {
+        printf("\nPress Enter\n");
+        getchar();
+    }
 #endif
 
     exit(0);
@@ -132,8 +152,10 @@ void SDLAppQuit(std::string error) {
     fprintf(stderr, "Try '%s --help' for more information.\n\n", gSDLAppExec.c_str());
 
 #ifdef _WIN32
-    fprintf(stderr, "Press Enter\n");
-    getchar();
+    if(gSDLAppConsoleWindow) {
+        fprintf(stderr, "Press Enter\n");
+        getchar();
+    }
 #endif
 
     exit(1);

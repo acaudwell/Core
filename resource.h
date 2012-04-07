@@ -33,10 +33,6 @@
 #include <cstring>
 #include <stdexcept>
 
-#ifdef _WIN32
-#include "windows.h"
-#endif
-
 class ResourceException : public std::exception {
 protected:
     std::string resource;
@@ -57,7 +53,7 @@ public:
     void setResourceName(const std::string& resource_name) {
         if(this->resource_name.empty()) this->resource_name = resource_name;
     };
-    
+
     int refcount() { return refs; };
     void addref()  { refs++; };
     void deref()   { refs--; };
