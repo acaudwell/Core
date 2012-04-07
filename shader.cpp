@@ -884,11 +884,14 @@ void ShaderPass::compile() {
 
     toString(shader_object_source);
 
+    // apply subsitutions
+    parent->applySubstitutions(shader_object_source);
+
     foreach(ShaderUniform* u, uniforms) {
         u->setModified(false);
     }
 
-    //fprintf(stderr, "src:\n%s", shader_object_src.c_str());
+    //fprintf(stderr, "src:\n%s", shader_object_source.c_str());
 
     const char* source_ptr = shader_object_source.c_str();
     int source_len = shader_object_source.size();
@@ -1264,6 +1267,37 @@ void Shader::includeFile(GLenum shader_object_type, const std::string& filename)
     ShaderPass* pass = grabShaderPass(shader_object_type);
 
     pass->includeFile(filename);
+}
+
+void Shader::addSubstitute(const std::string& name, const char *value, ...) {
+
+    va_list vl;
+    char sub[4096];
+
+    va_start(vl, value);
+        vsnprintf(sub, 4096, value, vl);
+    va_end(vl);
+
+    substitutions[name] = sub;
+}
+
+void Shader::substitute(std::string& source, const std::string& name, const std::string& value) {
+
+    std::string::size_type next_match;
+
+    for(next_match = source.find(name);
+        next_match != std::string::npos;
+        next_match = source.find(name, next_match)) {
+        source.replace(next_match, name.length(), value);
+        next_match += value.length();
+    }
+}
+
+void Shader::applySubstitutions(std::string& source) {
+
+    for(std::map<std::string, std::string>::iterator it = substitutions.begin(); it != substitutions.end(); it++) {
+        substitute(source, it->first, it->second);
+    }
 }
 
 void Shader::setBool (const std::string& name, bool value) {

@@ -338,7 +338,8 @@ public:
 
 class Shader : public Resource {
 
-    std::map<std::string, ShaderUniform*> uniforms;
+    std::map<std::string, ShaderUniform*>  uniforms;
+    std::map<std::string,std::string> substitutions;
 
     GLenum program;
     bool dynamic_compile;
@@ -366,6 +367,11 @@ public:
 
     void includeSource(GLenum shader_object_type, const std::string& source);
     void includeFile(GLenum shader_object_type,   const std::string& filename);
+
+    static void substitute(std::string& source, const std::string& name, const std::string& value);
+
+    void addSubstitute(const std::string& name, const char *value, ...);
+    void applySubstitutions(std::string& source);
 
     void addUniform(ShaderUniform* uniform);
     ShaderUniform* getUniform(const std::string& name);
