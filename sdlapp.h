@@ -121,6 +121,8 @@ public:
     virtual void logic(float t, float dt) {};
     virtual void draw(float t, float dt) {};
 
+    virtual void quit() { appFinished = true; };
+    
     virtual void mouseMove(SDL_MouseMotionEvent *e) {};
     virtual void mouseClick(SDL_MouseButtonEvent *e) {};
     virtual void keyPress(SDL_KeyboardEvent *e) {};

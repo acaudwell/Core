@@ -374,7 +374,7 @@ int SDLApp::run() {
 
             switch(event.type) {
                 case SDL_QUIT:
-                    appFinished=true;
+                    quit();
                     break;
 
                 case SDL_MOUSEMOTION:
