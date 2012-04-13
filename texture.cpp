@@ -44,7 +44,7 @@ TextureResource* TextureManager::grabFile(const std::string& filename, bool mipm
 TextureResource* TextureManager::grab(const std::string& filename, bool mipmaps, GLint wrap, bool external) {
 
     TextureResource* r = 0;
-    
+
     //look up this resource
     if((r = (TextureResource*) resources[filename]) != 0) {
         r->addref();
@@ -53,7 +53,7 @@ TextureResource* TextureManager::grab(const std::string& filename, bool mipmaps,
 
     r = new TextureResource(filename, mipmaps, wrap, external);
     r->load();
-    
+
     addResource(r);
 
     return r;
@@ -78,7 +78,7 @@ TextureResource* TextureManager::create(GLenum target) {
 
     TextureResource* r = new TextureResource();
     r->target = target;
-    
+
     r->load();
 
     addResource(r);
@@ -135,7 +135,7 @@ TextureResource::TextureResource(const std::string& filename, bool mipmaps, GLin
     format    = 0;
     textureid = 0;
     target    = GL_TEXTURE_2D;
-    
+
     //if doesnt have an absolute path, look in resource dir
     if(!external && !(filename.size() > 2 && filename[1] == ':') && !(filename.size() > 1 && filename[0] == '/')) {
         this->filename = texturemanager.getDir() + filename;
@@ -208,9 +208,10 @@ void TextureResource::unload() {
 
 void TextureResource::createTexture() {
 
-    glGenTextures(1, &textureid);
+    if(!textureid) glGenTextures(1, &textureid);
+
     glBindTexture(target, textureid);
-    
+
     if(w != 0 && format != 0) {
 
         GLint internalFormat = 0;
@@ -238,8 +239,16 @@ void TextureResource::createTexture() {
     setWrapStyle(wrap);
 }
 
-void TextureResource::load() {
-    if(textureid != 0) return;
+void TextureResource::reload() {
+    load(true);
+}
+
+void TextureResource::load(bool reload) {
+
+    if(textureid != 0) {
+        if(!reload) return;
+        debugLog("texture %d is being reloaded", textureid);
+    }
 
     SDL_Surface *surface = 0;
 
@@ -267,7 +276,6 @@ void TextureResource::load() {
         SDL_FreeSurface(surface);
         data = 0;
     }
-
 }
 
 GLenum TextureResource::colourFormat(SDL_Surface* surface) {

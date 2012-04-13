@@ -64,7 +64,11 @@ FXGlyph::FXGlyph(FXGlyphSet* set, unsigned int chr) {
 
     FT_Face ftface = set->getFTFace();
 
-    if(FT_Load_Glyph( ftface, FT_Get_Char_Index( ftface, chr ), FT_LOAD_DEFAULT ))
+    FT_UInt index = FT_Get_Char_Index( ftface, chr );
+
+    //debugLog("FXGlyph %x %d %d", chr, chr, index);
+
+    if(FT_Load_Glyph( ftface, index, FT_LOAD_DEFAULT ))
     throw FXFontException(ftface->family_name);
 
     FT_Glyph ftglyph;
@@ -186,7 +190,7 @@ void FXGlyphPage::updateTexture() {
     if(!texture) {
         texture = texturemanager.create(page_width, page_height, false, GL_CLAMP_TO_EDGE, GL_ALPHA, texture_data);
     } else {
-        texture->load();
+        texture->reload();
     }
 
     needs_update = false;
@@ -356,6 +360,35 @@ void FXGlyphSet::draw(const std::string& text) {
     if(textureid != -1) glEnd();
 }
 
+void FXGlyphSet::drawPages() {
+    vec2 corner = vec2(0.0f);
+
+    glPushMatrix();
+
+    for(std::vector<FXGlyphPage*>::iterator it = pages.begin(); it != pages.end(); it++) {
+        FXGlyphPage* page = *it;
+        page->texture->bind();
+
+        glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 0.0f);
+            glVertex2f(0.0f, 0.0f);
+
+            glTexCoord2f(1.0f, 0.0f);
+            glVertex2f(page->texture->w, 0.0f);
+
+            glTexCoord2f(1.0f, 1.0f);
+            glVertex2f(page->texture->w, page->texture->h);
+
+            glTexCoord2f(0.0f, 1.0f);
+            glVertex2f(0.0f, page->texture->h);
+        glEnd();
+
+        glTranslatef(page->texture->w, 0.0f, 0.0f);
+    }
+
+    glPopMatrix();
+}
+
 //FXFont
 
 FXFont::FXFont() {
@@ -489,6 +522,10 @@ void FXFont::draw(float x, float y, const std::string& text) const {
     }
 
     render(x, y, text, colour);
+}
+
+void FXFont::drawGlyphes() {
+    if(glyphset) glyphset->drawPages();
 }
 
 // FXFontManager

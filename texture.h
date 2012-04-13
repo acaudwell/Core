@@ -66,7 +66,10 @@ public:
 
     void createTexture();
 
-    void load();
+    void reload();
+
+    void load(bool reload = false);
+
     void unload();
 
     ~TextureResource();

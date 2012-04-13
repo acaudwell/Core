@@ -154,6 +154,8 @@ public:
 
     void drawToVBO(vec2& cursor, const std::string& text, const vec4& colour);
     void draw(const std::string& text);
+
+    void drawPages();
 };
 
 class FXFont {
@@ -204,6 +206,8 @@ public:
 
     void setColour(const vec4& colour);
     void setAlpha(float alpha);
+
+    void drawGlyphes();
 };
 
 typedef std::map<int,FXGlyphSet*> fontSizeMap;
