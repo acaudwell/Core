@@ -6,6 +6,7 @@ UILayout::UILayout(bool horizontal) : horizontal(horizontal), UIElement() {
     min_rect  = vec2(0.0f);
     centre    = false;
     drawbg    = false;
+    selectable = false;
     expanded_rect = vec2(0.0f);
 }
 
@@ -258,6 +259,10 @@ void UILayout::updatePos(const vec2& pos) {
         }
     }
 
+}
+
+bool UILayout::isSelectable() {
+    return selectable || drawbg;
 }
 
 bool UILayout::elementsByType(std::list<UIElement*>& found, int type) {

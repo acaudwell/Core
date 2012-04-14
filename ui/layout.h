@@ -36,10 +36,10 @@ public:
 
     vec2 getInnerRect();
     vec2 getRect();
-    
+
     void expandRect(const vec2& expand);
     void resetRect();
-    
+
     void setUI(UI* ui);
 
     void addElement(UIElement* e);
@@ -55,6 +55,7 @@ public:
 
     UIElement* getElement(int index) { return elements[index]; };
 
+    bool isSelectable();
     bool elementsByType(std::list<UIElement*>& found, int type);
 
     UIElement* elementAt(const vec2& pos);

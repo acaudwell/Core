@@ -120,12 +120,20 @@ UIElement* UI::selectElementAt(const vec2& pos) {
         }
     }
 
+    if(found && !found->isSelectable()) {
+        found = 0;
+    }
+
     if(!found) {
         // check other elements
 
         foreach(UIElement* e, elements) {
             if((found = e->elementAt(pos)) != 0) break;
         }
+    }
+
+    if(found && !found->isSelectable()) {
+        found = 0;
     }
 
     if(selectedElement == found) return selectedElement;

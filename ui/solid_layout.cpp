@@ -2,8 +2,9 @@
 
 UISolidLayout::UISolidLayout(bool horizontal) : UILayout(horizontal) {
 
+    selectable = true;
     inverted = false;
-    
+
     bgtex.resize(4);
 
     bgtex[0] = texturemanager.grab("ui/layout_tl.png", false);
@@ -30,11 +31,11 @@ void UISolidLayout::drawBackground() {
     glPushMatrix();
 
     glTranslatef(pos.x, pos.y, 0.0f);
-    
+
     glColor4fv(glm::value_ptr(ui->getSolidColour()));
 
     glEnable(GL_TEXTURE_2D);
-    
+
     vec4 texcoord;
 
     for(int i=0; i < 4; i++) {
@@ -99,6 +100,6 @@ void UISolidLayout::drawBackground() {
 
         glPopMatrix();
     }
-    
+
     glPopMatrix();
 }
