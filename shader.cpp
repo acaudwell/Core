@@ -1272,10 +1272,10 @@ void Shader::includeFile(GLenum shader_object_type, const std::string& filename)
 void Shader::addSubstitute(const std::string& name, const char *value, ...) {
 
     va_list vl;
-    char sub[4096];
+    char sub[65536];
 
     va_start(vl, value);
-        vsnprintf(sub, 4096, value, vl);
+        vsnprintf(sub, 65536, value, vl);
     va_end(vl);
 
     substitutions[name] = sub;
