@@ -72,6 +72,8 @@ bool UISlider::keyPress(SDL_KeyboardEvent *e, char c) {
                 scroll(true);
                 return true;
             break;
+        default:
+            break;
     }
 
     return false;
