@@ -38,6 +38,8 @@ void UI::addElement(UIElement* e) {
 }
 
 void UI::removeElement(UIElement* e) {
+    if(e == getSelected()) selectElement(0);
+
     elements.erase(std::remove(elements.begin(), elements.end(), e), elements.end());
     e->setUI(0);
 }
