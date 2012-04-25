@@ -45,9 +45,9 @@ void UILabel::drawBackground() {
 
     glColor4fv(glm::value_ptr(bgcolour));
 
-    glDisable(GL_TEXTURE_2D);
+    ui->setTextured(false);
     drawQuad(rect, vec4(0.0f, 0.0f, 1.0f, 1.0f));
-    glEnable(GL_TEXTURE_2D);
+    ui->setTextured(true);
 }
 
 void UILabel::backspace() {
@@ -141,35 +141,35 @@ void UILabel::drawContent() {
     vec2 rect2 = this->rect;
     rect2.x += expanded;
 
-
     if(selected && editable) {
 
         if(selected_edit_bgcolour.w > 0.0f) {
-            glDisable(GL_TEXTURE_2D);
+
+             ui->setTextured(false);
 
             glColor4fv(glm::value_ptr(selected_edit_bgcolour));
             drawQuad(rect2, vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-            glEnable(GL_TEXTURE_2D);
+             ui->setTextured(true);
         }
 
         if(int(cursor_anim)==0) {
-            ui->font.print(margin.x, rect.y-(3.0+margin.w), "%s_", display_text.c_str());
+            ui->drawText(margin.x, rect.y-(3.0+margin.w), "%s_", display_text.c_str());
         } else {
-            ui->font.draw(margin.x, rect.y-(3.0+margin.w), display_text);
+            ui->drawText(margin.x, rect.y-(3.0+margin.w), display_text);
         }
     } else {
         if(editable && edit_bgcolour.w > 0.0f) {
-            glDisable(GL_TEXTURE_2D);
+             ui->setTextured(false);
 
             glColor4fv(glm::value_ptr(edit_bgcolour));
 
             drawQuad(rect2, vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-            glEnable(GL_TEXTURE_2D);
+            ui->setTextured(true);
         }
 
-        ui->font.draw(margin.x, rect.y-(3.0+margin.w), display_text);
+        ui->drawText(margin.x, rect.y-(3.0+margin.w), display_text);
     }
 
     //NOTE: this is the wrong place for this, but it gets the desired result...

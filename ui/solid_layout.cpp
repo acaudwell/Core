@@ -34,7 +34,7 @@ void UISolidLayout::drawBackground() {
 
     glColor4fv(glm::value_ptr(ui->getSolidColour()));
 
-    glEnable(GL_TEXTURE_2D);
+    ui->setTextured(true);
 
     vec4 texcoord;
 

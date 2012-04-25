@@ -2,7 +2,8 @@
 
 void UIElement::drawOutline() {
     //fprintf(stderr, "rect %.2f, %.2f\n", rect.x, rect.y);
-    glDisable(GL_TEXTURE_2D);
+    ui->setTextured(false);
+
     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
     glPushMatrix();
@@ -21,7 +22,7 @@ void UIElement::drawOutline() {
 
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 
-    glEnable(GL_TEXTURE_2D);
+     ui->setTextured(true);
 }
 
 void UIElement::getModifiers(bool& left_ctrl, bool& left_shift) const {

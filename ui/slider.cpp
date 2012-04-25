@@ -21,7 +21,7 @@ void UISlider::drawSlider(float position) {
 
     if(background) {
 
-        glDisable(GL_TEXTURE_2D);
+        ui->setTextured(false);
 
         glLineWidth(1.0f);
 
@@ -50,7 +50,7 @@ void UISlider::drawSlider(float position) {
 
         glPopMatrix();
 
-        glEnable(GL_TEXTURE_2D);
+        ui->setTextured(true);
     }
 
     slidertex->bind();

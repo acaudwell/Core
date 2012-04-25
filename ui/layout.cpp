@@ -49,9 +49,9 @@ void UILayout::drawBackground() {
         glColor4fv(glm::value_ptr(ui->getBackgroundColour()));
     }
 
-    glDisable(GL_TEXTURE_2D);
+    ui->setTextured(false);
     drawQuad(pos, getRect(), vec4(0.0f, 0.0f, 1.0f, 1.0f));
-    glEnable(GL_TEXTURE_2D);
+    ui->setTextured(true);
 }
 
 void UILayout::addElement(UIElement* e) {

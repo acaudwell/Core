@@ -103,7 +103,7 @@ void UIColour::updateRect() {
 void UIColour::drawContent() {
     if(!colour) return;
 
-    glDisable(GL_TEXTURE_2D);
+    ui->setTextured(false);
 
     //background
     if(active) {
@@ -117,7 +117,7 @@ void UIColour::drawContent() {
     glColor4f(colour->x, colour->y, colour->z, 1.0f);
     drawQuad(vec2(1.0f, 1.0f), vec2(12.0f, 12.0f), vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-    glEnable(GL_TEXTURE_2D);
+    ui->setTextured(true);
 }
 
 //UILabelColour
@@ -226,7 +226,7 @@ void UILightnessSlider::setColour(UIColour* colour) {
 void UILightnessSlider::drawContent() {
     if(!colour) return;
 
-    glDisable(GL_TEXTURE_2D);
+    ui->setTextured(false);
 
     //lightness gradient
     vec4 colour1(0.0f, 0.0f, 0.0f, 1.0f);
@@ -245,7 +245,7 @@ void UILightnessSlider::drawContent() {
     glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
     drawOutline(rect);
 
-    glEnable(GL_TEXTURE_2D);
+    ui->setTextured(true);
 
     glTranslatef(0.0f, 1.0f, 0.0f);
     drawSlider(*attribute);
@@ -271,7 +271,7 @@ void UISatSlider::drawContent() {
 
     float lightness = std::min(0.75f, std::max(0.25f, colour->lightness));
 
-    glDisable(GL_TEXTURE_2D);
+    ui->setTextured(false);
 
     //saturation gradient
     vec4 colour1 = vec4(colour->toColour(colour->hue, 0.0f, lightness), 1.0f);
@@ -282,7 +282,7 @@ void UISatSlider::drawContent() {
     glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
     drawOutline(rect);
 
-    glEnable(GL_TEXTURE_2D);
+    ui->setTextured(true);
 
     glTranslatef(0.0f, 1.0f, 0.0f);
     drawSlider(*attribute);
@@ -309,7 +309,7 @@ void UIHueSlider::drawContent() {
     float saturation = std::max(0.25f, colour->saturation);
     float lightness  = std::min(0.75f, std::max(0.25f, colour->lightness));
 
-    glDisable(GL_TEXTURE_2D);
+    ui->setTextured(false);
 
     glPushMatrix();
 
@@ -352,7 +352,7 @@ void UIHueSlider::drawContent() {
     glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
     drawOutline(rect);
 
-    glEnable(GL_TEXTURE_2D);
+    ui->setTextured(true);
 
     glTranslatef(0.0f, 1.0f, 0.0f);
     drawSlider(*attribute);

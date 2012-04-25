@@ -18,6 +18,8 @@ UI::UI() : selectedElement(0) {
     solid_colour      = vec4(0.7f, 0.7f, 0.7f, 1.0f);
     text_colour       = vec4(1.0f);
     ui_alpha          = vec4(1.0f);
+
+    shader            = shadermanager.grab("ui/ui");
 }
 
 UI::~UI() {
@@ -181,15 +183,57 @@ void UI::update(float dt) {
     }
 }
 
+void UI::setTextured(bool textured) {
+    shader->setBool("use_texture", textured);
+    shader->applyUniforms();
+}
 
+void UI::setIntensity(float intensity) {
+    shader->setFloat("intensity", intensity);
+    shader->applyUniforms();
+}
+
+void UI::drawText(float x, float y, const char *str, ...) {
+
+    char text[4096];
+
+    va_list vl;
+
+    va_start (vl, str);
+    vsnprintf (text, 4096, str, vl);
+    va_end (vl);
+
+    drawText(x, y, std::string(text));
+}
+
+void UI::drawText(float x, float y, const std::string& text) {
+
+    shader->setBool("text", true);
+    shader->applyUniforms();
+
+    font.draw(x, y, text);
+
+    shader->setBool("text", false);
+    shader->applyUniforms();
+}
 
 void UI::draw() {
+    glActiveTexture(GL_TEXTURE0);
+
+    shader->setSampler2D("texture", 0);
+    shader->use();
+
+    setIntensity(1.0f);
+    setTextured(true);
+
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
 
     foreach(UIElement* e, elements) {
         e->draw();
     }
+
+    shader->unbind();
 
     glDisable(GL_DEPTH_TEST);
 }

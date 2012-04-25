@@ -12,6 +12,8 @@ class UIElement;
 class UIColour;
 
 class UI {
+    Shader* shader;
+
     UIElement* selectedElement;
     std::vector<UIElement*> elements;
 
@@ -19,7 +21,6 @@ class UI {
     float double_click_timer;
 
     bool interaction;
-
     char toChar(SDL_KeyboardEvent *e);
 protected:
     vec4 background_colour;
@@ -33,6 +34,9 @@ public:
     ~UI();
 
     void clear();
+
+    void drawText(float x, float y, const char *str, ...);
+    void drawText(float x, float y, const std::string& text);
 
     void addElement(UIElement* e);
     void removeElement(UIElement* e);
@@ -61,6 +65,9 @@ public:
     UIColour* getActiveColour();
 
     void update(float dt);
+
+    void setTextured(bool textured);
+    void setIntensity(float intensity);
 
     void draw();
     void drawOutline();
