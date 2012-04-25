@@ -880,8 +880,6 @@ void ShaderPart::preprocess() {
 
 const std::string& ShaderPart::getSource() {
     if(processed_source.empty()) preprocess();
-
-    debugLog("shader part: %s", processed_source.c_str());
     return processed_source;
 }
 
