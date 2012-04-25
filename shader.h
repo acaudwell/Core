@@ -59,6 +59,7 @@ enum { SHADER_UNIFORM_FLOAT,
 };
 
 class Shader;
+class ShaderPass;
 
 class ShaderUniform {
 protected:
@@ -277,6 +278,37 @@ public:
     void setValue(const std::vector<vec4>& value);
 
     const vec4* getValue() const;
+};
+
+class ShaderPart {
+
+    std::string filename;
+
+    std::string raw_source;
+    std::string processed_source;
+
+    std::map<std::string,std::string> defines;
+
+    void preprocess();
+    void loadSourceFile();
+
+    void substitute(std::string& source, const std::string& name, const std::string& value);
+    void applyDefines(std::string& source);
+public:
+    ShaderPart();
+
+    void setSourceFile(const std::string& filename);
+    void setSource(const std::string& source);
+
+    void reload();
+
+    void define(const std::string& name);
+    void define(const std::string& name, const char *value, ...);
+    void define(const std::string& name, const std::string& value);
+
+    bool isDefined(const std::string& name);
+
+    const std::string& getSource();
 };
 
 class ShaderPass {

@@ -47,6 +47,9 @@ Regex Shader_error_line("\\b\\d*\\((\\d+)\\) : error ");
 Regex Shader_error2_line("\\bERROR: \\d+:(\\d+):");
 Regex Shader_warning_line("\\b\\d*\\((\\d+)\\) : warning ");
 
+Regex Shader_ifdef("\\s*#ifdef\\s*([A-Z0-9_]+)\\s*$");
+Regex Shader_endif("\\s*#endif\\s*$");
+
 Shader* ShaderManager::grab(const std::string& shader_prefix) {
     Resource* s = resources[shader_prefix];
 
@@ -756,6 +759,130 @@ void Vec4ArrayShaderUniform::write(std::string& content) const {
         content += buff;
     }
 
+}
+
+//ShaderPart
+
+ShaderPart::ShaderPart() {
+}
+
+void ShaderPart::setSourceFile(const std::string& filename) {
+    this->filename = filename;
+    loadSourceFile();
+}
+
+void ShaderPart::loadSourceFile() {
+
+    processed_source.clear();
+    raw_source.clear();
+
+    // get length
+    std::ifstream in(filename.c_str());
+
+    if(!in.is_open()) {
+        throw SDLAppException("could not open '%s'", filename.c_str());
+    }
+
+    std::string line;
+    while( std::getline(in,line) ) {
+        raw_source += line;
+        raw_source += "\n";
+    }
+
+    in.close();
+}
+
+void ShaderPart::reload() {
+    loadSourceFile();
+}
+
+void ShaderPart::setSource(const std::string& source) {
+    raw_source = source;
+}
+
+void ShaderPart::substitute(std::string& source, const std::string& name, const std::string& value) {
+
+    std::string::size_type next_match;
+
+    for(next_match = source.find(name);
+        next_match != std::string::npos;
+        next_match = source.find(name, next_match)) {
+        source.replace(next_match, name.length(), value);
+        next_match += value.length();
+    }
+}
+
+void ShaderPart::applyDefines(std::string& source) {
+
+    for(std::map<std::string, std::string>::iterator it = defines.begin(); it != defines.end(); it++) {
+        substitute(source, it->first, it->second);
+    }
+}
+
+void ShaderPart::define(const std::string& name, const std::string& value) {
+    define(name, value.c_str());
+}
+
+void ShaderPart::define(const std::string& name, const char *value, ...) {
+
+    va_list vl;
+    char sub[65536];
+
+    va_start(vl, value);
+        vsnprintf(sub, 65536, value, vl);
+    va_end(vl);
+
+    defines[name] = sub;
+}
+
+void ShaderPart::define(const std::string& name) {
+    define(name, "");
+}
+
+bool ShaderPart::isDefined(const std::string& name) {
+    std::map<std::string,std::string>::iterator it = defines.find(name);
+    return (it != defines.end());
+}
+
+void ShaderPart::preprocess() {
+
+    processed_source.clear();
+
+    // NOTE: this preprocessor only handles basic ifdef / endif blocks
+
+    std::vector<std::string> matches;
+
+    std::stringstream in(raw_source);
+
+    std::string line;
+    bool skipdef = false;
+
+    while( std::getline(in,line) ) {
+        if(Shader_ifdef.match(line, &matches)) {
+            if(!isDefined(matches[0])) {
+                skipdef = true;
+            }
+            continue;
+        }
+        if(Shader_endif.match(line, &matches)) {
+            skipdef = false;
+            continue;
+        }
+
+        if(!skipdef) {
+            applyDefines(line);
+
+            processed_source.append(line);
+            processed_source.append("\n");
+        }
+    }
+}
+
+const std::string& ShaderPart::getSource() {
+    if(processed_source.empty()) preprocess();
+
+    debugLog("shader part: %s", processed_source.c_str());
+    return processed_source;
 }
 
 //ShaderPass
