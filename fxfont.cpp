@@ -361,7 +361,6 @@ void FXGlyphSet::draw(const std::string& text) {
 }
 
 void FXGlyphSet::drawPages() {
-    vec2 corner = vec2(0.0f);
 
     glPushMatrix();
 

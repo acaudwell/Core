@@ -924,7 +924,7 @@ bool ShaderPass::errorContext(const char* log_message, std::string& context) {
     std::string line;
     while( std::getline(in,line) ) {
 
-        if(i==line_no || i<line_no && i+amount>=line_no || i>line_no && i-amount<=line_no) {
+        if(i==line_no || (i<line_no && i+amount>=line_no) || (i>line_no && i-amount<=line_no)) {
             snprintf(line_detail, 1024, "%s%4d | %s\n", (i==line_no ? "-> ": "   "), i, line.c_str());
             context += line_detail;
         }
