@@ -208,6 +208,28 @@ void UIColourSlider::setValue(float value) {
     colour->toColour();
 }
 
+void UIColourSlider::scroll(bool up) {
+
+    if(!attribute) return;
+
+    float value_inc = 1.0f / 100.0f;
+
+    if(!up) value_inc = -value_inc;
+
+    bool left_ctrl, left_shift;
+    getModifiers(left_ctrl, left_shift);
+
+    if(left_ctrl) {
+        value_inc *= 0.1f;
+    }
+
+    if(left_shift) {
+        value_inc *= 0.1f;
+    }
+
+    setValue(*attribute+value_inc);
+}
+
 //UILightnessSlider
 
 UILightnessSlider::UILightnessSlider() {

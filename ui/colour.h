@@ -56,6 +56,7 @@ public:
 
     void drag(const vec2& pos);
     void setValue(float value);
+    void scroll(bool up);
 
     virtual void setColour(UIColour* colour);
 
