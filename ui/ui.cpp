@@ -16,6 +16,7 @@ UI::UI() : selectedElement(0) {
 
     background_colour = vec4(0.3f, 0.3f, 0.3f, 0.67f);
     solid_colour      = vec4(0.7f, 0.7f, 0.7f, 1.0f);
+    tint_colour       = vec4(0.0f, 0.8f, 0.0f, 1.0f);
     text_colour       = vec4(1.0f);
     ui_alpha          = vec4(1.0f);
 
@@ -60,6 +61,10 @@ vec4 UI::getSolidColour() {
 
 vec4 UI::getTextColour() {
     return text_colour * ui_alpha;
+}
+
+vec4 UI::getTintColour() {
+    return tint_colour * ui_alpha;
 }
 
 vec4 UI::getAlpha() {

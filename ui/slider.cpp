@@ -17,7 +17,10 @@ void UISlider::drawSlider(float position) {
     //background
     //drawQuad(vec2(slider_width,16.0f), vec4(0.0f, 0.0f, 1.0f, 0.5f));
 
+    vec4 tint  = ui->getTintColour();
     vec4 alpha = ui->getAlpha();
+
+    if(selected) tint = glm::clamp(tint + 0.75, 0.0, 1.0);
 
     if(background) {
 
@@ -33,12 +36,10 @@ void UISlider::drawSlider(float position) {
             glVertex2f(0.0f, 11.0f);
         glEnd();
 
-
         glPushMatrix();
             glTranslatef(0.5f, 0.5f, 0.0f);
 
-            if(selected) glColor4f(0.75f, 1.0f, 0.75f, alpha.w);
-            else glColor4f(0.0f, 1.0f, 0.0f, alpha.w);
+            glColor4fv(glm::value_ptr(tint));
 
             glBegin(GL_LINE_STRIP);
                 glVertex2f(0.0f, 3.0f);

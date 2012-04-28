@@ -26,6 +26,7 @@ protected:
     vec4 background_colour;
     vec4 solid_colour;
     vec4 text_colour;
+    vec4 tint_colour;
     vec4 ui_alpha;
 public:
     FXFont font;
@@ -60,6 +61,7 @@ public:
     virtual vec4 getSolidColour();
     virtual vec4 getBackgroundColour();
     virtual vec4 getTextColour();
+    virtual vec4 getTintColour();
     virtual vec4 getAlpha();
 
     UIColour* getActiveColour();

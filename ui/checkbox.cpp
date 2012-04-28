@@ -10,6 +10,8 @@ UICheckbox::UICheckbox() : UIElement() {
 void UICheckbox::drawContent() {
     checktex->bind();
 
+    glColor4fv(glm::value_ptr(ui->getTintColour()));
+
     //background
     if(isChecked()) {
         drawQuad(vec2(16.0f,16.0f), vec4(0.0f, 0.5f, 0.5f, 1.0f));
@@ -20,7 +22,7 @@ void UICheckbox::drawContent() {
 
 //UIBoolCheckbox
 
-UIBoolCheckbox::UIBoolCheckbox(bool *value) : value(value), UICheckbox() {   
+UIBoolCheckbox::UIBoolCheckbox(bool *value) : value(value), UICheckbox() {
 }
 
 void UIBoolCheckbox::click(const vec2& pos) {
@@ -33,11 +35,11 @@ bool UIBoolCheckbox::isChecked() {
 
 //UIFloatCheckbox
 
-UIFloatCheckbox::UIFloatCheckbox(float *value) : value(value), UICheckbox() {   
+UIFloatCheckbox::UIFloatCheckbox(float *value) : value(value), UICheckbox() {
 }
 
 void UIFloatCheckbox::click(const vec2& pos) {
-    *value = isChecked() ? 0.0f : 1.0f; 
+    *value = isChecked() ? 0.0f : 1.0f;
 }
 
 bool UIFloatCheckbox::isChecked() {
