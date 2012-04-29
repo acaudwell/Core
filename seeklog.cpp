@@ -125,6 +125,7 @@ bool SeekLog::readFully() {
     if(!file->read(filebuffer, file_size)) {
         file->close();
         delete file;
+        delete [] filebuffer;
         return false;
     }
     filebuffer[file_size] = '\0';
