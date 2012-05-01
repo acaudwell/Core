@@ -20,8 +20,8 @@ public:
     vec4 bgcolour;
     vec4 selected_edit_bgcolour;
     vec4 edit_bgcolour;
+    vec4 text_colour;
 
-    vec3 font_colour;
     UISlider* slider;
     std::string text;
     std::string display_text;
@@ -39,8 +39,11 @@ public:
 
     void setWidth(float width);
     void setText(const std::string& text);
+    void setTextColour(const vec4& colour);
 
     void update(float dt);
+
+    UIElement* elementAt(const vec2& pos);
 
     void expandRect(const vec2& expand);
     void resetRect();

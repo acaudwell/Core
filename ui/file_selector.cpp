@@ -22,7 +22,7 @@ UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir,
 
     file_path = new UIFileInputLabel(this, "");
     file_path->setFillHorizontal(true);
-    
+
     filter_select = new UISelect();
 
     layout->addElement(new UILabelledElement("Path",  dir_path,  120.0f));
@@ -124,7 +124,7 @@ void UIFileSelector::selectPath(const boost::filesystem::path& path) {
 }
 
 const boost::filesystem::path& UIFileSelector::getCurrentDir() const {
-    return current_dir;    
+    return current_dir;
 }
 
 void UIFileSelector::confirm() {
@@ -154,7 +154,7 @@ void UIFileSelector::updateListing() {
 
         return;
     }
-    
+
     current_dir = p;
 
     listing->clear();
@@ -189,7 +189,7 @@ void UIFileSelector::updateListing() {
 
         UIFileSelectorLabel* file_label = new UIFileSelectorLabel(this, l);
         file_label->setFillHorizontal(true);
-    
+
         listing->addElement(file_label);
     }
 
@@ -298,8 +298,8 @@ UIFileSelectorLabel::UIFileSelectorLabel(UIFileSelector* selector, const boost::
 }
 
 void UIFileSelectorLabel::updateContent() {
-    font_colour = selected  ? vec3(1.0f) :
-                  directory ? vec3(0.0f, 1.0f, 1.0f) : vec3(0.0f, 1.0f, 0.0f);
+    text_colour = selected  ? vec4(1.0f) :
+                  directory ? vec4(0.0f, 1.0f, 1.0f, 1.0f) : vec4(0.0f, 1.0f, 0.0f, 1.0f);
     bgcolour = selected ? vec4(1.0f, 1.0f, 1.0f, 0.15f) : vec4(0.0f);
 }
 
@@ -346,27 +346,27 @@ UIFileInputLabel::UIFileInputLabel(UIFileSelector* selector, const std::string& 
 
 void UIFileInputLabel::tab() {
     boost::filesystem::path filepath(text);
-        
-    if(!is_directory(filepath.parent_path())) {       
+
+    if(!is_directory(filepath.parent_path())) {
         filepath = selector->getCurrentDir() / filepath;
         if(!exists(filepath.parent_path())) return;
-        
+
         std::string completed = selector->autocomplete(filepath.string());
-        
+
         if(completed != filepath.string()) {
-            
+
             std::string cur_dir = selector->getCurrentDir().string();
-            
+
             size_t curr_len = selector->getCurrentDir().string().size();
-            
+
             if(completed.size() > curr_len) {
                 completed = completed.substr(curr_len);
             }
-            
+
             setText(boost::filesystem::path(completed).string());
         }
     }
-    
+
     setText(selector->autocomplete(text));
 }
 
@@ -374,13 +374,13 @@ bool UIFileInputLabel::submit() {
 
     boost::filesystem::path filepath(text);
 
-    if(!exists(filepath) || filepath.is_relative()) {       
+    if(!exists(filepath) || filepath.is_relative()) {
         filepath = selector->getCurrentDir() / filepath;
         if(!exists(filepath)) return false;
     }
-    
+
     //TODO: construct full path here first
-    
+
     if(is_directory(filepath)) {
         selector->changeDir(filepath);
         setText("");

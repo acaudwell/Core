@@ -69,6 +69,14 @@ void Logger::init(int level, FILE* stream, int hist_capacity) {
     history.push_back(LoggerMessage(level, message));
 }
 
+const std::deque<LoggerMessage>& Logger::getHistory() const {
+    return history;
+}
+
+void Logger::setHistoryCapacity(int hist_capacity) {
+    this->hist_capacity = hist_capacity;
+}
+
 void warnLog(const char *str, ...) {
 
     if(!logger || logger->getLevel() > LOG_LEVEL_WARN) return;

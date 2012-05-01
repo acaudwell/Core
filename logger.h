@@ -59,8 +59,12 @@ protected:
     int level;
 public:
 
+    const std::deque<LoggerMessage>& getHistory() const;
+
     void setLevel(int level)   { this->level = level; };
     int getLevel() const { return level; }
+
+    void setHistoryCapacity(int hist_capacity);
 
     Logger();
     Logger(int level, FILE* stream, int history_capacity = 0);

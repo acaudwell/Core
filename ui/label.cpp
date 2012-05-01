@@ -7,7 +7,7 @@
 UILabel::UILabel(const std::string& text, bool editable, float width) : text(text), width(width), UIElement() {
 
     slider       = 0;
-    font_colour  = vec3(1.0f);
+    text_colour  = vec4(0.0f);
     bgcolour     = vec4(0.0f);
     text_changed = true;
     expanded     = 0.0f;
@@ -34,10 +34,11 @@ void UILabel::updateRect() {
 
 void UILabel::expandRect(const vec2& expand) {
     expanded = expand.x;
+    text_changed = true;
 }
 
 void UILabel::resetRect() {
-    //expanded = 0.0f;
+    expanded = 0.0f;
 }
 
 void UILabel::drawBackground() {
@@ -117,7 +118,7 @@ void UILabel::update(float dt) {
         //add space for cursor
         float text_padding = (editable) ? 10.0f : 0.0f;
 
-        while(text_width+text_padding > width && !display_text.empty()) {
+        while(text_width+text_padding > (width+expanded) && !display_text.empty()) {
             display_text = display_text.substr(1, display_text.size()-1);
             text_width = ui->font.getWidth(display_text);
         }
@@ -127,16 +128,40 @@ void UILabel::update(float dt) {
     updateRect();
 }
 
+UIElement* UILabel::elementAt(const vec2& pos) {
+
+    if(hidden) return 0;
+
+    vec2 rect = getRect() + vec2(expanded, 0.0f);
+
+    if(   pos.x >= this->pos.x && pos.x <= (this->pos.x + rect.x)
+       && pos.y >= this->pos.y && pos.y <= (this->pos.y + rect.y)) {
+        return this;
+    }
+
+    return 0;
+}
+
+void UILabel::setTextColour(const vec4& text_colour) {
+    this->text_colour = text_colour;
+}
+
 void UILabel::drawContent() {
 
     drawBackground();
 
     ui->font.alignTop(false);
 
-    vec4 font_colour_alpha = vec4(font_colour,1.0f) * ui->getAlpha();
-    if(disabled) font_colour_alpha *= 0.5f;
+    vec4 text_colour_alpha;
 
-    ui->font.setColour(font_colour_alpha);
+    if(text_colour.w <= 0.0f) {
+        text_colour_alpha = ui->getTextColour();
+    } else {
+        text_colour_alpha = text_colour * ui->getAlpha();
+        if(disabled) text_colour_alpha *= 0.5f;
+    }
+
+    ui->font.setColour(text_colour_alpha);
 
     vec2 rect2 = this->rect;
     rect2.x += expanded;
@@ -154,9 +179,9 @@ void UILabel::drawContent() {
         }
 
         if(int(cursor_anim)==0) {
-            ui->drawText(margin.x, rect.y-(3.0+margin.w), "%s_", display_text.c_str());
+            ui->drawText(margin.x, rect2.y-(3.0+margin.w), "%s_", display_text.c_str());
         } else {
-            ui->drawText(margin.x, rect.y-(3.0+margin.w), display_text);
+            ui->drawText(margin.x, rect2.y-(3.0+margin.w), display_text);
         }
     } else {
         if(editable && edit_bgcolour.w > 0.0f) {
@@ -169,11 +194,11 @@ void UILabel::drawContent() {
             ui->setTextured(true);
         }
 
-        ui->drawText(margin.x, rect.y-(3.0+margin.w), display_text);
+        ui->drawText(margin.x, rect2.y-(3.0+margin.w), display_text);
     }
 
     //NOTE: this is the wrong place for this, but it gets the desired result...
-    expanded = 0.0f;
+//    expanded = 0.0f;
 }
 
 //UIIntLabel
