@@ -13,8 +13,6 @@ UIConsole::UIConsole()
 
     layout->addElement(history);
     layout->addElement(prompt);
-
-    logger->setHistoryCapacity(100);
 }
 
 void UIConsole::toggle() {
@@ -33,7 +31,7 @@ void UIConsole::close() {
 
 void UIConsole::updateHistory() {
 
-    const std::deque<LoggerMessage>& history_log = logger->getHistory();
+    const std::deque<LoggerMessage>& history_log = Logger::getDefault()->getHistory();
 
     while(history->getElementCount() < history_log.size()) {
         history->addElement(new UIConsoleEntry(this));

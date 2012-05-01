@@ -57,8 +57,10 @@ protected:
     int hist_capacity;
     FILE* stream;
     int level;
+    static Logger* default_logger;
 public:
-
+    static Logger* getDefault();
+    
     const std::deque<LoggerMessage>& getHistory() const;
 
     void setLevel(int level)   { this->level = level; };
@@ -66,7 +68,6 @@ public:
 
     void setHistoryCapacity(int hist_capacity);
 
-    Logger();
     Logger(int level, FILE* stream, int history_capacity = 0);
 
     void init(int level, FILE* stream, int history_capacity);
@@ -78,7 +79,5 @@ void warnLog(const char *args, ...);
 void debugLog(const char *args, ...);
 void infoLog(const char *args, ...);
 void errorLog(const char *args, ...);
-
-extern Logger* logger;
 
 #endif
