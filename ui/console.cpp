@@ -31,6 +31,10 @@ void UIConsole::close() {
 
 void UIConsole::updateHistory() {
 
+    // TODO: test if history has changed since last call
+    
+    bool stick_to_end = history->vertical_scrollbar->atEnd();
+    
     const std::deque<LoggerMessage>& history_log = Logger::getDefault()->getHistory();
 
     while(history->getElementCount() < history_log.size()) {
@@ -62,6 +66,10 @@ void UIConsole::updateHistory() {
 
         entry->setText(l.message);
         i++;
+    }
+
+    if(stick_to_end) {
+        history->vertical_scrollbar->stickToEnd();
     }
 }
 

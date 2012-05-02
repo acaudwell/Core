@@ -22,6 +22,7 @@ public:
     bool dragging;
     vec2 drag_start;
    
+    bool stick_to_end;
 
     vec2 bar_rect;
 
@@ -35,6 +36,14 @@ public:
     void drag(const vec2& pos);
     void scroll(bool up);
 
+    void scrollToStart();
+    void scrollToEnd();
+    
+    void stickToEnd();
+    
+    bool atStart();
+    bool atEnd();
+    
     void flipSides(bool flip_sides);
     
     UIElement* elementAt(const vec2& pos);

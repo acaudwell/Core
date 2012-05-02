@@ -195,8 +195,8 @@ void UIFileSelector::updateListing() {
 
     listing->update(0.1f);
 
-    listing->horizontal_scrollbar->reset();
-    listing->vertical_scrollbar->reset();
+    listing->horizontal_scrollbar->scrollToStart();
+    listing->vertical_scrollbar->scrollToStart();
 
     listing->vertical_scrollbar->bar_step = 1.0f / listing->getElementCount();
 }
