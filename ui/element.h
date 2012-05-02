@@ -26,6 +26,8 @@ public:
     bool  scrollable;
     bool  selectable;
 
+    int zindex;
+
     UIElement* parent;
 
     // border around element between this element and other elements
@@ -36,7 +38,7 @@ public:
     // affects the selectable area of the element
     vec2 padding;
 
-    UIElement() : padding(0.0f, 0.0f), margin(0.0f, 0.0f, 0.0f, 0.0f), ui(0), disabled(false), selected(false), editable(false), hidden(false), fill_horizontal(false), fill_vertical(false), scrollable(false), selectable(true), parent(0) {};
+    UIElement() : padding(0.0f, 0.0f), margin(0.0f, 0.0f, 0.0f, 0.0f), ui(0), disabled(false), selected(false), editable(false), hidden(false), fill_horizontal(false), fill_vertical(false), scrollable(false), selectable(true), zindex(0), parent(0) {};
 
     virtual void setUI(UI* ui) { this->ui = ui; };
 
@@ -108,6 +110,16 @@ public:
     virtual void drawContent() {};
 
     virtual void draw();
+
+    static bool reverse_zindex_sort (UIElement* e1, UIElement* e2) {
+      if(e1->zindex != e2->zindex) return e1->zindex < e2->zindex;
+      return e1 < e2;
+    }
+
+    static bool zindex_sort (UIElement* e1, UIElement* e2) {
+      if(e2->zindex != e1->zindex) return e2->zindex < e1->zindex;
+      return e1 < e2;
+    }
 };
 
 #endif

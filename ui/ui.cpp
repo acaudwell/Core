@@ -6,6 +6,7 @@
 #include "select.h"
 #include "button.h"
 #include "colour.h"
+#include "element.h"
 
 UI::UI() : selectedElement(0) {
     font = fontmanager.grab("FreeSans.ttf", 12);
@@ -165,6 +166,9 @@ UIElement* UI::selectElementAt(const vec2& pos) {
 
 void UI::update(float dt) {
 
+    //update/pick elements by zindex
+    std::sort(elements.begin(), elements.end(), UIElement::zindex_sort);
+
     if(ui_alpha.w < 1.0f) {
         ui_alpha.w = glm::min(ui_alpha.w + dt * 0.5f, 1.0f);
     }
@@ -234,7 +238,12 @@ void UI::draw() {
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
 
-    foreach(UIElement* e, elements) {
+    std::vector<UIElement*> draw_elements(elements);
+
+    //draw elements by reverse zindex
+    std::sort(draw_elements.begin(), draw_elements.end(), UIElement::reverse_zindex_sort);
+
+    foreach(UIElement* e, draw_elements) {
         e->draw();
     }
 

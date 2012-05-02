@@ -5,7 +5,7 @@
 #include "../util.h"
 #include "../mousecursor.h"
 
-#include <vector>
+#include <set>
 #include <list>
 
 class UIElement;
