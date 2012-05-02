@@ -63,8 +63,6 @@ void UILayout::addElement(UIElement* e) {
 
 void UILayout::update(float dt) {
 
-    rect = min_rect;
-
     vec2 inner = vec2(0.0f, 0.0f);
 
     int visible_elements = 0;
@@ -102,62 +100,15 @@ void UILayout::update(float dt) {
         inner.y += margin.y*2.0f + ((float)visible_elements-1) * padding.y;
     }
 
-    rect = glm::max(rect, inner);
-
-    vec2 filler = glm::max(vec2(0.0f), vec2(rect-inner));
-
-    if(glm::length(filler) > 1.0f && !(fill_vert_elements.empty() && fill_horiz_elements.empty())) {
-
-        if(horizontal) {
-            filler.x /= (float) fill_horiz_elements.size();
-        } else {
-            filler.y /= (float) fill_vert_elements.size();
-        }
-
-        std::list<UIElement*> fill_elements;
-        fill_elements.insert(fill_elements.end(), fill_horiz_elements.begin(), fill_horiz_elements.end());
-        fill_elements.insert(fill_elements.end(), fill_vert_elements.begin(), fill_vert_elements.end());
-
-        fill_elements.unique();
-
-        vec2 horiz_filler(filler.x, 0.0f);
-        vec2 vert_filler(0.0f, filler.y);
-
-        foreach(UIElement* e, fill_elements) {
-
-                if(e->fillVertical() && e->fillHorizontal()) {
-                    e->expandRect(filler);
-                } else if(e->fillHorizontal()) {
-                    e->expandRect(horiz_filler);
-                } else {
-                    e->expandRect(vert_filler);
-                }
-
-                e->update(0.0f);
-        }
-    }
-}
-
-void UILayout::expandRect(const vec2& expand) {
-    expanded_rect = expand;
-
-    if(glm::length(expanded_rect) <= 0.0f) return;
-
-    std::list<UIElement*> fill_vert_elements;
-    std::list<UIElement*> fill_horiz_elements;
-
-    foreach(UIElement* e, elements) {
-        if(e->fillHorizontal()) fill_horiz_elements.push_back(e);
-        if(e->fillVertical())   fill_vert_elements.push_back(e);
-    }
+    rect = glm::max(min_rect, inner);
 
     if(fill_vert_elements.empty() && fill_horiz_elements.empty()) return;
 
-    vec2 filler = expanded_rect;
+    vec2 filler = glm::max(vec2(0.0f), vec2(rect-inner)) + expanded_rect;
 
-    if(horizontal) {
+    if(horizontal && fill_horiz_elements.size()) {
         filler.x /= (float) fill_horiz_elements.size();
-    } else {
+    } else if(fill_vert_elements.size()) {
         filler.y /= (float) fill_vert_elements.size();
     }
 
@@ -167,22 +118,29 @@ void UILayout::expandRect(const vec2& expand) {
 
     fill_elements.unique();
 
-    vec2 horiz_filler(filler.x, 0.0f);
-    vec2 vert_filler(0.0f, filler.y);
-
     foreach(UIElement* e, fill_elements) {
-        e->resetRect();
 
-        if(e->fillVertical() && e->fillHorizontal()) {
-            e->expandRect(filler);
-        } else if(e->fillHorizontal()) {
-            e->expandRect(horiz_filler);
-        } else {
-            e->expandRect(vert_filler);
+        vec2 efill(0.0f);
+
+        if(e->fillHorizontal()) {
+            if(!horizontal) efill.x = filler.x + glm::max(0.0f, inner.x - e->rect.x - margin.x*2.0f);
+            else efill.x = filler.x;
         }
 
-        e->update(0.0f);
+        if(e->fillVertical()) {
+            if(horizontal) efill.y = filler.y + glm::max(0.0f, inner.y - e->rect.y - margin.y*2.0f);
+            else efill.y = filler.y;
+        }
+
+        if(efill.x > 0.0f || efill.y > 0.0f) {
+            e->expandRect(efill);
+            e->update(0.0f);
+        }
     }
+}
+
+void UILayout::expandRect(const vec2& expand) {
+    expanded_rect = expand;
 }
 
 void UILayout::resetRect() {
@@ -196,7 +154,6 @@ vec2 UILayout::getInnerRect() {
 vec2 UILayout::getRect() {
     return rect + expanded_rect;
 }
-
 
 void UILayout::setMinRect(const vec2& min_rect) {
     this->min_rect = min_rect;
@@ -287,6 +244,10 @@ UIElement* UILayout::elementAt(const vec2& pos) {
     }
 
     return UIElement::elementAt(pos);
+}
+
+void UILayout::resize(const vec2& pos) {
+    setMinRect(glm::abs(this->pos - pos));
 }
 
 void UILayout::drawOutline() {
@@ -383,7 +344,7 @@ void UIResizeButton::drag(const vec2& pos) {
     if(resize_pos.x > this->pos.x && resize_pos.y > this->pos.y)
         resize_pos = glm::max(this->pos+rect, resize_pos);
 
-    ((UILayout*)parent)->setMinRect(glm::abs(parent->pos - resize_pos));
+    ((UILayout*)parent)->resize(resize_pos);
 }
 
 void UIResizeButton::drawContent() {

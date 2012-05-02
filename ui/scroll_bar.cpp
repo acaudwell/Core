@@ -32,7 +32,7 @@ UIScrollBar::UIScrollBar(UIScrollLayout* parent, bool horizontal) : horizontal(h
     flip_sides = false;
     dragging   = false;
     scrollable = true;
-    
+
     stick_to_end = false;
 }
 
@@ -53,7 +53,7 @@ void UIScrollBar::scrollToEnd() {
 }
 
 void UIScrollBar::stickToEnd() {
-    stick_to_end = true;    
+    stick_to_end = true;
 }
 
 UIElement* UIScrollBar::elementAt(const vec2& pos) {
@@ -108,7 +108,7 @@ void UIScrollBar::drag(const vec2& pos) {
     } else {
         bar_offset = glm::clamp(bar_offset + (delta.y / rect.y), 0.0f, 1.0f-bar_percent);
     }
-    
+
     stick_to_end = false;
 }
 
@@ -143,7 +143,7 @@ void UIScrollBar::scroll(bool up) {
     }
 
     bar_offset = glm::clamp(bar_offset+value_inc, 0.0f, 1.0f-bar_percent);
-    
+
     stick_to_end = false;
 }
 
@@ -179,7 +179,7 @@ void UIScrollBar::updateRect() {
 
         bar_rect          = vec2(bar_width, std::max(bar_min / scroll_rect.y, bar_percent) * rect.y);
         bar_visual_offset = std::min(bar_offset, 1.0f - std::max(bar_min / ((UIScrollLayout*)parent)->getScrollRect().y, bar_percent));
-    }   
+    }
 }
 
 bool UIScrollBar::atStart() {

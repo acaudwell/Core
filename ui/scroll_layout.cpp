@@ -17,7 +17,7 @@ vec2 UIScrollLayout::getRect() {
 }
 
 vec2 UIScrollLayout::getScrollRect() {
-    return scroll_rect+expanded_rect;
+    return glm::min(scroll_rect,rect)+expanded_rect;
 }
 
 vec2 UIScrollLayout::getInnerRect() {
@@ -26,9 +26,9 @@ vec2 UIScrollLayout::getInnerRect() {
 
 void UIScrollLayout::setUI(UI* ui) {
     UILayout::setUI(ui);
-    
+
     vertical_scrollbar->setUI(ui);
-    horizontal_scrollbar->setUI(ui);        
+    horizontal_scrollbar->setUI(ui);
 }
 
 void UIScrollLayout::drawBackground() {
@@ -48,6 +48,8 @@ void UIScrollLayout::drawBackground() {
 }
 
 void UIScrollLayout::update(float dt) {
+
+    if(fill_vertical && !parent) scroll_rect.y = display.height;
 
     UILayout::update(dt);
 
@@ -77,7 +79,7 @@ UIElement* UIScrollLayout::elementAt(const vec2& pos) {
     if(!UIElement::elementAt(pos)) return 0;
 
     //apply scroll offset to position
-    
+
     vec2 scrolled_pos = vec2(horizontal_scrollbar->bar_offset * rect.x, vertical_scrollbar->bar_offset * rect.y) + pos;
 
     UIElement* found = 0;
@@ -97,14 +99,14 @@ void UIScrollLayout::draw() {
 
     glPushMatrix();
         glTranslatef(scroll_offset.x, scroll_offset.y, 0.0f);
-    
+
         glScissor(pos.x, display.height-(pos.y+scroll_rect.y+expanded_rect.y), scroll_rect.x+expanded_rect.x, scroll_rect.y+expanded_rect.y);
 
         UILayout::draw();
 
         glDisable(GL_SCISSOR_TEST);
     glPopMatrix();
-    
+
     vertical_scrollbar->draw();
     horizontal_scrollbar->draw();
 }

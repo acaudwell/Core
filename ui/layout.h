@@ -60,6 +60,8 @@ public:
 
     UIElement* elementAt(const vec2& pos);
 
+    virtual void resize(const vec2& pos);
+
     void updatePos(const vec2& pos);
 
     void update(float dt);
