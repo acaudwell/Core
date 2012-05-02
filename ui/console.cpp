@@ -2,14 +2,14 @@
 
 // UIConsole
 
-UIConsole::UIConsole()
+UIConsole::UIConsole(const vec2& console_rect)
     : UIGroup("Console", false, true) {
 
-    history = new UIScrollLayout(vec2(420.0f, 100.0f));
+    history = new UIScrollLayout(vec2(console_rect.x, console_rect.y));
     history->setDrawBackground(false);
     history->setFill(true);
 
-    prompt  = new UIConsolePrompt(this);
+    prompt  = new UIConsolePrompt(this, console_rect.x);
 
     layout->addElement(history);
     layout->addElement(prompt);
@@ -27,14 +27,15 @@ void UIConsole::open() {
 
 void UIConsole::close() {
     hidden=true;
+    if(ui!=0) ui->deselect();
 }
 
 void UIConsole::updateHistory() {
 
     // TODO: test if history has changed since last call
-    
+
     bool stick_to_end = history->vertical_scrollbar->atEnd();
-    
+
     const std::deque<LoggerMessage>& history_log = Logger::getDefault()->getHistory();
 
     while(history->getElementCount() < history_log.size()) {
@@ -82,14 +83,14 @@ void UIConsole::update(float dt) {
 // UIConsoleEntry
 
 UIConsoleEntry::UIConsoleEntry(UIConsole* console)
-    : console(console), UILabel("", false, 420.0f) {
+    : console(console), UILabel("", false) {
     setFillHorizontal(true);
 }
 
 // UIConsolePrompt
 
-UIConsolePrompt::UIConsolePrompt(UIConsole* console)
-    : console(console), UILabel("", true, 420.0f) {
+UIConsolePrompt::UIConsolePrompt(UIConsole* console, int width)
+    : console(console), UILabel("", true, width) {
     setFillHorizontal(true);
 }
 
@@ -119,3 +120,14 @@ void UIConsolePrompt::updateContent() {
 void UIConsolePrompt::drawContent() {
     UILabel::drawContent();
 }
+
+bool UIConsolePrompt::keyPress(SDL_KeyboardEvent *e, char c) {
+
+    if(c == SDLK_BACKQUOTE) {
+        console->toggle();
+        return true;
+    }
+
+    return UILabel::keyPress(e, c);
+}
+

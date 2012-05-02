@@ -40,7 +40,7 @@ void UIGroup::toggle() {
 
     minimized = !minimized;
     animation = 1.0f;
-    
+
     old_group_rect = rect;
     old_label_rect = bar->rect;
 }
@@ -97,6 +97,7 @@ void UIGroup::update(float dt) {
 }
 
 void UIGroup::draw() {
+    if(hidden) return;
     bar->draw();
     if(!minimized && animation <= 0.0f) layout->draw();
 }

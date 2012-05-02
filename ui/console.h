@@ -9,7 +9,7 @@ class UIConsole : public UIGroup {
     UILabel* prompt;
     void updateHistory();
 public:
-    UIConsole();
+    UIConsole(const vec2& console_rect);
 
     void toggle();
     void open();
@@ -29,11 +29,14 @@ class UIConsolePrompt : public UILabel {
 protected:
     UIConsole* console;
 public:
-    UIConsolePrompt(UIConsole* console);
+    UIConsolePrompt(UIConsole* console, int width);
 
     void updateRect();
     void updateContent();
     void drawContent();
+
+
+    bool keyPress(SDL_KeyboardEvent *e, char c);
 
     bool submit();
     void tab();
