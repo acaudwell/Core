@@ -28,11 +28,12 @@
 #include "logger.h"
      
 std::map<int,std::string> log_levels = boost::assign::map_list_of
-    (LOG_LEVEL_WARN,     " WARN" )
-    (LOG_LEVEL_DEBUG,    "DEBUG" )
-    (LOG_LEVEL_INFO,     " INFO" )
-    (LOG_LEVEL_ERROR,    "ERROR" )
-    (LOG_LEVEL_INFINITY, "????"  );
+    (LOG_LEVEL_WARN,     "   WARN" )
+    (LOG_LEVEL_DEBUG,    "  DEBUG" )
+    (LOG_LEVEL_INFO,     "   INFO" )
+    (LOG_LEVEL_CONSOLE,  "CONSOLE" )
+    (LOG_LEVEL_ERROR,    "  ERROR" )
+    (LOG_LEVEL_INFINITY, "???????" );
 
 // LoggerMessage
 
@@ -61,7 +62,7 @@ void Logger::message(int level, const std::string& message) {
     if(this->level > level) return;
 
     if(stream != 0) {
-        fprintf(stderr, "%s: %s\n", log_levels[level].c_str(), message.c_str());
+        fprintf(stream, "%s: %s\n", log_levels[level].c_str(), message.c_str());
     }
 
     if(!hist_capacity) return;
@@ -147,6 +148,23 @@ void errorLog(const char *str, ...) {
     va_end(vl);
 
     logger->message( LOG_LEVEL_ERROR, msgbuff );
+}
+
+void consoleLog(const char *str, ...) {
+
+    Logger* logger = Logger::getDefault();
+    
+    if(!logger || logger->getLevel() > LOG_LEVEL_CONSOLE) return;
+
+    char msgbuff[65536];
+
+    va_list vl;
+
+    va_start(vl, str);
+        vsnprintf(msgbuff, 65536, str, vl);
+    va_end(vl);
+
+    logger->message( LOG_LEVEL_CONSOLE, msgbuff );
 }
 
 Logger* Logger::default_logger = new Logger(LOG_LEVEL_ERROR, stderr, 0);

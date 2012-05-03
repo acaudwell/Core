@@ -66,10 +66,13 @@ void UIConsole::updateHistory() {
                 entry->setTextColour(vec4(1.0f));
                 break;
             case LOG_LEVEL_DEBUG:
-                entry->setTextColour(vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                entry->setTextColour(vec4(1.0f, 1.0f, 0.0f, 1.0f));
+                break;
+            case LOG_LEVEL_ERROR:
+                entry->setTextColour(vec4(1.0f, 0.0f, 0.0f, 1.0f));
                 break;
             case LOG_LEVEL_WARN:
-                entry->setTextColour(vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                entry->setTextColour(vec4(1.0f, 0.5f, 0.2f, 1.0f));
                 break;
             default:
                 entry->setTextColour(vec4(1.0f));
@@ -121,7 +124,10 @@ bool UIConsole::executeCommand(const std::string& command_string) {
 
     UIConsoleCommand* command = getCommand(command_name);
     
-    if(!command) return false;
+    if(!command) {
+        errorLog("no such console command '%s'", command_name.c_str());
+        return false;
+    }
     
     return command->execute(command_args);  
 }

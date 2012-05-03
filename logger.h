@@ -40,7 +40,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-enum logger_level { LOG_LEVEL_PEDANTIC, LOG_LEVEL_WARN, LOG_LEVEL_DEBUG, LOG_LEVEL_INFO, LOG_LEVEL_ERROR, LOG_LEVEL_INFINITY };
+enum logger_level { LOG_LEVEL_PEDANTIC, LOG_LEVEL_WARN, LOG_LEVEL_DEBUG, LOG_LEVEL_INFO, LOG_LEVEL_CONSOLE, LOG_LEVEL_ERROR, LOG_LEVEL_INFINITY };
 
 class LoggerMessage {
 
@@ -79,5 +79,6 @@ void warnLog(const char *args, ...);
 void debugLog(const char *args, ...);
 void infoLog(const char *args, ...);
 void errorLog(const char *args, ...);
+void consoleLog(const char *args, ...);
 
 #endif
