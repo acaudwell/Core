@@ -20,6 +20,8 @@ public:
 
     void scroll(bool up);
 
+    bool isScrollable();
+
     UIElement* elementAt(const vec2& pos);
 
     void updatePos(const vec2& pos);

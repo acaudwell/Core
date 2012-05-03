@@ -67,6 +67,10 @@ void UIScrollLayout::updatePos(const vec2& pos) {
     horizontal_scrollbar->updatePos();
 }
 
+bool UIScrollLayout::isScrollable() {
+    return vertical_scrollbar->isScrollable();
+}
+
 void UIScrollLayout::scroll(bool up) {
     vertical_scrollbar->scroll(up);
 }

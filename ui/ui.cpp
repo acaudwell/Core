@@ -93,6 +93,17 @@ UIElement* UI::elementAt(const vec2& pos) {
     return 0;
 }
 
+UIElement* UI::scrollableElementAt(const vec2& pos) {
+
+    UIElement* found = elementAt(pos);
+
+    while(found && !found->isScrollable()) {
+        found = found->parent;
+    }
+
+    return found;
+}
+
 void UI::deselect() {
     if(!selectedElement) return;
 

@@ -47,6 +47,8 @@ public:
     bool elementsByType(std::list<UIElement*>& found, int type);
 
     UIElement* elementAt(const vec2& pos);
+    UIElement* scrollableElementAt(const vec2& pos);
+
     UIElement* selectElementAt(const vec2& pos);
 
     void selectElement(UIElement* element);

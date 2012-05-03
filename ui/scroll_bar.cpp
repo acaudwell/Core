@@ -31,7 +31,6 @@ UIScrollBar::UIScrollBar(UIScrollLayout* parent, bool horizontal) : horizontal(h
 
     flip_sides = false;
     dragging   = false;
-    scrollable = true;
 
     stick_to_end = false;
 }
@@ -42,6 +41,10 @@ UIScrollBar::~UIScrollBar() {
         texturemanager.release(t);
     }
     bartex.clear();
+}
+
+bool UIScrollBar::isScrollable() {
+    return (bar_percent>0.0f);
 }
 
 void UIScrollBar::scrollToStart() {
