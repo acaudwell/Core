@@ -5,14 +5,25 @@
 UIConsole::UIConsole(const vec2& console_rect)
     : UIGroup("Console", false, true) {
 
-    history = new UIScrollLayout(vec2(console_rect.x, console_rect.y));
+    layout->setMinRect(console_rect);
+        
+    history = new UIScrollLayout(vec2(0.0f, 0.0f));
     history->setDrawBackground(false);
     history->setFill(true);
 
-    prompt  = new UIConsolePrompt(this, console_rect.x);
+    prompt  = new UIConsolePrompt(this);
 
     layout->addElement(history);
     layout->addElement(prompt);
+}
+
+UIConsole::~UIConsole() {
+
+    for(auto it = commands.begin(); it != commands.end(); it++) {
+        delete it->second;
+    }
+
+    commands.clear();
 }
 
 void UIConsole::toggle() {
@@ -45,7 +56,7 @@ void UIConsole::updateHistory() {
     int history_size = history->getElementCount();
 
     int i=0;
-    for(std::deque<LoggerMessage>::const_reverse_iterator it = history_log.rbegin(); it != history_log.rend(); it++) {
+    for(auto it = history_log.rbegin(); it != history_log.rend(); it++) {
         const LoggerMessage& l = (*it);
 
         UIConsoleEntry* entry = (UIConsoleEntry*) history->getElement(history_size-i-1);
@@ -74,6 +85,47 @@ void UIConsole::updateHistory() {
     }
 }
 
+void UIConsole::registerCommand(UIConsoleCommand* command) {
+    assert(getCommand(command->getName()) == 0);
+    
+    commands[command->getName()] = command;   
+}
+
+UIConsoleCommand* UIConsole::getCommand(const std::string& name) {
+    
+    auto it = commands.find(name);
+    
+    if(it != commands.end()) {
+        return it->second;        
+    }
+
+    return 0;
+}
+
+bool UIConsole::executeCommand(const std::string& command_string) {
+
+    size_t s = command_string.find(" ");
+    
+    std::string command_name;
+    std::string command_args;
+
+    
+    if(s != std::string::npos) {
+        command_name = command_string.substr(0, s);        
+        if(s != command_string.size()-1) {
+            command_args = command_string.substr(s+1, s);        
+        }          
+   } else {
+        command_name = command_string;
+    }
+
+    UIConsoleCommand* command = getCommand(command_name);
+    
+    if(!command) return false;
+    
+    return command->execute(command_args);  
+}
+
 void UIConsole::update(float dt) {
     updateHistory();
 
@@ -87,22 +139,40 @@ UIConsoleEntry::UIConsoleEntry(UIConsole* console)
     setFillHorizontal(true);
 }
 
+
+//UIConsoleCommand
+
+UIConsoleCommand::UIConsoleCommand(const std::string& name)
+    : name(name) {
+}
+
+const std::string& UIConsoleCommand::getName() const {
+    return name;
+}
+
+bool UIConsoleCommand::execute(const std::string& args) {
+ 
+    if(!args.empty()) return false;
+    
+    return execute();    
+}
+
 // UIConsolePrompt
 
-UIConsolePrompt::UIConsolePrompt(UIConsole* console, int width)
-    : console(console), UILabel("", true, width) {
+UIConsolePrompt::UIConsolePrompt(UIConsole* console)
+    : console(console), UILabel("", true) {
     setFillHorizontal(true);
 }
 
 bool UIConsolePrompt::submit() {
 
-    if(!text.empty()) {
-        infoLog("%s", text.c_str());
-        setText("");
-        return true;
-    }
-
-    return false;
+    if(text.empty()) return false;
+    
+    std::string command = text;
+    
+    setText("");
+    
+    return console->executeCommand(command);   
 }
 
 void UIConsolePrompt::tab() {
