@@ -6,7 +6,7 @@ UIConsole::UIConsole(const vec2& console_rect)
     : UIGroup("Console", false, true) {
 
     layout->setMinRect(console_rect);
-        
+
     history = new UIScrollLayout(vec2(0.0f, 0.0f));
     history->setDrawBackground(false);
     history->setFill(true);
@@ -66,7 +66,7 @@ void UIConsole::updateHistory() {
                 entry->setTextColour(vec4(1.0f));
                 break;
             case LOG_LEVEL_DEBUG:
-                entry->setTextColour(vec4(1.0f, 1.0f, 0.0f, 1.0f));
+                entry->setTextColour(vec4(0.0f, 1.0f, 0.0f, 1.0f));
                 break;
             case LOG_LEVEL_ERROR:
                 entry->setTextColour(vec4(1.0f, 0.0f, 0.0f, 1.0f));
@@ -90,16 +90,16 @@ void UIConsole::updateHistory() {
 
 void UIConsole::registerCommand(UIConsoleCommand* command) {
     assert(getCommand(command->getName()) == 0);
-    
-    commands[command->getName()] = command;   
+
+    commands[command->getName()] = command;
 }
 
 UIConsoleCommand* UIConsole::getCommand(const std::string& name) {
-    
+
     auto it = commands.find(name);
-    
+
     if(it != commands.end()) {
-        return it->second;        
+        return it->second;
     }
 
     return 0;
@@ -108,28 +108,28 @@ UIConsoleCommand* UIConsole::getCommand(const std::string& name) {
 bool UIConsole::executeCommand(const std::string& command_string) {
 
     size_t s = command_string.find(" ");
-    
+
     std::string command_name;
     std::string command_args;
 
-    
+
     if(s != std::string::npos) {
-        command_name = command_string.substr(0, s);        
+        command_name = command_string.substr(0, s);
         if(s != command_string.size()-1) {
-            command_args = command_string.substr(s+1, s);        
-        }          
+            command_args = command_string.substr(s+1, s);
+        }
    } else {
         command_name = command_string;
     }
 
     UIConsoleCommand* command = getCommand(command_name);
-    
+
     if(!command) {
         errorLog("no such console command '%s'", command_name.c_str());
         return false;
     }
-    
-    return command->execute(command_args);  
+
+    return command->execute(command_args);
 }
 
 void UIConsole::update(float dt) {
@@ -157,10 +157,10 @@ const std::string& UIConsoleCommand::getName() const {
 }
 
 bool UIConsoleCommand::execute(const std::string& args) {
- 
+
     if(!args.empty()) return false;
-    
-    return execute();    
+
+    return execute();
 }
 
 // UIConsolePrompt
@@ -173,12 +173,12 @@ UIConsolePrompt::UIConsolePrompt(UIConsole* console)
 bool UIConsolePrompt::submit() {
 
     if(text.empty()) return false;
-    
+
     std::string command = text;
-    
+
     setText("");
-    
-    return console->executeCommand(command);   
+
+    return console->executeCommand(command);
 }
 
 void UIConsolePrompt::tab() {
