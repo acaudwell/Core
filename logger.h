@@ -58,13 +58,16 @@ protected:
     FILE* stream;
     int level;
     static Logger* default_logger;
+    int message_count;
 public:
     static Logger* getDefault();
-    
+
     const std::deque<LoggerMessage>& getHistory() const;
 
     void setLevel(int level)   { this->level = level; };
     int getLevel() const { return level; }
+
+    int getMessageCount();
 
     void setHistoryCapacity(int hist_capacity);
 

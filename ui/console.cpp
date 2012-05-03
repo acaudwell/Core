@@ -11,6 +11,8 @@ UIConsole::UIConsole(const vec2& console_rect)
     history->setDrawBackground(false);
     history->setFill(true);
 
+    message_count = 0;
+
     prompt  = new UIConsolePrompt(this);
 
     layout->addElement(history);
@@ -42,6 +44,13 @@ void UIConsole::close() {
 }
 
 void UIConsole::updateHistory() {
+    if(hidden) return;
+
+    int message_count = Logger::getDefault()->getMessageCount();
+
+    if(this->message_count == message_count) return;
+
+    this->message_count = message_count;
 
     // TODO: test if history has changed since last call
 

@@ -11,7 +11,7 @@ public:
     UIConsoleCommand(const std::string& name);
 
     const std::string& getName() const;
-    
+
     virtual bool execute(const std::string& args);
     virtual bool execute() { return false; };
 };
@@ -19,7 +19,9 @@ public:
 class UIConsole : public UIGroup {
     UIScrollLayout* history;
     UILabel* prompt;
-    
+
+    int message_count;
+
     void updateHistory();
 
     std::map<std::string, UIConsoleCommand*> commands;
@@ -55,7 +57,7 @@ public:
     void updateRect();
     void updateContent();
     void drawContent();
-    
+
     bool keyPress(SDL_KeyboardEvent *e, char c);
 
     bool submit();

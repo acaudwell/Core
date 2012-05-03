@@ -26,7 +26,7 @@
 */
 
 #include "logger.h"
-     
+
 std::map<int,std::string> log_levels = boost::assign::map_list_of
     (LOG_LEVEL_WARN,     "   WARN" )
     (LOG_LEVEL_DEBUG,    "  DEBUG" )
@@ -55,6 +55,11 @@ void Logger::init(int level, FILE* stream, int hist_capacity) {
     this->level         = level;
     this->stream        = stream;
     this->hist_capacity = hist_capacity;
+    this->message_count = 0;
+}
+
+int Logger::getMessageCount() {
+    return message_count;
 }
 
 void Logger::message(int level, const std::string& message) {
@@ -72,6 +77,7 @@ void Logger::message(int level, const std::string& message) {
     }
 
     history.push_back(LoggerMessage(level, message));
+    message_count++;
 }
 
 const std::deque<LoggerMessage>& Logger::getHistory() const {
@@ -136,7 +142,7 @@ void infoLog(const char *str, ...) {
 void errorLog(const char *str, ...) {
 
     Logger* logger = Logger::getDefault();
-    
+
     if(!logger || logger->getLevel() > LOG_LEVEL_ERROR) return;
 
     char msgbuff[65536];
@@ -153,7 +159,7 @@ void errorLog(const char *str, ...) {
 void consoleLog(const char *str, ...) {
 
     Logger* logger = Logger::getDefault();
-    
+
     if(!logger || logger->getLevel() > LOG_LEVEL_CONSOLE) return;
 
     char msgbuff[65536];
