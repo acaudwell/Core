@@ -34,7 +34,7 @@ public:
     UIConsoleCommand* getCommand(const std::string& name);
     bool executeCommand(const std::string& command_string);
 
-    void toggle();
+    void showHide();
     void open();
     void close();
 

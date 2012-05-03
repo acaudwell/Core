@@ -28,7 +28,7 @@ UIConsole::~UIConsole() {
     commands.clear();
 }
 
-void UIConsole::toggle() {
+void UIConsole::showHide() {
     if(hidden) open();
     else close();
 }
@@ -209,7 +209,7 @@ void UIConsolePrompt::drawContent() {
 bool UIConsolePrompt::keyPress(SDL_KeyboardEvent *e, char c) {
 
     if(c == SDLK_BACKQUOTE) {
-        console->toggle();
+        console->showHide();
         return true;
     }
 
