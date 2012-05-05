@@ -94,18 +94,7 @@ void UIFloatSlider::scroll(bool up) {
 
     if(!up) value_inc = -value_inc;
 
-    bool left_ctrl, left_shift;
-    getModifiers(left_ctrl, left_shift);
-
-    if(left_ctrl) {
-        value_inc *= 0.1f;
-    }
-
-    if(left_shift) {
-        value_inc *= 0.1f;
-    }
-
-    setValue(*value+value_inc);
+    setValue(*value + UIElement::granulaity(value_inc, 0.1));
 }
 
 void UIFloatSlider::scale(bool up) {

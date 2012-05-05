@@ -25,7 +25,7 @@ void UIElement::drawOutline() {
      ui->setTextured(true);
 }
 
-void UIElement::getModifiers(bool& left_ctrl, bool& left_shift) const {
+void UIElement::getModifiers(bool& left_ctrl, bool& left_shift) {
 
     left_ctrl = left_shift = false;
 
@@ -40,6 +40,19 @@ void UIElement::getModifiers(bool& left_ctrl, bool& left_shift) const {
     if(keystate[SDLK_LCTRL])  left_ctrl  = true;
     if(keystate[SDLK_LSHIFT]) left_shift = true;
 #endif
+}
+
+double UIElement::granulaity(double initial, double scale) {
+
+    bool left_ctrl, left_shift;
+    getModifiers(left_ctrl, left_shift);
+
+    double granul = initial;
+
+    if(left_ctrl)  granul *= scale;
+    if(left_shift) granul *= scale;
+
+    return granul;
 }
 
 void UIElement::drawOutline(const vec2& rect) {

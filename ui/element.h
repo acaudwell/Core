@@ -48,7 +48,8 @@ public:
 
     void drawOutline(const vec2& rect);
 
-    void getModifiers(bool& left_ctrl, bool& left_shift) const;
+    static void getModifiers(bool& left_ctrl, bool& left_shift);
+    static double granulaity(double initial, double scale);
 
     void drawQuad(const vec2& rect, const vec4& texcoord);
     void drawQuad(const vec2& pos, const vec2& rect, const vec4& texcoord);
