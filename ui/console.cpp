@@ -77,6 +77,9 @@ void UIConsole::updateHistory() {
             case LOG_LEVEL_DEBUG:
                 entry->setTextColour(vec4(0.0f, 1.0f, 0.0f, 1.0f));
                 break;
+            case LOG_LEVEL_CONSOLE:
+                entry->setTextColour(vec4(1.0f, 1.0f, 0.0f, 1.0f));
+                break;
             case LOG_LEVEL_ERROR:
                 entry->setTextColour(vec4(1.0f, 0.0f, 0.0f, 1.0f));
                 break;
@@ -116,16 +119,17 @@ UIConsoleCommand* UIConsole::getCommand(const std::string& name) {
 
 bool UIConsole::executeCommand(const std::string& command_string) {
 
+    consoleLog(command_string.c_str());
+
     size_t s = command_string.find(" ");
 
     std::string command_name;
     std::string command_args;
 
-
     if(s != std::string::npos) {
         command_name = command_string.substr(0, s);
         if(s != command_string.size()-1) {
-            command_args = command_string.substr(s+1, s);
+            command_args = command_string.substr(s+1);
         }
    } else {
         command_name = command_string;
