@@ -105,6 +105,7 @@ protected:
     int  min_delta_msec;
     bool appFinished;
     void stop(int return_code);
+
 public:
     float fps;
 
@@ -112,6 +113,9 @@ public:
     virtual ~SDLApp() {};
 
     int run();
+
+    static bool getClipboardText(std::string& text);
+    static void setClipboardText(const std::string& text);
 
     virtual void resize(int width, int height) {};
 
@@ -122,7 +126,7 @@ public:
     virtual void draw(float t, float dt) {};
 
     virtual void quit() { appFinished = true; };
-    
+
     virtual void mouseMove(SDL_MouseMotionEvent *e) {};
     virtual void mouseClick(SDL_MouseButtonEvent *e) {};
     virtual void keyPress(SDL_KeyboardEvent *e) {};

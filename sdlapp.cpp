@@ -176,6 +176,64 @@ void SDLAppQuit(std::string error) {
     exit(1);
 }
 
+
+bool SDLApp::getClipboardText(std::string& text) {
+#ifdef _WIN32
+    SDL_SysWMinfo wininfo;
+    SDL_VERSION(&wininfo.version);
+    SDL_GetWMInfo(&wininfo);
+
+    if(!IsClipboardFormatAvailable(CF_TEXT) || !OpenClipboard(wininfo.window)) return false;
+
+    HGLOBAL handle = GetClipboardData(CF_TEXT);
+
+    if (!handle) {
+        CloseClipboard();
+        return false;
+    }
+
+    const char* global_str = (const char*) GlobalLock(handle);
+
+    text.assign(global_str);
+
+    GlobalUnlock(handle);
+
+    CloseClipboard();
+
+    return true;
+#endif
+}
+
+void SDLApp::setClipboardText(const std::string& text) {
+#ifdef _WIN32
+    SDL_SysWMinfo wininfo;
+    SDL_VERSION(&wininfo.version);
+    SDL_GetWMInfo(&wininfo);
+
+    if (!OpenClipboard(wininfo.window)) return;
+
+    HANDLE handle  = GlobalAlloc((GMEM_MOVEABLE|GMEM_DDESHARE), text.size());
+
+    if(!handle) {
+        CloseClipboard();
+        return;
+    }
+
+    char* global_str = (char*) GlobalLock(handle);
+
+    strcpy(global_str, text.c_str());
+
+    GlobalUnlock(handle);
+
+    EmptyClipboard();
+    SetClipboardData(CF_TEXT, handle);
+
+    CloseClipboard();
+
+    return;
+#endif
+}
+
 void SDLAppInit(std::string apptitle, std::string execname) {
     gSDLAppTitle = apptitle;
     gSDLAppExec  = execname;

@@ -73,6 +73,33 @@ bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
         return false;
     }
 
+    // copy / paste clipboard
+    if(e->keysym.sym == SDLK_v || e->keysym.sym == SDLK_c) {
+
+        Uint8* keystate = SDL_GetKeyState(0);
+
+        if(keystate[SDLK_LCTRL]) {
+
+            if(e->keysym.sym == SDLK_c) {
+
+                if(!this->text.empty()) {
+                    SDLApp::setClipboardText(this->text);
+                    return true;
+                }
+
+            } else if(e->keysym.sym == SDLK_v) {
+
+                std::string text;
+                if(SDLApp::getClipboardText(text)) {
+                    setText(this->text + text);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
     switch(c) {
 #ifdef __APPLE__
         case SDLK_DELETE:
