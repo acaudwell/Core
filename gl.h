@@ -6,7 +6,6 @@
 #define NO_SDL_GLEXT
 #include "SDL.h"
 #include "SDL_opengl.h"
-#include "SDL_syswm.h"
 #endif
 
 #define PRINT_GL_ERRORS
