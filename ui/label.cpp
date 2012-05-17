@@ -62,6 +62,8 @@ void UILabel::tab() {
 
 bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
 
+    if(!c) return false;
+
     if(!editable) {
 
         switch(c) {

@@ -179,7 +179,7 @@ bool UIConsoleCommand::execute(const std::string& args) {
 // UIConsolePrompt
 
 UIConsolePrompt::UIConsolePrompt(UIConsole* console)
-    : console(console), UILabel("", true) {
+    : console(console), UILabel("", true), history_index(-1) {
     setFillHorizontal(true);
 }
 
@@ -190,6 +190,9 @@ bool UIConsolePrompt::submit() {
     std::string command = text;
 
     setText("");
+
+    command_history.push_back(command);
+    history_index = -1;
 
     return console->executeCommand(command);
 }
@@ -214,6 +217,29 @@ bool UIConsolePrompt::keyPress(SDL_KeyboardEvent *e, char c) {
 
     if(c == SDLK_BACKQUOTE) {
         console->showHide();
+        return true;
+    }
+
+    if(e->keysym.sym == SDLK_UP) {
+        if(history_index == -1 && !command_history.empty()) {
+            history_index = command_history.size() - 1;
+            setText(command_history[history_index]);
+        } else if(history_index > 0) {
+            history_index--;
+            setText(command_history[history_index]);
+        }
+        return true;
+    }
+
+    if(e->keysym.sym == SDLK_DOWN) {
+        if(history_index < command_history.size()-1) {
+            history_index++;
+            setText(command_history[history_index]);
+        } else {
+            history_index == -1;
+            setText("");
+        }
+
         return true;
     }
 

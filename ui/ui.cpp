@@ -298,8 +298,6 @@ bool UI::keyPress(SDL_KeyboardEvent *e) {
 
     char c = toChar(e);
 
-    if(!c) return false;
-
     return selected->keyPress(e, c);
 }
 

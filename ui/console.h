@@ -51,6 +51,8 @@ public:
 class UIConsolePrompt : public UILabel {
 protected:
     UIConsole* console;
+    std::vector<std::string> command_history;
+    int history_index;
 public:
     UIConsolePrompt(UIConsole* console);
 
