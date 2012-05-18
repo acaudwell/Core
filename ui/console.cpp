@@ -236,7 +236,7 @@ bool UIConsolePrompt::keyPress(SDL_KeyboardEvent *e, char c) {
             history_index++;
             setText(command_history[history_index]);
         } else {
-            history_index == -1;
+            history_index = -1;
             setText("");
         }
 
