@@ -184,8 +184,8 @@ static Atom xa_clipboard;
 void SDLApp::initX11ClipboardEventFilter() {
     SDL_SysWMinfo wininfo;
     SDL_VERSION(&wininfo.version);
-    SDL_GetWMInfo(&wininfo);    
-    
+    SDL_GetWMInfo(&wininfo);
+
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
     SDL_SetEventFilter(SDLApp::X11ClipboardEventFilter);
 
@@ -196,7 +196,7 @@ void SDLApp::initX11ClipboardEventFilter() {
 int SDLApp::X11ClipboardEventFilter(const SDL_Event *event) {
 
     if ( event->type != SDL_SYSWMEVENT ) return 1;
-    
+
     if( event->syswm.msg->event.xevent.type == SelectionRequest) {
 
         SDL_SysWMinfo wininfo;
@@ -214,7 +214,7 @@ int SDLApp::X11ClipboardEventFilter(const SDL_Event *event) {
         snotify.xselection.selection = req->selection;
         snotify.xselection.requestor = req->requestor;
         snotify.xselection.time      = req->time;
-        
+
         snotify.xselection.target    = None;
         snotify.xselection.property  = None;
 
@@ -222,7 +222,7 @@ int SDLApp::X11ClipboardEventFilter(const SDL_Event *event) {
             xa_targets,
             XA_STRING
         };
-        
+
         if ( req->target == xa_targets ) {
 
             XChangeProperty (req->display, req->requestor, req->property, XA_ATOM, 32, PropModeReplace, (unsigned char*) supported_targets, sizeof(supported_targets) / sizeof (Atom));
@@ -234,7 +234,7 @@ int SDLApp::X11ClipboardEventFilter(const SDL_Event *event) {
             unsigned long selection_length;
             unsigned long overflow;
             int selection_format;
-                
+
             if ( XGetWindowProperty(wininfo.info.x11.display, DefaultRootWindow(wininfo.info.x11.display),
                                     XA_CUT_BUFFER0, 0, INT_MAX/4, False, req->target,
                                     &snotify.xselection.target, &selection_format,
@@ -251,9 +251,9 @@ int SDLApp::X11ClipboardEventFilter(const SDL_Event *event) {
                 XFree(selection_data);
             }
         }
-        
+
         XSendEvent(wininfo.info.x11.display,req->requestor,False,0,&snotify);
-        XSync(wininfo.info.x11.display, False);           
+        XSync(wininfo.info.x11.display, False);
     }
 
     return 1;
@@ -288,33 +288,34 @@ bool SDLApp::getClipboardText(std::string& text) {
     CloseClipboard();
 
     return true;
-#else
+#endif
+#if !defined(_WIN32) && !defined(__APPLE__)
     Window owner;
     Atom selection;
 
     wininfo.info.x11.lock_func();
-    
+
     owner = XGetSelectionOwner(wininfo.info.x11.display, xa_clipboard);
-    
+
     wininfo.info.x11.unlock_func();
 
     if ( (owner == None) || (owner == wininfo.info.x11.window) ) {
 
         owner     = DefaultRootWindow(wininfo.info.x11.display);
         selection = XA_CUT_BUFFER0;
-        
+
     } else {
 
         owner = wininfo.info.x11.window;
 
         wininfo.info.x11.lock_func();
-                
+
         selection = XInternAtom(wininfo.info.x11.display, "SDL_SELECTION", False);
-        
+
         XConvertSelection(wininfo.info.x11.display, xa_clipboard, XA_STRING, selection, owner, CurrentTime);
 
         wininfo.info.x11.unlock_func();
-        
+
         int selection_response = 0;
         SDL_Event event;
 
@@ -329,7 +330,7 @@ bool SDLApp::getClipboardText(std::string& text) {
             }
         }
     }
-    
+
     wininfo.info.x11.lock_func();
 
     unsigned char *selection_data;
@@ -337,9 +338,9 @@ bool SDLApp::getClipboardText(std::string& text) {
     unsigned long overflow;
     int selection_format;
     Atom selection_type;
-    
+
     bool assigned = false;
-    
+
     if ( XGetWindowProperty(wininfo.info.x11.display, owner, selection, 0, INT_MAX/4,
                             False, XA_STRING, &selection_type, &selection_format,
                        &selection_length, &overflow, &selection_data) == Success ) {
@@ -364,7 +365,7 @@ void SDLApp::setClipboardText(const std::string& text) {
     SDL_VERSION(&wininfo.version);
     SDL_GetWMInfo(&wininfo);
 #ifdef __APPLE__
-    
+
 #elifdef _WIN32
 
     if (!OpenClipboard(wininfo.window)) return;
@@ -388,16 +389,17 @@ void SDLApp::setClipboardText(const std::string& text) {
 
     CloseClipboard();
 
-#else
-         
-    wininfo.info.x11.lock_func();        
+#endif
+#if !defined(_WIN32) && !defined(__APPLE__)
+
+    wininfo.info.x11.lock_func();
 
     XChangeProperty(wininfo.info.x11.display, DefaultRootWindow(wininfo.info.x11.display), XA_CUT_BUFFER0, XA_STRING, 8, PropModeReplace, (unsigned char*) text.c_str(), text.size());
-        
+
     if(XGetSelectionOwner(wininfo.info.x11.display, xa_clipboard) != wininfo.info.x11.window ) {
         XSetSelectionOwner(wininfo.info.x11.display, xa_clipboard, wininfo.info.x11.window, CurrentTime);
     }
-    
+
     wininfo.info.x11.unlock_func();
 #endif
 }
@@ -411,7 +413,7 @@ void SDLAppInit(std::string apptitle, std::string execname) {
     std::string fonts_dir    = "data/fonts/";
     std::string shaders_dir  = "data/shaders/";
 #ifdef _WIN32
-    
+
     char szAppPath[MAX_PATH];
     GetModuleFileName(0, szAppPath, MAX_PATH);
 
