@@ -373,12 +373,14 @@ class Shader : public Resource {
     std::map<std::string, ShaderUniform*>  uniforms;
     std::map<std::string,std::string> substitutions;
 
+    std::string prefix;
     GLenum program;
     bool dynamic_compile;
 
     void checkProgramError();
 
     void setDefaults();
+    void loadPrefix();
 public:
     VertexShader*   vertex_shader;
     GeometryShader* geometry_shader;
@@ -393,6 +395,8 @@ public:
     void clear();
 
     void load();
+    void reload(bool force = false);
+
     void unload();
 
     ShaderPass* grabShaderPass(GLenum shader_object_type);
@@ -454,7 +458,7 @@ public:
     void manage(Shader* shader);
 
     void unload();
-    void reload();
+    void reload(bool force = false);
 };
 
 extern ShaderManager shadermanager;

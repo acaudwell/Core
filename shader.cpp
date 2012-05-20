@@ -84,9 +84,9 @@ void ShaderManager::unload() {
     }
 }
 
-void ShaderManager::reload() {
+void ShaderManager::reload(bool force) {
     for(std::map<std::string, Resource*>::iterator it= resources.begin(); it!=resources.end();it++) {
-        ((Shader*)it->second)->load();
+        ((Shader*)it->second)->reload(force);
     }
 }
 
@@ -1182,9 +1182,25 @@ void GeometryShader::attachTo(GLenum program) {
 
 //Shader
 
-Shader::Shader(const std::string& prefix) : Resource(prefix) {
+Shader::Shader(const std::string& prefix)
+    : prefix(prefix), Resource(prefix) {
 
     setDefaults();
+
+    loadPrefix();
+}
+
+Shader::Shader() {
+    setDefaults();
+}
+
+void Shader::loadPrefix() {
+
+    if(vertex_shader != 0) delete vertex_shader;
+    vertex_shader = 0;
+
+    if(fragment_shader != 0) delete fragment_shader;
+    fragment_shader = 0;
 
     std::string shader_dir = shadermanager.getDir();
 
@@ -1198,10 +1214,6 @@ Shader::Shader(const std::string& prefix) : Resource(prefix) {
     fragment_shader->includeFile(fragment_file);
 
     load();
-}
-
-Shader::Shader() {
-    setDefaults();
 }
 
 void Shader::setDynamicCompile(bool dynamic_compile) {
@@ -1245,6 +1257,15 @@ void Shader::unload() {
         it->second->unload();
     }
 }
+
+void Shader::reload(bool force) {
+    if(force && !prefix.empty()) {
+        loadPrefix();
+    } else {
+        load();
+    }
+}
+
 
 void Shader::load() {
     //fprintf(stderr, "load\n");
