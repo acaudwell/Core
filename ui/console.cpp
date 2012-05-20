@@ -80,6 +80,9 @@ void UIConsole::updateHistory() {
             case LOG_LEVEL_CONSOLE:
                 entry->setTextColour(vec4(1.0f, 1.0f, 0.0f, 1.0f));
                 break;
+            case LOG_LEVEL_SCRIPT:
+                entry->setTextColour(vec4(1.0f, 0.5f, 0.25f, 1.0f));
+                break;
             case LOG_LEVEL_ERROR:
                 entry->setTextColour(vec4(1.0f, 0.0f, 0.0f, 1.0f));
                 break;

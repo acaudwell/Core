@@ -32,6 +32,7 @@ std::map<int,std::string> log_levels = boost::assign::map_list_of
     (LOG_LEVEL_DEBUG,    "  DEBUG" )
     (LOG_LEVEL_INFO,     "   INFO" )
     (LOG_LEVEL_CONSOLE,  "CONSOLE" )
+    (LOG_LEVEL_SCRIPT,   " SCRIPT" )
     (LOG_LEVEL_ERROR,    "  ERROR" )
     (LOG_LEVEL_INFINITY, "???????" );
 
@@ -171,6 +172,23 @@ void consoleLog(const char *str, ...) {
     va_end(vl);
 
     logger->message( LOG_LEVEL_CONSOLE, msgbuff );
+}
+
+void scriptLog(const char *str, ...) {
+
+    Logger* logger = Logger::getDefault();
+
+    if(!logger || logger->getLevel() > LOG_LEVEL_SCRIPT) return;
+
+    char msgbuff[65536];
+
+    va_list vl;
+
+    va_start(vl, str);
+        vsnprintf(msgbuff, 65536, str, vl);
+    va_end(vl);
+
+    logger->message( LOG_LEVEL_SCRIPT, msgbuff );
 }
 
 Logger* Logger::default_logger = new Logger(LOG_LEVEL_ERROR, stderr, 0);
