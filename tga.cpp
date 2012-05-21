@@ -27,9 +27,9 @@
 
 #include "tga.h"
 
-TGAWriter::TGAWriter() {
+TGAWriter::TGAWriter(int components)
+    : components(components) {
     rle = true;
-    components = 3;
     out = 0;
 
     rle_count = 0;
@@ -55,6 +55,8 @@ void TGAWriter::writeRaw(std::vector<char>& buffer, int start, int pixel_count) 
 
     raw_count += pixel_count;
 
+    int written = 0;
+    
     while(pixel_count > 0) {
         int write_count = std::min(128, pixel_count);
 
@@ -63,10 +65,11 @@ void TGAWriter::writeRaw(std::vector<char>& buffer, int start, int pixel_count) 
         out->write((char*)&counter_byte, 1);
 
         for(int i=0; i < write_count; i++) {
-            out->write(&(buffer[start+i*components]), components);
+            out->write(&(buffer[start+(i+written)*components]), components);
         }
 
         pixel_count -= write_count;
+        written += write_count;
     }
 }
 
@@ -96,7 +99,7 @@ void TGAWriter::screenshot(const std::string& filename) {
     if(!open(filename)) return;
 
     std::vector<char> buffer;
-    buffer.resize(display.width * display.height * components * 4);
+    buffer.resize(display.width * display.height * components);
 
     capture(buffer);
     writeTGA(buffer);

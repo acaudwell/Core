@@ -52,7 +52,7 @@ protected:
     void init();
 
 public:
-    TGAWriter();
+    TGAWriter(int components = 3);
 
     bool open(const std::string& filename);
     void close();
