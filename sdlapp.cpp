@@ -267,9 +267,7 @@ bool SDLApp::getClipboardText(std::string& text) {
     SDL_VERSION(&wininfo.version);
     SDL_GetWMInfo(&wininfo);
 
-#ifdef __APPLE__
-
-#elifdef _WIN32
+#if defined(_WIN32)
     if(!IsClipboardFormatAvailable(CF_TEXT) || !OpenClipboard(wininfo.window)) return false;
 
     HGLOBAL handle = GetClipboardData(CF_TEXT);
@@ -289,7 +287,7 @@ bool SDLApp::getClipboardText(std::string& text) {
 
     return true;
 
-#elifdef USE_X11
+#elif defined(USE_X11)
     Window owner;
     Atom selection;
 
@@ -356,17 +354,16 @@ bool SDLApp::getClipboardText(std::string& text) {
     wininfo.info.x11.unlock_func();
 
     return assigned;
+#else
+    return false;   
 #endif
-    return false;
 }
 
 void SDLApp::setClipboardText(const std::string& text) {
     SDL_SysWMinfo wininfo;
     SDL_VERSION(&wininfo.version);
     SDL_GetWMInfo(&wininfo);
-#ifdef __APPLE__
-
-#elifdef _WIN32
+#if defined(_WIN32)
 
     if (!OpenClipboard(wininfo.window)) return;
 
@@ -389,7 +386,7 @@ void SDLApp::setClipboardText(const std::string& text) {
 
     CloseClipboard();
 
-#elifdef USE_X11
+#elif defined(USE_X11)
     wininfo.info.x11.lock_func();
 
     XChangeProperty(wininfo.info.x11.display, DefaultRootWindow(wininfo.info.x11.display), XA_CUT_BUFFER0, XA_STRING, 8, PropModeReplace, (unsigned char*) text.c_str(), text.size());
@@ -399,6 +396,8 @@ void SDLApp::setClipboardText(const std::string& text) {
     }
 
     wininfo.info.x11.unlock_func();
+#else
+
 #endif
 }
 
