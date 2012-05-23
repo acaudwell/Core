@@ -177,7 +177,7 @@ void SDLAppQuit(std::string error) {
     exit(1);
 }
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#ifdef USE_X11
 static Atom xa_targets;
 static Atom xa_clipboard;
 
@@ -288,8 +288,8 @@ bool SDLApp::getClipboardText(std::string& text) {
     CloseClipboard();
 
     return true;
-#endif
-#if !defined(_WIN32) && !defined(__APPLE__)
+
+#elifdef USE_X11
     Window owner;
     Atom selection;
 
@@ -389,9 +389,7 @@ void SDLApp::setClipboardText(const std::string& text) {
 
     CloseClipboard();
 
-#endif
-#if !defined(_WIN32) && !defined(__APPLE__)
-
+#elifdef USE_X11
     wininfo.info.x11.lock_func();
 
     XChangeProperty(wininfo.info.x11.display, DefaultRootWindow(wininfo.info.x11.display), XA_CUT_BUFFER0, XA_STRING, 8, PropModeReplace, (unsigned char*) text.c_str(), text.size());
@@ -558,7 +556,7 @@ void SDLApp::stop(int return_code) {
 
 int SDLApp::run() {
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#ifdef USE_X11
     SDLApp::initX11ClipboardEventFilter();
 #endif
 

@@ -113,7 +113,7 @@ public:
     SDLApp();
     virtual ~SDLApp() {};
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#ifdef USE_X11
     static void initX11ClipboardEventFilter();
     static int X11ClipboardEventFilter(const SDL_Event *event);
 #endif
