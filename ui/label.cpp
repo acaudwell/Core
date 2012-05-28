@@ -4,7 +4,7 @@
 
 //UILabel
 
-UILabel::UILabel(const std::string& text, bool editable, float width) : text(text), width(width), UIElement() {
+UILabel::UILabel(const std::string& text, bool editable, float width, UIAction* action) : text(text), width(width), action(action), UIElement() {
 
     slider       = 0;
     text_colour  = vec4(0.0f);
@@ -175,6 +175,10 @@ void UILabel::setTextColour(const vec4& text_colour) {
     this->text_colour = text_colour;
 }
 
+void UILabel::idle() {
+    if(action != 0) action->idle();
+}
+
 void UILabel::drawContent() {
 
     drawBackground();
@@ -232,7 +236,7 @@ void UILabel::drawContent() {
 
 //UIIntLabel
 
-UIIntLabel::UIIntLabel(int* value, bool editable) : value(value), UILabel("", editable) {
+UIIntLabel::UIIntLabel(int* value, bool editable, UIAction* action) : value(value), UILabel("", editable, -1.0f, action) {
     width = 80.0f;
     edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 }
@@ -267,13 +271,13 @@ void UIIntLabel::updateContent() {
 
 //UIFloatLabel
 
-UIFloatLabel::UIFloatLabel(UIFloatSlider* slider, bool editable) : value(slider->value), UILabel("", editable) {
+UIFloatLabel::UIFloatLabel(UIFloatSlider* slider, bool editable, UIAction* action) : value(slider->value),  UILabel("", editable, -1.0f, action) {
     this->slider = slider;
     width = 80.0f;
     edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
-UIFloatLabel::UIFloatLabel(float* value, bool editable) : value(value), UILabel("", editable) {
+UIFloatLabel::UIFloatLabel(float* value, bool editable, UIAction* action) : value(value), UILabel("", editable, -1.0f, action) {
     width = 80.0f;
     edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 }
@@ -297,6 +301,7 @@ bool UIFloatLabel::submit() {
         ((UIFloatSlider*)slider)->setValue(v);
     } else {
         *value = v;
+        if(action != 0) action->perform();
     }
 
     return true;

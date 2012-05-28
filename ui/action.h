@@ -6,6 +6,7 @@ public:
     UIAction() {};
 
     virtual void perform() {};
+    virtual void idle() {};
 };
 
 #endif

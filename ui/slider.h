@@ -10,15 +10,18 @@ protected:
     TextureResource* slidertex;
     float slider_width;
     bool background;
+    UIAction* action;
 
     void drawSlider(float position);
 public:
-    UISlider(const std::string& slider_texure, float width);
+    UISlider(const std::string& slider_texure, float width, UIAction* action = 0);
 
     bool keyPress(SDL_KeyboardEvent *e, char c);
 
     virtual void scroll(bool up) {};
     virtual void scale(bool up) {};
+
+    void idle();
 
     int getType() { return UI_SLIDER; };
 };
@@ -29,7 +32,7 @@ public:
     float min;
     float max;
 
-    UIFloatSlider(float* value, float min, float max);
+    UIFloatSlider(float* value, float min, float max, UIAction* action = 0);
 
     void scale(bool up);
     void scroll(bool up);
@@ -49,7 +52,7 @@ public:
     int min;
     int max;
 
-    UIIntSlider(int* value, int min, int max);
+    UIIntSlider(int* value, int min, int max, UIAction* action = 0);
 
     void scroll(bool up);
     void click(const vec2& pos);
@@ -64,7 +67,7 @@ class UILabelFloatSlider : public UILayout {
     UIFloatSlider* slider;
     UIFloatLabel*  flabel;
 public:
-    UILabelFloatSlider(const std::string& label, float* value, float min, float max);
+    UILabelFloatSlider(const std::string& label, float* value, float min, float max, UIAction* action = 0);
 
     void setFloat(float* f);
 
@@ -76,7 +79,7 @@ class UILabelIntSlider : public UILayout {
 
     UIIntSlider* slider;
 public:
-    UILabelIntSlider(const std::string& label, int* value, int min, int max);
+    UILabelIntSlider(const std::string& label, int* value, int min, int max, UIAction* action = 0);
 
     void scale(bool up);
     void scroll(bool up);

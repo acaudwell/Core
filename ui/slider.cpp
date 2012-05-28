@@ -2,7 +2,7 @@
 
 //UISlider
 
-UISlider::UISlider(const std::string& slider_texture, float width) : slider_width(width), UIElement() {
+UISlider::UISlider(const std::string& slider_texture, float width, UIAction* action) : slider_width(width), action(action), UIElement() {
     slidertex  = texturemanager.grab(slider_texture);
     rect       = vec2(slider_width, 16.0f);
     background = true;
@@ -80,10 +80,15 @@ bool UISlider::keyPress(SDL_KeyboardEvent *e, char c) {
     return false;
 }
 
+void UISlider::idle() {
+    if(action != 0) action->idle();
+}
+
+
 //UIFloatSlider
 
-UIFloatSlider::UIFloatSlider(float* value, float min, float max) :
-    min(min), max(max),  value(value), UISlider("ui/slider.png", 128.0f) {
+UIFloatSlider::UIFloatSlider(float* value, float min, float max, UIAction* action) :
+    min(min), max(max),  value(value), UISlider("ui/slider.png", 128.0f, action) {
 }
 
 void UIFloatSlider::scroll(bool up) {
@@ -139,6 +144,7 @@ void UIFloatSlider::setValue(float v) {
     if(!value) return;
 
     *value = std::max(std::min(max,v), min);
+    if(action != 0) action->perform();
 }
 
 void UIFloatSlider::drawContent() {
@@ -150,8 +156,8 @@ void UIFloatSlider::drawContent() {
 
 //UIIntSlider
 
-UIIntSlider::UIIntSlider(int* value, int min, int max) :
-    min(min), max(max),  value(value), UISlider("ui/slider.png", 128.0f) {
+UIIntSlider::UIIntSlider(int* value, int min, int max, UIAction* action) :
+    min(min), max(max),  value(value), UISlider("ui/slider.png", 128.0f, action) {
 }
 
 void UIIntSlider::scroll(bool up) {
@@ -176,6 +182,7 @@ void UIIntSlider::drag(const vec2& pos) {
 
 void UIIntSlider::setValue(int v) {
     *value = std::max(std::min(max,v), min);
+    if(action != 0) action->perform();
 }
 
 void UIIntSlider::drawContent() {
@@ -187,11 +194,11 @@ void UIIntSlider::drawContent() {
 
 // UILabelFloatSlider
 
-UILabelFloatSlider::UILabelFloatSlider(const std::string& label, float* value, float min, float max) : UILayout(true) {
+UILabelFloatSlider::UILabelFloatSlider(const std::string& label, float* value, float min, float max, UIAction* action) : UILayout(true) {
 
-    slider = new UIFloatSlider(value, min, max);
+    slider = new UIFloatSlider(value, min, max, action);
 
-    flabel = new UIFloatLabel(value, true);
+    flabel = new UIFloatLabel(value, true, action);
     flabel->slider = slider;
 
     addElement(new UILabel(label, false, 120.0f));
@@ -218,11 +225,11 @@ void UILabelFloatSlider::scale(bool up) {
 
 // UILabelIntSlider
 
-UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min, int max) : UILayout(true) {
+UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min, int max, UIAction* action) : UILayout(true) {
 
-    slider = new UIIntSlider(value, min, max);
+    slider = new UIIntSlider(value, min, max, action);
 
-    UIIntLabel*  ilabel = new UIIntLabel(value, true);
+    UIIntLabel*  ilabel = new UIIntLabel(value, true, action);
 
     ilabel->slider = slider;
 

@@ -2,6 +2,7 @@
 #define UI_LABEL_H
 
 #include "element.h"
+#include "action.h"
 
 class UISlider;
 class UIFloatSlider;
@@ -14,6 +15,7 @@ protected:
 
     bool text_changed;
 
+    UIAction* action;
 
     void drawBackground();
 public:
@@ -26,7 +28,7 @@ public:
     std::string text;
     std::string display_text;
 
-    UILabel(const std::string& text, bool editable = false, float width = -1.0f);
+    UILabel(const std::string& text, bool editable = false, float width = -1.0f, UIAction* action = 0);
 
     float width;
 
@@ -51,12 +53,14 @@ public:
     void updateRect();
 
     void drawContent();
+
+    void idle();
 };
 
 class UIIntLabel : public UILabel {
     int* value;
 public:
-    UIIntLabel(int* value, bool editable);
+    UIIntLabel(int* value, bool editable, UIAction* action = 0);
 
     bool keyPress(SDL_KeyboardEvent *e, char c);
     bool submit();
@@ -68,8 +72,8 @@ class UIFloatLabel : public UILabel {
 protected:
     float* value;
 public:
-    UIFloatLabel(float* value, bool editable);
-    UIFloatLabel(UIFloatSlider* slider, bool editable);
+    UIFloatLabel(float* value, bool editable, UIAction* action = 0);
+    UIFloatLabel(UIFloatSlider* slider, bool editable, UIAction* action = 0);
 
     void setValue(float* value);
 
