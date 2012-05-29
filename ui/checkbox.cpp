@@ -2,7 +2,8 @@
 
 //UICheckbox
 
-UICheckbox::UICheckbox() : UIElement() {
+UICheckbox::UICheckbox(UIAction* action)
+    : action(action), UIElement() {
     checktex = texturemanager.grab("ui/checkbox.png");
     rect = vec2(16, 16.0f);
 }
@@ -20,13 +21,19 @@ void UICheckbox::drawContent() {
     }
 }
 
+void UICheckbox::idle() {
+    if(action != 0) action->idle();
+}
+
 //UIBoolCheckbox
 
-UIBoolCheckbox::UIBoolCheckbox(bool *value) : value(value), UICheckbox() {
+UIBoolCheckbox::UIBoolCheckbox(bool *value, UIAction* action)
+    : value(value), UICheckbox(action) {
 }
 
 void UIBoolCheckbox::click(const vec2& pos) {
     *value = !(*value);
+    if(action != 0) action->perform();
 }
 
 bool UIBoolCheckbox::isChecked() {
@@ -35,7 +42,8 @@ bool UIBoolCheckbox::isChecked() {
 
 //UIFloatCheckbox
 
-UIFloatCheckbox::UIFloatCheckbox(float *value) : value(value), UICheckbox() {
+UIFloatCheckbox::UIFloatCheckbox(float *value, UIAction* action)
+    : value(value), UICheckbox(action) {
 }
 
 void UIFloatCheckbox::click(const vec2& pos) {
@@ -46,32 +54,36 @@ bool UIFloatCheckbox::isChecked() {
     return *value == 1.0f;
 }
 
-//UILabelCheckbox
+//UILabelBoolCheckbox
 
-UILabelBoolCheckbox::UILabelBoolCheckbox(const std::string& label, bool* value) : UILayout(true) {
+UILabelBoolCheckbox::UILabelBoolCheckbox(const std::string& label, bool* value, UIAction* action) : UILayout(true) {
 
     addElement(new UILabel(label, false, 120.0f));
-    addElement(new UIBoolCheckbox(value));
+    addElement(new UIBoolCheckbox(value, action));
 
     padding = vec2(2.0f);
 }
 
-UILabelBoolCheckboxSet::UILabelBoolCheckboxSet(const std::string& label, bool* value1, bool* value2, bool* value3) : UILayout(true) {
+//UILabelBoolCheckboxSet
+
+UILabelBoolCheckboxSet::UILabelBoolCheckboxSet(const std::string& label, bool* value1, bool* value2, bool* value3, UIAction* action) : UILayout(true) {
 
     addElement(new UILabel(label, false, 120.0f));
-    addElement(new UIBoolCheckbox(value1));
-    addElement(new UIBoolCheckbox(value2));
-    addElement(new UIBoolCheckbox(value3));
+    addElement(new UIBoolCheckbox(value1, action));
+    addElement(new UIBoolCheckbox(value2, action));
+    addElement(new UIBoolCheckbox(value3, action));
 
     padding = vec2(2.0f);
 }
 
-UILabelFloatCheckboxSet::UILabelFloatCheckboxSet(const std::string& label, float* value1, float* value2, float* value3) : UILayout(true) {
+//UILabelFloatCheckboxSet
+
+UILabelFloatCheckboxSet::UILabelFloatCheckboxSet(const std::string& label, float* value1, float* value2, float* value3, UIAction* action) : UILayout(true) {
 
     addElement(new UILabel(label, false, 120.0f));
-    addElement(new UIFloatCheckbox(value1));
-    addElement(new UIFloatCheckbox(value2));
-    addElement(new UIFloatCheckbox(value3));
+    addElement(new UIFloatCheckbox(value1, action));
+    addElement(new UIFloatCheckbox(value2, action));
+    addElement(new UIFloatCheckbox(value3, action));
 
     padding = vec2(2.0f);
 }

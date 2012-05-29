@@ -8,22 +8,23 @@
 class UICheckbox : public UIElement {
 protected:
     TextureResource* checktex;
-
+    UIAction* action;
 public:
-    UICheckbox();
+    UICheckbox(UIAction* action = 0);
 
     int getType() { return UI_CHECKBOX; };
 
     virtual void click(const vec2& pos) {};
     virtual bool isChecked() { return false; };
     void drawContent();
+    void idle();
 };
 
 class UIBoolCheckbox : public UICheckbox {
 protected:
     bool* value;
 public:
-    UIBoolCheckbox(bool* value);
+    UIBoolCheckbox(bool* value, UIAction* action = 0);
 
     void click(const vec2& pos);
     bool isChecked();
@@ -33,29 +34,29 @@ class UIFloatCheckbox : public UICheckbox {
 protected:
     float* value;
 public:
-    UIFloatCheckbox(float* value);
+    UIFloatCheckbox(float* value, UIAction* action = 0);
 
     void click(const vec2& pos);
-    
+
     bool isChecked();
 };
 
 class UILabelBoolCheckbox : public UILayout {
 
 public:
-    UILabelBoolCheckbox(const std::string& label, bool* value);
+    UILabelBoolCheckbox(const std::string& label, bool* value,UIAction* action = 0);
 };
 
 class UILabelBoolCheckboxSet : public UILayout {
 
 public:
-    UILabelBoolCheckboxSet(const std::string& label, bool* value1, bool* value2, bool* value3);
+    UILabelBoolCheckboxSet(const std::string& label, bool* value1, bool* value2, bool* value3, UIAction* action = 0);
 };
 
 class UILabelFloatCheckboxSet : public UILayout {
 
 public:
-    UILabelFloatCheckboxSet(const std::string& label, float* value1, float* value2, float* value3);
+    UILabelFloatCheckboxSet(const std::string& label, float* value1, float* value2, float* value3, UIAction* action = 0);
 };
 
 #endif
