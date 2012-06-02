@@ -132,17 +132,13 @@ void quadbuf::add(GLuint textureid, const quadbuf_vertex& v1, const quadbuf_vert
 void quadbuf::update() {
     if(vertex_count==0) return;
 
-    buf.bind();
-
     //recreate buffer if less than the vertex_count
     buf.buffer( vertex_count, sizeof(quadbuf_vertex), vertex_capacity, &(data[0].pos.x), GL_DYNAMIC_DRAW );
-    
-    buf.unbind();
 }
 
 void quadbuf::draw() {
     if(vertex_count==0) return;
-   
+
     buf.bind();
 
     glEnableClientState(GL_VERTEX_ARRAY);

@@ -36,6 +36,58 @@
 #include "vectors.h"
 #include "logger.h"
 
+class VBO {
+public:
+    GLuint id;
+    GLenum buffer_type;
+
+    int capacity;
+
+    VBO(GLenum buffer_type = GL_ARRAY_BUFFER) : buffer_type(buffer_type) {
+        capacity = 0;
+        id       = 0;
+    }
+
+    ~VBO() {
+        unload();
+    }
+
+    void init() {
+        if(!id) glGenBuffers(1, &id);
+    }
+
+    void unload() {
+        capacity = 0;
+        if(id != 0) {
+            glDeleteBuffers(1, &id);
+            id = 0;
+        }
+    }
+
+    void bind() {
+        if(!id) init();
+        glBindBuffer(buffer_type, id);
+    }
+
+    void buffer(int item_count, int item_size, int item_capacity, GLvoid* data, GLenum usage) {
+
+        bind();
+
+        if(capacity < item_count) {
+            capacity = item_capacity;
+            glBufferData(buffer_type, capacity * item_size, data, usage);
+        } else {
+            glBufferSubData(buffer_type, 0, item_count * item_size, data);
+        }
+
+        unbind();
+    }
+
+    void unbind() {
+        glBindBuffer(buffer_type, 0);
+    }
+};
+
 //note this should be 32 bytes (8x4 bytes)
 class quadbuf_vertex {
 public:
@@ -56,51 +108,6 @@ public:
     GLuint textureid;
 };
 
-class quadbuf_buffer {
-public:
-    GLuint id;
-    int capacity;
-
-    quadbuf_buffer() {
-        id = 0;
-        capacity = 0;
-    }
-    ~quadbuf_buffer() {
-        unload();
-    }
-
-    void init() {
-        if(!id) glGenBuffers(1, &id);
-    }
-
-    void unload() {
-        capacity = 0;
-        if(id != 0) {
-            glDeleteBuffers(1, &id);
-            id = 0;
-        }
-    }
-    
-    void bind() {
-        if(!id) init();
-        glBindBuffer(GL_ARRAY_BUFFER, id);
-    }
-    
-    void buffer(int item_count, int item_size, int item_capacity, GLvoid* data, GLenum usage) {
-
-        if(capacity < item_count) {
-            capacity = item_capacity;
-            glBufferData(GL_ARRAY_BUFFER, capacity * item_size, data, usage);
-        } else {
-            glBufferSubData(GL_ARRAY_BUFFER, 0, item_count * item_size, data);
-        }
-    }
-    
-    void unbind() {
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-    }   
-};
-
 class quadbuf {
 
     quadbuf_vertex* data;
@@ -108,7 +115,7 @@ class quadbuf {
 
     std::vector<quadbuf_tex> textures;
 
-    quadbuf_buffer buf;
+    VBO buf;
 
     int vertex_count;
 
