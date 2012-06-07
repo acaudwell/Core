@@ -48,6 +48,7 @@ UIFloatCheckbox::UIFloatCheckbox(float *value, UIAction* action)
 
 void UIFloatCheckbox::click(const vec2& pos) {
     *value = isChecked() ? 0.0f : 1.0f;
+    if(action != 0) action->perform();
 }
 
 bool UIFloatCheckbox::isChecked() {
