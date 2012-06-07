@@ -9,7 +9,7 @@ UISelect::UISelect() : UISolidLayout(true) {
     options_layout->setMargin(2.0f);
     options_layout->parent = this;
 
-    setMargin(vec4(2.0f,2.0f,2.0f,2.0f));
+    setMargin(vec4(3.0f));
     selected_option = 0;
 
     open = false;
@@ -51,7 +51,7 @@ void UISelect::addOption(const std::string& name, const std::string& value, bool
     options_layout->addElement(option);
 
     if(select_option) selectOption(option);
-    
+
     // if we have no selected option select option but dont submit
     if(!selected_option) selectOption(option, false);
 }
@@ -62,7 +62,7 @@ void UISelect::addOption(const std::string& name, UIAction* action, bool select_
     options_layout->addElement(option);
 
     if(select_option) selectOption(option);
-    
+
     // if we have no selected option select option but dont submit
     if(!selected_option) selectOption(option, false);
 }
@@ -79,9 +79,9 @@ UIElement* UISelect::elementAt(const vec2& pos) {
 }
 
 void UISelect::updatePos(const vec2& pos) {
-   
+
     vec2 adjusted_pos = pos;
-       
+
     if(open && parent && adjusted_pos.y + options_layout->getRect().y > parent->getRect().y) {
         adjusted_pos.y -= options_layout->getRect().y - this->getRect().y;
     }
