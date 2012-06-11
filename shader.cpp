@@ -859,7 +859,7 @@ void ShaderPart::preprocess() {
 
     while( std::getline(in,line) ) {
         if(Shader_ifdef.match(line, &matches)) {
-            if(matches[0] == "ifdef" && !isDefined(matches[1]) || matches[0] == "ifndef" && isDefined(matches[1])) {
+            if( (matches[0] == "ifdef" && !isDefined(matches[1])) || (matches[0] == "ifndef" && isDefined(matches[1])) ) {
                 skipdef = true;
             }
             continue;
