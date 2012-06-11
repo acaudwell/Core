@@ -47,7 +47,7 @@ Regex Shader_error_line("\\b\\d*\\((\\d+)\\) : error ");
 Regex Shader_error2_line("\\bERROR: \\d+:(\\d+):");
 Regex Shader_warning_line("\\b\\d*\\((\\d+)\\) : warning ");
 
-Regex Shader_ifdef("\\s*#ifdef\\s*([A-Z0-9_]+)\\s*$");
+Regex Shader_ifdef("\\s*#(ifn?def)\\s*([A-Z0-9_]+)\\s*$");
 Regex Shader_endif("\\s*#endif\\s*$");
 
 Shader* ShaderManager::grab(const std::string& shader_prefix) {
@@ -859,7 +859,7 @@ void ShaderPart::preprocess() {
 
     while( std::getline(in,line) ) {
         if(Shader_ifdef.match(line, &matches)) {
-            if(!isDefined(matches[0])) {
+            if(matches[0] == "ifdef" && !isDefined(matches[1]) || matches[0] == "ifndef" && isDefined(matches[1])) {
                 skipdef = true;
             }
             continue;
