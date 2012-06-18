@@ -147,7 +147,9 @@ public:
 
     float getWidth(const std::string& text);
 
-    float getMaxWidth() const;
+    float getAscender() const;
+
+    float getMaxWidth()  const;
     float getMaxHeight() const;
 
     int getSize() const { return size; };
@@ -186,6 +188,8 @@ public:
 
     float getWidth(const std::string& text) const;
 
+    float getAscender() const;
+    
     void alignTop(bool top);
     void alignRight(bool right);
 

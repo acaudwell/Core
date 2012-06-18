@@ -317,6 +317,10 @@ float FXGlyphSet::getWidth(const std::string& text) {
     return width;
 }
 
+float FXGlyphSet::getAscender() const {
+    return getFTFace()->ascender / 64.0f;
+}
+
 void FXGlyphSet::drawToVBO(vec2& cursor, const std::string& text, const vec4& colour) {
     FTUnicodeStringItr<unsigned char> unicode_text((const unsigned char*)text.c_str());
 
@@ -464,6 +468,10 @@ int FXFont::getFontSize() const {
 
 float FXFont::getWidth(const std::string& text) const {
     return glyphset->getWidth(text);
+}
+
+float FXFont::getAscender() const {
+    return glyphset->getAscender();
 }
 
 void FXFont::render(float x, float y, const std::string& text, const vec4& colour) const{
