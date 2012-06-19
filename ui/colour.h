@@ -40,6 +40,7 @@ public:
     UILabelColour(const std::string& label);
     UILabelColour(const std::string& label, vec3* value);
     UILabelColour(const std::string& label, vec3* a, vec3* b, vec3* c);
+    UILabelColour(const std::string& label, vec3* a, vec3* b, vec3* c, vec3* d, vec3* e, vec3* f);
 
     void setColour(vec3* value);
 

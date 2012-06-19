@@ -155,6 +155,20 @@ UILabelColour::UILabelColour(const std::string& label, vec3* a, vec3* b, vec3* c
     padding = vec2(5.0f);
 }
 
+UILabelColour::UILabelColour(const std::string& label, vec3* a, vec3* b, vec3* c, vec3* d, vec3* e, vec3* f) : UILayout(true) {
+
+    ui_colour = 0;
+
+    addElement(new UILabel(label, false, 120.0f));
+    addElement(new UIColour(a));
+    addElement(new UIColour(b));
+    addElement(new UIColour(c));
+    addElement(new UIColour(d));
+    addElement(new UIColour(e));
+    addElement(new UIColour(f));
+    padding = vec2(5.0f);
+}
+
 void UILabelColour::setColour(vec3* value) {
     if(ui_colour) {
         ui_colour->setColour(value);
