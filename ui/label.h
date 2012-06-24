@@ -2,11 +2,13 @@
 #define UI_LABEL_H
 
 #include "element.h"
+#include "layout.h"
 #include "action.h"
 
 class UISlider;
 class UIFloatSlider;
 class UIColourSlider;
+class UILayout;
 
 class UILabel : public UIElement {
 protected:
@@ -16,6 +18,8 @@ protected:
     bool text_changed;
 
     UIAction* action;
+
+    std::string* value;
 
     void drawBackground();
 public:
@@ -28,7 +32,7 @@ public:
     std::string text;
     std::string display_text;
 
-    UILabel(const std::string& text, bool editable = false, float width = -1.0f, UIAction* action = 0);
+    UILabel(const std::string& text, bool editable = false, float width = -1.0f, UIAction* action = 0, std::string* value = 0);
 
     float width;
 
@@ -37,7 +41,10 @@ public:
     int getType() { return UI_LABEL; }
 
     virtual void tab();
+
     virtual void backspace();
+
+    bool submit();
 
     void setWidth(float width);
     void setText(const std::string& text);
@@ -92,6 +99,11 @@ public:
     bool submit();
 
     void updateContent();
+};
+
+class UILabelString : public UILayout {
+public:
+    UILabelString(const std::string& label, std::string* value, bool editable = false, UIAction* action = 0);
 };
 
 #endif

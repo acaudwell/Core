@@ -4,7 +4,7 @@
 
 //UILabel
 
-UILabel::UILabel(const std::string& text, bool editable, float width, UIAction* action) : text(text), width(width), action(action), UIElement() {
+UILabel::UILabel(const std::string& text, bool editable, float width, UIAction* action, std::string* value) : text(text), value(value), width(width), action(action), UIElement() {
 
     slider       = 0;
     text_colour  = vec4(0.0f);
@@ -58,6 +58,14 @@ void UILabel::backspace() {
 }
 
 void UILabel::tab() {
+}
+
+bool UILabel::submit() {
+    if(value != 0) {
+        *value = text;
+        return true;
+    }
+    return false;
 }
 
 bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
@@ -127,6 +135,13 @@ bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
 }
 
 void UILabel::update(float dt) {
+
+    if(editable && !selected && value != 0) {
+        if(*value != text) {
+            text = *value;
+            text_changed = true;
+        }
+    }
 
     if(selected && editable) {
         cursor_anim += dt;
@@ -232,6 +247,17 @@ void UILabel::drawContent() {
 
     //NOTE: this is the wrong place for this, but it gets the desired result...
 //    expanded = 0.0f;
+}
+
+//
+
+UILabelString::UILabelString(const std::string& label, std::string* value, bool editable, UIAction* action) : UILayout(true) {
+
+    addElement(new UILabel(label, false, 120.0f));
+    addElement(new UILabel(*value, editable, 213.0f, 0, value));
+
+    padding = vec2(5.0f, 0.0f);
+    scrollable = true;
 }
 
 //UIIntLabel
