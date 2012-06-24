@@ -19,7 +19,6 @@ void UIButton::click(const vec2& pos) {
 
     inverted=true;
     button_anim = 0.25f;
-    label->setMargin(vec4(3.0f, 4.0f, 3.0f, 1.0f));
 }
 
 void UIButton::update(float dt) {
@@ -28,9 +27,6 @@ void UIButton::update(float dt) {
 
     if(button_anim > 0.0f) {
         button_anim -=dt;
-        if(button_anim <= 0.0f) {
-            label->setMargin(3.0f);
-            inverted=false;
-        }
+        if(button_anim <= 0.0f) inverted=false;
     }
 }
