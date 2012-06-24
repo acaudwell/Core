@@ -2,7 +2,6 @@
 #define UI_LAYOUT_H
 
 #include "element.h"
-#include "label.h"
 
 enum {
     UI_LAYOUT_ALIGN_NONE,

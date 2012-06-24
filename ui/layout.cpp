@@ -1,4 +1,5 @@
 #include "layout.h"
+#include "label.h"
 
 UILayout::UILayout(bool horizontal) : horizontal(horizontal), UIElement() {
     alignment = UI_LAYOUT_ALIGN_NONE;
