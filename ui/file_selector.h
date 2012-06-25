@@ -38,7 +38,7 @@ public:
 
     void prettyDirectory(std::string& dir_string);
 
-    void addFilter(const std::string& name, const std::string& extension);
+    void addFilter(const std::string& name, const std::string& extension, bool select = false);
 
     bool changeDir(const boost::filesystem::path& dir);
     void updateListing();
@@ -48,7 +48,7 @@ public:
     void confirm();
 
     const boost::filesystem::path& getCurrentDir() const;
-    
+
     std::string autocomplete(const std::string& input, bool dirs_only = false);
 
     void toggle();

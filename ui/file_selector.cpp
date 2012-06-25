@@ -1,11 +1,12 @@
 #include "file_selector.h"
+#include <boost/algorithm/string.hpp>
 
 UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir, UIFileSelectorAction* action)
     : action(action), UIGroup(title, false, true) {
 
     minimizable = false;
 
-    listing = new UIScrollLayout(vec2(420.0f, 100.0f));
+    listing = new UIScrollLayout(vec2(500.0f, 150.0f));
     listing->setDrawBackground(true);
     listing->bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.25f);
     listing->setFill(true);
@@ -46,8 +47,9 @@ bool _listing_sort (const boost::filesystem::path& a,const boost::filesystem::pa
     return boost::ilexicographical_compare(a.filename().string(), b.filename().string());
 }
 
-void UIFileSelector::addFilter(const std::string& name, const std::string& extension) {
-    filter_select->addOption(name, extension);
+void UIFileSelector::addFilter(const std::string& name, const std::string& extension, bool select) {
+    UIOptionLabel* option = filter_select->addOption(name, extension);
+    if(select) filter_select->selectOption(option, false);
 }
 
 //standardize directory string appearance
@@ -67,8 +69,8 @@ bool UIFileSelector::changeDir(const boost::filesystem::path& dir) {
 
     if(!is_directory(dir)) return false;
 
-    next_dir = dir.string();   
-    
+    next_dir = dir.string();
+
     return true;
 }
 
@@ -124,7 +126,7 @@ void UIFileSelector::confirm() {
 }
 
 void UIFileSelector::updateListing() {
-    
+
     if(!next_dir.empty()) {
         prettyDirectory(next_dir);
 
@@ -134,7 +136,7 @@ void UIFileSelector::updateListing() {
 
         next_dir.resize(0);
     }
-    
+
     if(dir_path->text.empty()) return;
 
     boost::filesystem::path p(dir_path->text);
@@ -144,8 +146,10 @@ void UIFileSelector::updateListing() {
     std::vector<boost::filesystem::path> dir_listing;
 
     try {
+
         copy(boost::filesystem::directory_iterator(p), boost::filesystem::directory_iterator(), back_inserter(dir_listing));
         std::sort(dir_listing.begin(), dir_listing.end(), _listing_sort);
+
     } catch(const boost::filesystem::filesystem_error& exception) {
 
         //switch to previous directory if there is one
@@ -182,6 +186,8 @@ void UIFileSelector::updateListing() {
 #else
         if(filename[0] == '.') continue;
 #endif
+
+        boost::algorithm::to_lower(filename);
 
         if(current_filter != 0 && !current_filter->value.empty() && !is_directory(l)) {
             size_t at = filename.rfind(current_filter->value);
