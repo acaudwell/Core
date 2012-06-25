@@ -51,8 +51,8 @@ public:
 
     UIOptionLabel* getSelectedOption();
 
-    void addOption(const std::string& name, const std::string& value, bool select_option = false);
-    void addOption(const std::string& name, UIAction* action, bool select_option = false);
+    UIOptionLabel* addOption(const std::string& name, const std::string& value, bool select_option = false);
+    UIOptionLabel* addOption(const std::string& name, UIAction* action, bool select_option = false);
 
     void click(const vec2& pos);
 

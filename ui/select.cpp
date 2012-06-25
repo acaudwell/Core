@@ -45,7 +45,7 @@ void UISelect::selectOption(UIOptionLabel* option, bool submit) {
     open = false;
 }
 
-void UISelect::addOption(const std::string& name, const std::string& value, bool select_option) {
+UIOptionLabel* UISelect::addOption(const std::string& name, const std::string& value, bool select_option) {
     UIOptionLabel* option = new UIOptionLabel(this, name, value);
 
     options_layout->addElement(option);
@@ -54,9 +54,11 @@ void UISelect::addOption(const std::string& name, const std::string& value, bool
 
     // if we have no selected option select option but dont submit
     if(!selected_option) selectOption(option, false);
+
+    return option;
 }
 
-void UISelect::addOption(const std::string& name, UIAction* action, bool select_option) {
+UIOptionLabel* UISelect::addOption(const std::string& name, UIAction* action, bool select_option) {
     UIOptionLabel* option = new UIOptionLabel(this, name, action);
 
     options_layout->addElement(option);
@@ -65,6 +67,8 @@ void UISelect::addOption(const std::string& name, UIAction* action, bool select_
 
     // if we have no selected option select option but dont submit
     if(!selected_option) selectOption(option, false);
+
+    return option;
 }
 
 UIElement* UISelect::elementAt(const vec2& pos) {
