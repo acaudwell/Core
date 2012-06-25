@@ -27,6 +27,7 @@ class UIFileSelector : public UIGroup {
     boost::filesystem::path selected_path;
     boost::filesystem::path current_dir;
 
+    std::string next_dir;
     UIOptionLabel* current_filter;
 
     UIFileSelectorAction* action;

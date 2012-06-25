@@ -32,7 +32,7 @@ UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir,
 
     addFilter("All Files (*.*)", "");
 
-    current_filter = filter_select->getSelectedOption();
+    current_filter = 0;
 
     changeDir(initial_dir);
 }
@@ -67,16 +67,8 @@ bool UIFileSelector::changeDir(const boost::filesystem::path& dir) {
 
     if(!is_directory(dir)) return false;
 
-    std::string dir_string = dir.string();
-
-    prettyDirectory(dir_string);
-
-    previous_dir = dir_path->text;
-
-    dir_path->setText(dir_string);
-
-    updateListing();
-
+    next_dir = dir.string();   
+    
     return true;
 }
 
@@ -84,7 +76,7 @@ void UIFileSelector::update(float dt) {
 
     UIOptionLabel* selected_filter = filter_select->getSelectedOption();
 
-    if(current_filter != selected_filter) {
+    if(current_filter != selected_filter || !next_dir.empty()) {
         current_filter = selected_filter;
         updateListing();
     }
@@ -132,7 +124,17 @@ void UIFileSelector::confirm() {
 }
 
 void UIFileSelector::updateListing() {
+    
+    if(!next_dir.empty()) {
+        prettyDirectory(next_dir);
 
+        previous_dir = dir_path->text;
+
+        dir_path->setText(next_dir);
+
+        next_dir.resize(0);
+    }
+    
     if(dir_path->text.empty()) return;
 
     boost::filesystem::path p(dir_path->text);
@@ -157,6 +159,7 @@ void UIFileSelector::updateListing() {
 
     current_dir = p;
 
+    listing->setUI(ui);
     listing->clear();
 
     //add .. if there is a parent directory
