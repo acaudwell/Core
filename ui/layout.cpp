@@ -21,10 +21,6 @@ void UILayout::setDrawBackground(bool drawbg) {
 
 void UILayout::clear() {
     foreach(UIElement* e, elements) {
-        if(e->selected && ui) {
-            ui->deselect();
-        }
-
         delete e;
     }
     elements.clear();

@@ -42,7 +42,7 @@ public:
 
     virtual void setUI(UI* ui) { this->ui = ui; };
 
-    virtual ~UIElement() {};
+    virtual ~UIElement() { if(ui && selected) ui->deselect(); };
 
     virtual void drawOutline();
 
