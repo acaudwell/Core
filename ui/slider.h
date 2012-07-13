@@ -34,7 +34,7 @@ public:
 
     UIFloatSlider(float* value, float min, float max, UIAction* action = 0);
 
-    void scale(bool up);
+    void scale(bool up, float value_scale = 0.25f);
     void scroll(bool up);
     void click(const vec2& pos);
     void drag(const vec2& pos);
@@ -72,6 +72,7 @@ public:
     void setFloat(float* f);
 
     void scale(bool up);
+    void scale(bool up, float value_scale);
     void scroll(bool up);
 };
 

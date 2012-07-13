@@ -102,11 +102,9 @@ void UIFloatSlider::scroll(bool up) {
     setValue(*value + UIElement::granulaity(value_inc, 0.1));
 }
 
-void UIFloatSlider::scale(bool up) {
+void UIFloatSlider::scale(bool up, float value_scale) {
 
     if(!value) return;
-
-    float value_scale = 0.25f;
 
     bool left_ctrl, left_shift;
     getModifiers(left_ctrl, left_shift);
@@ -221,6 +219,10 @@ void UILabelFloatSlider::scroll(bool up) {
 
 void UILabelFloatSlider::scale(bool up) {
     slider->scale(up);
+}
+
+void UILabelFloatSlider::scale(bool up, float value_scale) {
+    slider->scale(up, value_scale);
 }
 
 // UILabelIntSlider
