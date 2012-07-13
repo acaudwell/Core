@@ -301,6 +301,7 @@ public:
     void setSource(const std::string& source);
 
     void reload();
+    void reset();
 
     void define(const std::string& name);
     void define(const std::string& name, const char *value, ...);

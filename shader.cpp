@@ -796,6 +796,10 @@ void ShaderPart::reload() {
     loadSourceFile();
 }
 
+void ShaderPart::reset() {
+    processed_source.clear();
+}
+
 void ShaderPart::setSource(const std::string& source) {
     raw_source = source;
 }
