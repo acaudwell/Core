@@ -72,15 +72,15 @@ class SDLAppException : public std::exception {
 protected:
     std::string message;
     bool showhelp;
-   
+
 public:
     SDLAppException(const char* str, ...) : showhelp(false) {
 
         va_list vl;
-        char msg[4096];
+        char msg[65536];
 
         va_start(vl, str);
-            vsnprintf(msg, 4096, str, vl);
+            vsnprintf(msg, 65536, str, vl);
         va_end(vl);
 
         message = std::string(msg);
@@ -100,7 +100,7 @@ class SDLApp {
     int frame_count;
     int fps_updater;
     int return_code;
-   
+
     void updateFramerate();
 protected:
     int  min_delta_msec;
@@ -117,7 +117,7 @@ public:
     static void initX11ClipboardEventFilter();
     static int X11ClipboardEventFilter(const SDL_Event *event);
 #endif
-    
+
     int run();
 
     static bool getClipboardText(std::string& text);
