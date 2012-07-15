@@ -832,11 +832,20 @@ void ShaderPart::define(const std::string& name, const char *value, ...) {
     va_list vl;
     char sub[65536];
 
+    char* buffer = sub;
+
     va_start(vl, value);
-        vsnprintf(sub, 65536, value, vl);
+        int string_size = vsnprintf(sub, sizeof(sub), value, vl);
+
+        if(string_size > sizeof(sub)) {
+            buffer = new char[string_size];
+            string_size = vsnprintf(buffer, string_size, value, vl);
+        }
     va_end(vl);
 
-    defines[name] = sub;
+    defines[name] = buffer;
+
+    if(buffer != sub) delete[] buffer;
 }
 
 void ShaderPart::define(const std::string& name) {
