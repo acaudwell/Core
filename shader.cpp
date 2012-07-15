@@ -1003,6 +1003,15 @@ void ShaderPass::toString(std::string& out) {
     out.append(source);
 }
 
+
+const std::string& ShaderPass::getObjectSource() {
+    return shader_object_source;
+}
+
+bool ShaderPass::isEmpty() {
+    return source.empty();
+}
+
 void ShaderPass::compile() {
 
     if(!shader_object) shader_object = glCreateShader(shader_object_type);
@@ -1262,7 +1271,20 @@ void Shader::unload() {
     }
 }
 
+bool Shader::isEmpty() {
+
+    if(   (!vertex_shader   || vertex_shader->isEmpty())
+       && (!fragment_shader || fragment_shader->isEmpty())
+       && (!geometry_shader || geometry_shader->isEmpty())) {
+        return true;
+    }
+
+    return false;
+}
+
 void Shader::reload(bool force) {
+    if(isEmpty()) return;
+
     if(force && !prefix.empty()) {
         loadPrefix();
     } else {
@@ -1307,27 +1329,17 @@ void Shader::checkProgramError() {
 
     if(info_log_length > 1) {
         char info_log[info_log_length];
-
         glGetProgramInfoLog(program, info_log_length, &info_log_length, info_log);
 
         if(!link_success) {
-            throw SDLAppException("shader '%s' failed to link:\n%s",
-                                  resource_desc,
-                                  info_log);
+            errorLog("shader '%s' linking error:\n%s", resource_desc, info_log);
+        } else if(shadermanager.warnings) {
+            warnLog("shader '%s' warning:\n%s", resource_desc, info_log);
         }
-
-        if(shadermanager.warnings) {
-            warnLog("shader '%s':\n%s",
-                            resource_desc,
-                            info_log);
-        }
-
-        return;
     }
 
     if(!link_success) {
-        throw SDLAppException("shader '%s' failed to link",
-                              resource_desc);
+          throw SDLAppException("shader '%s' failed to link", resource_desc);
     }
 }
 
@@ -1424,11 +1436,20 @@ void Shader::addSubstitute(const std::string& name, const char *value, ...) {
     va_list vl;
     char sub[65536];
 
+    char* buffer = sub;
+
     va_start(vl, value);
-        vsnprintf(sub, 65536, value, vl);
+        int string_size = vsnprintf(sub, sizeof(sub), value, vl);
+
+        if(string_size > sizeof(sub)) {
+            buffer = new char[string_size];
+            string_size = vsnprintf(buffer, string_size, value, vl);
+        }
     va_end(vl);
 
-    substitutions[name] = sub;
+    substitutions[name] = buffer;
+
+    if(buffer != sub) delete[] buffer;
 }
 
 void Shader::substitute(std::string& source, const std::string& name, const std::string& value) {

@@ -36,6 +36,31 @@ std::map<int,std::string> log_levels = boost::assign::map_list_of
     (LOG_LEVEL_ERROR,    "  ERROR" )
     (LOG_LEVEL_INFINITY, "???????" );
 
+#define PARSE_AND_LOG(LOG_LEVEL) \
+    Logger* logger = Logger::getDefault(); \
+\
+if(!logger || logger->getLevel() > LOG_LEVEL) return; \
+\
+    char msgbuff[65536]; \
+    char* buffer = msgbuff; \
+\
+    va_list vl; \
+\
+    va_start(vl, str); \
+        int string_size = vsnprintf(buffer, sizeof(msgbuff), str, vl) + 1; \
+\
+        if(string_size > sizeof(msgbuff)) { \
+            buffer = new char[string_size]; \
+            string_size = vsnprintf(buffer, string_size, str, vl); \
+        } \
+    \
+    va_end(vl); \
+\
+\
+    logger->message( LOG_LEVEL, buffer ); \
+\
+    if(buffer != msgbuff) delete[] buffer;
+
 // LoggerMessage
 
 LoggerMessage::LoggerMessage(int level, const std::string& message)
@@ -90,105 +115,28 @@ void Logger::setHistoryCapacity(int hist_capacity) {
 }
 
 void warnLog(const char *str, ...) {
-
-    Logger* logger = Logger::getDefault();
-
-    if(!logger || logger->getLevel() > LOG_LEVEL_WARN) return;
-
-    char msgbuff[65536];
-
-    va_list vl;
-
-    va_start(vl, str);
-        vsnprintf(msgbuff, 65536, str, vl);
-    va_end(vl);
-
-    logger->message( LOG_LEVEL_WARN, msgbuff );
+    PARSE_AND_LOG(LOG_LEVEL_WARN);
 }
 
 void debugLog(const char *str, ...) {
-
-    Logger* logger = Logger::getDefault();
-
-    if(!logger || logger->getLevel() > LOG_LEVEL_DEBUG) return;
-
-    char msgbuff[65536];
-
-    va_list vl;
-
-    va_start(vl, str);
-        vsnprintf(msgbuff, 65536, str, vl);
-    va_end(vl);
-
-    logger->message( LOG_LEVEL_DEBUG, msgbuff );
+    PARSE_AND_LOG(LOG_LEVEL_DEBUG);
 }
 
 void infoLog(const char *str, ...) {
-
-    Logger* logger = Logger::getDefault();
-
-    if(!logger || logger->getLevel() > LOG_LEVEL_INFO) return;
-
-    char msgbuff[65536];
-
-    va_list vl;
-
-    va_start(vl, str);
-        vsnprintf(msgbuff, 65536, str, vl);
-    va_end(vl);
-
-    logger->message( LOG_LEVEL_INFO, msgbuff );
+    PARSE_AND_LOG(LOG_LEVEL_INFO);
 }
 
 void errorLog(const char *str, ...) {
-
-    Logger* logger = Logger::getDefault();
-
-    if(!logger || logger->getLevel() > LOG_LEVEL_ERROR) return;
-
-    char msgbuff[65536];
-
-    va_list vl;
-
-    va_start(vl, str);
-        vsnprintf(msgbuff, 65536, str, vl);
-    va_end(vl);
-
-    logger->message( LOG_LEVEL_ERROR, msgbuff );
+    PARSE_AND_LOG(LOG_LEVEL_ERROR)
 }
 
 void consoleLog(const char *str, ...) {
+    PARSE_AND_LOG(LOG_LEVEL_CONSOLE);
 
-    Logger* logger = Logger::getDefault();
-
-    if(!logger || logger->getLevel() > LOG_LEVEL_CONSOLE) return;
-
-    char msgbuff[65536];
-
-    va_list vl;
-
-    va_start(vl, str);
-        vsnprintf(msgbuff, 65536, str, vl);
-    va_end(vl);
-
-    logger->message( LOG_LEVEL_CONSOLE, msgbuff );
 }
 
 void scriptLog(const char *str, ...) {
-
-    Logger* logger = Logger::getDefault();
-
-    if(!logger || logger->getLevel() > LOG_LEVEL_SCRIPT) return;
-
-    char msgbuff[65536];
-
-    va_list vl;
-
-    va_start(vl, str);
-        vsnprintf(msgbuff, 65536, str, vl);
-    va_end(vl);
-
-    logger->message( LOG_LEVEL_SCRIPT, msgbuff );
+    PARSE_AND_LOG(LOG_LEVEL_SCRIPT);
 }
 
 Logger* Logger::default_logger = new Logger(LOG_LEVEL_ERROR, stderr, 0);

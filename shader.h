@@ -336,7 +336,10 @@ public:
 
     GLint getType() { return shader_object_type; };
 
+    bool isEmpty();
+
     void toString(std::string& out);
+    const std::string& getObjectSource();
 
     void unload();
     void compile();
@@ -397,6 +400,8 @@ public:
 
     void load();
     void reload(bool force = false);
+
+    bool isEmpty();
 
     void unload();
 
