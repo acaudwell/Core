@@ -36,7 +36,7 @@ public:
     bool elementsByType(std::list<UIElement*>& found, int type);
     void elementsAt(const vec2& pos, std::list<UIElement*>& elements_found);
 
-    int getType() { return UI_GROUP; };
+    int getType() const { return UI_GROUP; };
 
     UILayout* getLayout() { return layout; };
 

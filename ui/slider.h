@@ -23,7 +23,7 @@ public:
 
     void idle();
 
-    int getType() { return UI_SLIDER; };
+    int getType() const { return UI_SLIDER; };
 };
 
 class UIFloatSlider : public UISlider {

@@ -12,7 +12,7 @@ class UIButton : public UISolidLayout {
 public:
     UIButton(const std::string& name, UIAction* action);
 
-    int getType() { return UI_BUTTON; }
+    int getType() const { return UI_BUTTON; }
 
     void click(const vec2& pos);
 

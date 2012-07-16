@@ -43,7 +43,7 @@ public:
     UISelect();
     ~UISelect();
 
-    int getType() { return UI_SELECT; };
+    int getType() const { return UI_SELECT; };
 
     void setUI(UI* ui);
 

@@ -2,8 +2,10 @@
 
 //UIGroup
 
-UIGroup::UIGroup(const std::string& groupname, bool minimized, bool resizable) : minimized(minimized) {
+UIGroup::UIGroup(const std::string& groupname, bool minimized, bool resizable) : minimized(minimized), UIElement() {
+
     bar    = new UIGroupBar(groupname);
+    
     layout = resizable ? new UIResizableLayout() : new UILayout();
 
     bar->setMargin(3.0f);
@@ -105,6 +107,7 @@ void UIGroup::draw() {
 UIGroupBar::UIGroupBar(const std::string& text) : UISolidLayout(true) {
     label = new UILabel(text, false, 120.0f);
     addElement(label);
+    selectable = true;
 }
 
 void UIGroupBar::setText(const std::string& text) {

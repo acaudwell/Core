@@ -1,5 +1,32 @@
 #include "element.h"
 
+std::map<int,std::string> element_names = boost::assign::map_list_of
+    (UI_INVALID,    "Invalid"   )
+    (UI_ELEMENT,    "Element"   )
+    (UI_LABEL,      "Label"     )
+    (UI_BUTTON,     "Button"    )
+    (UI_IMAGE,      "Image"     )
+    (UI_LAYOUT,     "Layout"    )
+    (UI_GROUP,      "Group"     )
+    (UI_COLOUR,     "Colour"    )
+    (UI_SELECT,     "Select"    )
+    (UI_SLIDER,     "Slider"    )
+    (UI_SCROLL_BAR, "ScrollBar" )
+    (UI_CHECKBOX,   "Checkbox"  );
+
+const std::string& UIElement::getElementName() const {
+    return getElementName(this->getType());
+}
+
+const std::string& UIElement::getElementName(int type) {
+    
+    auto it = element_names.find(type);
+
+    if(it != element_names.end()) return it->second;
+    
+    return element_names[UI_INVALID];
+}
+    
 void UIElement::drawOutline() {
     //fprintf(stderr, "rect %.2f, %.2f\n", rect.x, rect.y);
     ui->setTextured(false);

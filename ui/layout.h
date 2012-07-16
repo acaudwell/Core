@@ -31,7 +31,7 @@ public:
 
     void clear();
 
-    int getType() { return UI_LAYOUT; };
+    int getType() const { return UI_LAYOUT; };
 
     vec2 getInnerRect();
     vec2 getRect();
@@ -54,7 +54,6 @@ public:
 
     UIElement* getElement(int index) { return elements[index]; };
 
-    bool isSelectable();
     bool elementsByType(std::list<UIElement*>& found, int type);
 
     void elementsAt(const vec2& pos, std::list<UIElement*>& elements_found);

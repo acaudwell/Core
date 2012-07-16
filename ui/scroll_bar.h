@@ -29,7 +29,7 @@ public:
     UIScrollBar(UIScrollLayout* parent, bool horizontal = false);
     ~UIScrollBar();
 
-    int getType() { return UI_SCROLL_BAR; };
+    int getType() const { return UI_SCROLL_BAR; };
 
     void idle();
     void setSelected(bool selected);

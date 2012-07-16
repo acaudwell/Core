@@ -220,10 +220,6 @@ void UILayout::updatePos(const vec2& pos) {
 
 }
 
-bool UILayout::isSelectable() {
-    return selectable || drawbg;
-}
-
 bool UILayout::elementsByType(std::list<UIElement*>& found, int type) {
 
     bool success = UIElement::elementsByType(found, type);

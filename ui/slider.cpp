@@ -7,6 +7,7 @@ UISlider::UISlider(const std::string& slider_texture, float width, UIAction* act
     rect       = vec2(slider_width, 16.0f);
     background = true;
     editable   = true;
+    selectable = true;
     scrollable = true;
     zindex     = 1;
 }

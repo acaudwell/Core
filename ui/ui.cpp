@@ -103,11 +103,18 @@ UIElement* UI::scrollableElementAt(const vec2& pos) {
 
         UIElement* found = e;
 
+        if(found) {
+            debugLog("element %s zindex %d", found->getElementName().c_str(), found->zindex);
+        }
+        
         while(found && !found->isScrollable()) {
             found = found->parent;
         }
         
-        if(found) return found;
+        if(found) {
+            debugLog("scrolling element %s zindex %d", found->getElementName().c_str(), found->zindex);
+            return found;
+        }
     }
 
     return 0;
@@ -151,6 +158,8 @@ UIElement* UI::selectElementAt(const vec2& pos) {
     if(selectedElement != 0) {
         selectedElement->setSelected(false);
     }
+    
+    if(found) debugLog("selected element %s zindex %d", found->getElementName().c_str(), found->zindex);
 
     if(!found) {
         selectedElement = 0;

@@ -38,7 +38,7 @@ public:
 
     bool keyPress(SDL_KeyboardEvent *e, char c);
 
-    int getType() { return UI_LABEL; }
+    int getType() const { return UI_LABEL; }
 
     virtual void tab();
 

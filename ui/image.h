@@ -19,7 +19,7 @@ public:
 
     ~UIImage();
 
-    int getType() { return UI_IMAGE; }
+    int getType() const { return UI_IMAGE; };
 
     void drawContent();
 };

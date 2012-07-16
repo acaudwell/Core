@@ -9,8 +9,8 @@
 
 #include "ui.h"
 
-enum { UI_LABEL, UI_BUTTON, UI_IMAGE, UI_LAYOUT, UI_GROUP, UI_COLOUR, UI_SELECT, UI_SLIDER, UI_SCROLL_BAR, UI_CHECKBOX };
-
+enum { UI_INVALID, UI_ELEMENT, UI_LABEL, UI_BUTTON, UI_IMAGE, UI_LAYOUT, UI_GROUP, UI_COLOUR, UI_SELECT, UI_SLIDER, UI_SCROLL_BAR, UI_CHECKBOX };
+   
 class UIElement {
 protected:
     UI* ui;
@@ -84,8 +84,11 @@ public:
 
     virtual vec2 getRect() { return rect; };
 
-    virtual int getType() { return -1; };
+    virtual int getType() const { return UI_ELEMENT; };
 
+    const std::string& getElementName() const;
+    static const std::string& getElementName(int type);
+    
     virtual void updatePos(const vec2& pos) { this->pos = pos; };
     virtual void expandRect(const vec2& expand) {};
     virtual void resetRect() {};

@@ -12,7 +12,7 @@ protected:
 public:
     UICheckbox(UIAction* action = 0);
 
-    int getType() { return UI_CHECKBOX; };
+    int getType() const { return UI_CHECKBOX; };
 
     virtual void click(const vec2& pos) {};
     virtual bool isChecked() { return false; };

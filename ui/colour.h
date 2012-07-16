@@ -26,7 +26,7 @@ public:
 
     void setColour(vec3* colour);
 
-    int getType() { return UI_COLOUR; };
+    int getType() const { return UI_COLOUR; };
 
     void updateRect();
     void drawContent();
