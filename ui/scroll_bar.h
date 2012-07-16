@@ -48,7 +48,7 @@ public:
 
     void flipSides(bool flip_sides);
 
-    UIElement* elementAt(const vec2& pos);
+    void elementsAt(const vec2& pos, std::list<UIElement*>& elements_found);
 
     void reset();
 

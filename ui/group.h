@@ -34,7 +34,7 @@ public:
     void setUI(UI* ui);
 
     bool elementsByType(std::list<UIElement*>& found, int type);
-    UIElement* elementAt(const vec2& pos);
+    void elementsAt(const vec2& pos, std::list<UIElement*>& elements_found);
 
     int getType() { return UI_GROUP; };
 

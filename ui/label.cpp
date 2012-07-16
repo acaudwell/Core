@@ -172,18 +172,16 @@ void UILabel::update(float dt) {
     updateRect();
 }
 
-UIElement* UILabel::elementAt(const vec2& pos) {
+void UILabel::elementsAt(const vec2& pos, std::list<UIElement*>& elements_found) {
 
-    if(hidden) return 0;
+    if(hidden) return;
 
     vec2 rect = getRect() + vec2(expanded, 0.0f);
 
     if(   pos.x >= this->pos.x && pos.x <= (this->pos.x + rect.x)
        && pos.y >= this->pos.y && pos.y <= (this->pos.y + rect.y)) {
-        return this;
+        elements_found.push_back(this);
     }
-
-    return 0;
 }
 
 void UILabel::setTextColour(const vec4& text_colour) {

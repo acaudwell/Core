@@ -55,16 +55,14 @@ bool UIGroup::elementsByType(std::list<UIElement*>& found, int type) {
     return success;
 }
 
-UIElement* UIGroup::elementAt(const vec2& pos) {
+void UIGroup::elementsAt(const vec2& pos, std::list<UIElement*>& elements_found) {
 
-    if(hidden) return 0;
+    if(hidden) return;
 
-    UIElement* found = 0;
-
-    if((found = bar->elementAt(pos)) != 0) return found;
-    if(!minimized && (found = layout->elementAt(pos)) != 0) return found;
-
-    return UIElement::elementAt(pos);
+    bar->elementsAt(pos, elements_found);
+    if(!minimized) layout->elementsAt(pos, elements_found);
+    
+    UIElement::elementsAt(pos, elements_found);
 }
 
 void UIGroup::updatePos(const vec2& pos) {

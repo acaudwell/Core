@@ -22,7 +22,7 @@ public:
 
     bool isScrollable();
 
-    UIElement* elementAt(const vec2& pos);
+    void elementsAt(const vec2& pos, std::list<UIElement*>& elements_found);
 
     void updatePos(const vec2& pos);
 

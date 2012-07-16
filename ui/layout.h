@@ -57,7 +57,7 @@ public:
     bool isSelectable();
     bool elementsByType(std::list<UIElement*>& found, int type);
 
-    UIElement* elementAt(const vec2& pos);
+    void elementsAt(const vec2& pos, std::list<UIElement*>& elements_found);
 
     virtual void resize(const vec2& pos);
 
@@ -93,7 +93,7 @@ public:
     UIResizableLayout(bool horizontal = false);
     ~UIResizableLayout();
 
-    UIElement* elementAt(const vec2& pos);
+    void elementsAt(const vec2& pos, std::list<UIElement*>& elements_found);
 
     void setUI(UI* ui);
     void updatePos(const vec2& pos);

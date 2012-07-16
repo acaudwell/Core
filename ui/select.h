@@ -56,7 +56,7 @@ public:
 
     void click(const vec2& pos);
 
-    UIElement* elementAt(const vec2& pos);
+    void elementsAt(const vec2& pos, std::list<UIElement*>& elements_found);
 
     void updatePos(const vec2& pos);
     void update(float dt);

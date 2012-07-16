@@ -134,6 +134,11 @@ void UILayout::update(float dt) {
             e->update(0.0f);
         }
     }
+    
+    //sort elements by zindex
+    std::sort(elements.begin(), elements.end(), UIElement::zindex_sort);
+    
+    if(!elements.empty() && elements.front()->getType() == UI_SELECT) debugLog("first element is a select");
 }
 
 void UILayout::expandRect(const vec2& expand) {
@@ -230,17 +235,17 @@ bool UILayout::elementsByType(std::list<UIElement*>& found, int type) {
     return success;
 }
 
-UIElement* UILayout::elementAt(const vec2& pos) {
+void UILayout::elementsAt(const vec2& pos, std::list<UIElement*>& elements_found) {
 
-    if(hidden) return 0;
+    if(hidden) return;
 
     UIElement* found = 0;
 
     foreach(UIElement* e, elements) {
-        if((found = e->elementAt(pos)) != 0) return found;
+        e->elementsAt(pos, elements_found);
     }
 
-    return UIElement::elementAt(pos);
+    UIElement::elementsAt(pos, elements_found);
 }
 
 void UILayout::resize(const vec2& pos) {
@@ -286,15 +291,13 @@ UIResizableLayout::~UIResizableLayout() {
     if(resize_button != 0) delete resize_button;
 }
 
-UIElement* UIResizableLayout::elementAt(const vec2& pos) {
+void UIResizableLayout::elementsAt(const vec2& pos, std::list<UIElement*>& elements_found) {
 
-    if(hidden) return 0;
+    if(hidden) return;
 
-    UIElement* found = 0;
+    resize_button->elementsAt(pos, elements_found);
 
-    if((found = resize_button->elementAt(pos)) != 0) return found;
-
-    return UILayout::elementAt(pos);
+    return UILayout::elementsAt(pos, elements_found);
 }
 
 

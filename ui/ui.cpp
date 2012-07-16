@@ -83,25 +83,34 @@ bool UI::elementsByType(std::list<UIElement*>& found, int type) {
     return success;
 }
 
-UIElement* UI::elementAt(const vec2& pos) {
-    UIElement* found = 0;
-
+void UI::elementsAt(const vec2& pos, std::list<UIElement*>& found_elements) {
+        
     foreach(UIElement* e, elements) {
-        if((found = e->elementAt(pos)) != 0) return found;
+        e->elementsAt(pos, found_elements);
     }
-
-    return 0;
+    
+    // sort by zindex before returning
+    found_elements.sort(UIElement::zindex_sort);
 }
 
 UIElement* UI::scrollableElementAt(const vec2& pos) {
 
-    UIElement* found = elementAt(pos);
+    std::list<UIElement*> found_elements;
+    
+    elementsAt(pos, found_elements);
 
-    while(found && !found->isScrollable()) {
-        found = found->parent;
+    for(UIElement* e : found_elements) {
+
+        UIElement* found = e;
+
+        while(found && !found->isScrollable()) {
+            found = found->parent;
+        }
+        
+        if(found) return found;
     }
 
-    return found;
+    return 0;
 }
 
 void UI::deselect() {
@@ -126,37 +135,17 @@ UIElement* UI::selectElementAt(const vec2& pos) {
 
     double_click_timer = 0.0f;
 
+    std::list<UIElement*> found_elements;
+    
+    elementsAt(pos, found_elements);
+
     UIElement* found = 0;
-
-    // check against any open select list
-
-    std::list<UIElement*> selects;
-    elementsByType(selects, UI_SELECT);
-
-    foreach(UIElement* e, selects) {
-        UISelect* select = (UISelect*)e;
-
-        if(select->open && (found = select->elementAt(pos)) != 0) {
-            break;
-        }
+    
+    for(UIElement* e : found_elements) {   
+        if(!e->isSelectable()) continue;
+        found = e;
     }
-
-    if(found && !found->isSelectable()) {
-        found = 0;
-    }
-
-    if(!found) {
-        // check other elements
-
-        foreach(UIElement* e, elements) {
-            if((found = e->elementAt(pos)) != 0) break;
-        }
-    }
-
-    if(found && !found->isSelectable()) {
-        found = 0;
-    }
-
+    
     if(selectedElement == found) return selectedElement;
 
     if(selectedElement != 0) {

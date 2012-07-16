@@ -75,12 +75,10 @@ void UIScrollLayout::scroll(bool up) {
     vertical_scrollbar->scroll(up);
 }
 
-UIElement* UIScrollLayout::elementAt(const vec2& pos) {
+void UIScrollLayout::elementsAt(const vec2& pos, std::list<UIElement*>& elements_found) {
 
-    if(vertical_scrollbar->elementAt(pos))   return vertical_scrollbar;
-    if(horizontal_scrollbar->elementAt(pos)) return horizontal_scrollbar;
-
-    if(!UIElement::elementAt(pos)) return 0;
+    vertical_scrollbar->elementsAt(pos, elements_found);
+    horizontal_scrollbar->elementsAt(pos, elements_found);
 
     //apply scroll offset to position
 
@@ -89,10 +87,10 @@ UIElement* UIScrollLayout::elementAt(const vec2& pos) {
     UIElement* found = 0;
 
     foreach(UIElement* e, elements) {
-        if((found = e->elementAt(scrolled_pos)) != 0) return found;
+        e->elementsAt(scrolled_pos, elements_found);
     }
 
-    return this;
+    UIElement::elementsAt(pos, elements_found);
 }
 
 void UIScrollLayout::draw() {

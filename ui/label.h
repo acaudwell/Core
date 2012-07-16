@@ -52,7 +52,7 @@ public:
 
     void update(float dt);
 
-    UIElement* elementAt(const vec2& pos);
+    void elementsAt(const vec2& pos, std::list<UIElement*>& elements_found);
 
     void expandRect(const vec2& expand);
     void resetRect();

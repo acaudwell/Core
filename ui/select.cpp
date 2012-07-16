@@ -8,6 +8,7 @@ UISelect::UISelect() : UISolidLayout(true) {
     options_layout = new UISolidLayout(false);
     options_layout->setMargin(2.0f);
     options_layout->parent = this;
+    options_layout->zindex = 2;
 
     setMargin(vec4(3.0f));
     selected_option = 0;
@@ -71,15 +72,15 @@ UIOptionLabel* UISelect::addOption(const std::string& name, UIAction* action, bo
     return option;
 }
 
-UIElement* UISelect::elementAt(const vec2& pos) {
+void UISelect::elementsAt(const vec2& pos, std::list<UIElement*>& elements_found) {
 
     UIElement* found = 0;
 
-    if(open && (found = options_layout->elementAt(pos)) != 0) {
-        return found;
+    if(open) {
+        options_layout->elementsAt(pos, elements_found);        
     }
 
-    return UISolidLayout::elementAt(pos);
+    UISolidLayout::elementsAt(pos, elements_found);
 }
 
 void UISelect::updatePos(const vec2& pos) {

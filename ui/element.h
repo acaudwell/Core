@@ -80,7 +80,7 @@ public:
 
     virtual bool elementsByType(std::list<UIElement*>& found, int type);
 
-    virtual UIElement* elementAt(const vec2& pos);
+    virtual void elementsAt(const vec2& pos, std::list<UIElement*>& elements_found);
 
     virtual vec2 getRect() { return rect; };
 

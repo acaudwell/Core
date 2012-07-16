@@ -59,11 +59,11 @@ void UIScrollBar::stickToEnd() {
     stick_to_end = true;
 }
 
-UIElement* UIScrollBar::elementAt(const vec2& pos) {
+void UIScrollBar::elementsAt(const vec2& pos, std::list<UIElement*>& elements_found) {
     //cant click bar if invisible
-    if(bar_percent <= 0.0f) return 0;
-
-    return UIElement::elementAt(pos);
+    if(bar_percent <= 0.0f) return;
+    
+    UIElement::elementsAt(pos, elements_found);
 }
 
 void UIScrollBar::flipSides(bool flip_sides) {

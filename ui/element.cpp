@@ -127,15 +127,14 @@ bool UIElement::elementsByType(std::list<UIElement*>& found, int type) {
     return false;
 }
 
-UIElement* UIElement::elementAt(const vec2& pos) {
+void UIElement::elementsAt(const vec2& pos, std::list<UIElement*>& elements_found) {
 
-    if(hidden) return 0;
+    if(hidden) return;
 
     vec2 rect = getRect();
 
     if(   pos.x >= this->pos.x && pos.x <= (this->pos.x + rect.x)
        && pos.y >= this->pos.y && pos.y <= (this->pos.y + rect.y)) {
-        return this;
+        elements_found.push_back(this);
     }
-    return 0;
 }
