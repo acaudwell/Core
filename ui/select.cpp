@@ -8,12 +8,12 @@ UISelect::UISelect() : UISolidLayout(true) {
     options_layout = new UISolidLayout(false);
     options_layout->setMargin(2.0f);
     options_layout->parent = this;
-    options_layout->zindex = 2;
 
     setMargin(vec4(3.0f));
     selected_option = 0;
 
     open = false;
+    selectable = true;
 
     selectex = texturemanager.grab("ui/select.png", false);
     selectex->bind();
@@ -77,7 +77,7 @@ void UISelect::elementsAt(const vec2& pos, std::list<UIElement*>& elements_found
     UIElement* found = 0;
 
     if(open) {
-        options_layout->elementsAt(pos, elements_found);        
+        options_layout->elementsAt(pos, elements_found);
     }
 
     UISolidLayout::elementsAt(pos, elements_found);
@@ -96,6 +96,12 @@ void UISelect::updatePos(const vec2& pos) {
 }
 
 void UISelect::update(float dt) {
+
+    updateZIndex();
+
+    if(open) options_layout->zindex = this->zindex + 1;
+        else options_layout->zindex = this->zindex;
+
     UISolidLayout::update(dt);
     options_layout->update(dt);
 }
@@ -120,12 +126,16 @@ void UIIntSelectAction::perform() {
     *field = value;
 }
 
+// UIOptionLabel
+
 UIOptionLabel::UIOptionLabel(UISelect* select, const std::string& text, const std::string& value, UIAction* action)
     : select(select), value(value), action(action), UILabel(text, false, 150.0f) {
+    selectable = true;
 }
 
 UIOptionLabel::UIOptionLabel(UISelect* select, const std::string& text, UIAction* action)
     : select(select), value(text), action(action), UILabel(text, false, 150.0f) {
+    selectable = true;
 }
 
 bool UIOptionLabel::submit() {

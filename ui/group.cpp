@@ -2,10 +2,14 @@
 
 //UIGroup
 
-UIGroup::UIGroup(const std::string& groupname, bool minimized, bool resizable) : minimized(minimized), UIElement() {
+UIGroup::UIGroup(const std::string& groupname, bool minimized, bool resizable)
+    : minimized(minimized), UIElement() {
+
+    selectable  = false;
+    minimizable = true;
 
     bar    = new UIGroupBar(groupname);
-    
+
     layout = resizable ? new UIResizableLayout() : new UILayout();
 
     bar->setMargin(3.0f);
@@ -15,8 +19,6 @@ UIGroup::UIGroup(const std::string& groupname, bool minimized, bool resizable) :
     layout->setPadding(3.0f);
     layout->setDrawBackground(true);
     layout->parent = this;
-
-    minimizable = true;
 
     animation = 0.0f;
     speed     = 2.5f;
@@ -63,7 +65,7 @@ void UIGroup::elementsAt(const vec2& pos, std::list<UIElement*>& elements_found)
 
     bar->elementsAt(pos, elements_found);
     if(!minimized) layout->elementsAt(pos, elements_found);
-    
+
     UIElement::elementsAt(pos, elements_found);
 }
 

@@ -2,7 +2,6 @@
 
 UISolidLayout::UISolidLayout(bool horizontal) : UILayout(horizontal) {
 
-    selectable = false;
     inverted   = false;
 
     bgtex.resize(4);

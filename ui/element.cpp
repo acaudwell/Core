@@ -19,14 +19,14 @@ const std::string& UIElement::getElementName() const {
 }
 
 const std::string& UIElement::getElementName(int type) {
-    
+
     auto it = element_names.find(type);
 
     if(it != element_names.end()) return it->second;
-    
+
     return element_names[UI_INVALID];
 }
-    
+
 void UIElement::drawOutline() {
     //fprintf(stderr, "rect %.2f, %.2f\n", rect.x, rect.y);
     ui->setTextured(false);
@@ -137,8 +137,12 @@ void UIElement::draw() {
 void UIElement::update(float dt) {
     updateContent();
     updateRect();
+    updateZIndex();
 }
 
+void UIElement::updateZIndex() {
+    if(parent != 0) zindex = parent->zindex + 1;
+}
 
 void UIElement::scroll(bool up) {
     if(parent != 0) parent->scroll(up);

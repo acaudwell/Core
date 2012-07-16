@@ -10,7 +10,7 @@
 #include "ui.h"
 
 enum { UI_INVALID, UI_ELEMENT, UI_LABEL, UI_BUTTON, UI_IMAGE, UI_LAYOUT, UI_GROUP, UI_COLOUR, UI_SELECT, UI_SLIDER, UI_SCROLL_BAR, UI_CHECKBOX };
-   
+
 class UIElement {
 protected:
     UI* ui;
@@ -88,13 +88,14 @@ public:
 
     const std::string& getElementName() const;
     static const std::string& getElementName(int type);
-    
+
     virtual void updatePos(const vec2& pos) { this->pos = pos; };
     virtual void expandRect(const vec2& expand) {};
     virtual void resetRect() {};
 
     virtual void updateContent() {};
     virtual void updateRect() {};
+    virtual void updateZIndex();
 
     virtual bool keyPress(SDL_KeyboardEvent *e, char c) { return false; };
     virtual bool submit() { return false; };

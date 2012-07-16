@@ -84,11 +84,11 @@ bool UI::elementsByType(std::list<UIElement*>& found, int type) {
 }
 
 void UI::elementsAt(const vec2& pos, std::list<UIElement*>& found_elements) {
-        
+
     foreach(UIElement* e, elements) {
         e->elementsAt(pos, found_elements);
     }
-    
+
     // sort by zindex before returning
     found_elements.sort(UIElement::zindex_sort);
 }
@@ -96,23 +96,23 @@ void UI::elementsAt(const vec2& pos, std::list<UIElement*>& found_elements) {
 UIElement* UI::scrollableElementAt(const vec2& pos) {
 
     std::list<UIElement*> found_elements;
-    
+
     elementsAt(pos, found_elements);
 
-    for(UIElement* e : found_elements) {
+    for(UIElement* found : found_elements) {
 
-        UIElement* found = e;
+        //debugLog("scrollable %d", found->zindex);
 
         if(found) {
-            debugLog("element %s zindex %d", found->getElementName().c_str(), found->zindex);
+            //debugLog("element %s (%d) zindex %d", found->getElementName().c_str(), found->getType(), found->zindex);
         }
-        
+
         while(found && !found->isScrollable()) {
             found = found->parent;
         }
-        
+
         if(found) {
-            debugLog("scrolling element %s zindex %d", found->getElementName().c_str(), found->zindex);
+            //debugLog("scrolling element %s zindex %d", found->getElementName().c_str(), found->zindex);
             return found;
         }
     }
@@ -143,23 +143,26 @@ UIElement* UI::selectElementAt(const vec2& pos) {
     double_click_timer = 0.0f;
 
     std::list<UIElement*> found_elements;
-    
+
     elementsAt(pos, found_elements);
 
     UIElement* found = 0;
-    
-    for(UIElement* e : found_elements) {   
+
+    for(UIElement* e : found_elements) {
+        //debugLog("select %s %d", e->getElementName().c_str(), e->zindex);
+
         if(!e->isSelectable()) continue;
         found = e;
+        break;
     }
-    
+
     if(selectedElement == found) return selectedElement;
 
     if(selectedElement != 0) {
         selectedElement->setSelected(false);
     }
-    
-    if(found) debugLog("selected element %s zindex %d", found->getElementName().c_str(), found->zindex);
+
+    //if(found) debugLog("selected element %s (%d) zindex %d", found->getElementName().c_str(), found->getType(), found->zindex);
 
     if(!found) {
         selectedElement = 0;

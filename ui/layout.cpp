@@ -60,6 +60,8 @@ void UILayout::addElement(UIElement* e) {
 
 void UILayout::update(float dt) {
 
+    updateZIndex();
+
     vec2 inner = vec2(0.0f, 0.0f);
 
     int visible_elements = 0;
@@ -134,10 +136,7 @@ void UILayout::update(float dt) {
             e->update(0.0f);
         }
     }
-    
-    //sort elements by zindex
-    std::sort(elements.begin(), elements.end(), UIElement::zindex_sort);
-    
+
     if(!elements.empty() && elements.front()->getType() == UI_SELECT) debugLog("first element is a select");
 }
 

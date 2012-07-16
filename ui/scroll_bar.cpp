@@ -62,7 +62,7 @@ void UIScrollBar::stickToEnd() {
 void UIScrollBar::elementsAt(const vec2& pos, std::list<UIElement*>& elements_found) {
     //cant click bar if invisible
     if(bar_percent <= 0.0f) return;
-    
+
     UIElement::elementsAt(pos, elements_found);
 }
 
@@ -152,6 +152,8 @@ void UIScrollBar::scroll(bool up) {
 
 void UIScrollBar::updateRect() {
     if(parent==0) return;
+
+    updateZIndex();
 
     vec2 scroll_rect = ((UIScrollLayout*)parent)->getScrollRect();
     vec2 inner_rect  = ((UIScrollLayout*)parent)->getInnerRect();

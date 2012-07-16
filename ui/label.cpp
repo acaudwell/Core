@@ -13,6 +13,7 @@ UILabel::UILabel(const std::string& text, bool editable, float width, UIAction* 
     expanded     = 0.0f;
 
     this->editable = editable;
+    selectable     = editable;
 
     selected_edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.5f);
     edit_bgcolour          = vec4(0.0f, 0.0f, 0.0f, 0.25f);
@@ -135,6 +136,8 @@ bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
 }
 
 void UILabel::update(float dt) {
+
+    updateZIndex();
 
     if(editable && !selected && value != 0) {
         if(*value != text) {
