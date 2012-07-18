@@ -35,14 +35,13 @@ Plane::Plane(const vec3 & v1, const vec3 & v2, const vec3 & v3) {
     vec3 edge1 = v1 - v2;
     vec3 edge2 = v3 - v2;
 
-    normal = normalise(glm::cross(edge2, edge1));
-
+    normal = glm::normalize(glm::cross(edge2, edge1));
     point = v2;
 
     d = -(glm::dot(normal, point));
 }
 
-float Plane::distance(const vec3 & p) const{
+float Plane::distance(const vec3 & p) const {
     return d + glm::dot(normal, p);
 }
 

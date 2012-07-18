@@ -28,12 +28,12 @@
 #ifndef PLANE_H
 #define PLANE_H
 
-#include "display.h"
 #include "vectors.h"
 
 class Plane {
 public:
-    vec3 normal, point;
+    vec3 normal;
+    vec3 point;
     float d;
 
     Plane();
