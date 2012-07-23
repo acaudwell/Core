@@ -299,11 +299,13 @@ std::string UIFileSelector::autocomplete(const std::string& input, bool dirs_onl
 UIFileSelectorLabel::UIFileSelectorLabel(UIFileSelector* selector, const std::string& label, const boost::filesystem::path& path)
     : selector(selector), path(path), UILabel(label, false, 420.0f) {
     directory = is_directory(path);
+    selectable = true;
 }
 
 UIFileSelectorLabel::UIFileSelectorLabel(UIFileSelector* selector, const boost::filesystem::path& path)
     : selector(selector), path(path), UILabel(path.filename().string(), false, 420.0f) {
     directory = is_directory(path);
+    selectable = true;
 }
 
 void UIFileSelectorLabel::updateContent() {

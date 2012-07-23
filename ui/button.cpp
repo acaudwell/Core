@@ -10,6 +10,7 @@ UIButton::UIButton(const std::string& name, UIAction* action)
     button_anim = 0.0f;
     label->setMargin(3.0f);
 
+    selectable = true;
     centre = true;
     min_rect = vec2(50.0f, 1.0f);
 }
