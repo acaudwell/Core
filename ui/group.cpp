@@ -22,6 +22,8 @@ UIGroup::UIGroup(const std::string& groupname, bool minimized, bool resizable)
 
     animation = 0.0f;
     speed     = 2.5f;
+
+    open_action = 0;
 }
 
 UIGroup::~UIGroup() {
@@ -39,6 +41,26 @@ void UIGroup::setTitle(const std::string& text) {
     bar->setText(text);
 }
 
+void UIGroup::minimize() {
+    if(minimized) return;
+
+    minimized = true;
+    animation = 1.0f;
+
+    old_group_rect = rect;
+    old_label_rect = bar->rect;
+}
+
+void UIGroup::maximize() {
+    if(!minimized) return;
+
+    minimized = false;
+    animation = 1.0f;
+
+    old_group_rect = rect;
+    old_label_rect = bar->rect;
+}
+
 void UIGroup::toggle() {
     if(!minimizable) return;
 
@@ -47,6 +69,14 @@ void UIGroup::toggle() {
 
     old_group_rect = rect;
     old_label_rect = bar->rect;
+
+    if(!minimized && open_action != 0) {
+        open_action->perform();
+    }
+}
+
+void UIGroup::setOpenAction(UIAction* action) {
+    open_action = action;
 }
 
 bool UIGroup::elementsByType(std::list<UIElement*>& found, int type) {

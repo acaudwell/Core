@@ -16,7 +16,7 @@ class UIGroup : public UIElement {
 
 protected:
     UILayout* layout;
-
+    UIAction* open_action;
     float animation;
     float speed;
 
@@ -36,6 +36,8 @@ public:
     bool elementsByType(std::list<UIElement*>& found, int type);
     void elementsAt(const vec2& pos, std::list<UIElement*>& elements_found);
 
+    void setOpenAction(UIAction* action);
+
     int getType() const { return UI_GROUP; };
 
     UILayout* getLayout() { return layout; };
@@ -43,6 +45,8 @@ public:
     void setTitle(const std::string& text);
 
     virtual void toggle();
+    virtual void minimize();
+    virtual void maximize();
 
     void update(float dt);
     void updatePos(const vec2& pos);
