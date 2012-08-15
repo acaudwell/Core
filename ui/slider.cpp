@@ -9,7 +9,6 @@ UISlider::UISlider(const std::string& slider_texture, float width, UIAction* act
     editable   = true;
     selectable = true;
     scrollable = true;
-    zindex     = 1;
 }
 
 void UISlider::drawSlider(float position) {

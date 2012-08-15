@@ -108,6 +108,8 @@ void UIGroup::updatePos(const vec2& pos) {
 
 void UIGroup::update(float dt) {
 
+    updateZIndex();
+
     bar->update(dt);
 
     rect = bar->rect;
