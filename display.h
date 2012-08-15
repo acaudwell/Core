@@ -116,8 +116,6 @@ public:
 #endif
 
     void   enableShaders(bool enable);
-
-    void   enableShaders(bool enable);
     void   enableVsync(bool vsync);
     void   enableAlpha(bool enable);
     void   enableResize(bool resizable);

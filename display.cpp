@@ -129,14 +129,9 @@ void SDLAppDisplay::setXWindow(const Window& xwindow) {
 #endif
 
 void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
-#if SDL_VERSION_ATLEAST(1,3,0)
-
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
     int gl_depth     = 24;
     int colour_depth = 32;
-
 #ifndef _WIN32
     if(!enable_shaders) {
         gl_depth     = 16;
@@ -191,9 +186,10 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
     }
 #endif
 
-    this->width      = width;
-    this->height     = height;
-    this->fullscreen = fullscreen;
+#if SDL_VERSION_ATLEAST(1,3,0)
+
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
     Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
     if(resizable && !fullscreen) flags |= SDL_WINDOW_RESIZABLE;
