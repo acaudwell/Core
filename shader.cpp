@@ -255,7 +255,7 @@ void Sampler1DShaderUniform::apply() {
     glUniform1i(getLocation(), value);
 }
 
-float Sampler1DShaderUniform::getValue() const {
+int Sampler1DShaderUniform::getValue() const {
     return value;
 }
 
@@ -277,7 +277,7 @@ void Sampler2DShaderUniform::apply() {
     glUniform1i(getLocation(), value);
 }
 
-float Sampler2DShaderUniform::getValue() const {
+int Sampler2DShaderUniform::getValue() const {
     return value;
 }
 

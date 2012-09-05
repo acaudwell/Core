@@ -143,7 +143,7 @@ public:
 
     void apply();
     void setValue(int value);
-    float getValue() const;
+    int getValue() const;
 };
 
 class Sampler2DShaderUniform : public ShaderUniform {
@@ -157,7 +157,7 @@ public:
 
     void apply();
     void setValue(int value);
-    float getValue() const;
+    int getValue() const;
 };
 
 class Vec2ShaderUniform : public ShaderUniform {
