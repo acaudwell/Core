@@ -28,12 +28,13 @@
 #include "logger.h"
 
 std::map<int,std::string> log_levels = boost::assign::map_list_of
-    (LOG_LEVEL_WARN,     "   WARN" )
-    (LOG_LEVEL_DEBUG,    "  DEBUG" )
-    (LOG_LEVEL_INFO,     "   INFO" )
-    (LOG_LEVEL_CONSOLE,  "CONSOLE" )
-    (LOG_LEVEL_SCRIPT,   " SCRIPT" )
     (LOG_LEVEL_ERROR,    "  ERROR" )
+    (LOG_LEVEL_CONSOLE,  "CONSOLE" )
+    (LOG_LEVEL_INFO,     "   INFO" )
+    (LOG_LEVEL_SCRIPT,   " SCRIPT" )
+    (LOG_LEVEL_DEBUG,    "  DEBUG" )
+    (LOG_LEVEL_WARN,     "   WARN" )
+    (LOG_LEVEL_PEDANTIC, "  PEDANT")
     (LOG_LEVEL_INFINITY, "???????" );
 
 #define PARSE_AND_LOG(LOG_LEVEL) \
@@ -132,11 +133,14 @@ void errorLog(const char *str, ...) {
 
 void consoleLog(const char *str, ...) {
     PARSE_AND_LOG(LOG_LEVEL_CONSOLE);
-
 }
 
 void scriptLog(const char *str, ...) {
     PARSE_AND_LOG(LOG_LEVEL_SCRIPT);
+}
+
+void pedanticLog(const char *str, ...) {
+    PARSE_AND_LOG(LOG_LEVEL_PEDANTIC);
 }
 
 Logger* Logger::default_logger = new Logger(LOG_LEVEL_ERROR, stderr, 0);

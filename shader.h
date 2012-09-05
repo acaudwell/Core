@@ -454,12 +454,8 @@ public:
 
 class ShaderManager : public ResourceManager {
 public:
-    bool warnings;
-
     ShaderManager();
     Shader* grab(const std::string& shader_prefix);
-
-    void enableWarnings(bool warnings);
 
     void manage(Shader* shader);
 

@@ -84,5 +84,6 @@ void infoLog(const char *args, ...);
 void errorLog(const char *args, ...);
 void consoleLog(const char *args, ...);
 void scriptLog(const char *args, ...);
+void pedanticLog(const char *args, ...);
 
 #endif

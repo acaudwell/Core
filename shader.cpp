@@ -32,14 +32,9 @@ ShaderManager shadermanager;
 //ShaderManager
 
 ShaderManager::ShaderManager() {
-    warnings = false;
 }
 
-void ShaderManager::enableWarnings(bool warnings) {
-    this->warnings = warnings;
-}
-
-Regex Shader_pre_version("^\\s*#version\\s*(\\d+)\\s*$");
+Regex Shader_pre_version("^\\s*#version\\s*(\\d+)\\s*");
 Regex Shader_pre_extension("^\\s*#extension\\s*([a-zA-Z0-9_]+)\\s+:\\s+(enable|require|warn|disable)\\s*$");
 Regex Shader_pre_include("^\\s*#include\\s*\"([^\"]+)\"");
 Regex Shader_uniform_def("^\\s*uniform\\s+(\\w+)\\s+(\\w+)(?:\\[(\\d+)\\])?\\s*;\\s*$");
@@ -922,7 +917,7 @@ bool ShaderPass::errorContext(const char* log_message, std::string& context) {
 
     if(   !Shader_error_line.match(log_message, &matches)
        && !Shader_error2_line.match(log_message, &matches)
-       && !(shadermanager.warnings && Shader_warning_line.match(log_message, &matches)))
+       && !(Logger::getDefault()->getLevel() == LOG_LEVEL_WARN && Shader_warning_line.match(log_message, &matches)))
         return false;
 
     int line_no = atoi(matches[0].c_str());
@@ -977,7 +972,7 @@ void ShaderPass::checkError() {
 
         }
 
-        if(shadermanager.warnings) {
+        if(Logger::getDefault()->getLevel() == LOG_LEVEL_WARN) {
             warnLog("%s shader '%s':\n%s\n%s",
                             shader_object_desc.c_str(),
                             resource_desc,
@@ -1342,7 +1337,7 @@ void Shader::checkProgramError() {
 
         if(!link_success) {
             errorLog("shader '%s' linking error:\n%s", resource_desc, info_log);
-        } else if(shadermanager.warnings) {
+        } else if(Logger::getDefault()->getLevel() == LOG_LEVEL_WARN) {
             warnLog("shader '%s' warning:\n%s", resource_desc, info_log);
         }
     }
@@ -1362,11 +1357,11 @@ void Shader::unbind() {
 
 void Shader::use() {
 
-    if(shadermanager.warnings) {
+    if(Logger::getDefault()->getLevel() == LOG_LEVEL_PEDANTIC) {
         for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
             ShaderUniform* u = it->second;
 
-            if(!u->isInitialized()) warnLog("shader '%s': uniform '%s' was never initialized", (!resource_name.empty() ? resource_name.c_str() : "???"), u->getName().c_str());
+            if(!u->isInitialized()) pedanticLog("shader '%s': uniform '%s' was never initialized", (!resource_name.empty() ? resource_name.c_str() : "???"), u->getName().c_str());
         }
     }
 
