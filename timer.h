@@ -6,11 +6,12 @@
 #include "gl.h"
 
 class GLTimer {
-
+    Uint32   query_start;
+    Uint32   query_stop;
+    Uint32   cpu_time;    
     GLuint64 query_value;
     GLuint   query_id;
     std::string name;
-    bool running;
 public:
     GLTimer();
     GLTimer(const std::string& name);
@@ -22,8 +23,9 @@ public:
     
     const std::string& getName() const;
     GLuint64 getValue() const;
-    int      getMillis() const;
-    
+    Uint32   getGLMillis() const;
+    Uint32   getCPUMillis() const;
+
     void unload();
 };
 

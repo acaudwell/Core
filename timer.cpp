@@ -5,13 +5,17 @@
 GLTimer::GLTimer() {
     query_id      = 0;
     query_value   = 0;
-    running       = false;
+    query_start   = 0;
+    query_stop    = 0;
+    cpu_time      = 0;
 }
 
 GLTimer::GLTimer(const std::string& name) : name(name) {
     query_id      = 0;
     query_value   = 0;
-    running       = false;    
+    query_start   = 0;
+    query_stop    = 0;
+    cpu_time      = 0;
 }
 
 GLTimer::~GLTimer() {
@@ -24,21 +28,25 @@ void GLTimer::unload() {
         glDeleteQueries(1, &query_id);
         query_id = 0;
     }
-    running = false;    
+    query_start = query_stop = 0; 
 }
 
 void GLTimer::start() {
-    if(running) return;
+    if(query_start > 0) return;
+    
+    query_start = SDL_GetTicks();
     
     if(!query_id) glGenQueries( 1, &query_id );
     
     glBeginQuery(GL_TIME_ELAPSED, query_id);
 
-    running = true;
+    query_stop = 0;
 }
 
 void GLTimer::stop() {
-    if(running) glEndQuery(GL_TIME_ELAPSED);
+    if(!query_start || query_stop > 0) return;
+    glEndQuery(GL_TIME_ELAPSED);
+    query_stop = SDL_GetTicks();
 }
 
 const std::string& GLTimer::getName() const {
@@ -49,12 +57,16 @@ GLuint64 GLTimer::getValue() const {
     return query_value;
 }
 
-int GLTimer::getMillis() const {
+Uint32 GLTimer::getGLMillis() const {
     return query_value / 1000000;
 }
 
+Uint32 GLTimer::getCPUMillis() const {
+    return cpu_time;
+}
+
 bool GLTimer::check() {
-    if(!running) return false;
+    if(!query_start) return false;
     
     GLuint64 elapsed;
     GLint    available = 0;
@@ -66,8 +78,8 @@ bool GLTimer::check() {
     glGetQueryObjectui64v(query_id, GL_QUERY_RESULT, &elapsed);
 
     query_value = elapsed;
-
-    running = false;
+    cpu_time    = query_stop-query_start;
+    query_start = query_stop = 0;
     
     return true;
 }
