@@ -92,11 +92,11 @@ void UILayout::update(float dt) {
     }
 
     if(horizontal) {
-        inner.x += margin.x*2.0f + ((float)visible_elements-1) * padding.x;
-        inner.y += margin.y*2.0f;
+        inner.x += margin.x+margin.z + ((float)visible_elements-1) * padding.x;
+        inner.y += margin.y+margin.w;
     } else {
-        inner.x += margin.x*2.0f;
-        inner.y += margin.y*2.0f + ((float)visible_elements-1) * padding.y;
+        inner.x += margin.x+margin.z;
+        inner.y += margin.y+margin.w + ((float)visible_elements-1) * padding.y;
     }
 
     rect = glm::max(min_rect, inner);
