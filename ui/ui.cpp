@@ -1,6 +1,7 @@
 #include "ui.h"
 #include "checkbox.h"
 #include "group.h"
+#include "subgroup.h"
 #include "slider.h"
 #include "scroll_bar.h"
 #include "select.h"
