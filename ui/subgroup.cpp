@@ -7,17 +7,18 @@ UISubGroup::UISubGroup(const std::string& groupname, bool minimized)
 
     UISubGroupBar* bar = new UISubGroupBar(groupname);
     bar->parent = this;
-    
+
     layout = new UILayout(false);
     layout->hidden = minimized;
-    
+    layout->setMargin(vec4(10.0f, 0.0f, 0.0f, 0.0f));
+
     addElement(bar);
     addElement(layout);
 }
 
 
 void UISubGroup::setOpenAction(UIAction* action) {
-    this->open_action = action;    
+    this->open_action = action;
 }
 
 void UISubGroup::minimize() {
@@ -30,7 +31,7 @@ void UISubGroup::maximize() {
 
 void UISubGroup::toggle() {
     layout->hidden = !layout->hidden;
-    
+
     if(!layout->hidden && open_action != 0) {
         open_action->perform();
     }
