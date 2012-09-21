@@ -7,13 +7,15 @@ class UIImage : public UIElement {
     TextureResource* imagetex;
 public:
     std::string image_path;
-    vec4 coords;
+    vec4  coords;
     float shadow;
     vec2  shadow_offset;
     vec4  colour;
 
     UIImage(const std::string& image_path);
     UIImage(const std::string& image_path, const vec2& rect, const vec4& coords);
+
+    void setTextureCoords(const vec4& coords);
 
     void init();
 

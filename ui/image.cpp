@@ -11,7 +11,7 @@ UIImage::UIImage(const std::string& image_path, const vec2& rect, const vec4& co
     : image_path(image_path), coords(coords) {
 
     this->rect = rect;
-    
+
     init();
 }
 
@@ -29,6 +29,10 @@ void UIImage::init() {
     if(glm::length(rect) < 1.0f) {
         rect = vec2(imagetex->w, imagetex->h);
     }
+}
+
+void UIImage::setTextureCoords(const vec4& coords) {
+    this->coords = coords;
 }
 
 void UIImage::drawContent() {

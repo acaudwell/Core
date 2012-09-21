@@ -2,9 +2,11 @@
 #define UI_SUBGROUP_h
 
 #include "label.h"
+#include "image.h"
 #include "solid_layout.h"
 
 class UISubGroupBar : public UILayout {
+    UIImage* expander;
 public:
     UISubGroupBar(const std::string& text);
 
@@ -25,7 +27,7 @@ public:
 
     UILayout* getLayout() const { return layout; };
 
-    void toggle();
+    bool toggle();
     void minimize();
     void maximize();
 };

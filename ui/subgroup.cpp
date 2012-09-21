@@ -1,4 +1,5 @@
 #include "subgroup.h"
+#include "image.h"
 
 //UISubGroup
 
@@ -29,21 +30,31 @@ void UISubGroup::maximize() {
     layout->hidden = false;
 }
 
-void UISubGroup::toggle() {
+bool UISubGroup::toggle() {
     layout->hidden = !layout->hidden;
 
     if(!layout->hidden && open_action != 0) {
         open_action->perform();
     }
+
+    return layout->hidden;
 }
 
 //UISubGroupBar
 
-UISubGroupBar::UISubGroupBar(const std::string& text) : UILayout() {
+UISubGroupBar::UISubGroupBar(const std::string& text) : UILayout(true) {
     selectable = true;
-    addElement(new UILabel(text, false, 120.0f));
+
+    expander = new UIImage("ui/expand.png", vec2(16.0f,16.0f), vec4(0.0f, 0.0f, 0.5f, 0.5f));
+
+    addElement(new UILabel(text, false));
+    addElement(expander);
 }
 
 void UISubGroupBar::click(const vec2& pos) {
-    ((UISubGroup*)parent)->toggle();
+    if(((UISubGroup*)parent)->toggle()) {
+        expander->setTextureCoords(vec4(0.0f, 0.5f, 0.5f, 1.0f));
+    } else {
+        expander->setTextureCoords(vec4(0.0f, 0.0f, 0.5f, 0.5f));
+    }
 }
