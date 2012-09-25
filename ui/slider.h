@@ -67,7 +67,7 @@ class UILabelFloatSlider : public UILayout {
     UIFloatSlider* slider;
     UIFloatLabel*  flabel;
 public:
-    UILabelFloatSlider(const std::string& label, float* value, float min, float max, UIAction* action = 0);
+    UILabelFloatSlider(const std::string& label, float* value, float min, float max, UIAction* action = 0, float label_width = 120.0f);
 
     void setFloat(float* f);
 
@@ -80,7 +80,7 @@ class UILabelIntSlider : public UILayout {
 
     UIIntSlider* slider;
 public:
-    UILabelIntSlider(const std::string& label, int* value, int min, int max, UIAction* action = 0);
+    UILabelIntSlider(const std::string& label, int* value, int min, int max, UIAction* action = 0, float label_width = 120.0f);
 
     void scale(bool up);
     void scroll(bool up);

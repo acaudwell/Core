@@ -193,14 +193,14 @@ void UIIntSlider::drawContent() {
 
 // UILabelFloatSlider
 
-UILabelFloatSlider::UILabelFloatSlider(const std::string& label, float* value, float min, float max, UIAction* action) : UILayout(true) {
+UILabelFloatSlider::UILabelFloatSlider(const std::string& label, float* value, float min, float max, UIAction* action, float label_width) : UILayout(true) {
 
     slider = new UIFloatSlider(value, min, max, action);
 
     flabel = new UIFloatLabel(value, true, action);
     flabel->slider = slider;
 
-    addElement(new UILabel(label, false, 120.0f));
+    addElement(new UILabel(label, false, label_width));
     addElement(slider);
     addElement(flabel);
 
@@ -228,7 +228,7 @@ void UILabelFloatSlider::scale(bool up, float value_scale) {
 
 // UILabelIntSlider
 
-UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min, int max, UIAction* action) : UILayout(true) {
+UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min, int max, UIAction* action, float label_width) : UILayout(true) {
 
     slider = new UIIntSlider(value, min, max, action);
 
@@ -236,7 +236,7 @@ UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min
 
     ilabel->slider = slider;
 
-    addElement(new UILabel(label, false, 120.0f));
+    addElement(new UILabel(label, false, label_width));
     addElement(slider);
     addElement(ilabel);
 
