@@ -105,9 +105,9 @@ void UILayout::update(float dt) {
 
     vec2 filler = glm::max(vec2(0.0f), vec2(rect-inner)) + expanded_rect;
 
-    if(horizontal && fill_horiz_elements.size()) {
+    if(horizontal && !fill_horiz_elements.empty()) {
         filler.x /= (float) fill_horiz_elements.size();
-    } else if(fill_vert_elements.size()) {
+    } else if(!fill_vert_elements.empty()) {
         filler.y /= (float) fill_vert_elements.size();
     }
 
@@ -116,14 +116,14 @@ void UILayout::update(float dt) {
     fill_elements.insert(fill_elements.end(), fill_vert_elements.begin(), fill_vert_elements.end());
 
     fill_elements.unique();
-
+    
     foreach(UIElement* e, fill_elements) {
 
         vec2 efill(0.0f);
 
         if(e->fillHorizontal()) {
             if(!horizontal) efill.x = filler.x + glm::max(0.0f, inner.x - e->rect.x - margin.x*2.0f);
-            else efill.x = filler.x;
+            else efill.x = filler.x;            
         }
 
         if(e->fillVertical()) {
