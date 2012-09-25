@@ -122,12 +122,12 @@ void UILayout::update(float dt) {
         vec2 efill(0.0f);
 
         if(e->fillHorizontal()) {
-            if(!horizontal) efill.x = filler.x + glm::max(0.0f, inner.x - e->rect.x - margin.x*2.0f);
+            if(!horizontal) efill.x = filler.x + glm::max(0.0f, inner.x - e->rect.x - margin.x - margin.z);
             else efill.x = filler.x;            
         }
 
         if(e->fillVertical()) {
-            if(horizontal) efill.y = filler.y + glm::max(0.0f, inner.y - e->rect.y - margin.y*2.0f);
+            if(horizontal) efill.y = filler.y + glm::max(0.0f, inner.y - e->rect.y - margin.y - margin.w);
             else efill.y = filler.y;
         }
 
@@ -191,8 +191,8 @@ void UILayout::updatePos(const vec2& pos) {
                        true : false;
     vec2 cursor;
 
-    cursor = this->pos + vec2( (right_align  ? rect.x - margin.x : margin.x) ,
-                               (bottom_align ? rect.y - margin.y : margin.y) );
+    cursor = this->pos + vec2( (right_align  ? rect.x - margin.z : margin.x) ,
+                               (bottom_align ? rect.y - margin.w : margin.y) );
 
     foreach(UIElement* e, elements) {
 
