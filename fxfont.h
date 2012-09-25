@@ -76,9 +76,9 @@ class FXGlyphSet;
 
 class FXGlyphPage {
     GLubyte* texture_data;
-    bool needs_update;
-    int page_width;
-    int page_height;
+    bool     needs_update;
+    int      page_width;
+    int      page_height;
 public:
     TextureResource* texture;
 
@@ -126,6 +126,7 @@ class FXGlyphSet {
     std::string fontfile;
     int size;
     int dpi;
+    float tab_width;
 
     bool pre_caching;
 

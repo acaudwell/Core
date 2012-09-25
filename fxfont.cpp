@@ -205,6 +205,8 @@ FXGlyphSet::FXGlyphSet(FT_Library freetype, const std::string& fontfile, int siz
     this->dpi      = dpi;
     this->ftface   = 0;
 
+    tab_width = 4.0f;
+
     init();
 }
 
@@ -348,6 +350,12 @@ void FXGlyphSet::draw(const std::string& text) {
     while (*unicode_text) {
         chr = *unicode_text++;
 
+        if(chr == '\t') {
+             FXGlyph* glyph = getGlyph('M');
+             pos += glyph->getAdvance() * tab_width;
+             continue;
+        }
+        
         FXGlyph* glyph = getGlyph(chr);
 
         if(glyph->page->texture->textureid != textureid) {
