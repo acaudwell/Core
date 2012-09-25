@@ -54,6 +54,7 @@ public:
 
     void elementsAt(const vec2& pos, std::list<UIElement*>& elements_found);
 
+    vec2 getRect();
     void expandRect(const vec2& expand);
     void resetRect();
 

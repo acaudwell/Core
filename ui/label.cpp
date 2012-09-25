@@ -36,7 +36,14 @@ void UILabel::updateRect() {
 void UILabel::expandRect(const vec2& expand) {
     expanded = expand.x;
     text_changed = true;
+
+    //debugLog("label '%s' expanded by %f", text.c_str(), expanded);
 }
+
+vec2 UILabel::getRect() {
+    return rect + vec2(expanded, 0.0f);
+}
+
 
 void UILabel::resetRect() {
     expanded = 0.0f;
@@ -245,9 +252,6 @@ void UILabel::drawContent() {
 
         ui->drawText(margin.x, rect2.y-(3.0+margin.w), display_text);
     }
-
-    //NOTE: this is the wrong place for this, but it gets the desired result...
-//    expanded = 0.0f;
 }
 
 //
