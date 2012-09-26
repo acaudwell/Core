@@ -11,6 +11,8 @@ enum {
     UI_LAYOUT_ALIGN_BOTTOM_RIGHT
 };
 
+class UILabel;
+
 class UILayout : public UIElement {
 protected:
     int alignment;
@@ -70,8 +72,14 @@ public:
 
 
 class UILabelledElement : public UILayout {
+protected:
+    UILayout* layout;
+    UILabel*  label;
 public:
-    UILabelledElement(const std::string text, UIElement* e, float width = 120.0f);
+    UILabelledElement(const std::string text, UIElement* e = 0, float width = -1.0f);
+
+    UILabel*  getLabel();
+    UILayout* getLayout();
 };
 
 

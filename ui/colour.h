@@ -32,7 +32,7 @@ public:
     void drawContent();
 };
 
-class UILabelColour : public UILayout {
+class UILabelColour : public UILabelledElement {
 
 public:
     UIColour* ui_colour;

@@ -12,9 +12,12 @@ UISubGroup::UISubGroup(const std::string& groupname, bool minimized)
     layout = new UILayout(false);
     layout->hidden = minimized;
     layout->setMargin(vec4(10.0f, 0.0f, 0.0f, 0.0f));
+    layout->setFillHorizontal(true);
 
     addElement(bar);
     addElement(layout);
+
+    setFillHorizontal(true);
 }
 
 

@@ -22,6 +22,8 @@ public:
 
     bool isScrollable();
 
+    void updateZIndex();
+
     void elementsAt(const vec2& pos, std::list<UIElement*>& elements_found);
 
     void updatePos(const vec2& pos);

@@ -122,51 +122,41 @@ void UIColour::drawContent() {
 
 //UILabelColour
 
-UILabelColour::UILabelColour(const std::string& label) : UILayout(true) {
-
-    addElement(new UILabel(label, false, 120.0f));
+UILabelColour::UILabelColour(const std::string& label) : UILabelledElement(label) {
 
     ui_colour = new UIColour(0);
-    addElement(ui_colour);
 
-    padding = vec2(5.0f);
+    layout->addElement(ui_colour);
 }
 
 
-UILabelColour::UILabelColour(const std::string& label, vec3* value) : UILayout(true) {
-
-    addElement(new UILabel(label, false, 120.0f));
+UILabelColour::UILabelColour(const std::string& label, vec3* value) : UILabelledElement(label) {
 
     ui_colour = new UIColour(value);
-    addElement(ui_colour);
 
-    padding = vec2(5.0f);
+    layout->addElement(ui_colour);
 }
 
-UILabelColour::UILabelColour(const std::string& label, vec3* a, vec3* b, vec3* c) : UILayout(true) {
+UILabelColour::UILabelColour(const std::string& label, vec3* a, vec3* b, vec3* c) : UILabelledElement(label) {
 
     ui_colour = 0;
 
-    addElement(new UILabel(label, false, 120.0f));
-    addElement(new UIColour(a));
-    addElement(new UIColour(b));
-    addElement(new UIColour(c));
-
-    padding = vec2(5.0f);
+    layout->addElement(new UIColour(a));
+    layout->addElement(new UIColour(b));
+    layout->addElement(new UIColour(c));
+    //layout->setPadding(5.0f);
 }
 
-UILabelColour::UILabelColour(const std::string& label, vec3* a, vec3* b, vec3* c, vec3* d, vec3* e, vec3* f) : UILayout(true) {
+UILabelColour::UILabelColour(const std::string& label, vec3* a, vec3* b, vec3* c, vec3* d, vec3* e, vec3* f) : UILabelledElement(label) {
 
     ui_colour = 0;
 
-    addElement(new UILabel(label, false, 120.0f));
-    addElement(new UIColour(a));
-    addElement(new UIColour(b));
-    addElement(new UIColour(c));
-    addElement(new UIColour(d));
-    addElement(new UIColour(e));
-    addElement(new UIColour(f));
-    padding = vec2(5.0f);
+    layout->addElement(new UIColour(a));
+    layout->addElement(new UIColour(b));
+    layout->addElement(new UIColour(c));
+    layout->addElement(new UIColour(d));
+    layout->addElement(new UIColour(e));
+    layout->addElement(new UIColour(f));
 }
 
 void UILabelColour::setColour(vec3* value) {

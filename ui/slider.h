@@ -62,7 +62,7 @@ public:
     void drawContent();
 };
 
-class UILabelFloatSlider : public UILayout {
+class UILabelFloatSlider : public UILabelledElement {
 
     UIFloatSlider* slider;
     UIFloatLabel*  flabel;
@@ -76,7 +76,7 @@ public:
     void scroll(bool up);
 };
 
-class UILabelIntSlider : public UILayout {
+class UILabelIntSlider : public UILabelledElement {
 
     UIIntSlider* slider;
 public:

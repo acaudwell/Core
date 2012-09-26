@@ -6,7 +6,7 @@ UISelect::UISelect() : UISolidLayout(true) {
     addElement(label);
 
     options_layout = new UISolidLayout(false);
-    options_layout->setMargin(2.0f);
+    options_layout->setMargin(3.0f);
     options_layout->parent = this;
 
     setMargin(vec4(3.0f));

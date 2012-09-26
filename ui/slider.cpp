@@ -193,23 +193,19 @@ void UIIntSlider::drawContent() {
 
 // UILabelFloatSlider
 
-UILabelFloatSlider::UILabelFloatSlider(const std::string& label, float* value, float min, float max, UIAction* action) : UILayout(true) {
+UILabelFloatSlider::UILabelFloatSlider(const std::string& label, float* value, float min, float max, UIAction* action) : UILabelledElement(label) {
 
     slider = new UIFloatSlider(value, min, max, action);
-    
-    UILabel* slabel = new UILabel(label, false);
-    slabel->setFillHorizontal(true);
 
     flabel = new UIFloatLabel(value, true, action);
     flabel->slider = slider;
 
-    addElement(slabel);
-    addElement(slider);
-    addElement(flabel);
+    layout->addElement(slider);
+    layout->addElement(flabel);
 
     padding = vec2(5.0f, 0.0f);
     scrollable = true;
-    
+
     setFillHorizontal(true);
 }
 
@@ -233,24 +229,19 @@ void UILabelFloatSlider::scale(bool up, float value_scale) {
 
 // UILabelIntSlider
 
-UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min, int max, UIAction* action) : UILayout(true) {
+UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min, int max, UIAction* action) : UILabelledElement(label) {
 
     slider = new UIIntSlider(value, min, max, action);
 
-    UILabel* slabel = new UILabel(label, false);
-    slabel->setFillHorizontal(true);
-        
     UIIntLabel*  ilabel = new UIIntLabel(value, true, action);
-
     ilabel->slider = slider;
 
-    addElement(slabel);
-    addElement(slider);
-    addElement(ilabel);
+    layout->addElement(slider);
+    layout->addElement(ilabel);
 
     padding = vec2(5.0f, 0.0f);
     scrollable = true;
-    
+
     setFillHorizontal(true);
 
 }

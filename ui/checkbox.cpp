@@ -57,34 +57,31 @@ bool UIFloatCheckbox::isChecked() {
 
 //UILabelBoolCheckbox
 
-UILabelBoolCheckbox::UILabelBoolCheckbox(const std::string& label, bool* value, UIAction* action) : UILayout(true) {
+UILabelBoolCheckbox::UILabelBoolCheckbox(const std::string& label, bool* value, UIAction* action) : UILabelledElement(label) {
 
-    addElement(new UILabel(label, false, 120.0f));
-    addElement(new UIBoolCheckbox(value, action));
-
-    padding = vec2(2.0f);
+    layout->setMinRect(vec2(216.0f, 0.0f));
+    layout->addElement(new UIBoolCheckbox(value, action));
+    layout->setPadding(2.0f);
 }
 
 //UILabelBoolCheckboxSet
 
-UILabelBoolCheckboxSet::UILabelBoolCheckboxSet(const std::string& label, bool* value1, bool* value2, bool* value3, UIAction* action) : UILayout(true) {
+UILabelBoolCheckboxSet::UILabelBoolCheckboxSet(const std::string& label, bool* value1, bool* value2, bool* value3, UIAction* action) : UILabelledElement(label) {
 
-    addElement(new UILabel(label, false, 120.0f));
-    addElement(new UIBoolCheckbox(value1, action));
-    addElement(new UIBoolCheckbox(value2, action));
-    addElement(new UIBoolCheckbox(value3, action));
-
-    padding = vec2(2.0f);
+    layout->setMinRect(vec2(216.0f, 0.0f));
+    layout->addElement(new UIBoolCheckbox(value1, action));
+    layout->addElement(new UIBoolCheckbox(value2, action));
+    layout->addElement(new UIBoolCheckbox(value3, action));
+    layout->setPadding(2.0f);
 }
 
 //UILabelFloatCheckboxSet
 
-UILabelFloatCheckboxSet::UILabelFloatCheckboxSet(const std::string& label, float* value1, float* value2, float* value3, UIAction* action) : UILayout(true) {
+UILabelFloatCheckboxSet::UILabelFloatCheckboxSet(const std::string& label, float* value1, float* value2, float* value3, UIAction* action) : UILabelledElement(label) {
 
-    addElement(new UILabel(label, false, 120.0f));
-    addElement(new UIFloatCheckbox(value1, action));
-    addElement(new UIFloatCheckbox(value2, action));
-    addElement(new UIFloatCheckbox(value3, action));
-
-    padding = vec2(2.0f);
+    layout->setMinRect(vec2(216.0f, 0.0f));
+    layout->addElement(new UIFloatCheckbox(value1, action));
+    layout->addElement(new UIFloatCheckbox(value2, action));
+    layout->addElement(new UIFloatCheckbox(value3, action));
+    layout->setPadding(2.0f);
 }

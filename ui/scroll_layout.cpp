@@ -31,6 +31,13 @@ void UIScrollLayout::setUI(UI* ui) {
     horizontal_scrollbar->setUI(ui);
 }
 
+void UIScrollLayout::updateZIndex() {
+    UILayout::updateZIndex();
+
+    vertical_scrollbar->updateZIndex();
+    horizontal_scrollbar->updateZIndex();
+}
+
 void UIScrollLayout::drawBackground() {
     if(!drawbg) return;
 

@@ -116,14 +116,14 @@ void UILayout::update(float dt) {
     fill_elements.insert(fill_elements.end(), fill_vert_elements.begin(), fill_vert_elements.end());
 
     fill_elements.unique();
-    
+
     foreach(UIElement* e, fill_elements) {
 
         vec2 efill(0.0f);
 
         if(e->fillHorizontal()) {
             if(!horizontal) efill.x = filler.x + glm::max(0.0f, inner.x - e->rect.x - margin.x - margin.z);
-            else efill.x = filler.x;            
+            else efill.x = filler.x;
         }
 
         if(e->fillVertical()) {
@@ -269,11 +269,31 @@ void UILayout::draw() {
 //UILabelledElement
 
 UILabelledElement::UILabelledElement(const std::string text, UIElement* e, float width) : UILayout(true) {
-    UILabel* label = new UILabel(text, false, width);
+
+    label = new UILabel(text, false, width);
+
+    if(width<0.0f) label->setFillHorizontal(true);
+
+    layout = new UILayout(true);
+    layout->setPadding(5.0f);
+    layout->setMinRect(vec2(213.0f, 0.0f));
+
     addElement(label);
-    addElement(e);
+    addElement(layout);
+
     setFillHorizontal(true);
+
+    if(e != 0) layout->addElement(e);
 }
+
+UILabel* UILabelledElement::getLabel() {
+    return label;
+}
+
+UILayout* UILabelledElement::getLayout() {
+    return layout;
+}
+
 
 //UIResizableLayout
 

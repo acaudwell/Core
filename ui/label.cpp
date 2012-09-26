@@ -256,10 +256,9 @@ void UILabel::drawContent() {
 
 //
 
-UILabelString::UILabelString(const std::string& label, std::string* value, bool editable, UIAction* action) : UILayout(true) {
+UILabelString::UILabelString(const std::string& label, std::string* value, bool editable, UIAction* action) : UILabelledElement(label) {
 
-    addElement(new UILabel(label, false, 120.0f));
-    addElement(new UILabel(*value, editable, 213.0f, 0, value));
+    layout->addElement(new UILabel(*value, editable, 213.0f, 0, value));
 
     padding = vec2(5.0f, 0.0f);
     scrollable = true;

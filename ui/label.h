@@ -102,7 +102,7 @@ public:
     void updateContent();
 };
 
-class UILabelString : public UILayout {
+class UILabelString : public UILabelledElement {
 public:
     UILabelString(const std::string& label, std::string* value, bool editable = false, UIAction* action = 0);
 };

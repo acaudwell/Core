@@ -19,6 +19,7 @@ UIGroup::UIGroup(const std::string& groupname, bool minimized, bool resizable)
     layout->setPadding(3.0f);
     layout->setDrawBackground(true);
     layout->parent = this;
+    layout->setMinRect(vec2(350.0f, 0.0f));
 
     animation = 0.0f;
     speed     = 2.5f;
