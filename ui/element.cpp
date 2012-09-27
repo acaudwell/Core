@@ -14,6 +14,10 @@ std::map<int,std::string> element_names = boost::assign::map_list_of
     (UI_SCROLL_BAR, "ScrollBar" )
     (UI_CHECKBOX,   "Checkbox"  );
 
+UIElement::~UIElement() {
+    { if(ui && selected) ui->deselect(); };
+}
+    
 const std::string& UIElement::getElementName() const {
     return getElementName(this->getType());
 }

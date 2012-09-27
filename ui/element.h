@@ -41,9 +41,8 @@ public:
     UIElement() : padding(0.0f, 0.0f), margin(0.0f, 0.0f, 0.0f, 0.0f), ui(0), disabled(false), selected(false), editable(false), hidden(false), fill_horizontal(false), fill_vertical(false), scrollable(false), selectable(true), zindex(0), parent(0) {};
 
     virtual void setUI(UI* ui) { this->ui = ui; };
-
-    virtual ~UIElement() { if(ui && selected) ui->deselect(); };
-
+    virtual ~UIElement();
+        
     virtual void drawOutline();
 
     void drawOutline(const vec2& rect);
