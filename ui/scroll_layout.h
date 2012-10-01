@@ -31,7 +31,9 @@ public:
     vec2 getRect();
     vec2 getScrollRect();
     vec2 getInnerRect();
-
+    
+    vec4 getMargin() const;
+    
     void setUI(UI* ui);
 
     void update(float dt);

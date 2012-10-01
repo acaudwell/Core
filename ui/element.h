@@ -60,6 +60,8 @@ public:
     void setMargin(const vec2& margin)  { this->margin = vec4(margin.x, margin.y, margin.x, margin.y); };
     void setMargin(float margin)        { this->margin = vec4(margin); };
 
+    virtual vec4 getMargin() const { return margin; };
+    
     void setFillHorizontal(bool fill) { this->fill_horizontal = fill; };
     void setFillVertical  (bool fill) { this->fill_vertical  = fill; };
     void setFill(bool fill)           { this->fill_horizontal = fill; this->fill_vertical = fill; };

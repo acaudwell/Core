@@ -198,19 +198,19 @@ bool UIScrollBar::atEnd() {
 void UIScrollBar::updatePos() {
     if(parent==0) return;
 
-    vec2 parent_rect = ((UIScrollLayout*)parent)->getRect();
+    vec2 parent_rect = ((UIScrollLayout*)parent)->getScrollRect();
 
     if(flip_sides) {
         if(horizontal) {
-            pos = vec2(parent->pos.x, parent->pos.y-bar_width);
+            pos = vec2(parent->pos.x, parent->pos.y+parent_rect.y-bar_width);
         } else {
-            pos = vec2(parent->pos.x-bar_width, parent->pos.y);
+            pos = vec2(parent->pos.x, parent->pos.y);
         }
     } else {
         if(horizontal) {
             pos = vec2(parent->pos.x, parent->pos.y+parent_rect.y-bar_width);
         } else {
-            pos = vec2(parent->pos.x+parent_rect.x, parent->pos.y);
+            pos = vec2(parent->pos.x+parent_rect.x-bar_width, parent->pos.y);
         }
     }
 }

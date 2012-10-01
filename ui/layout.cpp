@@ -91,6 +91,8 @@ void UILayout::update(float dt) {
         }
     }
 
+    vec4 margin = getMargin();
+    
     if(horizontal) {
         inner.x += margin.x+margin.z + ((float)visible_elements-1) * padding.x;
         inner.y += margin.y+margin.w;
@@ -191,6 +193,8 @@ void UILayout::updatePos(const vec2& pos) {
                        true : false;
     vec2 cursor;
 
+    vec4 margin = getMargin();
+    
     cursor = this->pos + vec2( (right_align  ? rect.x - margin.z : margin.x) ,
                                (bottom_align ? rect.y - margin.w : margin.y) );
 

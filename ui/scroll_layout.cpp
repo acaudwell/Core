@@ -20,6 +20,25 @@ vec2 UIScrollLayout::getScrollRect() {
     return glm::min(scroll_rect,rect)+expanded_rect;
 }
 
+vec4 UIScrollLayout::getMargin() const { 
+    vec4 scroll_margin = margin;
+    
+    if(vertical_scrollbar->isScrollable()) {
+        if(vertical_scrollbar->flip_sides) {
+            scroll_margin.x += vertical_scrollbar->bar_width;
+        } else {
+            scroll_margin.z += vertical_scrollbar->bar_width;
+        }
+    }
+    
+    if(horizontal_scrollbar->isScrollable()) {
+        scroll_margin.y += horizontal_scrollbar->bar_width;
+    }
+    
+    return scroll_margin;
+    
+}
+
 vec2 UIScrollLayout::getInnerRect() {
     return rect;
 }
