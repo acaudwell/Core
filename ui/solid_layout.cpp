@@ -37,6 +37,8 @@ void UISolidLayout::drawBackground() {
 
     vec4 texcoord;
 
+    vec2 rect = getRect();
+
     for(int i=0; i < 4; i++) {
 
         glPushMatrix();

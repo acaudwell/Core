@@ -12,29 +12,17 @@ public:
     void click(const vec2& pos);
 };
 
-class UIGroup : public UIElement {
+class UIGroup : public UILayout {
 
 protected:
     UILayout* layout;
     UIAction* open_action;
-    float animation;
-    float speed;
-
-    vec2 old_group_rect;
-    vec2 old_label_rect;
-
-    bool minimized;
-    bool minimizable;
-public:
     UIGroupBar* bar;
 
+    bool minimizable;
+public:
     UIGroup(const std::string& groupname, bool minimized = false, bool resizable = false);
-    ~UIGroup();
-
-    void setUI(UI* ui);
-
-    bool elementsByType(std::list<UIElement*>& found, int type);
-    void elementsAt(const vec2& pos, std::list<UIElement*>& elements_found);
+    virtual ~UIGroup();
 
     void setOpenAction(UIAction* action);
 
@@ -47,11 +35,6 @@ public:
     virtual void toggle();
     virtual void minimize();
     virtual void maximize();
-
-    void update(float dt);
-    void updatePos(const vec2& pos);
-
-    void draw();
 };
 
 #endif
