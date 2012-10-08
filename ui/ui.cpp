@@ -87,7 +87,7 @@ bool UI::elementsByType(std::list<UIElement*>& found, int type) {
 void UI::elementsAt(const vec2& pos, std::list<UIElement*>& found_elements) {
 
     foreach(UIElement* e, elements) {
-        if(!e->hidden) e->elementsAt(pos, found_elements);
+        if(e->isVisible()) e->elementsAt(pos, found_elements);
     }
 
     // sort by zindex before returning
@@ -256,7 +256,7 @@ void UI::draw() {
     std::sort(draw_elements.begin(), draw_elements.end(), UIElement::reverse_zindex_sort);
 
     foreach(UIElement* e, draw_elements) {
-        if(!e->hidden) e->draw();
+        if(e->isVisible()) e->draw();
     }
 
     shader->unbind();
@@ -266,7 +266,7 @@ void UI::draw() {
 
 void UI::drawOutline() {
     foreach(UIElement* e, elements) {
-        if(!e->hidden) e->drawOutline();
+        if(e->isVisible()) e->drawOutline();
     }
 }
 

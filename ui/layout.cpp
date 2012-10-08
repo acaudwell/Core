@@ -73,7 +73,7 @@ void UILayout::update(float dt) {
         e->resetRect();
         e->update(dt);
 
-        if(!e->hidden) {
+        if(e->isVisible()) {
             visible_elements++;
 
             if(e->fillHorizontal()) fill_horiz_elements.push_back(e);
@@ -92,7 +92,7 @@ void UILayout::update(float dt) {
     }
 
     vec4 margin = getMargin();
-    
+
     if(horizontal) {
         inner.x += margin.x+margin.z + ((float)visible_elements-1) * padding.x;
         inner.y += margin.y+margin.w;
@@ -194,13 +194,13 @@ void UILayout::updatePos(const vec2& pos) {
     vec2 cursor;
 
     vec4 margin = getMargin();
-    
+
     cursor = this->pos + vec2( (right_align  ? rect.x - margin.z : margin.x) ,
                                (bottom_align ? rect.y - margin.w : margin.y) );
 
     foreach(UIElement* e, elements) {
 
-        if(e->hidden) continue;
+        if(!e->isVisible()) continue;
 
         vec2 r = e->getRect();
 
@@ -236,7 +236,7 @@ bool UILayout::elementsByType(std::list<UIElement*>& found, int type) {
 
 void UILayout::elementsAt(const vec2& pos, std::list<UIElement*>& elements_found) {
 
-    if(hidden) return;
+    if(!isVisible()) return;
 
     UIElement* found = 0;
 
@@ -256,7 +256,7 @@ void UILayout::drawOutline() {
     UIElement::drawOutline();
 
     foreach(UIElement* e, elements) {
-        if(!e->hidden) e->drawOutline();
+        if(e->isVisible()) e->drawOutline();
     }
 }
 
@@ -265,7 +265,7 @@ void UILayout::draw() {
     drawBackground();
 
     foreach(UIElement* e, elements) {
-        if(!e->hidden) e->draw();
+        if(e->isVisible()) e->draw();
     }
 
 }
@@ -312,7 +312,7 @@ UIResizableLayout::~UIResizableLayout() {
 
 void UIResizableLayout::elementsAt(const vec2& pos, std::list<UIElement*>& elements_found) {
 
-    if(hidden) return;
+    if(!isVisible()) return;
 
     resize_button->elementsAt(pos, elements_found);
 

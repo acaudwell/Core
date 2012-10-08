@@ -42,7 +42,7 @@ public:
 
     virtual void setUI(UI* ui) { this->ui = ui; };
     virtual ~UIElement();
-        
+
     virtual void drawOutline();
 
     void drawOutline(const vec2& rect);
@@ -61,7 +61,7 @@ public:
     void setMargin(float margin)        { this->margin = vec4(margin); };
 
     virtual vec4 getMargin() const { return margin; };
-    
+
     void setFillHorizontal(bool fill) { this->fill_horizontal = fill; };
     void setFillVertical  (bool fill) { this->fill_vertical  = fill; };
     void setFill(bool fill)           { this->fill_horizontal = fill; this->fill_vertical = fill; };
@@ -69,11 +69,12 @@ public:
     bool fillVertical()   const { return fill_vertical; }
     bool fillHorizontal() const { return fill_horizontal; }
 
+    virtual bool isVisible() const { return !hidden; }
+
     void setPos(const vec2& pos) { this->pos = pos; };
 
     void hide() { hidden=true; };
     void show() { hidden=false; };
-    void toggleVisibility() { hidden = !hidden; };
 
     virtual void idle() {};
 
