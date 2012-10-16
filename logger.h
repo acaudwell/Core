@@ -28,13 +28,9 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include "gl.h"
-
 #include <map>
 #include <deque>
 #include <string>
-
-#include <boost/assign/list_of.hpp>
 
 #include <stdio.h>
 #include <stdarg.h>

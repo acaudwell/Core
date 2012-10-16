@@ -1,4 +1,5 @@
 #include "element.h"
+#include <boost/assign/list_of.hpp>
 
 std::map<int,std::string> element_names = boost::assign::map_list_of
     (UI_INVALID,    "Invalid"   )
