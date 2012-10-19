@@ -9,6 +9,7 @@ UISlider::UISlider(const std::string& slider_texture, float width, UIAction* act
     editable   = true;
     selectable = true;
     scrollable = true;
+    dragging   = false;
 }
 
 void UISlider::drawSlider(float position) {
@@ -83,6 +84,7 @@ bool UISlider::keyPress(SDL_KeyboardEvent *e, char c) {
 
 void UISlider::idle() {
     if(action != 0) action->idle();
+    dragging = false;    
 }
 
 
@@ -93,45 +95,51 @@ UIFloatSlider::UIFloatSlider(float* value, float min, float max, UIAction* actio
 }
 
 void UIFloatSlider::scroll(bool up) {
-
-    if(!value) return;
-
-    float value_inc = (max-min) / 100.0f;
-
-    if(!up) value_inc = -value_inc;
-
-    setValue(*value + UIElement::granulaity(value_inc, 0.1));
+    scale(up, 0.1f);
 }
 
 void UIFloatSlider::scale(bool up, float value_scale) {
 
     if(!value) return;
 
-    bool left_ctrl, left_shift;
-    getModifiers(left_ctrl, left_shift);
+    float value_inc = (min!=max) ? ((max-min) / 100.0f) : glm::max( 0.00001f, glm::abs(*value) * 0.1f );
 
-    if(left_ctrl) {
-        value_scale *= 0.1f;
-    }
+    if(!up) value_inc = -value_inc;
 
-    if(left_shift) {
-        value_scale *= 0.1f;
-    }
-
-    if(!up) value_scale = -value_scale;
-
-    setValue(*value*(1.0+value_scale));
+    setValue(*value + UIElement::granulaity(value_inc, value_scale));    
 }
 
 void UIFloatSlider::click(const vec2& pos) {
-    float new_value = ((pos.x - this->pos.x) / slider_width) * (max-min) + min;
-
+    float percent = (pos.x - this->pos.x) / slider_width;
+       
+    float new_value;
+    
+    if(min!=max) {           
+        new_value = percent * (max-min) + min;
+    } else {
+        float v = *value;
+        if(v == 0.0f) v = 1.0f;        
+        
+        new_value = percent * v * 2.0f - v;        
+    }
+    
+    debugLog("new value = %f", new_value);
+        
     setValue(new_value);
 }
 
 void UIFloatSlider::drag(const vec2& pos) {
-    float new_value = ((pos.x - this->pos.x) / slider_width) * (max-min) + min;
+    if(!dragging) {
+        old_value = *value;
+        dragging = true;
+    }
 
+    float percent = (pos.x - this->pos.x) / slider_width;
+    
+    float new_value = (min!=max)
+        ? percent * (max-min) + min 
+        : percent * old_value * 2.0f - old_value;
+        
     setValue(new_value);
 }
 
@@ -142,13 +150,32 @@ void UIFloatSlider::setFloat(float* f) {
 void UIFloatSlider::setValue(float v) {
     if(!value) return;
 
-    *value = std::max(std::min(max,v), min);
+    if(min!=max) {   
+        *value = std::max(std::min(max,v), min);
+    } else {
+        *value = v;
+    }
+    
     if(action != 0) action->perform();
 }
 
 void UIFloatSlider::drawContent() {
     if(!value) return;
-    float position = std::min(1.0f, ((*value) - min) / ((float)max-min));
+    
+    float position;
+    
+    if (min!=max) {
+        position = std::min(1.0f, ((*value) - min) / ((float)max-min));
+         
+    } else {
+        if(dragging) {
+            position = std::min(1.0f, (*value - old_value) / (old_value * 2.0f));
+            
+            debugLog("position = %f value %f old_value %f", position, *value, old_value);
+        } else {
+            position = 0.5f;
+        }
+    }
 
     drawSlider(position);
 }
@@ -160,7 +187,7 @@ UIIntSlider::UIIntSlider(int* value, int min, int max, UIAction* action) :
 }
 
 void UIIntSlider::scroll(bool up) {
-    int value_inc = 1; //std::max(1, (max-min) / 100);
+    int value_inc = 1;
 
     if(!up) value_inc = -value_inc;
 
@@ -180,7 +207,12 @@ void UIIntSlider::drag(const vec2& pos) {
 }
 
 void UIIntSlider::setValue(int v) {
-    *value = std::max(std::min(max,v), min);
+    if(min!=max) {
+        *value = std::max(std::min(max,v), min);
+    } else {
+        *value = v;
+    }
+
     if(action != 0) action->perform();
 }
 

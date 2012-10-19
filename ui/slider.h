@@ -11,6 +11,8 @@ protected:
     float slider_width;
     bool background;
     UIAction* action;
+    
+    bool dragging;
 
     void drawSlider(float position);
 public:
@@ -31,8 +33,11 @@ public:
     float* value;
     float min;
     float max;
+    
+    
+    float old_value;
 
-    UIFloatSlider(float* value, float min, float max, UIAction* action = 0);
+    UIFloatSlider(float* value, float min = 0.0f, float max = 0.0f, UIAction* action = 0);
 
     void scale(bool up, float value_scale = 0.25f);
     void scroll(bool up);
@@ -52,7 +57,7 @@ public:
     int min;
     int max;
 
-    UIIntSlider(int* value, int min, int max, UIAction* action = 0);
+    UIIntSlider(int* value, int min = 0, int max = 0, UIAction* action = 0);
 
     void scroll(bool up);
     void click(const vec2& pos);
@@ -67,7 +72,7 @@ class UILabelFloatSlider : public UILabelledElement {
     UIFloatSlider* slider;
     UIFloatLabel*  flabel;
 public:
-    UILabelFloatSlider(const std::string& label, float* value, float min, float max, UIAction* action = 0);
+    UILabelFloatSlider(const std::string& label, float* value, float min = 0.0f, float max = 0.0f, UIAction* action = 0);
 
     void setFloat(float* f);
 
@@ -80,7 +85,7 @@ class UILabelIntSlider : public UILabelledElement {
 
     UIIntSlider* slider;
 public:
-    UILabelIntSlider(const std::string& label, int* value, int min, int max, UIAction* action = 0);
+    UILabelIntSlider(const std::string& label, int* value, int min = 0.0f, int max = 0.0f, UIAction* action = 0);
 
     void scale(bool up);
     void scroll(bool up);
