@@ -40,6 +40,8 @@ class MouseCursor {
     float idle;
     float timeout;
     
+    int scrollwheel;
+    
     SDL_Cursor* sdl_default_cursor;
     SDL_Cursor* sdl_hidden_cursor;
 
@@ -55,10 +57,15 @@ public:
     bool bothPressed() const;
     bool buttonPressed() const;
 
+    int scrollWheel() const;
+    
     bool isHidden() const;
     bool isSystemCursor()const;
     bool isVisible() const;
     bool hasFocus() const;
+
+    void scroll(bool dir);
+    void resetScrollWheel();
 
     void updatePos(const vec2& pos);
 

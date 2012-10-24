@@ -31,10 +31,13 @@ protected:
     
     bool left_pressed;
     bool left_drag;
+    bool scrolling;
+
     vec2 cursor_pos;
     
     virtual UIElement* click(const MouseCursor& cursor);
     virtual UIElement* drag(const MouseCursor& cursor);
+    virtual UIElement* scroll(MouseCursor& cursor);
 public:
     FXFont font;
 
@@ -64,7 +67,7 @@ public:
 
     bool keyPress(SDL_KeyboardEvent *e);
 
-    virtual UIElement* processMouse(const MouseCursor& cursor);
+    virtual UIElement* processMouse(MouseCursor& cursor);
 
     virtual vec4 getSolidColour();
     virtual vec4 getBackgroundColour();

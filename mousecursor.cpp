@@ -33,6 +33,7 @@ MouseCursor::MouseCursor() {
     hidden        = false;
     timeout       = 3.0f;
     idle          = timeout;
+    scrollwheel   = 0;
     
     sdl_default_cursor = SDL_GetCursor();
     
@@ -94,6 +95,10 @@ bool MouseCursor::buttonPressed() const {
     return (ms & SDL_BUTTON(SDL_BUTTON_RIGHT) || ms & SDL_BUTTON(SDL_BUTTON_LEFT));
 }
 
+int MouseCursor::scrollWheel() const {
+    return scrollwheel;    
+}
+
 bool MouseCursor::isSystemCursor() const {
     return system_cursor;
 }
@@ -121,6 +126,14 @@ void MouseCursor::setCursorTexture(TextureResource* texture) {
 void MouseCursor::updatePos(const vec2& pos) {
     mousepos = pos;
     idle     = 0.0f;
+}
+
+void MouseCursor::scroll(bool dir) {
+    scrollwheel += dir ? 1 : -1;
+}
+
+void MouseCursor::resetScrollWheel() {
+    scrollwheel = 0;    
 }
 
 void MouseCursor::logic(float dt) {

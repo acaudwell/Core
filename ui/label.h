@@ -84,7 +84,11 @@ public:
     UIFloatLabel(UIFloatSlider* slider, bool editable, UIAction* action = 0);
 
     void setValue(float* value);
+    void setValue(float value);
 
+    void scroll(bool up);
+    void scale(bool up, float value_scale);
+    
     bool keyPress(SDL_KeyboardEvent *e, char c);
     bool submit();
 
@@ -105,6 +109,13 @@ public:
 class UILabelString : public UILabelledElement {
 public:
     UILabelString(const std::string& label, std::string* value, bool editable = false, UIAction* action = 0);
+};
+
+class UILabelVec3 : public UILabelledElement {
+protected:
+    vec3* value;
+public:
+    UILabelVec3(const std::string& label, vec3* value, bool editable = false, UIAction* action = 0);   
 };
 
 #endif

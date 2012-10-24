@@ -17,6 +17,7 @@ UI::UI() : selectedElement(0) {
     
     left_pressed = false;
     left_drag    = false;
+    scrolling    = false;
     cursor_pos   = vec2(0.0f);
 
     background_colour = vec4(0.3f, 0.3f, 0.3f, 0.67f);
@@ -259,7 +260,7 @@ void UI::draw() {
     glDisable(GL_DEPTH_TEST);
 }
 
-UIElement* UI::processMouse(const MouseCursor& cursor) {
+UIElement* UI::processMouse(MouseCursor& cursor) {
     
     bool mousemove = (cursor.getPos() != cursor_pos);
             
@@ -278,12 +279,27 @@ UIElement* UI::processMouse(const MouseCursor& cursor) {
         if(left_pressed) {
             if(left_drag) {
                 left_drag = false;
-                UIElement* selected = getSelected();
-                if(selected!=0) selected->idle();
             }
             left_pressed = false;
         }
     }
+    
+    int scroll_amount = cursor.scrollWheel();
+    
+    if(scroll_amount != 0) {
+        scrolling = true;
+        return scroll(cursor);        
+    } else if(scrolling) {
+        scrolling = false;
+    }
+
+    // call idle if nothing happened
+    // not sure about this 'idle' concept really
+    // might be better to indicate the type of change in the action class
+    
+    UIElement* selected = getSelected();
+    if(selected!=0) selected->idle();
+    
 
     return 0;
 }
@@ -324,6 +340,26 @@ bool UI::keyPress(SDL_KeyboardEvent *e) {
     char c = toChar(e);
 
     return selected->keyPress(e, c);
+}
+
+UIElement* UI::scroll(MouseCursor& cursor) {
+    int scroll_amount = cursor.scrollWheel();
+    
+    if(!scroll_amount) return 0;    
+
+    bool dir = (scroll_amount > 0);
+
+    UIElement* el = scrollableElementAt(cursor.getPos());
+    
+    if(!el) return 0;
+    
+    if(el->isSelectable()) selectElement(el);
+
+    el->scroll(dir);
+    
+    cursor.resetScrollWheel();
+    
+    return el;
 }
 
 UIElement* UI::drag(const MouseCursor& cursor) {

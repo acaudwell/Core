@@ -254,7 +254,7 @@ void UILabel::drawContent() {
     }
 }
 
-//
+// UILabelString
 
 UILabelString::UILabelString(const std::string& label, std::string* value, bool editable, UIAction* action) : UILabelledElement(label) {
 
@@ -262,6 +262,14 @@ UILabelString::UILabelString(const std::string& label, std::string* value, bool 
 
     padding = vec2(5.0f, 0.0f);
     scrollable = true;
+}
+
+// UILabelVec3
+
+UILabelVec3::UILabelVec3(const std::string& label, vec3* value, bool editable, UIAction* action) : value(value), UILabelledElement(label) {
+    layout->addElement(new UIFloatLabel(&(value->x), editable, action));
+    layout->addElement(new UIFloatLabel(&(value->y), editable, action));
+    layout->addElement(new UIFloatLabel(&(value->z), editable, action));
 }
 
 //UIIntLabel
@@ -310,6 +318,7 @@ UIFloatLabel::UIFloatLabel(UIFloatSlider* slider, bool editable, UIAction* actio
 UIFloatLabel::UIFloatLabel(float* value, bool editable, UIAction* action) : value(value), UILabel("", editable, -1.0f, action) {
     width = 80.0f;
     edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+    scrollable = editable;
 }
 
 bool UIFloatLabel::keyPress(SDL_KeyboardEvent *e, char c) {
@@ -323,6 +332,31 @@ void UIFloatLabel::setValue(float* value) {
     this->value = value;
 }
 
+void UIFloatLabel::setValue(float value) {
+    if(!this->value) return;   
+
+    *(this->value) = value;
+
+    debugLog("setValue(%f)", value);
+    
+    if(action!=0) action->perform();
+}
+
+void UIFloatLabel::scroll(bool up) {
+    scale(up, 0.1f);
+}
+
+void UIFloatLabel::scale(bool up, float value_scale) {
+
+    if(!value) return;
+
+    float value_inc = glm::max( 0.00001f, glm::abs(*value) * 0.1f );
+
+    if(!up) value_inc = -value_inc;
+
+    setValue(*value + UIElement::granulaity(value_inc, value_scale));
+}
+
 bool UIFloatLabel::submit() {
 
     float v = atof(text.c_str());
@@ -330,8 +364,7 @@ bool UIFloatLabel::submit() {
     if(slider != 0) {
         ((UIFloatSlider*)slider)->setValue(v);
     } else {
-        *value = v;
-        if(action != 0) action->perform();
+        setValue(v);
     }
 
     return true;
