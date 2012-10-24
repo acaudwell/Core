@@ -14,7 +14,10 @@ UI::UI() : selectedElement(0) {
     font.dropShadow(true);
     double_click_interval = 0.5f;
     double_click_timer = double_click_interval;
-    interaction = false;
+    
+    left_pressed = false;
+    left_drag    = false;
+    cursor_pos   = vec2(0.0f);
 
     background_colour = vec4(0.3f, 0.3f, 0.3f, 0.67f);
     solid_colour      = vec4(0.7f, 0.7f, 0.7f, 1.0f);
@@ -185,14 +188,6 @@ void UI::update(float dt) {
         ui_alpha.w = glm::min(ui_alpha.w + dt * 0.5f, 1.0f);
     }
 
-    if(!interaction) {
-        UIElement* selected = getSelected();
-
-        if(selected) selected->idle();
-    }
-
-    interaction = false;
-
     if(double_click_timer<double_click_interval) double_click_timer += dt;
 
     foreach(UIElement* e, elements) {
@@ -264,6 +259,35 @@ void UI::draw() {
     glDisable(GL_DEPTH_TEST);
 }
 
+UIElement* UI::processMouse(const MouseCursor& cursor) {
+    
+    bool mousemove = (cursor.getPos() != cursor_pos);
+            
+    cursor_pos = cursor.getPos();
+    
+    if(cursor.leftButtonPressed()) {
+
+        if(!left_pressed) {
+            left_pressed = true;
+            return click(cursor);
+        } else if(mousemove) {           
+            left_drag = true;
+            return drag(cursor);
+        }
+    } else {
+        if(left_pressed) {
+            if(left_drag) {
+                left_drag = false;
+                UIElement* selected = getSelected();
+                if(selected!=0) selected->idle();
+            }
+            left_pressed = false;
+        }
+    }
+
+    return 0;
+}
+
 void UI::drawOutline() {
     foreach(UIElement* e, elements) {
         if(e->isVisible()) e->drawOutline();
@@ -302,20 +326,18 @@ bool UI::keyPress(SDL_KeyboardEvent *e) {
     return selected->keyPress(e, c);
 }
 
-void UI::drag(const MouseCursor& cursor) {
-
-    interaction = true;
+UIElement* UI::drag(const MouseCursor& cursor) {
 
     UIElement* selected = getSelected();
 
-    if(!selected) return;
+    if(!selected) return 0;
 
     selected->drag(cursor.getPos());
+    
+    return selected;
 }
 
 UIElement* UI::click(const MouseCursor& cursor) {
-
-    interaction = true;
 
     UIElement* previous = getSelected();
     bool double_click   = double_click_timer < 0.5f;

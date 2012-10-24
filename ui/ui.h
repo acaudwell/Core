@@ -28,6 +28,13 @@ protected:
     vec4 text_colour;
     vec4 tint_colour;
     vec4 ui_alpha;
+    
+    bool left_pressed;
+    bool left_drag;
+    vec2 cursor_pos;
+    
+    virtual UIElement* click(const MouseCursor& cursor);
+    virtual UIElement* drag(const MouseCursor& cursor);
 public:
     FXFont font;
 
@@ -57,8 +64,7 @@ public:
 
     bool keyPress(SDL_KeyboardEvent *e);
 
-    virtual UIElement* click(const MouseCursor& cursor);
-    virtual void drag(const MouseCursor& cursor);
+    virtual UIElement* processMouse(const MouseCursor& cursor);
 
     virtual vec4 getSolidColour();
     virtual vec4 getBackgroundColour();
