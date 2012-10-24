@@ -8,13 +8,14 @@
 #include "button.h"
 #include "colour.h"
 #include "element.h"
+#include "../mousecursor.h"
 
 UI::UI() : selectedElement(0) {
     font = fontmanager.grab("FreeSans.ttf", 12);
     font.dropShadow(true);
     double_click_interval = 0.5f;
     double_click_timer = double_click_interval;
-    
+
     left_pressed = false;
     left_drag    = false;
     scrolling    = false;
@@ -261,17 +262,17 @@ void UI::draw() {
 }
 
 UIElement* UI::processMouse(MouseCursor& cursor) {
-    
+
     bool mousemove = (cursor.getPos() != cursor_pos);
-            
+
     cursor_pos = cursor.getPos();
-    
+
     if(cursor.leftButtonPressed()) {
 
         if(!left_pressed) {
             left_pressed = true;
             return click(cursor);
-        } else if(mousemove) {           
+        } else if(mousemove) {
             left_drag = true;
             return drag(cursor);
         }
@@ -283,12 +284,12 @@ UIElement* UI::processMouse(MouseCursor& cursor) {
             left_pressed = false;
         }
     }
-    
+
     int scroll_amount = cursor.scrollWheel();
-    
+
     if(scroll_amount != 0) {
         scrolling = true;
-        return scroll(cursor);        
+        return scroll(cursor);
     } else if(scrolling) {
         scrolling = false;
     }
@@ -296,10 +297,10 @@ UIElement* UI::processMouse(MouseCursor& cursor) {
     // call idle if nothing happened
     // not sure about this 'idle' concept really
     // might be better to indicate the type of change in the action class
-    
+
     UIElement* selected = getSelected();
     if(selected!=0) selected->idle();
-    
+
 
     return 0;
 }
@@ -344,21 +345,21 @@ bool UI::keyPress(SDL_KeyboardEvent *e) {
 
 UIElement* UI::scroll(MouseCursor& cursor) {
     int scroll_amount = cursor.scrollWheel();
-    
-    if(!scroll_amount) return 0;    
+
+    if(!scroll_amount) return 0;
 
     bool dir = (scroll_amount > 0);
 
     UIElement* el = scrollableElementAt(cursor.getPos());
-    
+
     if(!el) return 0;
-    
+
     if(el->isSelectable()) selectElement(el);
 
     el->scroll(dir);
-    
+
     cursor.resetScrollWheel();
-    
+
     return el;
 }
 
@@ -369,7 +370,7 @@ UIElement* UI::drag(const MouseCursor& cursor) {
     if(!selected) return 0;
 
     selected->drag(cursor.getPos());
-    
+
     return selected;
 }
 

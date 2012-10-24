@@ -28,9 +28,10 @@
 #ifndef TGA_WRITER_H
 #define TGA_WRITER_H
 
-#include <fstream>
+#include "SDL_thread.h"
 
-#include "display.h"
+#include <fstream>
+#include <vector>
 
 class TGAWriter {
 protected:

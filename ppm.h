@@ -22,8 +22,6 @@
 #include <fstream>
 #include <ostream>
 
-#include "SDL_thread.h"
-
 #include "sdlapp.h"
 #include "display.h"
 

@@ -32,10 +32,6 @@
 #include <deque>
 #include <string>
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
-
 enum logger_level { LOG_LEVEL_PEDANTIC, LOG_LEVEL_WARN, LOG_LEVEL_DEBUG, LOG_LEVEL_SCRIPT, LOG_LEVEL_INFO, LOG_LEVEL_CONSOLE, LOG_LEVEL_ERROR, LOG_LEVEL_INFINITY };
 
 class LoggerMessage {

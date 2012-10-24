@@ -28,6 +28,10 @@
 #include "logger.h"
 #include <boost/assign/list_of.hpp>
 
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
+
 std::map<int,std::string> log_levels = boost::assign::map_list_of
     (LOG_LEVEL_ERROR,    "  ERROR" )
     (LOG_LEVEL_CONSOLE,  "CONSOLE" )

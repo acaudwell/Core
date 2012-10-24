@@ -26,6 +26,7 @@
 */
 
 #include "tga.h"
+#include "display.h"
 
 TGAWriter::TGAWriter(int components)
     : components(components) {
@@ -56,7 +57,7 @@ void TGAWriter::writeRaw(std::vector<char>& buffer, int start, int pixel_count) 
     raw_count += pixel_count;
 
     int written = 0;
-    
+
     while(pixel_count > 0) {
         int write_count = std::min(128, pixel_count);
 
