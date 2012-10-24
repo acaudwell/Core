@@ -120,10 +120,10 @@ void UIFloatSlider::click(const vec2& pos) {
         float v = *value;
         if(v == 0.0f) v = 1.0f;        
         
-        new_value = percent * v * 2.0f - v;        
+        new_value = percent * 2.0 * v;
     }
     
-    debugLog("new value = %f", new_value);
+    //debugLog("new value = %f", new_value);
         
     setValue(new_value);
 }
@@ -138,7 +138,9 @@ void UIFloatSlider::drag(const vec2& pos) {
     
     float new_value = (min!=max)
         ? percent * (max-min) + min 
-        : percent * old_value * 2.0f - old_value;
+        : percent * 2.0 * old_value;
+        
+    //debugLog("drag: percent %f new_value %f", percent, new_value);
         
     setValue(new_value);
 }
@@ -169,9 +171,7 @@ void UIFloatSlider::drawContent() {
          
     } else {
         if(dragging) {
-            position = std::min(1.0f, (*value - old_value) / (old_value * 2.0f));
-            
-            debugLog("position = %f value %f old_value %f", position, *value, old_value);
+            position = std::max(0.0f, std::min(1.0f, *value / (old_value * 2.0f)));
         } else {
             position = 0.5f;
         }
