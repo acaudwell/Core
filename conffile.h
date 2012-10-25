@@ -24,6 +24,7 @@
 #include <map>
 #include <stdexcept>
 
+#include "vectors.h"
 #include "regex.h"
 
 class ConfFileException : public std::exception {

@@ -2,6 +2,8 @@
 #include "slider.h"
 #include "colour.h"
 
+#include "../sdlapp.h"
+
 //UILabel
 
 UILabel::UILabel(const std::string& text, bool editable, float width, UIAction* action, std::string* value) : text(text), value(value), width(width), action(action), UIElement() {

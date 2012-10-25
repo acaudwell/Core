@@ -20,7 +20,7 @@ public:
     vec2  pos;
     vec2  rect;
     bool  editable;
-    bool  selected;
+    bool  selected;    
     bool  disabled;
     bool  hidden;
     bool  scrollable;

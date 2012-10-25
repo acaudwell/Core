@@ -30,8 +30,6 @@
 
 #define REGEX_MAX_MATCHES 100
 
-#include "sdlapp.h"
-
 #include "pcre.h"
 #include <string>
 #include <vector>

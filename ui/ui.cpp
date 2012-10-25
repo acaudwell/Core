@@ -10,6 +10,8 @@
 #include "element.h"
 #include "../mousecursor.h"
 
+#include <algorithm>
+
 UI::UI() : selectedElement(0) {
     font = fontmanager.grab("FreeSans.ttf", 12);
     font.dropShadow(true);

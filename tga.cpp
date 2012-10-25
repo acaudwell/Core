@@ -28,6 +28,8 @@
 #include "tga.h"
 #include "display.h"
 
+#include <iostream>
+
 TGAWriter::TGAWriter(int components)
     : components(components) {
     rle = true;

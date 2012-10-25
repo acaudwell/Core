@@ -16,6 +16,7 @@
 */
 
 #include "conffile.h"
+#include "logger.h"
 
 //section of config file
 Regex ConfFile_section("^\\s*\\[([^\\]]+)\\]\\s*$");
