@@ -55,6 +55,7 @@ class __ShaderPass;
 class __ShaderUniform {
 protected:
     std::string name;
+    std::string comment;
     int  location;
     __Shader* shader;
     int uniform_type;
@@ -79,10 +80,13 @@ public:
     bool isBaked() const    { return baked; };
     bool isModified() const { return modified; };
 
+    void setComment(const std::string& comment);
+    const std::string& getComment() const;
+
     void setInitialized(bool initialized) { this->initialized = initialized; };
 
     virtual void apply() {};
-
+    
     virtual void setBaked(bool baked);
     virtual void setModified(bool modified) { this->modified = modified; };
 };
@@ -364,7 +368,7 @@ public:
 };
 
 class __Shader : public Resource {
-
+protected:
     std::map<std::string, __ShaderUniform*>  uniforms;
     std::map<std::string,std::string> substitutions;
 

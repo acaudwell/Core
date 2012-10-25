@@ -129,6 +129,14 @@ void __ShaderUniform::setBaked(bool baked) {
     modified = true;
 }
 
+void __ShaderUniform::setComment(const std::string& comment) {
+    this->comment = comment;
+}
+    
+const std::string& __ShaderUniform::getComment() const {
+    return comment;
+}
+    
 
 //__FloatShaderUniform
 
@@ -1152,13 +1160,17 @@ bool __ShaderPass::preprocess(const std::string& line) {
     if(Shader_uniform_def.match(line, &matches)) {
         std::string uniform_type = matches[0];
         std::string uniform_name = matches[1];
-
-        if(matches.size() > 2) {
+                
+        __ShaderUniform* uniform = 0;
+                
+        if(matches.size() > 2 && !matches[2].empty()) {
             size_t uniform_length = atoi(matches[2].c_str());
-            addArrayUniform(uniform_name, uniform_type, uniform_length);
+            uniform = addArrayUniform(uniform_name, uniform_type, uniform_length);
         } else {
-            addUniform(uniform_name, uniform_type);
+            uniform = addUniform(uniform_name, uniform_type);
         }
+
+        if(matches.size() > 3 && !matches[3].empty()) uniform->setComment(matches[3]);
 
         return true;
     }
