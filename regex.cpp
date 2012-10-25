@@ -79,11 +79,19 @@ bool Regex::match(const std::string& str, std::vector<std::string>* results) {
     }
 
 
-    if(results!=0) {
+    if(results!=0) {       
         results->clear();
         for (int i = 1; i < rc; i++) {
-            std::string match(str, ovector[2*i], ovector[2*i+1] - ovector[2*i]);
-            results->push_back(match);
+            int match_start = ovector[2*i];
+            int match_end   = ovector[2*i+1]; 
+
+            // insert a empty string for non-matching optional regex
+            if(match_start == -1) {
+                results->push_back(std::string(""));
+            } else {
+                std::string match(str, match_start, match_end-match_start);
+                results->push_back(match);
+            }
         }
     }
 
