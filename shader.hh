@@ -37,27 +37,27 @@
 
 #include "shader_common.h"
 
-class __ShaderException : public std::exception {
+class ShaderException : public std::exception {
 protected:
     std::string message;
 public:
-    __ShaderException(const char* str, ...);
-    __ShaderException(const std::string& message);
+    ShaderException(const char* str, ...);
+    ShaderException(const std::string& message);
 
-    ~__ShaderException() throw () {};
+    ~ShaderException() throw () {};
 
     virtual const char* what() const throw() { return message.c_str(); }
 };
 
-class __Shader;
-class __ShaderPass;
+class Shader;
+class ShaderPass;
 
-class __ShaderUniform {
+class ShaderUniform {
 protected:
     std::string name;
     std::string comment;
     int  location;
-    __Shader* shader;
+    Shader* shader;
     int uniform_type;
     std::string type_name;
     bool modified;
@@ -65,7 +65,7 @@ protected:
     bool baked;
 public:
 
-    __ShaderUniform(__Shader* shader, const std::string& name, int uniform_type, const std::string& type_name);
+    ShaderUniform(Shader* shader, const std::string& name, int uniform_type, const std::string& type_name);
 
     virtual void unload();
 
@@ -91,46 +91,49 @@ public:
     virtual void setModified(bool modified) { this->modified = modified; };
 };
 
-class __FloatShaderUniform : public __ShaderUniform {
+class FloatShaderUniform : public ShaderUniform {
     float value;
 public:
-    __FloatShaderUniform(__Shader* shader, const std::string& name, float value = 0.0f);
+    FloatShaderUniform(Shader* shader, const std::string& name, float value = 0.0f);
 
     void write(std::string& content) const;
 
     void apply();
     void setValue(float value);
-    float getValue() const;
+    
+    float& getValue();
 };
 
-class __IntShaderUniform : public __ShaderUniform {
+class IntShaderUniform : public ShaderUniform {
     int value;
 public:
-    __IntShaderUniform(__Shader* shader, const std::string& name, int value = 0);
+    IntShaderUniform(Shader* shader, const std::string& name, int value = 0);
 
     void write(std::string& content) const;
 
     void apply();
     void setValue(int value);
-    float getValue() const;
+    
+    int& getValue();
 };
 
-class __BoolShaderUniform : public __ShaderUniform {
+class BoolShaderUniform : public ShaderUniform {
     bool value;
 public:
-    __BoolShaderUniform(__Shader* shader, const std::string& name, bool value = false);
+    BoolShaderUniform(Shader* shader, const std::string& name, bool value = false);
 
     void write(std::string& content) const;
 
     void apply();
     void setValue(bool value);
-    float getValue() const;
+
+    bool& getValue();
 };
 
-class __Sampler1DShaderUniform : public __ShaderUniform {
+class Sampler1DShaderUniform : public ShaderUniform {
     int value;
 public:
-    __Sampler1DShaderUniform(__Shader* shader, const std::string& name, int value = 0);
+    Sampler1DShaderUniform(Shader* shader, const std::string& name, int value = 0);
 
     void write(std::string& content) const;
 
@@ -138,13 +141,14 @@ public:
 
     void apply();
     void setValue(int value);
-    int getValue() const;
+    
+    int& getValue();
 };
 
-class __Sampler2DShaderUniform : public __ShaderUniform {
+class Sampler2DShaderUniform : public ShaderUniform {
     int value;
 public:
-    __Sampler2DShaderUniform(__Shader* shader, const std::string& name, int value = 0);
+    Sampler2DShaderUniform(Shader* shader, const std::string& name, int value = 0);
 
     void write(std::string& content) const;
 
@@ -152,78 +156,84 @@ public:
 
     void apply();
     void setValue(int value);
-    int getValue() const;
+    
+    int& getValue();
 };
 
-class __Vec2ShaderUniform : public __ShaderUniform {
+class Vec2ShaderUniform : public ShaderUniform {
     vec2 value;
 public:
-    __Vec2ShaderUniform(__Shader* shader, const std::string& name, const vec2& value = vec2(0.0f)) ;
+    Vec2ShaderUniform(Shader* shader, const std::string& name, const vec2& value = vec2(0.0f)) ;
 
     void write(std::string& content) const;
 
     void apply();
     void setValue(const vec2& value);
-    const vec2& getValue() const;
+    
+    vec2& getValue();
 };
 
-class __Vec3ShaderUniform : public __ShaderUniform {
+class Vec3ShaderUniform : public ShaderUniform {
     vec3 value;
 public:
-    __Vec3ShaderUniform(__Shader* shader, const std::string& name, const vec3& value = vec3(0.0f));
+    Vec3ShaderUniform(Shader* shader, const std::string& name, const vec3& value = vec3(0.0f));
 
     void write(std::string& content) const;
 
     void apply();
     void setValue(const vec3& value);
-    const vec3& getValue() const;
+    
+    vec3& getValue();
 };
 
-class __Vec4ShaderUniform : public __ShaderUniform {
+class Vec4ShaderUniform : public ShaderUniform {
     vec4 value;
 public:
-    __Vec4ShaderUniform(__Shader* shader, const std::string& name, const vec4& value = vec4(0.0f));
+    Vec4ShaderUniform(Shader* shader, const std::string& name, const vec4& value = vec4(0.0f));
 
     void write(std::string& content) const;
 
     void apply();
     void setValue(const vec4& value);
-    const vec4& getValue() const;
+    
+    vec4& getValue();
 };
 
-class __Mat3ShaderUniform : public __ShaderUniform {
+class Mat3ShaderUniform : public ShaderUniform {
     mat3 value;
 public:
-    __Mat3ShaderUniform(__Shader* shader, const std::string& name, const mat3& value = mat3(1.0f));
+    Mat3ShaderUniform(Shader* shader, const std::string& name, const mat3& value = mat3(1.0f));
 
     void write(std::string& content) const;
 
     void apply();
     void setValue(const mat3& value);
-    const mat3& getValue() const;
+    
+    mat3& getValue();
 };
 
-class __Mat4ShaderUniform : public __ShaderUniform {
+class Mat4ShaderUniform : public ShaderUniform {
     mat4 value;
 public:
-    __Mat4ShaderUniform(__Shader* shader, const std::string& name, const mat4& value = mat4(1.0f));
+    Mat4ShaderUniform(Shader* shader, const std::string& name, const mat4& value = mat4(1.0f));
 
     void write(std::string& content) const;
 
     void apply();
     void setValue(const mat4& value);
-    const mat4& getValue() const;
+    
+    mat4& getValue();
 };
 
-class __Vec2ArrayShaderUniform : public __ShaderUniform {
+class Vec2ArrayShaderUniform : public ShaderUniform {
     vec2* value;
     size_t length;
 
     void copyValue(const vec2* value);
     void copyValue(const std::vector<vec2>& value);
 public:
-    __Vec2ArrayShaderUniform(__Shader* shader, const std::string& name, size_t length, const vec2* value = 0);
-    ~__Vec2ArrayShaderUniform();
+    Vec2ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec2* value = 0);
+    ~Vec2ArrayShaderUniform();
 
     void write(std::string& content) const;
 
@@ -232,18 +242,18 @@ public:
     void setValue(const vec2* value);
     void setValue(const std::vector<vec2>& value);
 
-    const vec2* getValue() const;
+    vec2* getValue();
 };
 
-class __Vec3ArrayShaderUniform : public __ShaderUniform {
+class Vec3ArrayShaderUniform : public ShaderUniform {
     vec3* value;
     size_t length;
 
     void copyValue(const vec3* value);
     void copyValue(const std::vector<vec3>& value);
 public:
-    __Vec3ArrayShaderUniform(__Shader* shader, const std::string& name, size_t length, const vec3* value = 0);
-    ~__Vec3ArrayShaderUniform();
+    Vec3ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec3* value = 0);
+    ~Vec3ArrayShaderUniform();
 
     void write(std::string& content) const;
 
@@ -252,18 +262,18 @@ public:
     void setValue(const vec3* value);
     void setValue(const std::vector<vec3>& value);
 
-    const vec3* getValue() const;
+    vec3* getValue();
 };
 
-class __Vec4ArrayShaderUniform : public __ShaderUniform {
+class Vec4ArrayShaderUniform : public ShaderUniform {
     vec4* value;
     size_t length;
 
     void copyValue(const vec4* value);
     void copyValue(const std::vector<vec4>& value);
 public:
-    __Vec4ArrayShaderUniform(__Shader* shader, const std::string& name, size_t length, const vec4* value = 0);
-    ~__Vec4ArrayShaderUniform();
+    Vec4ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec4* value = 0);
+    ~Vec4ArrayShaderUniform();
 
     void write(std::string& content) const;
 
@@ -272,10 +282,10 @@ public:
     void setValue(const vec4* value);
     void setValue(const std::vector<vec4>& value);
 
-    const vec4* getValue() const;
+    vec4* getValue();
 };
 
-class __ShaderPart {
+class ShaderPart {
 
     std::string filename;
 
@@ -290,7 +300,7 @@ class __ShaderPart {
     void substitute(std::string& source, const std::string& name, const std::string& value);
     void applyDefines(std::string& source);
 public:
-    __ShaderPart();
+    ShaderPart();
 
     void setSourceFile(const std::string& filename);
     void setSource(const std::string& source);
@@ -307,7 +317,7 @@ public:
     const std::string& getSource();
 };
 
-class __ShaderPass {
+class ShaderPass {
     int          shader_object_type;
     std::string  shader_object_desc;
     unsigned int shader_object;
@@ -315,19 +325,19 @@ class __ShaderPass {
     int version;
     std::map<std::string,std::string> extensions;
 
-    __Shader* parent;
+    Shader* parent;
 
     std::string source;
     std::string shader_object_source;
 
-    std::list<__ShaderUniform*> uniforms;
+    std::list<ShaderUniform*> uniforms;
 
     bool errorContext(const char* log_message, std::string& context);
 
     bool preprocess(const std::string& line);
 public:
-    __ShaderPass(__Shader* parent, int shader_object_type, const std::string& shader_object_desc);
-    virtual ~__ShaderPass();
+    ShaderPass(Shader* parent, int shader_object_type, const std::string& shader_object_desc);
+    virtual ~ShaderPass();
 
     int getType() { return shader_object_type; };
 
@@ -341,8 +351,8 @@ public:
 
     void checkError();
 
-    __ShaderUniform* addArrayUniform(const std::string& name, const std::string& type, size_t length);
-    __ShaderUniform* addUniform(const std::string& name, const std::string& type);
+    ShaderUniform* addArrayUniform(const std::string& name, const std::string& type, size_t length);
+    ShaderUniform* addUniform(const std::string& name, const std::string& type);
 
     virtual void attachTo(unsigned int program);
 
@@ -350,26 +360,26 @@ public:
     void includeFile(const std::string& filename);
 };
 
-class __VertexShader : public __ShaderPass {
+class VertexShader : public ShaderPass {
 public:
-    __VertexShader(__Shader* parent);
+    VertexShader(Shader* parent);
 };
 
-class __FragmentShader : public __ShaderPass {
+class FragmentShader : public ShaderPass {
 public:
-    __FragmentShader(__Shader* parent);
+    FragmentShader(Shader* parent);
 };
 
-class __GeometryShader : public __ShaderPass {
+class GeometryShader : public ShaderPass {
 public:
-    __GeometryShader(__Shader* parent);
+    GeometryShader(Shader* parent);
 
     void attachTo(unsigned int program);
 };
 
-class __Shader : public Resource {
+class Shader : public Resource {
 protected:
-    std::map<std::string, __ShaderUniform*>  uniforms;
+    std::map<std::string, ShaderUniform*>  uniforms;
     std::map<std::string,std::string> substitutions;
 
     std::string prefix;
@@ -381,13 +391,13 @@ protected:
     void setDefaults();
     void loadPrefix();
 public:
-    __VertexShader*   vertex_shader;
-    __GeometryShader* geometry_shader;
-    __FragmentShader* fragment_shader;
+    VertexShader*   vertex_shader;
+    GeometryShader* geometry_shader;
+    FragmentShader* fragment_shader;
 
-    __Shader();
-    __Shader(const std::string& prefix);
-    ~__Shader();
+    Shader();
+    Shader(const std::string& prefix);
+    ~Shader();
 
     unsigned int getProgram();
 
@@ -400,7 +410,7 @@ public:
 
     void unload();
 
-    __ShaderPass* grabShaderPass(unsigned int shader_object_type);
+    ShaderPass* grabShaderPass(unsigned int shader_object_type);
 
     void includeSource(unsigned int shader_object_type, const std::string& source);
     void includeFile(unsigned int shader_object_type,   const std::string& filename);
@@ -410,12 +420,14 @@ public:
     void addSubstitute(const std::string& name, const char *value, ...);
     void applySubstitutions(std::string& source);
 
-    void addUniform(__ShaderUniform* uniform);
-    __ShaderUniform* getUniform(const std::string& name);
+    void addUniform(ShaderUniform* uniform);
+    ShaderUniform* getUniform(const std::string& name);
 
     void setDynamicCompile(bool dynamic_compile);
     bool needsCompile();
 
+    void getUniforms(std::list<ShaderUniform*>& uniform_list);
+    
     void applyUniforms();
 
     void setBool(const std::string& name, bool value);
@@ -447,13 +459,15 @@ public:
     void use();
 };
 
-class __ShaderManager : public ResourceManager {
+class ShaderManager : public ResourceManager {
 public:
-    __ShaderManager();
-    __Shader* grab(const std::string& shader_prefix);
+    ShaderManager();
+    Shader* grab(const std::string& shader_prefix);
 
-    void manage(__Shader* shader);
+    void manage(Shader* shader);
 
     void unload();
     void reload(bool force = false);
 };
+
+extern ShaderManager shadermanager;

@@ -37,9 +37,11 @@
 
 #include "logger.h"
 
-//__ShaderException
+ShaderManager shadermanager;
 
-__ShaderException::__ShaderException(const char* str, ...) {
+//ShaderException
+
+ShaderException::ShaderException(const char* str, ...) {
 
     va_list vl;
     char msg[65536];
@@ -51,34 +53,34 @@ __ShaderException::__ShaderException(const char* str, ...) {
     message = std::string(msg);
 }
 
-__ShaderException::__ShaderException(const std::string& message) : message(message) {}   
+ShaderException::ShaderException(const std::string& message) : message(message) {}   
 
-//__ShaderManager
+//ShaderManager
 
-__ShaderManager::__ShaderManager() {
+ShaderManager::ShaderManager() {
 }
 
-__Shader* __ShaderManager::grab(const std::string& shader_prefix) {
+Shader* ShaderManager::grab(const std::string& shader_prefix) {
     Resource* s = resources[shader_prefix];
 
     if(s==0) {
-        s = new __Shader(shader_prefix);
+        s = new Shader(shader_prefix);
         resources[shader_prefix] = s;
     }
 
     s->addref();
 
-    return (__Shader*) s;
+    return (Shader*) s;
 }
 
-void __ShaderManager::manage(__Shader* shader) {
+void ShaderManager::manage(Shader* shader) {
 
     if(shader->resource_name.empty()) {
-        throw __ShaderException("Cannot manage shader with no resource name");
+        throw ShaderException("Cannot manage shader with no resource name");
     }
 
     if(resources[shader->resource_name] != 0) {
-        throw __ShaderException("A shader resource already exists under the name '%s'", shader->resource_name.c_str());
+        throw ShaderException("A shader resource already exists under the name '%s'", shader->resource_name.c_str());
     }
 
     resources[shader->resource_name] = shader;
@@ -86,33 +88,33 @@ void __ShaderManager::manage(__Shader* shader) {
     shader->addref();
 }
 
-void __ShaderManager::unload() {
+void ShaderManager::unload() {
     for(std::map<std::string, Resource*>::iterator it= resources.begin(); it!=resources.end();it++) {
-        ((__Shader*)it->second)->unload();
+        ((Shader*)it->second)->unload();
     }
 }
 
-void __ShaderManager::reload(bool force) {
+void ShaderManager::reload(bool force) {
     for(std::map<std::string, Resource*>::iterator it= resources.begin(); it!=resources.end();it++) {
-        ((__Shader*)it->second)->reload(force);
+        ((Shader*)it->second)->reload(force);
     }
 }
 
-//__ShaderUniform
+//ShaderUniform
 
-__ShaderUniform::__ShaderUniform(__Shader* shader, const std::string& name, int uniform_type, const std::string& type_name)
+ShaderUniform::ShaderUniform(Shader* shader, const std::string& name, int uniform_type, const std::string& type_name)
     : shader(shader), name(name), location(-1), initialized(false), modified(false), baked(false), uniform_type(uniform_type), type_name(type_name) {
 }
 
-void __ShaderUniform::unload() {
+void ShaderUniform::unload() {
     location = -1;
 }
 
-const std::string& __ShaderUniform::getName() const {
+const std::string& ShaderUniform::getName() const {
     return name;
 }
 
-int __ShaderUniform::getLocation() {
+int ShaderUniform::getLocation() {
 
     // TODO: (re-)compiling the shader should break the uniform location caching.
 
@@ -123,28 +125,28 @@ int __ShaderUniform::getLocation() {
     return location;
 }
 
-void __ShaderUniform::setBaked(bool baked) {
+void ShaderUniform::setBaked(bool baked) {
     if(this->baked == baked) return;
     this->baked = baked;
     modified = true;
 }
 
-void __ShaderUniform::setComment(const std::string& comment) {
+void ShaderUniform::setComment(const std::string& comment) {
     this->comment = comment;
 }
     
-const std::string& __ShaderUniform::getComment() const {
+const std::string& ShaderUniform::getComment() const {
     return comment;
 }
     
 
-//__FloatShaderUniform
+//FloatShaderUniform
 
-__FloatShaderUniform::__FloatShaderUniform(__Shader* shader, const std::string& name, float value) :
-    value(value), __ShaderUniform(shader, name, SHADER_UNIFORM_FLOAT, "float") {
+FloatShaderUniform::FloatShaderUniform(Shader* shader, const std::string& name, float value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_FLOAT, "float") {
 }
 
-void __FloatShaderUniform::setValue(float value) {
+void FloatShaderUniform::setValue(float value) {
     if(baked && this->value == value) return;
 
     this->value = value;
@@ -152,15 +154,15 @@ void __FloatShaderUniform::setValue(float value) {
     initialized = true;
 }
 
-void __FloatShaderUniform::apply() {
+void FloatShaderUniform::apply() {
     glUniform1f(getLocation(), value);
 }
 
-float __FloatShaderUniform::getValue() const {
+float& FloatShaderUniform::getValue() {
     return value;
 }
 
-void __FloatShaderUniform::write(std::string& content) const {
+void FloatShaderUniform::write(std::string& content) const {
 
     char buff[256];
 
@@ -174,13 +176,13 @@ void __FloatShaderUniform::write(std::string& content) const {
     content += buff;
 }
 
-//__IntShaderUniform
+//IntShaderUniform
 
-__IntShaderUniform::__IntShaderUniform(__Shader* shader, const std::string& name, int value) :
-    value(value), __ShaderUniform(shader, name, SHADER_UNIFORM_INT, "int") {
+IntShaderUniform::IntShaderUniform(Shader* shader, const std::string& name, int value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_INT, "int") {
 }
 
-void __IntShaderUniform::setValue(int value) {
+void IntShaderUniform::setValue(int value) {
     if(baked && this->value == value) return;
 
     this->value = value;
@@ -188,15 +190,15 @@ void __IntShaderUniform::setValue(int value) {
     initialized = true;
 }
 
-void __IntShaderUniform::apply() {
+void IntShaderUniform::apply() {
     glUniform1i(getLocation(), value);
 }
 
-float __IntShaderUniform::getValue() const {
+int& IntShaderUniform::getValue() {
     return value;
 }
 
-void __IntShaderUniform::write(std::string& content) const {
+void IntShaderUniform::write(std::string& content) const {
 
     char buff[256];
 
@@ -209,13 +211,13 @@ void __IntShaderUniform::write(std::string& content) const {
     content += buff;
 }
 
-//__BoolShaderUniform
+//BoolShaderUniform
 
-__BoolShaderUniform::__BoolShaderUniform(__Shader* shader, const std::string& name, bool value) :
-    value(value), __ShaderUniform(shader, name, SHADER_UNIFORM_BOOL, "bool") {
+BoolShaderUniform::BoolShaderUniform(Shader* shader, const std::string& name, bool value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_BOOL, "bool") {
 }
 
-void __BoolShaderUniform::setValue(bool value) {
+void BoolShaderUniform::setValue(bool value) {
     if(baked && this->value == value) return;
 
     this->value = value;
@@ -223,15 +225,15 @@ void __BoolShaderUniform::setValue(bool value) {
     initialized = true;
 }
 
-void __BoolShaderUniform::apply() {
+void BoolShaderUniform::apply() {
     glUniform1i(getLocation(), value);
 }
 
-float __BoolShaderUniform::getValue() const {
+bool& BoolShaderUniform::getValue() {
     return value;
 }
 
-void __BoolShaderUniform::write(std::string& content) const {
+void BoolShaderUniform::write(std::string& content) const {
 
     char buff[256];
 
@@ -244,13 +246,13 @@ void __BoolShaderUniform::write(std::string& content) const {
     content += buff;
 }
 
-//__Sampler1DShaderUniform
+//Sampler1DShaderUniform
 
-__Sampler1DShaderUniform::__Sampler1DShaderUniform(__Shader* shader, const std::string& name, int value) :
-    value(value), __ShaderUniform(shader, name, SHADER_UNIFORM_SAMPLER_1D, "sampler1D") {
+Sampler1DShaderUniform::Sampler1DShaderUniform(Shader* shader, const std::string& name, int value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_SAMPLER_1D, "sampler1D") {
 }
 
-void __Sampler1DShaderUniform::setValue(int value) {
+void Sampler1DShaderUniform::setValue(int value) {
     if(baked && this->value == value) return;
 
     this->value = value;
@@ -258,30 +260,30 @@ void __Sampler1DShaderUniform::setValue(int value) {
     initialized = true;
 }
 
-void __Sampler1DShaderUniform::setBaked(bool baked) {
+void Sampler1DShaderUniform::setBaked(bool baked) {
 }
 
-void __Sampler1DShaderUniform::write(std::string& content) const {
+void Sampler1DShaderUniform::write(std::string& content) const {
     char buff[256];
     snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
     content += buff;
 }
 
-void __Sampler1DShaderUniform::apply() {
+void Sampler1DShaderUniform::apply() {
     glUniform1i(getLocation(), value);
 }
 
-int __Sampler1DShaderUniform::getValue() const {
+int& Sampler1DShaderUniform::getValue() {
     return value;
 }
 
-//__Sampler2DShaderUniform
+//Sampler2DShaderUniform
 
-__Sampler2DShaderUniform::__Sampler2DShaderUniform(__Shader* shader, const std::string& name, int value) :
-    value(value), __ShaderUniform(shader, name, SHADER_UNIFORM_SAMPLER_2D, "sampler2D") {
+Sampler2DShaderUniform::Sampler2DShaderUniform(Shader* shader, const std::string& name, int value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_SAMPLER_2D, "sampler2D") {
 }
 
-void __Sampler2DShaderUniform::setValue(int value) {
+void Sampler2DShaderUniform::setValue(int value) {
     if(baked && this->value == value) return;
 
     this->value = value;
@@ -289,32 +291,32 @@ void __Sampler2DShaderUniform::setValue(int value) {
     initialized = true;
 }
 
-void __Sampler2DShaderUniform::apply() {
+void Sampler2DShaderUniform::apply() {
     glUniform1i(getLocation(), value);
 }
 
-int __Sampler2DShaderUniform::getValue() const {
+int& Sampler2DShaderUniform::getValue() {
     return value;
 }
 
 //cant be baked
-void __Sampler2DShaderUniform::setBaked(bool baked) {
+void Sampler2DShaderUniform::setBaked(bool baked) {
 }
 
-void __Sampler2DShaderUniform::write(std::string& content) const {
+void Sampler2DShaderUniform::write(std::string& content) const {
     char buff[256];
     snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
     content += buff;
 }
 
 
-//__Vec2ShaderUniform
+//Vec2ShaderUniform
 
-__Vec2ShaderUniform::__Vec2ShaderUniform(__Shader* shader, const std::string& name, const vec2& value) :
-    value(value), __ShaderUniform(shader, name, SHADER_UNIFORM_VEC2, "vec2") {
+Vec2ShaderUniform::Vec2ShaderUniform(Shader* shader, const std::string& name, const vec2& value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_VEC2, "vec2") {
 }
 
-void __Vec2ShaderUniform::setValue(const vec2& value) {
+void Vec2ShaderUniform::setValue(const vec2& value) {
     if(baked && this->value == value) return;
 
     this->value = value;
@@ -322,15 +324,15 @@ void __Vec2ShaderUniform::setValue(const vec2& value) {
     initialized = true;
 }
 
-void __Vec2ShaderUniform::apply() {
+void Vec2ShaderUniform::apply() {
     glUniform2fv(getLocation(), 1, glm::value_ptr(value));
 }
 
-const vec2& __Vec2ShaderUniform::getValue() const {
+vec2& Vec2ShaderUniform::getValue() {
     return value;
 }
 
-void __Vec2ShaderUniform::write(std::string& content) const {
+void Vec2ShaderUniform::write(std::string& content) const {
 
     char buff[256];
 
@@ -343,14 +345,14 @@ void __Vec2ShaderUniform::write(std::string& content) const {
     content += buff;
 }
 
-//__Vec3ShaderUniform
+//Vec3ShaderUniform
 
-__Vec3ShaderUniform::__Vec3ShaderUniform(__Shader* shader, const std::string& name, const vec3& value) :
-    value(value), __ShaderUniform(shader, name, SHADER_UNIFORM_VEC3, "vec3") {
+Vec3ShaderUniform::Vec3ShaderUniform(Shader* shader, const std::string& name, const vec3& value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_VEC3, "vec3") {
 }
 
 
-void __Vec3ShaderUniform::setValue(const vec3& value) {
+void Vec3ShaderUniform::setValue(const vec3& value) {
     if(baked && this->value == value) return;
 
     this->value = value;
@@ -358,16 +360,16 @@ void __Vec3ShaderUniform::setValue(const vec3& value) {
     initialized = true;
 }
 
-void __Vec3ShaderUniform::apply() {
+void Vec3ShaderUniform::apply() {
     glUniform3fv(getLocation(), 1, glm::value_ptr(value));
 }
 
 
-const vec3& __Vec3ShaderUniform::getValue() const {
+vec3& Vec3ShaderUniform::getValue() {
     return value;
 }
 
-void __Vec3ShaderUniform::write(std::string& content) const {
+void Vec3ShaderUniform::write(std::string& content) const {
 
     char buff[256];
 
@@ -380,13 +382,13 @@ void __Vec3ShaderUniform::write(std::string& content) const {
     content += buff;
 }
 
-//__Vec4ShaderUniform
+//Vec4ShaderUniform
 
-__Vec4ShaderUniform::__Vec4ShaderUniform(__Shader* shader, const std::string& name, const vec4& value) :
-    value(value), __ShaderUniform(shader, name, SHADER_UNIFORM_VEC4, "vec4") {
+Vec4ShaderUniform::Vec4ShaderUniform(Shader* shader, const std::string& name, const vec4& value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_VEC4, "vec4") {
 }
 
-void __Vec4ShaderUniform::setValue(const vec4& value) {
+void Vec4ShaderUniform::setValue(const vec4& value) {
     if(baked && this->value == value) return;
 
     this->value = value;
@@ -394,15 +396,15 @@ void __Vec4ShaderUniform::setValue(const vec4& value) {
     initialized = true;
 }
 
-void __Vec4ShaderUniform::apply() {
+void Vec4ShaderUniform::apply() {
     glUniform4fv(getLocation(), 1, glm::value_ptr(value));
 }
 
-const vec4& __Vec4ShaderUniform::getValue() const {
+vec4& Vec4ShaderUniform::getValue() {
     return value;
 }
 
-void __Vec4ShaderUniform::write(std::string& content) const {
+void Vec4ShaderUniform::write(std::string& content) const {
 
     char buff[256];
 
@@ -415,13 +417,13 @@ void __Vec4ShaderUniform::write(std::string& content) const {
     content += buff;
 }
 
-//__Mat3ShaderUniform
+//Mat3ShaderUniform
 
-__Mat3ShaderUniform::__Mat3ShaderUniform(__Shader* shader, const std::string& name, const mat3& value) :
-    value(value), __ShaderUniform(shader, name, SHADER_UNIFORM_MAT3, "mat3") {
+Mat3ShaderUniform::Mat3ShaderUniform(Shader* shader, const std::string& name, const mat3& value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_MAT3, "mat3") {
 }
 
-void __Mat3ShaderUniform::setValue(const mat3& value) {
+void Mat3ShaderUniform::setValue(const mat3& value) {
     if(baked && this->value == value) return;
 
     this->value = value;
@@ -429,15 +431,15 @@ void __Mat3ShaderUniform::setValue(const mat3& value) {
     initialized = true;
 }
 
-void __Mat3ShaderUniform::apply() {
+void Mat3ShaderUniform::apply() {
     glUniformMatrix3fv(getLocation(), 1, 0, glm::value_ptr(value));
 }
 
-const mat3& __Mat3ShaderUniform::getValue() const {
+mat3& Mat3ShaderUniform::getValue() {
     return value;
 }
 
-void __Mat3ShaderUniform::write(std::string& content) const {
+void Mat3ShaderUniform::write(std::string& content) const {
 
     char buff[1024];
 
@@ -454,13 +456,13 @@ void __Mat3ShaderUniform::write(std::string& content) const {
     content += buff;
 }
 
-//__Mat4ShaderUniform
+//Mat4ShaderUniform
 
-__Mat4ShaderUniform::__Mat4ShaderUniform(__Shader* shader, const std::string& name, const mat4& value) :
-    value(value), __ShaderUniform(shader, name, SHADER_UNIFORM_MAT4, "mat4") {
+Mat4ShaderUniform::Mat4ShaderUniform(Shader* shader, const std::string& name, const mat4& value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_MAT4, "mat4") {
 }
 
-void __Mat4ShaderUniform::setValue(const mat4& value) {
+void Mat4ShaderUniform::setValue(const mat4& value) {
     if(baked && this->value == value) return;
 
     this->value = value;
@@ -468,15 +470,15 @@ void __Mat4ShaderUniform::setValue(const mat4& value) {
     initialized = true;
 }
 
-void __Mat4ShaderUniform::apply() {
+void Mat4ShaderUniform::apply() {
     glUniformMatrix4fv(getLocation(), 1, 0, glm::value_ptr(value));
 }
 
-const mat4& __Mat4ShaderUniform::getValue() const {
+mat4& Mat4ShaderUniform::getValue() {
     return value;
 }
 
-void __Mat4ShaderUniform::write(std::string& content) const {
+void Mat4ShaderUniform::write(std::string& content) const {
 
     char buff[1024];
 
@@ -494,35 +496,35 @@ void __Mat4ShaderUniform::write(std::string& content) const {
 }
 
 
-//__Vec2ArrayShaderUniform
+//Vec2ArrayShaderUniform
 
-__Vec2ArrayShaderUniform::__Vec2ArrayShaderUniform(__Shader* shader, const std::string& name, size_t length, const vec2* value) :
-    length(length), __ShaderUniform(shader, name, SHADER_UNIFORM_VEC2_ARRAY, "vec2") {
+Vec2ArrayShaderUniform::Vec2ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec2* value) :
+    length(length), ShaderUniform(shader, name, SHADER_UNIFORM_VEC2_ARRAY, "vec2") {
     this->value = new vec2[length];
     if(value != 0) copyValue(value);
 }
 
-__Vec2ArrayShaderUniform::~__Vec2ArrayShaderUniform() {
+Vec2ArrayShaderUniform::~Vec2ArrayShaderUniform() {
     if(value) delete[] value;
 }
 
-const vec2* __Vec2ArrayShaderUniform::getValue() const {
+vec2* Vec2ArrayShaderUniform::getValue() {
     return value;
 }
 
-void __Vec2ArrayShaderUniform::copyValue(const vec2* value) {
+void Vec2ArrayShaderUniform::copyValue(const vec2* value) {
     for(size_t i=0; i<length; i++) {
         this->value[i] = value[i];
     }
 }
 
-void __Vec2ArrayShaderUniform::copyValue(const std::vector<vec2>& value) {
+void Vec2ArrayShaderUniform::copyValue(const std::vector<vec2>& value) {
     for(size_t i=0; i<length; i++) {
         this->value[i] = value[i];
     }
 }
 
-void __Vec2ArrayShaderUniform::setValue(const vec2* value) {
+void Vec2ArrayShaderUniform::setValue(const vec2* value) {
     if(baked) {
         bool match = true;
 
@@ -542,7 +544,7 @@ void __Vec2ArrayShaderUniform::setValue(const vec2* value) {
     initialized = true;
 }
 
-void __Vec2ArrayShaderUniform::setValue(const std::vector<vec2>& value) {
+void Vec2ArrayShaderUniform::setValue(const std::vector<vec2>& value) {
     if(baked) {
         bool match = true;
 
@@ -562,11 +564,11 @@ void __Vec2ArrayShaderUniform::setValue(const std::vector<vec2>& value) {
     initialized = true;
 }
 
-void __Vec2ArrayShaderUniform::apply() {
+void Vec2ArrayShaderUniform::apply() {
     glUniform2fv(getLocation(), length, glm::value_ptr(value[0]));
 }
 
-void __Vec2ArrayShaderUniform::write(std::string& content) const {
+void Vec2ArrayShaderUniform::write(std::string& content) const {
 
     char buff[1024];
 
@@ -588,35 +590,35 @@ void __Vec2ArrayShaderUniform::write(std::string& content) const {
     }
 }
 
-//__Vec3ArrayShaderUniform
+//Vec3ArrayShaderUniform
 
-__Vec3ArrayShaderUniform::__Vec3ArrayShaderUniform(__Shader* shader, const std::string& name, size_t length, const vec3* value) :
-    length(length), __ShaderUniform(shader, name, SHADER_UNIFORM_VEC3_ARRAY, "vec3") {
+Vec3ArrayShaderUniform::Vec3ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec3* value) :
+    length(length), ShaderUniform(shader, name, SHADER_UNIFORM_VEC3_ARRAY, "vec3") {
     this->value = new vec3[length];
     if(value != 0) copyValue(value);
 }
 
-__Vec3ArrayShaderUniform::~__Vec3ArrayShaderUniform() {
+Vec3ArrayShaderUniform::~Vec3ArrayShaderUniform() {
     if(value) delete[] value;
 }
 
-const vec3* __Vec3ArrayShaderUniform::getValue() const {
+vec3* Vec3ArrayShaderUniform::getValue() {
     return value;
 }
 
-void __Vec3ArrayShaderUniform::copyValue(const vec3* value) {
+void Vec3ArrayShaderUniform::copyValue(const vec3* value) {
     for(size_t i=0; i<length; i++) {
         this->value[i] = value[i];
     }
 }
 
-void __Vec3ArrayShaderUniform::copyValue(const std::vector<vec3>& value) {
+void Vec3ArrayShaderUniform::copyValue(const std::vector<vec3>& value) {
     for(size_t i=0; i<length; i++) {
         this->value[i] = value[i];
     }
 }
 
-void __Vec3ArrayShaderUniform::setValue(const vec3* value) {
+void Vec3ArrayShaderUniform::setValue(const vec3* value) {
     if(baked) {
         bool match = true;
 
@@ -636,7 +638,7 @@ void __Vec3ArrayShaderUniform::setValue(const vec3* value) {
     initialized = true;
 }
 
-void __Vec3ArrayShaderUniform::setValue(const std::vector<vec3>& value) {
+void Vec3ArrayShaderUniform::setValue(const std::vector<vec3>& value) {
     if(baked) {
         bool match = true;
 
@@ -656,11 +658,11 @@ void __Vec3ArrayShaderUniform::setValue(const std::vector<vec3>& value) {
     initialized = true;
 }
 
-void __Vec3ArrayShaderUniform::apply() {
+void Vec3ArrayShaderUniform::apply() {
     glUniform3fv(getLocation(), length, glm::value_ptr(value[0]));
 }
 
-void __Vec3ArrayShaderUniform::write(std::string& content) const {
+void Vec3ArrayShaderUniform::write(std::string& content) const {
 
     char buff[1024];
 
@@ -682,35 +684,35 @@ void __Vec3ArrayShaderUniform::write(std::string& content) const {
     }
 }
 
-//__Vec4ArrayShaderUniform
+//Vec4ArrayShaderUniform
 
-__Vec4ArrayShaderUniform::__Vec4ArrayShaderUniform(__Shader* shader, const std::string& name, size_t length, const vec4* value) :
-    length(length), __ShaderUniform(shader, name, SHADER_UNIFORM_VEC4_ARRAY, "vec4") {
+Vec4ArrayShaderUniform::Vec4ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec4* value) :
+    length(length), ShaderUniform(shader, name, SHADER_UNIFORM_VEC4_ARRAY, "vec4") {
     this->value = new vec4[length];
     if(value != 0) copyValue(value);
 }
 
-__Vec4ArrayShaderUniform::~__Vec4ArrayShaderUniform() {
+Vec4ArrayShaderUniform::~Vec4ArrayShaderUniform() {
     if(value) delete[] value;
 }
 
-const vec4* __Vec4ArrayShaderUniform::getValue() const {
+vec4* Vec4ArrayShaderUniform::getValue() {
     return value;
 }
 
-void __Vec4ArrayShaderUniform::copyValue(const std::vector<vec4>& value) {
+void Vec4ArrayShaderUniform::copyValue(const std::vector<vec4>& value) {
     for(size_t i=0; i<length; i++) {
         this->value[i] = value[i];
     }
 }
 
-void __Vec4ArrayShaderUniform::copyValue(const vec4* value) {
+void Vec4ArrayShaderUniform::copyValue(const vec4* value) {
     for(size_t i=0; i<length; i++) {
         this->value[i] = value[i];
     }
 }
 
-void __Vec4ArrayShaderUniform::setValue(const vec4* value) {
+void Vec4ArrayShaderUniform::setValue(const vec4* value) {
     if(baked) {
         bool match = true;
 
@@ -730,7 +732,7 @@ void __Vec4ArrayShaderUniform::setValue(const vec4* value) {
     initialized = true;
 }
 
-void __Vec4ArrayShaderUniform::setValue(const std::vector<vec4>& value) {
+void Vec4ArrayShaderUniform::setValue(const std::vector<vec4>& value) {
     if(baked) {
         bool match = true;
 
@@ -750,11 +752,11 @@ void __Vec4ArrayShaderUniform::setValue(const std::vector<vec4>& value) {
     initialized = true;
 }
 
-void __Vec4ArrayShaderUniform::apply() {
+void Vec4ArrayShaderUniform::apply() {
     glUniform4fv(getLocation(), length, glm::value_ptr(value[0]));
 }
 
-void __Vec4ArrayShaderUniform::write(std::string& content) const {
+void Vec4ArrayShaderUniform::write(std::string& content) const {
 
     char buff[1024];
 
@@ -777,17 +779,17 @@ void __Vec4ArrayShaderUniform::write(std::string& content) const {
 
 }
 
-//__ShaderPart
+//ShaderPart
 
-__ShaderPart::__ShaderPart() {
+ShaderPart::ShaderPart() {
 }
 
-void __ShaderPart::setSourceFile(const std::string& filename) {
+void ShaderPart::setSourceFile(const std::string& filename) {
     this->filename = filename;
     loadSourceFile();
 }
 
-void __ShaderPart::loadSourceFile() {
+void ShaderPart::loadSourceFile() {
 
     processed_source.clear();
     raw_source.clear();
@@ -796,7 +798,7 @@ void __ShaderPart::loadSourceFile() {
     std::ifstream in(filename.c_str());
 
     if(!in.is_open()) {
-        throw __ShaderException("could not open '%s'", filename.c_str());
+        throw ShaderException("could not open '%s'", filename.c_str());
     }
 
     std::string line;
@@ -808,19 +810,19 @@ void __ShaderPart::loadSourceFile() {
     in.close();
 }
 
-void __ShaderPart::reload() {
+void ShaderPart::reload() {
     loadSourceFile();
 }
 
-void __ShaderPart::reset() {
+void ShaderPart::reset() {
     processed_source.clear();
 }
 
-void __ShaderPart::setSource(const std::string& source) {
+void ShaderPart::setSource(const std::string& source) {
     raw_source = source;
 }
 
-void __ShaderPart::substitute(std::string& source, const std::string& name, const std::string& value) {
+void ShaderPart::substitute(std::string& source, const std::string& name, const std::string& value) {
 
     std::string::size_type next_match;
 
@@ -832,18 +834,18 @@ void __ShaderPart::substitute(std::string& source, const std::string& name, cons
     }
 }
 
-void __ShaderPart::applyDefines(std::string& source) {
+void ShaderPart::applyDefines(std::string& source) {
 
     for(std::map<std::string, std::string>::iterator it = defines.begin(); it != defines.end(); it++) {
         substitute(source, it->first, it->second);
     }
 }
 
-void __ShaderPart::define(const std::string& name, const std::string& value) {
+void ShaderPart::define(const std::string& name, const std::string& value) {
     define(name, value.c_str());
 }
 
-void __ShaderPart::define(const std::string& name, const char *value, ...) {
+void ShaderPart::define(const std::string& name, const char *value, ...) {
 
     va_list vl;
     char sub[65536];
@@ -864,16 +866,16 @@ void __ShaderPart::define(const std::string& name, const char *value, ...) {
     if(buffer != sub) delete[] buffer;
 }
 
-void __ShaderPart::define(const std::string& name) {
+void ShaderPart::define(const std::string& name) {
     define(name, "");
 }
 
-bool __ShaderPart::isDefined(const std::string& name) {
+bool ShaderPart::isDefined(const std::string& name) {
     std::map<std::string,std::string>::iterator it = defines.find(name);
     return (it != defines.end());
 }
 
-void __ShaderPart::preprocess() {
+void ShaderPart::preprocess() {
 
     processed_source.clear();
 
@@ -907,32 +909,32 @@ void __ShaderPart::preprocess() {
     }
 }
 
-const std::string& __ShaderPart::getSource() {
+const std::string& ShaderPart::getSource() {
     if(processed_source.empty()) preprocess();
     return processed_source;
 }
 
-//__ShaderPass
+//ShaderPass
 
-__ShaderPass::__ShaderPass(__Shader* parent, int shader_object_type, const std::string& shader_object_desc) : parent(parent), shader_object_type(shader_object_type), shader_object_desc(shader_object_desc) {
+ShaderPass::ShaderPass(Shader* parent, int shader_object_type, const std::string& shader_object_desc) : parent(parent), shader_object_type(shader_object_type), shader_object_desc(shader_object_desc) {
     shader_object = 0;
     version = 0;
 }
 
-__ShaderPass::~__ShaderPass() {
+ShaderPass::~ShaderPass() {
     unload();
 }
 
-void __ShaderPass::unload() {
+void ShaderPass::unload() {
     if(shader_object!=0) glDeleteShader(shader_object);
     shader_object = 0;
 }
 
-void __ShaderPass::attachTo(unsigned int program) {
+void ShaderPass::attachTo(unsigned int program) {
     glAttachShader(program, shader_object);
 }
 
-bool __ShaderPass::errorContext(const char* log_message, std::string& context) {
+bool ShaderPass::errorContext(const char* log_message, std::string& context) {
 
     std::vector<std::string> matches;
 
@@ -963,7 +965,7 @@ bool __ShaderPass::errorContext(const char* log_message, std::string& context) {
     return true;
 }
 
-void __ShaderPass::checkError() {
+void ShaderPass::checkError() {
     if(!shader_object) return;
 
     int compile_success;
@@ -983,7 +985,7 @@ void __ShaderPass::checkError() {
         errorContext(info_log, context);
 
         if(!compile_success) {
-            throw __ShaderException("%s shader '%s' failed to compile:\n%s\n%s",
+            throw ShaderException("%s shader '%s' failed to compile:\n%s\n%s",
                                   shader_object_desc.c_str(),
                                   resource_desc,
                                   info_log,
@@ -1006,13 +1008,13 @@ void __ShaderPass::checkError() {
     }
 
     if(!compile_success) {
-        throw __ShaderException("%s shader '%s' failed to compile",
+        throw ShaderException("%s shader '%s' failed to compile",
                               shader_object_desc.c_str(),
                               resource_desc);
     }
 }
 
-void __ShaderPass::toString(std::string& out) {
+void ShaderPass::toString(std::string& out) {
     if(version!=0) {
         out.append(str(boost::format("#version %d\n") % version));
     }
@@ -1021,7 +1023,7 @@ void __ShaderPass::toString(std::string& out) {
         out.append(str(boost::format("#extension %s : %s\n") % it->first % it->second));
     }
 
-    for(__ShaderUniform* u : uniforms) {
+    for(ShaderUniform* u : uniforms) {
         u->write(out);
     }
 
@@ -1029,15 +1031,15 @@ void __ShaderPass::toString(std::string& out) {
 }
 
 
-const std::string& __ShaderPass::getObjectSource() {
+const std::string& ShaderPass::getObjectSource() {
     return shader_object_source;
 }
 
-bool __ShaderPass::isEmpty() {
+bool ShaderPass::isEmpty() {
     return source.empty();
 }
 
-void __ShaderPass::compile() {
+void ShaderPass::compile() {
 
     if(!shader_object) shader_object = glCreateShader(shader_object_type);
 
@@ -1050,7 +1052,7 @@ void __ShaderPass::compile() {
     // apply subsitutions
     parent->applySubstitutions(shader_object_source);
 
-    for(__ShaderUniform* u: uniforms) {
+    for(ShaderUniform* u: uniforms) {
         u->setModified(false);
     }
 
@@ -1066,20 +1068,20 @@ void __ShaderPass::compile() {
 }
 
 //add uniform, unless parent Shader has this in which case link to it
-__ShaderUniform* __ShaderPass::addArrayUniform(const std::string& name, const std::string& type, size_t length) {
+ShaderUniform* ShaderPass::addArrayUniform(const std::string& name, const std::string& type, size_t length) {
 
-    __ShaderUniform* uniform = 0;
+    ShaderUniform* uniform = 0;
 
     if((uniform = parent->getUniform(name)) == 0) {
 
         if(type == "vec2") {
-            uniform = new __Vec2ArrayShaderUniform(parent, name, length);
+            uniform = new Vec2ArrayShaderUniform(parent, name, length);
         } else if(type == "vec3") {
-            uniform = new __Vec3ArrayShaderUniform(parent, name, length);
+            uniform = new Vec3ArrayShaderUniform(parent, name, length);
         } else if(type == "vec4") {
-            uniform = new __Vec4ArrayShaderUniform(parent, name, length);
+            uniform = new Vec4ArrayShaderUniform(parent, name, length);
         } else {
-            throw __ShaderException("shader uniform arrays for type '%s' not implemented", type.c_str());
+            throw ShaderException("shader uniform arrays for type '%s' not implemented", type.c_str());
         }
 
         uniform->setInitialized(false);
@@ -1092,34 +1094,34 @@ __ShaderUniform* __ShaderPass::addArrayUniform(const std::string& name, const st
     return uniform;
 }
 
-__ShaderUniform* __ShaderPass::addUniform(const std::string& name, const std::string& type) {
+ShaderUniform* ShaderPass::addUniform(const std::string& name, const std::string& type) {
 
-    __ShaderUniform* uniform = 0;
+    ShaderUniform* uniform = 0;
 
     if((uniform = parent->getUniform(name)) == 0) {
 
         if(type == "float") {
-            uniform = new __FloatShaderUniform(parent, name);
+            uniform = new FloatShaderUniform(parent, name);
         } else if(type == "int") {
-            uniform = new __IntShaderUniform(parent, name);
+            uniform = new IntShaderUniform(parent, name);
         } else if(type == "bool") {
-            uniform = new __BoolShaderUniform(parent, name);
+            uniform = new BoolShaderUniform(parent, name);
         } else if(type == "sampler1D") {
-            uniform = new __Sampler1DShaderUniform(parent, name);
+            uniform = new Sampler1DShaderUniform(parent, name);
         } else if(type == "sampler2D") {
-            uniform = new __Sampler2DShaderUniform(parent, name);
+            uniform = new Sampler2DShaderUniform(parent, name);
         } else if(type == "vec2") {
-            uniform = new __Vec2ShaderUniform(parent, name);
+            uniform = new Vec2ShaderUniform(parent, name);
         } else if(type == "vec3") {
-            uniform = new __Vec3ShaderUniform(parent, name);
+            uniform = new Vec3ShaderUniform(parent, name);
         } else if(type == "vec4") {
-            uniform = new __Vec4ShaderUniform(parent, name);
+            uniform = new Vec4ShaderUniform(parent, name);
         } else if(type == "mat3") {
-            uniform = new __Mat3ShaderUniform(parent, name);
+            uniform = new Mat3ShaderUniform(parent, name);
         } else if(type == "mat4") {
-            uniform = new __Mat4ShaderUniform(parent, name);
+            uniform = new Mat4ShaderUniform(parent, name);
         } else {
-            throw __ShaderException("unsupported shader uniform type '%s'", type.c_str());
+            throw ShaderException("unsupported shader uniform type '%s'", type.c_str());
         }
 
         uniform->setInitialized(false);
@@ -1132,7 +1134,7 @@ __ShaderUniform* __ShaderPass::addUniform(const std::string& name, const std::st
     return uniform;
 }
 
-bool __ShaderPass::preprocess(const std::string& line) {
+bool ShaderPass::preprocess(const std::string& line) {
 
     std::vector<std::string> matches;
 
@@ -1161,7 +1163,7 @@ bool __ShaderPass::preprocess(const std::string& line) {
         std::string uniform_type = matches[0];
         std::string uniform_name = matches[1];
                 
-        __ShaderUniform* uniform = 0;
+        ShaderUniform* uniform = 0;
                 
         if(matches.size() > 2 && !matches[2].empty()) {
             size_t uniform_length = atoi(matches[2].c_str());
@@ -1178,13 +1180,13 @@ bool __ShaderPass::preprocess(const std::string& line) {
     return false;
 }
 
-void __ShaderPass::includeFile(const std::string& filename) {
+void ShaderPass::includeFile(const std::string& filename) {
 
     // get length
     std::ifstream in(filename.c_str());
 
     if(!in.is_open()) {
-        throw __ShaderException("could not open '%s'", filename.c_str());
+        throw ShaderException("could not open '%s'", filename.c_str());
     }
 
     std::string line;
@@ -1198,7 +1200,7 @@ void __ShaderPass::includeFile(const std::string& filename) {
     in.close();
 }
 
-void __ShaderPass::includeSource(const std::string& string) {
+void ShaderPass::includeSource(const std::string& string) {
 
     std::stringstream in(string);
 
@@ -1211,22 +1213,22 @@ void __ShaderPass::includeSource(const std::string& string) {
     }
 }
 
-__VertexShader::__VertexShader(__Shader* parent) : __ShaderPass(parent, GL_VERTEX_SHADER, "vertex") {
+VertexShader::VertexShader(Shader* parent) : ShaderPass(parent, GL_VERTEX_SHADER, "vertex") {
 }
 
-__FragmentShader::__FragmentShader(__Shader* parent) : __ShaderPass(parent, GL_FRAGMENT_SHADER, "fragment") {
+FragmentShader::FragmentShader(Shader* parent) : ShaderPass(parent, GL_FRAGMENT_SHADER, "fragment") {
 }
 
-__GeometryShader::__GeometryShader(__Shader* parent) : __ShaderPass(parent, GL_GEOMETRY_SHADER_ARB, "geometry") {
+GeometryShader::GeometryShader(Shader* parent) : ShaderPass(parent, GL_GEOMETRY_SHADER_ARB, "geometry") {
 }
 
-void __GeometryShader::attachTo(unsigned int program) {
-    __ShaderPass::attachTo(program);
+void GeometryShader::attachTo(unsigned int program) {
+    ShaderPass::attachTo(program);
 }
 
 //Shader
 
-__Shader::__Shader(const std::string& prefix)
+Shader::Shader(const std::string& prefix)
     : prefix(prefix), Resource(prefix) {
 
     setDefaults();
@@ -1234,11 +1236,11 @@ __Shader::__Shader(const std::string& prefix)
     loadPrefix();
 }
 
-__Shader::__Shader() {
+Shader::Shader() {
     setDefaults();
 }
 
-void __Shader::loadPrefix() {
+void Shader::loadPrefix() {
 
     if(vertex_shader != 0) delete vertex_shader;
     vertex_shader = 0;
@@ -1255,20 +1257,20 @@ void __Shader::loadPrefix() {
     std::string vertex_file   = shader_dir + prefix + std::string(".vert");
     std::string fragment_file = shader_dir + prefix + std::string(".frag");
 
-    vertex_shader = new __VertexShader(this);
+    vertex_shader = new VertexShader(this);
     vertex_shader->includeFile(vertex_file);
 
-    fragment_shader = new __FragmentShader(this);
+    fragment_shader = new FragmentShader(this);
     fragment_shader->includeFile(fragment_file);
 
     load();
 }
 
-void __Shader::setDynamicCompile(bool dynamic_compile) {
+void Shader::setDynamicCompile(bool dynamic_compile) {
     this->dynamic_compile = dynamic_compile;
 }
 
-void __Shader::setDefaults() {
+void Shader::setDefaults() {
     vertex_shader   = 0;
     fragment_shader = 0;
     geometry_shader = 0;
@@ -1276,14 +1278,14 @@ void __Shader::setDefaults() {
     dynamic_compile = false;
 }
 
-__Shader::~__Shader() {
+Shader::~Shader() {
     clear();
 }
 
-void __Shader::clear() {
+void Shader::clear() {
     unload();
 
-    for(std::map<std::string, __ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
+    for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
         delete it->second;
     }
     uniforms.clear();
@@ -1297,16 +1299,16 @@ void __Shader::clear() {
     fragment_shader = 0;
 }
 
-void __Shader::unload() {
+void Shader::unload() {
     if(program != 0) glDeleteProgram(program);
     program = 0;
 
-    for(std::map<std::string, __ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
+    for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
         it->second->unload();
     }
 }
 
-bool __Shader::isEmpty() {
+bool Shader::isEmpty() {
 
     if(   (!vertex_shader   || vertex_shader->isEmpty())
        && (!fragment_shader || fragment_shader->isEmpty())
@@ -1317,7 +1319,7 @@ bool __Shader::isEmpty() {
     return false;
 }
 
-void __Shader::reload(bool force) {
+void Shader::reload(bool force) {
     if(isEmpty()) return;
 
     if(force && !prefix.empty()) {
@@ -1328,7 +1330,7 @@ void __Shader::reload(bool force) {
 }
 
 
-void __Shader::load() {
+void Shader::load() {
     //fprintf(stderr, "load\n");
 
     if(program !=0) unload();
@@ -1352,7 +1354,7 @@ void __Shader::load() {
     if(fragment_shader != 0) fragment_shader->unload();
 }
 
-void __Shader::checkProgramError() {
+void Shader::checkProgramError() {
 
     int link_success;
     glGetProgramiv(program, GL_LINK_STATUS, &link_success);
@@ -1374,23 +1376,23 @@ void __Shader::checkProgramError() {
     }
 
     if(!link_success) {
-          throw __ShaderException("shader '%s' failed to link", resource_desc);
+          throw ShaderException("shader '%s' failed to link", resource_desc);
     }
 }
 
-void __Shader::bind() {
+void Shader::bind() {
     glUseProgram(program);
 }
 
-void __Shader::unbind() {
+void Shader::unbind() {
     glUseProgram(0);
 }
 
-void __Shader::use() {
+void Shader::use() {
 
     if(Logger::getDefault()->getLevel() == LOG_LEVEL_PEDANTIC) {
-        for(std::map<std::string, __ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
-            __ShaderUniform* u = it->second;
+        for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
+            ShaderUniform* u = it->second;
 
             if(!u->isInitialized()) pedanticLog("shader '%s': uniform '%s' was never initialized", (!resource_name.empty() ? resource_name.c_str() : "???"), u->getName().c_str());
         }
@@ -1407,21 +1409,21 @@ void __Shader::use() {
     applyUniforms();
 }
 
-unsigned int __Shader::getProgram() {
+unsigned int Shader::getProgram() {
     return program;
 }
 
-void __Shader::addUniform(__ShaderUniform* uniform) {
+void Shader::addUniform(ShaderUniform* uniform) {
 
     if(getUniform(uniform->getName()) != 0) {
-        throw __ShaderException("shader already has a uniform named '%s'", uniform->getName().c_str() );
+        throw ShaderException("shader already has a uniform named '%s'", uniform->getName().c_str() );
     }
 
     uniforms[uniform->getName()] = uniform;
 }
 
-__ShaderUniform* __Shader::getUniform(const std::string& name) {
-    std::map<std::string, __ShaderUniform*>::iterator it = uniforms.find(name);
+ShaderUniform* Shader::getUniform(const std::string& name) {
+    std::map<std::string, ShaderUniform*>::iterator it = uniforms.find(name);
 
     if(it != uniforms.end()) {
         return it->second;
@@ -1429,21 +1431,21 @@ __ShaderUniform* __Shader::getUniform(const std::string& name) {
     return 0;
 }
 
-__ShaderPass* __Shader::grabShaderPass(unsigned int shader_object_type) {
+ShaderPass* Shader::grabShaderPass(unsigned int shader_object_type) {
 
-    __ShaderPass* shader_pass = 0;
+    ShaderPass* shader_pass = 0;
 
     switch(shader_object_type) {
         case GL_VERTEX_SHADER:
-            if(!vertex_shader) vertex_shader = new __VertexShader(this);
+            if(!vertex_shader) vertex_shader = new VertexShader(this);
             shader_pass = vertex_shader;
             break;
         case GL_GEOMETRY_SHADER_ARB:
-            if(!geometry_shader) geometry_shader = new __GeometryShader(this);
+            if(!geometry_shader) geometry_shader = new GeometryShader(this);
             shader_pass = geometry_shader;
             break;
         case GL_FRAGMENT_SHADER:
-            if(!fragment_shader) fragment_shader = new __FragmentShader(this);
+            if(!fragment_shader) fragment_shader = new FragmentShader(this);
             shader_pass = fragment_shader;
             break;
     }
@@ -1452,21 +1454,21 @@ __ShaderPass* __Shader::grabShaderPass(unsigned int shader_object_type) {
 }
 
 
-void __Shader::includeSource(unsigned int shader_object_type, const std::string& source) {
+void Shader::includeSource(unsigned int shader_object_type, const std::string& source) {
 
-    __ShaderPass* pass = grabShaderPass(shader_object_type);
+    ShaderPass* pass = grabShaderPass(shader_object_type);
 
     pass->includeSource(source);
 }
 
-void __Shader::includeFile(unsigned int shader_object_type, const std::string& filename) {
+void Shader::includeFile(unsigned int shader_object_type, const std::string& filename) {
 
-    __ShaderPass* pass = grabShaderPass(shader_object_type);
+    ShaderPass* pass = grabShaderPass(shader_object_type);
 
     pass->includeFile(filename);
 }
 
-void __Shader::addSubstitute(const std::string& name, const char *value, ...) {
+void Shader::addSubstitute(const std::string& name, const char *value, ...) {
 
     va_list vl;
     char sub[65536];
@@ -1487,7 +1489,7 @@ void __Shader::addSubstitute(const std::string& name, const char *value, ...) {
     if(buffer != sub) delete[] buffer;
 }
 
-void __Shader::substitute(std::string& source, const std::string& name, const std::string& value) {
+void Shader::substitute(std::string& source, const std::string& name, const std::string& value) {
 
     std::string::size_type next_match;
 
@@ -1499,166 +1501,172 @@ void __Shader::substitute(std::string& source, const std::string& name, const st
     }
 }
 
-void __Shader::applySubstitutions(std::string& source) {
+void Shader::applySubstitutions(std::string& source) {
 
     for(std::map<std::string, std::string>::iterator it = substitutions.begin(); it != substitutions.end(); it++) {
         substitute(source, it->first, it->second);
     }
 }
 
-void __Shader::setBool (const std::string& name, bool value) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setBool (const std::string& name, bool value) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_BOOL) return;
 
-    ((__BoolShaderUniform*)uniform)->setValue(value);
+    ((BoolShaderUniform*)uniform)->setValue(value);
 }
 
-void __Shader::setInteger (const std::string& name, int value) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setInteger (const std::string& name, int value) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_INT) return;
 
-    ((__IntShaderUniform*)uniform)->setValue(value);
+    ((IntShaderUniform*)uniform)->setValue(value);
 }
 
-void __Shader::setSampler1D (const std::string& name, int value) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setSampler1D (const std::string& name, int value) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_SAMPLER_1D) return;
 
-    ((__Sampler1DShaderUniform*)uniform)->setValue(value);
+    ((Sampler1DShaderUniform*)uniform)->setValue(value);
 }
 
-void __Shader::setSampler2D (const std::string& name, int value) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setSampler2D (const std::string& name, int value) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_SAMPLER_2D) return;
 
-    ((__Sampler2DShaderUniform*)uniform)->setValue(value);
+    ((Sampler2DShaderUniform*)uniform)->setValue(value);
 }
 
-void __Shader::setFloat(const std::string& name, float value) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setFloat(const std::string& name, float value) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_FLOAT) return;
 
-    ((__FloatShaderUniform*)uniform)->setValue(value);
+    ((FloatShaderUniform*)uniform)->setValue(value);
 }
 
-void __Shader::setVec2 (const std::string& name, const vec2& value) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setVec2 (const std::string& name, const vec2& value) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC2) return;
 
-    ((__Vec2ShaderUniform*)uniform)->setValue(value);
+    ((Vec2ShaderUniform*)uniform)->setValue(value);
 }
 
-void __Shader::setVec3 (const std::string& name, const vec3& value) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setVec3 (const std::string& name, const vec3& value) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC3) return;
 
-    ((__Vec3ShaderUniform*)uniform)->setValue(value);
+    ((Vec3ShaderUniform*)uniform)->setValue(value);
 }
 
-void __Shader::setVec2Array (const std::string& name, vec2* value) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setVec2Array (const std::string& name, vec2* value) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC2_ARRAY) return;
 
-    ((__Vec2ArrayShaderUniform*)uniform)->setValue(value);
+    ((Vec2ArrayShaderUniform*)uniform)->setValue(value);
 }
 
-void __Shader::setVec2Array (const std::string& name, std::vector<vec2>& value) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setVec2Array (const std::string& name, std::vector<vec2>& value) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC2_ARRAY) return;
 
-    ((__Vec2ArrayShaderUniform*)uniform)->setValue(value);
+    ((Vec2ArrayShaderUniform*)uniform)->setValue(value);
 }
 
-void __Shader::setVec3Array (const std::string& name, vec3* value) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setVec3Array (const std::string& name, vec3* value) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC3_ARRAY) return;
 
-    ((__Vec3ArrayShaderUniform*)uniform)->setValue(value);
+    ((Vec3ArrayShaderUniform*)uniform)->setValue(value);
 }
 
-void __Shader::setVec3Array (const std::string& name, std::vector<vec3>& value) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setVec3Array (const std::string& name, std::vector<vec3>& value) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC3_ARRAY) return;
 
-    ((__Vec3ArrayShaderUniform*)uniform)->setValue(value);
+    ((Vec3ArrayShaderUniform*)uniform)->setValue(value);
 }
 
-void __Shader::setVec4Array (const std::string& name, vec4* value) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setVec4Array (const std::string& name, vec4* value) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC4_ARRAY) return;
 
-    ((__Vec4ArrayShaderUniform*)uniform)->setValue(value);
+    ((Vec4ArrayShaderUniform*)uniform)->setValue(value);
 }
 
-void __Shader::setVec4Array (const std::string& name, std::vector<vec4>& value) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setVec4Array (const std::string& name, std::vector<vec4>& value) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC4_ARRAY) return;
 
-    ((__Vec4ArrayShaderUniform*)uniform)->setValue(value);
+    ((Vec4ArrayShaderUniform*)uniform)->setValue(value);
 }
 
-void __Shader::setVec4 (const std::string& name, const vec4& value) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setVec4 (const std::string& name, const vec4& value) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC4) return;
 
-    ((__Vec4ShaderUniform*)uniform)->setValue(value);
+    ((Vec4ShaderUniform*)uniform)->setValue(value);
 }
 
-void __Shader::setMat3 (const std::string& name, const mat3& value) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setMat3 (const std::string& name, const mat3& value) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_MAT3) return;
 
-    ((__Mat3ShaderUniform*)uniform)->setValue(value);
+    ((Mat3ShaderUniform*)uniform)->setValue(value);
 }
 
-void __Shader::setMat4 (const std::string& name, const mat4& value) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setMat4 (const std::string& name, const mat4& value) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform || uniform->getType() != SHADER_UNIFORM_MAT4) return;
 
-    ((__Mat4ShaderUniform*)uniform)->setValue(value);
+    ((Mat4ShaderUniform*)uniform)->setValue(value);
 }
 
-void __Shader::setBaked(const std::string& name, bool baked) {
-    __ShaderUniform* uniform = getUniform(name);
+void Shader::setBaked(const std::string& name, bool baked) {
+    ShaderUniform* uniform = getUniform(name);
 
     if(!uniform) return;
 
     uniform->setBaked(baked);
 }
 
-void __Shader::setBakedUniforms(bool baked) {
-    for(std::map<std::string, __ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
+void Shader::setBakedUniforms(bool baked) {
+    for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
         it->second->setBaked(baked);
     }
 }
 
 
-void __Shader::applyUniforms() {
-    for(std::map<std::string, __ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
+void Shader::getUniforms(std::list<ShaderUniform*>& uniform_list) {
+    for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
+        uniform_list.push_back(it->second);
+    }
+}
+
+void Shader::applyUniforms() {
+    for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
         if(!it->second->isBaked()) it->second->apply();
     }
 }
 
-bool __Shader::needsCompile() {
+bool Shader::needsCompile() {
 
-    for(std::map<std::string, __ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
-        __ShaderUniform* u = it->second;
+    for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
+        ShaderUniform* u = it->second;
 
         if(u->isBaked() && u->isModified()) {
             //infoLog("baked uniform %s needs update", u->getName().c_str());

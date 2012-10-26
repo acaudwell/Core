@@ -28,31 +28,6 @@
 #ifndef GLSL_SHADER_H
 #define GLSL_SHADER_H
 
-#define __Shader                 Shader
-#define __ShaderPass             ShaderPass
-#define __ShaderPart             ShaderPart
-#define __ShaderManager          ShaderManager
-#define __VertexShader           VertexShader
-#define __FragmentShader         FragmentShader
-#define __GeometryShader         GeometryShader
-#define __ShaderException        ShaderException
-#define __ShaderUniform          ShaderUniform
-#define __FloatShaderUniform     FloatShaderUniform
-#define __BoolShaderUniform      BoolShaderUniform
-#define __Sampler1DShaderUniform Sampler1DShaderUniform
-#define __Sampler2DShaderUniform Sampler2DShaderUniform
-#define __IntShaderUniform       IntShaderUniform
-#define __Vec2ShaderUniform      Vec2ShaderUniform
-#define __Vec3ShaderUniform      Vec3ShaderUniform
-#define __Vec4ShaderUniform      Vec4ShaderUniform
-#define __Mat3ShaderUniform      Mat3ShaderUniform
-#define __Mat4ShaderUniform      Mat4ShaderUniform
-#define __Vec2ArrayShaderUniform Vec2ArrayShaderUniform
-#define __Vec3ArrayShaderUniform Vec3ArrayShaderUniform
-#define __Vec4ArrayShaderUniform Vec4ArrayShaderUniform
-
 #include "shader.hh"
-
-extern ShaderManager shadermanager;
 
 #endif
