@@ -1,5 +1,6 @@
 #include "file_selector.h"
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
 UIFileSelector::UIFileSelector(const std::string& title, const std::string& dir, UIFileSelectorAction* action)
     : action(action), UIGroup(title, false, true) {
@@ -65,11 +66,13 @@ void UIFileSelector::prettyDirectory(std::string& dir_string) {
 #endif
 }
 
-bool UIFileSelector::changeDir(const boost::filesystem::path& dir) {
+bool UIFileSelector::changeDir(const std::string& dir) {
 
-    if(!is_directory(dir)) return false;
+    boost::filesystem::path path(dir);
 
-    next_dir = dir.string();
+    if(!is_directory(path)) return false;
+
+    next_dir = path.string();
 
     return true;
 }
@@ -102,27 +105,44 @@ void UIFileSelector::close() {
     hidden=true;
 }
 
-void UIFileSelector::selectFile(const boost::filesystem::path& path) {
-
+void UIFileSelector::selectFile(const std::string& path) {
     selected_path = path;
 }
 
-void UIFileSelector::selectPath(const boost::filesystem::path& path) {
-    this->selected_path = path;
+void UIFileSelector::selectPath(const std::string& select_path) {
 
-    if(!is_directory(selected_path)) {
-        file_path->setText(selected_path.filename().string());
+    this->selected_path = select_path;
+
+    boost::filesystem::path path(selected_path);
+
+    if(!is_directory(path)) {
+        file_path->setText(path.filename().string());
     } else {
         file_path->setText("");
     }
 }
 
-const boost::filesystem::path& UIFileSelector::getCurrentDir() const {
+const std::string& UIFileSelector::getCurrentDir() const {
     return current_dir;
 }
 
 void UIFileSelector::confirm() {
     action->perform(selected_path);
+}
+
+//return true and set parent_path if there is one
+//handle boosts unhelpful treatment of trailing slash on directories
+bool parentPath(const boost::filesystem::path& path, boost::filesystem::path& parent_path) {
+
+    parent_path = path.parent_path();
+
+    if(path.filename().string() == ".") {
+        parent_path = parent_path.parent_path();
+    }
+
+    if(is_directory(parent_path)) return true;
+
+    return false;
 }
 
 void UIFileSelector::updateListing() {
@@ -161,7 +181,7 @@ void UIFileSelector::updateListing() {
         return;
     }
 
-    current_dir = p;
+    current_dir = p.string();
 
     listing->setUI(ui);
     listing->clear();
@@ -171,10 +191,10 @@ void UIFileSelector::updateListing() {
     boost::filesystem::path parent_path;
 
     if(parentPath(p, parent_path) && !(parent_path.string().size() == 2 && parent_path.string()[1] == ':')) {
-        listing->addElement(new UIFileSelectorLabel(this, "..", parent_path));
+        listing->addElement(new UIFileSelectorLabel(this, "..", parent_path.string()));
     }
 
-    foreach(boost::filesystem::path l, dir_listing) {
+    for(const boost::filesystem::path& l: dir_listing) {
 
         std::string filename(l.filename().string());
 
@@ -196,7 +216,7 @@ void UIFileSelector::updateListing() {
                 continue;
         }
 
-        UIFileSelectorLabel* file_label = new UIFileSelectorLabel(this, l);
+        UIFileSelectorLabel* file_label = new UIFileSelectorLabel(this, l.string());
         file_label->setFillHorizontal(true);
 
         listing->addElement(file_label);
@@ -209,22 +229,6 @@ void UIFileSelector::updateListing() {
 
     listing->vertical_scrollbar->bar_step = 1.0f / listing->getElementCount();
 }
-
-//return true and set parent_path if there is one
-//handle boosts unhelpful treatment of trailing slash on directories
-bool UIFileSelector::parentPath(const boost::filesystem::path& path, boost::filesystem::path& parent_path) {
-
-    parent_path = path.parent_path();
-
-    if(path.filename().string() == ".") {
-        parent_path = parent_path.parent_path();
-    }
-
-    if(is_directory(parent_path)) return true;
-
-    return false;
-}
-
 
 std::string UIFileSelector::autocomplete(const std::string& input, bool dirs_only) {
 
@@ -248,7 +252,7 @@ std::string UIFileSelector::autocomplete(const std::string& input, bool dirs_onl
 
             size_t input_path_size = input_path_string.size();
 
-            foreach(boost::filesystem::path l, dir_listing) {
+            for(boost::filesystem::path& l: dir_listing) {
 
                 if(dirs_only && !is_directory(l)) continue;
 
@@ -296,15 +300,15 @@ std::string UIFileSelector::autocomplete(const std::string& input, bool dirs_onl
 
 //UIFileSelectorLabel
 
-UIFileSelectorLabel::UIFileSelectorLabel(UIFileSelector* selector, const std::string& label, const boost::filesystem::path& path)
+UIFileSelectorLabel::UIFileSelectorLabel(UIFileSelector* selector, const std::string& label, const std::string& path)
     : selector(selector), path(path), UILabel(label, false, 420.0f) {
-    directory = is_directory(path);
+    directory = is_directory(boost::filesystem::path(path));
     selectable = true;
 }
 
-UIFileSelectorLabel::UIFileSelectorLabel(UIFileSelector* selector, const boost::filesystem::path& path)
-    : selector(selector), path(path), UILabel(path.filename().string(), false, 420.0f) {
-    directory = is_directory(path);
+UIFileSelectorLabel::UIFileSelectorLabel(UIFileSelector* selector, const std::string& path)
+    : selector(selector), path(path), UILabel(boost::filesystem::path(path).filename().string(), false, 420.0f) {
+    directory = is_directory(boost::filesystem::path(path));
     selectable = true;
 }
 
@@ -366,9 +370,9 @@ void UIFileInputLabel::tab() {
 
         if(completed != filepath.string()) {
 
-            std::string cur_dir = selector->getCurrentDir().string();
+            std::string cur_dir = selector->getCurrentDir();
 
-            size_t curr_len = selector->getCurrentDir().string().size();
+            size_t curr_len = selector->getCurrentDir().size();
 
             if(completed.size() > curr_len) {
                 completed = completed.substr(curr_len);
@@ -386,19 +390,19 @@ bool UIFileInputLabel::submit() {
     boost::filesystem::path filepath(text);
 
     if(!exists(filepath) || filepath.is_relative()) {
-        filepath = selector->getCurrentDir() / filepath;
+        filepath =  boost::filesystem::path(selector->getCurrentDir()) / filepath;
         if(!exists(filepath)) return false;
     }
 
     //TODO: construct full path here first
 
     if(is_directory(filepath)) {
-        selector->changeDir(filepath);
+        selector->changeDir(filepath.string());
         setText("");
         return true;
     }
 
-    selector->selectFile(filepath);
+    selector->selectFile(filepath.string());
     selector->confirm();
     return true;
 }

@@ -20,7 +20,7 @@ void UILayout::setDrawBackground(bool drawbg) {
 }
 
 void UILayout::clear() {
-    foreach(UIElement* e, elements) {
+    for(UIElement* e: elements) {
         delete e;
     }
     elements.clear();
@@ -32,7 +32,7 @@ void UILayout::setHorizontal(bool horizontal) {
 
 void UILayout::setUI(UI* ui) {
     this->ui = ui;
-    foreach(UIElement* e, elements) {
+    for(UIElement* e: elements) {
         e->setUI(ui);
     }
 }
@@ -69,7 +69,7 @@ void UILayout::update(float dt) {
     std::list<UIElement*> fill_vert_elements;
     std::list<UIElement*> fill_horiz_elements;
 
-    foreach(UIElement* e, elements) {
+    for(UIElement* e: elements) {
         e->resetRect();
         e->update(dt);
 
@@ -119,7 +119,7 @@ void UILayout::update(float dt) {
 
     fill_elements.unique();
 
-    foreach(UIElement* e, fill_elements) {
+    for(UIElement* e: fill_elements) {
 
         vec2 efill(0.0f);
 
@@ -198,7 +198,7 @@ void UILayout::updatePos(const vec2& pos) {
     cursor = this->pos + vec2( (right_align  ? rect.x - margin.z : margin.x) ,
                                (bottom_align ? rect.y - margin.w : margin.y) );
 
-    foreach(UIElement* e, elements) {
+    for(UIElement* e: elements) {
 
         if(!e->isVisible()) continue;
 
@@ -227,7 +227,7 @@ bool UILayout::elementsByType(std::list<UIElement*>& found, int type) {
 
     bool success = UIElement::elementsByType(found, type);
 
-    foreach(UIElement* e, elements) {
+    for(UIElement* e: elements) {
         if(e->elementsByType(found, type)) success = true;
     }
 
@@ -240,7 +240,7 @@ void UILayout::elementsAt(const vec2& pos, std::list<UIElement*>& elements_found
 
     UIElement* found = 0;
 
-    foreach(UIElement* e, elements) {
+    for(UIElement* e: elements) {
         e->elementsAt(pos, elements_found);
     }
 
@@ -255,7 +255,7 @@ void UILayout::drawOutline() {
 
     UIElement::drawOutline();
 
-    foreach(UIElement* e, elements) {
+    for(UIElement* e: elements) {
         if(e->isVisible()) e->drawOutline();
     }
 }
@@ -264,7 +264,7 @@ void UILayout::draw() {
 
     drawBackground();
 
-    foreach(UIElement* e, elements) {
+    for(UIElement* e: elements) {
         if(e->isVisible()) e->draw();
     }
 

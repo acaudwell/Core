@@ -5,13 +5,10 @@
 #include "select.h"
 #include "scroll_layout.h"
 
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
-
 class UIFileSelectorAction {
 public:
     UIFileSelectorAction() {};
-    virtual void perform(const  boost::filesystem::path& path) {};
+    virtual void perform(const  std::string& path) {};
 };
 
 class UIFileSelector : public UIGroup {
@@ -24,15 +21,14 @@ class UIFileSelector : public UIGroup {
 
     std::string previous_dir;
 
-    boost::filesystem::path selected_path;
-    boost::filesystem::path current_dir;
+    std::string selected_path;
+    std::string current_dir;
 
     std::string next_dir;
     UIOptionLabel* current_filter;
 
     UIFileSelectorAction* action;
 
-    bool parentPath(const boost::filesystem::path& path, boost::filesystem::path& parent_path);
 public:
     UIFileSelector(const std::string& title, const std::string& dir, UIFileSelectorAction* action);
 
@@ -40,14 +36,14 @@ public:
 
     void addFilter(const std::string& name, const std::string& extension, bool select = false);
 
-    bool changeDir(const boost::filesystem::path& dir);
+    bool changeDir(const std::string& dir);
     void updateListing();
 
-    void selectFile(const boost::filesystem::path& filename);
-    void selectPath(const boost::filesystem::path& path);
+    void selectFile(const std::string& filename);
+    void selectPath(const std::string& path);
     void confirm();
 
-    const boost::filesystem::path& getCurrentDir() const;
+    const std::string& getCurrentDir() const;
 
     std::string autocomplete(const std::string& input, bool dirs_only = false);
 
@@ -60,15 +56,15 @@ public:
 
 class UIFileSelectorLabel : public UILabel {
 protected:
-    boost::filesystem::path path;
+    std::string path;
     bool directory;
     UIFileSelector* selector;
 public:
-    UIFileSelectorLabel(UIFileSelector* selector, const boost::filesystem::path& path);
-    UIFileSelectorLabel(UIFileSelector* selector, const std::string& label, const boost::filesystem::path& path);
+    UIFileSelectorLabel(UIFileSelector* selector, const std::string& path);
+    UIFileSelectorLabel(UIFileSelector* selector, const std::string& label, const std::string& path);
 
     bool isDir() const { return directory; };
-    const boost::filesystem::path& getPath() const { return path; };
+    const std::string& getPath() const { return path; };
 
     void doubleClick(const vec2& pos);
     void click(const vec2& pos);

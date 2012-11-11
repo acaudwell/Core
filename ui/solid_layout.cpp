@@ -11,7 +11,7 @@ UISolidLayout::UISolidLayout(bool horizontal) : UILayout(horizontal) {
     bgtex[2] = texturemanager.grab("ui/layout_br.png", false);
     bgtex[3] = texturemanager.grab("ui/layout_bl.png", false);
 
-    foreach(TextureResource* t, bgtex) {
+    for(TextureResource* t: bgtex) {
         t->bind();
         t->setFiltering(GL_NEAREST, GL_NEAREST);
         t->setWrapStyle(GL_CLAMP);
@@ -19,7 +19,7 @@ UISolidLayout::UISolidLayout(bool horizontal) : UILayout(horizontal) {
 }
 
 UISolidLayout::~UISolidLayout() {
-    foreach(TextureResource* t, bgtex) {
+    for(TextureResource* t: bgtex) {
         texturemanager.release(t);
     }
     bgtex.clear();

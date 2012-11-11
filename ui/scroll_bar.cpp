@@ -14,7 +14,7 @@ UIScrollBar::UIScrollBar(UIScrollLayout* parent, bool horizontal) : horizontal(h
 
     // NOTE: as the textures are shared this is doing
     // unnessisary work
-    foreach(TextureResource* t, bartex) {
+    for(TextureResource* t: bartex) {
         t->bind();
         t->setFiltering(GL_NEAREST, GL_NEAREST);
         t->setWrapStyle(GL_CLAMP);
@@ -37,7 +37,7 @@ UIScrollBar::UIScrollBar(UIScrollLayout* parent, bool horizontal) : horizontal(h
 
 UIScrollBar::~UIScrollBar() {
 
-    foreach(TextureResource* t, bartex) {
+    for(TextureResource* t: bartex) {
         texturemanager.release(t);
     }
     bartex.clear();

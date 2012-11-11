@@ -38,7 +38,7 @@ UI::~UI() {
 
 void UI::clear() {
     deselect();
-    foreach(UIElement* e, elements) {
+    for(UIElement* e: elements) {
         delete e;
     }
     elements.clear();
@@ -84,7 +84,7 @@ bool UI::elementsByType(std::list<UIElement*>& found, int type) {
 
     bool success = false;
 
-    foreach(UIElement* e, elements) {
+    for(UIElement* e: elements) {
         if(e->elementsByType(found, type)) success = true;
     }
 
@@ -93,7 +93,7 @@ bool UI::elementsByType(std::list<UIElement*>& found, int type) {
 
 void UI::elementsAt(const vec2& pos, std::list<UIElement*>& found_elements) {
 
-    foreach(UIElement* e, elements) {
+    for(UIElement* e: elements) {
         if(e->isVisible()) e->elementsAt(pos, found_elements);
     }
 
@@ -194,11 +194,11 @@ void UI::update(float dt) {
 
     if(double_click_timer<double_click_interval) double_click_timer += dt;
 
-    foreach(UIElement* e, elements) {
+    for(UIElement* e: elements) {
         e->update(dt);
     }
 
-    foreach(UIElement* e, elements) {
+    for(UIElement* e: elements) {
         e->updatePos(vec2(0.0f, 0.0f));
     }
 }
@@ -254,7 +254,7 @@ void UI::draw() {
     //draw elements by reverse zindex
     std::sort(draw_elements.begin(), draw_elements.end(), UIElement::reverse_zindex_sort);
 
-    foreach(UIElement* e, draw_elements) {
+    for(UIElement* e: draw_elements) {
         if(e->isVisible()) e->draw();
     }
 
@@ -308,7 +308,7 @@ UIElement* UI::processMouse(MouseCursor& cursor) {
 }
 
 void UI::drawOutline() {
-    foreach(UIElement* e, elements) {
+    for(UIElement* e: elements) {
         if(e->isVisible()) e->drawOutline();
     }
 }
@@ -401,7 +401,7 @@ UIColour* UI::getActiveColour() {
     std::list<UIElement*> found;
     elementsByType(found, UI_COLOUR);
 
-    foreach(UIElement* e, found) {
+    for(UIElement* e: found) {
         UIColour* c = (UIColour*)e;
 
         if(c->active) return c;

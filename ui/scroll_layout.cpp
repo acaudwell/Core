@@ -20,9 +20,9 @@ vec2 UIScrollLayout::getScrollRect() {
     return glm::min(scroll_rect,rect)+expanded_rect;
 }
 
-vec4 UIScrollLayout::getMargin() const { 
+vec4 UIScrollLayout::getMargin() const {
     vec4 scroll_margin = margin;
-    
+
     if(vertical_scrollbar->isScrollable()) {
         if(vertical_scrollbar->flip_sides) {
             scroll_margin.x += vertical_scrollbar->bar_width;
@@ -30,13 +30,13 @@ vec4 UIScrollLayout::getMargin() const {
             scroll_margin.z += vertical_scrollbar->bar_width;
         }
     }
-    
+
     if(horizontal_scrollbar->isScrollable()) {
         scroll_margin.y += horizontal_scrollbar->bar_width;
     }
-    
+
     return scroll_margin;
-    
+
 }
 
 vec2 UIScrollLayout::getInnerRect() {
@@ -112,7 +112,7 @@ void UIScrollLayout::elementsAt(const vec2& pos, std::list<UIElement*>& elements
 
     UIElement* found = 0;
 
-    foreach(UIElement* e, elements) {
+    for(UIElement* e: elements) {
         e->elementsAt(scrolled_pos, elements_found);
     }
 

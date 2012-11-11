@@ -3,7 +3,6 @@
 
 #include "../display.h"
 #include "../vectors.h"
-#include "../util.h"
 
 #include <string>
 
@@ -20,7 +19,7 @@ public:
     vec2  pos;
     vec2  rect;
     bool  editable;
-    bool  selected;    
+    bool  selected;
     bool  disabled;
     bool  hidden;
     bool  scrollable;

@@ -2,7 +2,6 @@
 #define UI_H
 
 #include "../display.h"
-#include "../util.h"
 #include "../mousecursor.h"
 
 #include <set>
@@ -28,13 +27,13 @@ protected:
     vec4 text_colour;
     vec4 tint_colour;
     vec4 ui_alpha;
-    
+
     bool left_pressed;
     bool left_drag;
     bool scrolling;
 
     vec2 cursor_pos;
-    
+
     virtual UIElement* click(const MouseCursor& cursor);
     virtual UIElement* drag(const MouseCursor& cursor);
     virtual UIElement* scroll(MouseCursor& cursor);
