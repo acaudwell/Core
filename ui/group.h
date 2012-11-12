@@ -22,7 +22,7 @@ protected:
     bool minimizable;
 public:
     UIGroup(const std::string& groupname, bool minimized = false, bool resizable = false);
-    virtual ~UIGroup();
+    virtual ~UIGroup() {};
 
     void setOpenAction(UIAction* action);
 

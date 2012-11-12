@@ -9,7 +9,8 @@ protected:
     std::string name;
 public:
     UIConsoleCommand(const std::string& name);
-
+    virtual ~UIConsoleCommand() {};
+    
     const std::string& getName() const;
 
     virtual bool execute(const std::string& args);

@@ -6,6 +6,7 @@ class UIElement;
 class UIAction {
 public:
     UIAction() {};
+    virtual ~UIAction() {};
 
     virtual void perform() {};
     virtual void idle() {};

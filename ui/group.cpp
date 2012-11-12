@@ -28,10 +28,6 @@ UIGroup::UIGroup(const std::string& groupname, bool minimized, bool resizable)
     open_action = 0;
 }
 
-UIGroup::~UIGroup() {
-
-}
-
 void UIGroup::setTitle(const std::string& text) {
     bar->setText(text);
 }

@@ -66,7 +66,8 @@ protected:
 public:
 
     ShaderUniform(Shader* shader, const std::string& name, int uniform_type, const std::string& type_name);
-
+    virtual ~ShaderUniform() {};
+    
     virtual void unload();
 
     int getType() { return uniform_type; };
