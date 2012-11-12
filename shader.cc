@@ -816,6 +816,7 @@ void ShaderPart::reload() {
 
 void ShaderPart::reset() {
     processed_source.clear();
+    defines.clear();
 }
 
 void ShaderPart::setSource(const std::string& source) {
