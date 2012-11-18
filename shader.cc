@@ -53,7 +53,7 @@ ShaderException::ShaderException(const char* str, ...) {
     message = std::string(msg);
 }
 
-ShaderException::ShaderException(const std::string& message) : message(message) {}   
+ShaderException::ShaderException(const std::string& message) : message(message) {}
 
 //ShaderManager
 
@@ -134,11 +134,11 @@ void ShaderUniform::setBaked(bool baked) {
 void ShaderUniform::setComment(const std::string& comment) {
     this->comment = comment;
 }
-    
+
 const std::string& ShaderUniform::getComment() const {
     return comment;
 }
-    
+
 
 //FloatShaderUniform
 
@@ -983,7 +983,8 @@ void ShaderPass::checkError() {
         glGetShaderInfoLog(shader_object, info_log_length, &info_log_length, info_log);
 
         std::string context;
-        errorContext(info_log, context);
+        if(!errorContext(info_log, context))
+            context = shader_object_source;
 
         if(!compile_success) {
             throw ShaderException("%s shader '%s' failed to compile:\n%s\n%s",
@@ -1149,23 +1150,19 @@ bool ShaderPass::preprocess(const std::string& line) {
         return true;
     }
 
-#ifndef USE_MGL_NAMESPACE
     if(Shader_pre_include.match(line, &matches)) {
-
         std::string include_file = shadermanager.getDir() + matches[0];
-
         includeFile(include_file);
 
         return true;
     }
-#endif
-    
+
     if(Shader_uniform_def.match(line, &matches)) {
         std::string uniform_type = matches[0];
         std::string uniform_name = matches[1];
-                
+
         ShaderUniform* uniform = 0;
-                
+
         if(matches.size() > 2 && !matches[2].empty()) {
             size_t uniform_length = atoi(matches[2].c_str());
             uniform = addArrayUniform(uniform_name, uniform_type, uniform_length);
@@ -1249,12 +1246,8 @@ void Shader::loadPrefix() {
     if(fragment_shader != 0) delete fragment_shader;
     fragment_shader = 0;
 
-// TODO: make this work with MGL
-#ifndef USE_MGL_NAMESPACE
     std::string shader_dir = shadermanager.getDir();
-#else
-    std::string shader_dir = "";   
-#endif
+
     std::string vertex_file   = shader_dir + prefix + std::string(".vert");
     std::string fragment_file = shader_dir + prefix + std::string(".frag");
 
