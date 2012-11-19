@@ -941,6 +941,7 @@ bool ShaderPass::errorContext(const char* log_message, std::string& context) {
 
     if(   !Shader_error_line.match(log_message, &matches)
        && !Shader_error2_line.match(log_message, &matches)
+       && !Shader_error3_line.match(log_message, &matches)
        && !(Logger::getDefault()->getLevel() == LOG_LEVEL_WARN && Shader_warning_line.match(log_message, &matches)))
         return false;
 
