@@ -227,7 +227,7 @@ public:
 };
 
 class Vec2ArrayShaderUniform : public ShaderUniform {
-    vec2* value;
+    std::vector<vec2> value;
     size_t length;
 
     void copyValue(const vec2* value);
@@ -243,11 +243,11 @@ public:
     void setValue(const vec2* value);
     void setValue(const std::vector<vec2>& value);
 
-    vec2* getValue();
+    const std::vector<vec2>& getValue();
 };
 
 class Vec3ArrayShaderUniform : public ShaderUniform {
-    vec3* value;
+    std::vector<vec3> value;
     size_t length;
 
     void copyValue(const vec3* value);
@@ -263,11 +263,11 @@ public:
     void setValue(const vec3* value);
     void setValue(const std::vector<vec3>& value);
 
-    vec3* getValue();
+    const std::vector<vec3>& getValue();
 };
 
 class Vec4ArrayShaderUniform : public ShaderUniform {
-    vec4* value;
+    std::vector<vec4> value;
     size_t length;
 
     void copyValue(const vec4* value);
@@ -283,7 +283,7 @@ public:
     void setValue(const vec4* value);
     void setValue(const std::vector<vec4>& value);
 
-    vec4* getValue();
+    const std::vector<vec4>& getValue();
 };
 
 class ShaderPart {

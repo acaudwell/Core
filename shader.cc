@@ -500,15 +500,14 @@ void Mat4ShaderUniform::write(std::string& content) const {
 
 Vec2ArrayShaderUniform::Vec2ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec2* value) :
     length(length), ShaderUniform(shader, name, SHADER_UNIFORM_VEC2_ARRAY, "vec2") {
-    this->value = new vec2[length];
+    this->value.resize(length);
     if(value != 0) copyValue(value);
 }
 
 Vec2ArrayShaderUniform::~Vec2ArrayShaderUniform() {
-    if(value) delete[] value;
 }
 
-vec2* Vec2ArrayShaderUniform::getValue() {
+const std::vector<vec2>& Vec2ArrayShaderUniform::getValue() {
     return value;
 }
 
@@ -594,15 +593,14 @@ void Vec2ArrayShaderUniform::write(std::string& content) const {
 
 Vec3ArrayShaderUniform::Vec3ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec3* value) :
     length(length), ShaderUniform(shader, name, SHADER_UNIFORM_VEC3_ARRAY, "vec3") {
-    this->value = new vec3[length];
+    this->value.resize(length);
     if(value != 0) copyValue(value);
 }
 
 Vec3ArrayShaderUniform::~Vec3ArrayShaderUniform() {
-    if(value) delete[] value;
 }
 
-vec3* Vec3ArrayShaderUniform::getValue() {
+const std::vector<vec3>& Vec3ArrayShaderUniform::getValue() {
     return value;
 }
 
@@ -688,15 +686,14 @@ void Vec3ArrayShaderUniform::write(std::string& content) const {
 
 Vec4ArrayShaderUniform::Vec4ArrayShaderUniform(Shader* shader, const std::string& name, size_t length, const vec4* value) :
     length(length), ShaderUniform(shader, name, SHADER_UNIFORM_VEC4_ARRAY, "vec4") {
-    this->value = new vec4[length];
+    this->value.resize(length);
     if(value != 0) copyValue(value);
 }
 
 Vec4ArrayShaderUniform::~Vec4ArrayShaderUniform() {
-    if(value) delete[] value;
 }
 
-vec4* Vec4ArrayShaderUniform::getValue() {
+const std::vector<vec4>& Vec4ArrayShaderUniform::getValue() {
     return value;
 }
 
