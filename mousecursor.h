@@ -45,6 +45,10 @@ class MouseCursor {
     SDL_Cursor* sdl_default_cursor;
     SDL_Cursor* sdl_hidden_cursor;
 
+    bool left_click;
+    bool right_click;
+    bool middle_click;
+
     TextureResource* cursortex;
 public:
     MouseCursor();
@@ -52,6 +56,14 @@ public:
     
     vec2 getPos() const { return mousepos; }
 
+    void leftClick(bool click);
+    void rightClick(bool click);
+    void middleClick(bool click);
+
+    bool leftClick() const;
+    bool rightClick() const;
+    bool middleClick() const;
+    
     bool leftButtonPressed() const;
     bool rightButtonPressed() const;
     bool bothPressed() const;
@@ -65,7 +77,8 @@ public:
     bool hasFocus() const;
 
     void scroll(bool dir);
-    void resetScrollWheel();
+
+    void resetButtonState();
 
     void updatePos(const vec2& pos);
 

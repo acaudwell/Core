@@ -35,6 +35,10 @@ MouseCursor::MouseCursor() {
     idle          = timeout;
     scrollwheel   = 0;
     
+    left_click   = false;
+    right_click  = false;
+    middle_click = false;
+    
     sdl_default_cursor = SDL_GetCursor();
     
     
@@ -73,6 +77,30 @@ void MouseCursor::showCursor(bool show) {
         if(show) SDL_SetCursor(sdl_default_cursor);
         else SDL_SetCursor(sdl_hidden_cursor);
     }
+}
+
+void MouseCursor::leftClick(bool click) {
+    left_click = click;
+}
+
+void MouseCursor::rightClick(bool click) {
+    right_click = click;
+}
+
+void MouseCursor::middleClick(bool click) {
+    middle_click = click;
+}
+
+bool MouseCursor::leftClick() const {
+    return left_click;
+}
+
+bool MouseCursor::rightClick() const {
+    return right_click;    
+}
+
+bool MouseCursor::middleClick() const {
+    return middle_click;
 }
 
 bool MouseCursor::leftButtonPressed() const {
@@ -132,8 +160,11 @@ void MouseCursor::scroll(bool dir) {
     scrollwheel += dir ? 1 : -1;
 }
 
-void MouseCursor::resetScrollWheel() {
-    scrollwheel = 0;    
+void MouseCursor::resetButtonState() {
+    scrollwheel  = 0;
+    right_click  = false;
+    left_click   = false;
+    middle_click = false;
 }
 
 void MouseCursor::logic(float dt) {

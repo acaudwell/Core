@@ -269,15 +269,18 @@ UIElement* UI::processMouse(MouseCursor& cursor) {
 
     cursor_pos = cursor.getPos();
 
-    if(cursor.leftButtonPressed()) {
+    if(cursor.leftClick()) {
 
-        if(!left_pressed) {
-            left_pressed = true;
-            return click(cursor);
-        } else if(mousemove) {
+        left_pressed = true;
+        return click(cursor);
+        
+    } else if(cursor.leftButtonPressed()) {
+
+        if(mousemove) {
             left_drag = true;
             return drag(cursor);
         }
+        
     } else {
         if(left_pressed) {
             if(left_drag) {
@@ -359,8 +362,6 @@ UIElement* UI::scroll(MouseCursor& cursor) {
     if(el->isSelectable()) selectElement(el);
 
     el->scroll(dir);
-
-    cursor.resetScrollWheel();
 
     return el;
 }
