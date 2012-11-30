@@ -1067,6 +1067,10 @@ void ShaderPass::compile() {
     checkError();
 }
 
+std::list<ShaderUniform*>& ShaderPass::getUniforms() {
+    return uniforms;
+}
+
 //add uniform, unless parent Shader has this in which case link to it
 ShaderUniform* ShaderPass::addArrayUniform(const std::string& name, const std::string& type, size_t length) {
 

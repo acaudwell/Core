@@ -359,6 +359,8 @@ public:
 
     void includeSource(const std::string& source);
     void includeFile(const std::string& filename);
+    
+    std::list<ShaderUniform*>& getUniforms();
 };
 
 class VertexShader : public ShaderPass {
