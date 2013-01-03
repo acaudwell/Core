@@ -814,13 +814,14 @@ void ShaderPart::reload() {
 void ShaderPart::reset() {
     processed_source.clear();
     defines.clear();
+    substitutions.clear();
 }
 
 void ShaderPart::setSource(const std::string& source) {
     raw_source = source;
 }
 
-void ShaderPart::substitute(std::string& source, const std::string& name, const std::string& value) {
+void ShaderPart::applySubstitution(std::string& source, const std::string& name, const std::string& value) {
 
     std::string::size_type next_match;
 
@@ -832,10 +833,40 @@ void ShaderPart::substitute(std::string& source, const std::string& name, const 
     }
 }
 
+void ShaderPart::substitute(const std::string& name, const char *value, ...) {
+
+    va_list vl;
+    char sub[65536];
+
+    char* buffer = sub;
+
+    va_start(vl, value);
+        int string_size = vsnprintf(sub, sizeof(sub), value, vl);
+
+        if(string_size > sizeof(sub)) {
+            buffer = new char[string_size];
+            string_size = vsnprintf(buffer, string_size, value, vl);
+        }
+    va_end(vl);
+
+    substitutions[name] = buffer;
+}
+
+void ShaderPart::substitute(const std::string& name, const std::string& value) {
+    substitute(name, value.c_str());
+}
+
+void ShaderPart::applySubstitutions(std::string& source) {
+
+    for(std::map<std::string, std::string>::iterator it = substitutions.begin(); it != substitutions.end(); it++) {
+        applySubstitution(source, it->first, it->second);
+    }
+}
+
 void ShaderPart::applyDefines(std::string& source) {
 
     for(std::map<std::string, std::string>::iterator it = defines.begin(); it != defines.end(); it++) {
-        substitute(source, it->first, it->second);
+        source.append(str(boost::format("#define %s %s\n") % it->first % it->second));
     }
 }
 
@@ -868,16 +899,15 @@ void ShaderPart::define(const std::string& name) {
     define(name, "");
 }
 
-bool ShaderPart::isDefined(const std::string& name) {
-    std::map<std::string,std::string>::iterator it = defines.find(name);
-    return (it != defines.end());
-}
-
 void ShaderPart::preprocess() {
 
     processed_source.clear();
 
-    // NOTE: this preprocessor only handles basic ifdef / endif blocks
+    // add defines at the top of the source
+    
+    applyDefines(processed_source);
+
+    // do trivial substitutions
 
     std::vector<std::string> matches;
 
@@ -887,23 +917,10 @@ void ShaderPart::preprocess() {
     bool skipdef = false;
 
     while( std::getline(in,line) ) {
-        if(Shader_ifdef.match(line, &matches)) {
-            if( (matches[0] == "ifdef" && !isDefined(matches[1])) || (matches[0] == "ifndef" && isDefined(matches[1])) ) {
-                skipdef = true;
-            }
-            continue;
-        }
-        if(Shader_endif.match(line, &matches)) {
-            skipdef = false;
-            continue;
-        }
+        applySubstitutions(line);
 
-        if(!skipdef) {
-            applyDefines(line);
-
-            processed_source.append(line);
-            processed_source.append("\n");
-        }
+        processed_source.append(line);
+        processed_source.append("\n");
     }
 }
 

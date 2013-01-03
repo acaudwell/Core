@@ -294,12 +294,15 @@ class ShaderPart {
     std::string processed_source;
 
     std::map<std::string,std::string> defines;
+    std::map<std::string,std::string> substitutions;
 
     void preprocess();
     void loadSourceFile();
 
-    void substitute(std::string& source, const std::string& name, const std::string& value);
+    void applySubstitution(std::string& source, const std::string& name, const std::string& value);
+
     void applyDefines(std::string& source);
+    void applySubstitutions(std::string& source);
 public:
     ShaderPart();
 
@@ -309,11 +312,12 @@ public:
     void reload();
     void reset();
 
+    void substitute(const std::string& name, const char *value, ...);
+    void substitute(const std::string& name, const std::string& value);
+
     void define(const std::string& name);
     void define(const std::string& name, const char *value, ...);
     void define(const std::string& name, const std::string& value);
-
-    bool isDefined(const std::string& name);
 
     const std::string& getSource();
 };
