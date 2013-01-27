@@ -949,6 +949,24 @@ void ShaderPass::attachTo(unsigned int program) {
     glAttachShader(program, shader_object);
 }
 
+void ShaderPass::showContext(std::string& context, int line_no, int amount) {
+
+    std::stringstream in(shader_object_source);
+
+    int i = 1;
+    char line_detail[1024];
+    std::string line;
+
+    while( std::getline(in,line) ) {
+
+        if(i==line_no || (i<line_no && i+amount>=line_no) || (i>line_no && i-amount<=line_no)) {
+            snprintf(line_detail, 1024, "%s%4d | %s\n", (i==line_no ? "-> ": "   "), i, line.c_str());
+            context += line_detail;
+        }
+        i++;
+    }
+}
+
 bool ShaderPass::errorContext(const char* log_message, std::string& context) {
 
     std::vector<std::string> matches;
@@ -961,22 +979,13 @@ bool ShaderPass::errorContext(const char* log_message, std::string& context) {
 
     int line_no = atoi(matches[0].c_str());
 
-    std::stringstream in(shader_object_source);
-
-    int i = 1;
-    int amount = 3;
-
-    char line_detail[1024];
-
-    std::string line;
-    while( std::getline(in,line) ) {
-
-        if(i==line_no || (i<line_no && i+amount>=line_no) || (i>line_no && i-amount<=line_no)) {
-            snprintf(line_detail, 1024, "%s%4d | %s\n", (i==line_no ? "-> ": "   "), i, line.c_str());
-            context += line_detail;
-        }
-        i++;
+    if(Shader_redefine_line.match(log_message, &matches)) {
+        int redefine_line_no = atoi(matches[0].c_str());
+        showContext(context, redefine_line_no, 3);
+        context += "\n";        
     }
+
+    showContext(context, line_no, 3);
 
     return true;
 }

@@ -26,7 +26,6 @@ extern Regex Shader_error_line;
 extern Regex Shader_error2_line;
 extern Regex Shader_error3_line;
 extern Regex Shader_warning_line;
-extern Regex Shader_ifdef;
-extern Regex Shader_endif;
+extern Regex Shader_redefine_line;
 
 #endif
