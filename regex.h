@@ -52,11 +52,18 @@ class Regex {
 
     bool valid;
 
+    int replaceOffset(std::string& str, const std::string& replacement_str, int offset=0);
+    int matchOffset(const std::string& str, std::vector<std::string>* results = 0, int offset=0);
 public:
     Regex(std::string regex, bool test = false);
     ~Regex();
-    bool match(const std::string& str, std::vector<std::string>* results = 0);
 
+    bool match(const std::string& str, std::vector<std::string>* results = 0);
+    bool matchAll(const std::string& str, std::vector<std::string>* results = 0);
+    
+    bool replace(std::string& str, const std::string& replacement_str);
+    bool replaceAll(std::string& str, const std::string& replacement_str);
+    
     bool isValid();
 
 };

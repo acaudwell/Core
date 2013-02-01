@@ -58,7 +58,94 @@ bool Regex::isValid() {
     return valid;
 }
 
+bool Regex::replace(std::string& str, const std::string& replacement_str) {
+
+    int offset = replaceOffset(str, replacement_str, 0);
+    
+    return (offset != -1); 
+}
+
+bool Regex::replaceAll(std::string& str, const std::string& replacement_str) {
+   
+
+    int offset = -1;
+    
+    while((offset = replaceOffset(str, replacement_str, offset+1)) != -1 && offset < str.size());
+
+    return (offset != -1);
+}
+
+int Regex::replaceOffset(std::string& str, const std::string& replacement_str, int offset) {
+    
+    int ovector[REGEX_MAX_MATCHES];
+
+    int rc = pcre_exec(
+        re,
+        0,
+        str.c_str(),
+        str.size(),
+        offset,
+        0,
+        ovector,
+        REGEX_MAX_MATCHES
+    );
+
+    //failed match
+    if(rc<1) {
+        return -1;
+    }
+    
+    // replace matched section of string
+    std::string new_str = str;
+    new_str.replace(ovector[0], ovector[1]-ovector[0], replacement_str);
+    
+    size_t end_offset = ovector[0] + replacement_str.size();
+    
+    for (int i = 1; i < rc; i++) {
+        int match_start = ovector[2*i];
+        int match_end   = ovector[2*i+1]; 
+
+        std::string matched_str;
+        
+        if(match_start != -1) {
+            matched_str = std::string(str, match_start, match_end-match_start);
+        }
+                
+        // check if 'str' contains $i, if it does, replace with match string
+        size_t string_size = new_str.size();
+        
+        for(size_t j=0; j<string_size-1; j++) {
+            if(new_str[j] == '$' && atoi(&(new_str[j+1])) == i) {
+                new_str.replace(j, 2, matched_str);
+                size_t new_string_size = new_str.size();
+                end_offset += (new_string_size-string_size);
+                string_size = new_string_size;
+            }
+        }
+    }
+
+    str = new_str;
+    
+    return end_offset;        
+}
+
 bool Regex::match(const std::string& str, std::vector<std::string>* results) {
+
+    if(results != 0) results->clear();
+    int offset = matchOffset(str, results, 0);
+    return offset != -1;
+}
+
+bool Regex::matchAll(const std::string& str, std::vector<std::string>* results) {
+   
+    int offset = -1;
+    if(results != 0) results->clear();
+    while((offset = matchOffset(str, results, offset+1)) != -1 && offset < str.size());
+
+    return (offset != -1);
+}
+
+int Regex::matchOffset(const std::string& str, std::vector<std::string>* results, int offset) {
 
     int ovector[REGEX_MAX_MATCHES];
 
@@ -67,7 +154,7 @@ bool Regex::match(const std::string& str, std::vector<std::string>* results) {
         0,
         str.c_str(),
         str.size(),
-        0,
+        offset,
         0,
         ovector,
         REGEX_MAX_MATCHES
@@ -75,12 +162,10 @@ bool Regex::match(const std::string& str, std::vector<std::string>* results) {
 
     //failed match
     if(rc<1) {
-        return false;
+        return -1;
     }
-
-
-    if(results!=0) {       
-        results->clear();
+   
+    if(results!=0) {
         for (int i = 1; i < rc; i++) {
             int match_start = ovector[2*i];
             int match_end   = ovector[2*i+1]; 
@@ -95,7 +180,7 @@ bool Regex::match(const std::string& str, std::vector<std::string>* results) {
         }
     }
 
-    return true;
+    return ovector[1];
 }
 
 

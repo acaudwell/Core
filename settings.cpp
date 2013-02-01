@@ -16,6 +16,7 @@
 */
 
 #include "settings.h"
+#include "regex.h"
 
 Regex SDLAppSettings_rect_regex("^([0-9.]+)x([0-9.]+)$");
 Regex SDLAppSettings_viewport_regex("^([0-9.]+)x([0-9.]+)(!)?$");

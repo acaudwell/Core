@@ -18,9 +18,9 @@
 #ifndef SDLAPP_SETTINGS_H
 #define SDLAPP_SETTINGS_H
 
-#include "regex.h"
-
 #include "conffile.h"
+
+#include <vector>
 
 class SDLAppSettings {
 protected:
