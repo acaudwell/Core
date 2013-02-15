@@ -40,13 +40,16 @@
 class ShaderException : public std::exception {
 protected:
     std::string message;
+    std::string source;
 public:
-    ShaderException(const char* str, ...);
     ShaderException(const std::string& message);
+    ShaderException(const std::string& message, const std::string& source);
 
     ~ShaderException() throw () {};
 
     virtual const char* what() const throw() { return message.c_str(); }
+
+    const std::string& getSource() const;    
 };
 
 class Shader;
@@ -425,7 +428,9 @@ public:
 
     static void substitute(std::string& source, const std::string& name, const std::string& value);
 
+    void addSubstitute(const std::string& name, const std::string& value);
     void addSubstitute(const std::string& name, const char *value, ...);
+    
     void applySubstitutions(std::string& source);
 
     void addUniform(ShaderUniform* uniform);

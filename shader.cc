@@ -41,19 +41,17 @@ ShaderManager shadermanager;
 
 //ShaderException
 
-ShaderException::ShaderException(const char* str, ...) {
-
-    va_list vl;
-    char msg[65536];
-
-    va_start(vl, str);
-        vsnprintf(msg, 65536, str, vl);
-    va_end(vl);
-
-    message = std::string(msg);
+ShaderException::ShaderException(const std::string& message)
+    : message(message) {
 }
 
-ShaderException::ShaderException(const std::string& message) : message(message) {}
+ShaderException::ShaderException(const std::string& message, const std::string& source)
+    : message(message), source(source) {
+}
+
+const std::string& ShaderException::getSource() const {
+    return source;
+}
 
 //ShaderManager
 
@@ -80,7 +78,7 @@ void ShaderManager::manage(Shader* shader) {
     }
 
     if(resources[shader->resource_name] != 0) {
-        throw ShaderException("A shader resource already exists under the name '%s'", shader->resource_name.c_str());
+        throw ShaderException(str(boost::format("A shader resource already exists under the name '%s'") % shader->resource_name));
     }
 
     resources[shader->resource_name] = shader;
@@ -795,7 +793,7 @@ void ShaderPart::loadSourceFile() {
     std::ifstream in(filename.c_str());
 
     if(!in.is_open()) {
-        throw ShaderException("could not open '%s'", filename.c_str());
+        throw ShaderException(str(boost::format("could not open '%s'") % filename));
     }
 
     std::string line;
@@ -904,7 +902,7 @@ void ShaderPart::preprocess() {
     processed_source.clear();
 
     // add defines at the top of the source
-    
+
     applyDefines(processed_source);
 
     // do trivial substitutions
@@ -982,7 +980,7 @@ bool ShaderPass::errorContext(const char* log_message, std::string& context) {
     if(Shader_redefine_line.match(log_message, &matches)) {
         int redefine_line_no = atoi(matches[0].c_str());
         showContext(context, redefine_line_no, 3);
-        context += "\n";        
+        context += "\n";
     }
 
     showContext(context, line_no, 3);
@@ -1011,14 +1009,9 @@ void ShaderPass::checkError() {
             context = shader_object_source;
 
         if(!compile_success) {
-            throw ShaderException("%s shader '%s' failed to compile:\n%s\n%s",
-                                  shader_object_desc.c_str(),
-                                  resource_desc,
-                                  info_log,
-                                  context.c_str());
-
-
-
+            throw ShaderException(str(boost::format("%s shader '%s' failed to compile:\n%s\n%s")
+                 % shader_object_desc % resource_desc % ((const char*)info_log) % context),
+                 shader_object_source);
         }
 
         if(Logger::getDefault()->getLevel() == LOG_LEVEL_WARN) {
@@ -1034,9 +1027,7 @@ void ShaderPass::checkError() {
     }
 
     if(!compile_success) {
-        throw ShaderException("%s shader '%s' failed to compile",
-                              shader_object_desc.c_str(),
-                              resource_desc);
+        throw ShaderException(str(boost::format("%s shader '%s' failed to compile") % shader_object_desc % resource_desc), shader_object_source);
     }
 }
 
@@ -1111,7 +1102,7 @@ ShaderUniform* ShaderPass::addArrayUniform(const std::string& name, const std::s
         } else if(type == "vec4") {
             uniform = new Vec4ArrayShaderUniform(parent, name, length);
         } else {
-            throw ShaderException("shader uniform arrays for type '%s' not implemented", type.c_str());
+            throw ShaderException(str(boost::format("shader uniform arrays for type '%s' not implemented") % type));
         }
 
         uniform->setInitialized(false);
@@ -1151,7 +1142,7 @@ ShaderUniform* ShaderPass::addUniform(const std::string& name, const std::string
         } else if(type == "mat4") {
             uniform = new Mat4ShaderUniform(parent, name);
         } else {
-            throw ShaderException("unsupported shader uniform type '%s'", type.c_str());
+            throw ShaderException(str(boost::format("unsupported shader uniform type '%s'") % type));
         }
 
         uniform->setInitialized(false);
@@ -1212,7 +1203,7 @@ void ShaderPass::includeFile(const std::string& filename) {
     std::ifstream in(filename.c_str());
 
     if(!in.is_open()) {
-        throw ShaderException("could not open '%s'", filename.c_str());
+        throw ShaderException(str(boost::format("could not open '%s'") % filename));
     }
 
     std::string line;
@@ -1398,7 +1389,7 @@ void Shader::checkProgramError() {
     }
 
     if(!link_success) {
-          throw ShaderException("shader '%s' failed to link", resource_desc);
+          throw ShaderException(str(boost::format("shader '%s' failed to link") % resource_desc));
     }
 }
 
@@ -1438,7 +1429,7 @@ unsigned int Shader::getProgram() {
 void Shader::addUniform(ShaderUniform* uniform) {
 
     if(getUniform(uniform->getName()) != 0) {
-        throw ShaderException("shader already has a uniform named '%s'", uniform->getName().c_str() );
+        throw ShaderException(str(boost::format("shader already has a uniform named '%s'") % uniform->getName()));
     }
 
     uniforms[uniform->getName()] = uniform;
@@ -1488,6 +1479,10 @@ void Shader::includeFile(unsigned int shader_object_type, const std::string& fil
     ShaderPass* pass = grabShaderPass(shader_object_type);
 
     pass->includeFile(filename);
+}
+
+void Shader::addSubstitute(const std::string& name, const std::string& value) {
+    substitutions[name] = value;
 }
 
 void Shader::addSubstitute(const std::string& name, const char *value, ...) {
