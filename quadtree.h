@@ -39,7 +39,7 @@ class QuadItem {
 public:
     Bounds2D quadItemBounds;
     int node_count;
-
+    virtual ~QuadItem() {};
     virtual void updateQuadItemBounds() {};
     virtual void drawQuadItem() {};
 };
