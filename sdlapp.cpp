@@ -475,7 +475,7 @@ void SDLAppInit(std::string apptitle, std::string execname) {
 void SDLAppParseArgs(int argc, char *argv[], int* xres, int* yres, bool* fullscreen, std::vector<std::string>* otherargs) {
 
     for (int i=1; i<argc; i++) {
-        debugLog("argv[%d] = %s\n", i, argv[i]);
+        debugLog("argv[%d] = %s", i, argv[i]);
 
         std::string args(argv[i]);
 
@@ -507,7 +507,7 @@ void SDLAppParseArgs(int argc, char *argv[], int* xres, int* yres, bool* fullscr
                 int height = atoi(heightstr.c_str());
 
                 if(width>0 && height>0) {
-                    debugLog("w=%d, h=%d\n",width,height);
+                    debugLog("w=%d, h=%d",width,height);
 
                     *xres = width;
                     *yres = height;

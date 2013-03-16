@@ -505,7 +505,7 @@ void ConfFile::trim(std::string& value) {
 }
 
 void ConfFile::load() {
-    debugLog("ConfFile::load(%s)\n", conffile.c_str());
+    debugLog("ConfFile::load(%s)", conffile.c_str());
 
     clear();
 
@@ -556,7 +556,7 @@ void ConfFile::load() {
 
             sec->addEntry(key, value, lineno);
 
-            debugLog("%s: [%s] %s => %s\n", conffile.c_str(), sec->getName().c_str(), key.c_str(), value.c_str());
+            debugLog("%s: [%s] %s => %s", conffile.c_str(), sec->getName().c_str(), key.c_str(), value.c_str());
 
         } else {
             sprintf(buff, "%s, line %d: could not parse line", conffile.c_str(), lineno);
