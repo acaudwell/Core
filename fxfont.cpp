@@ -76,6 +76,9 @@ FXGlyph::FXGlyph(FXGlyphSet* set, unsigned int chr) {
     if(FT_Get_Glyph( ftface->glyph, &ftglyph ))
         throw FXFontException(ftface->family_name);
 
+    FT_Glyph_Metrics *metrics = &ftface->glyph->metrics;
+    height = glm::ceil(metrics->height / 64.0);
+     
     FT_Glyph_To_Bitmap( &ftglyph, FT_RENDER_MODE_NORMAL, 0, 1 );
 
     glyph_bitmap = (FT_BitmapGlyph)ftglyph;
@@ -204,8 +207,9 @@ FXGlyphSet::FXGlyphSet(FT_Library freetype, const std::string& fontfile, int siz
     this->size     = size;
     this->dpi      = dpi;
     this->ftface   = 0;
-
-    tab_width = 4.0f;
+    
+    this->tab_width  = 4.0f;
+    this->max_height = 0;
 
     init();
 }
@@ -286,6 +290,8 @@ FXGlyph* FXGlyphSet::getGlyph(unsigned int chr) {
         }
     }
 
+    max_height = glm::max( glyph->getHeight(), max_height );
+    
     //update the texture unless this is the precaching process
     if(!pre_caching) page->updateTexture();
 
@@ -299,7 +305,7 @@ float FXGlyphSet::getMaxWidth() const {
 }
 
 float FXGlyphSet::getMaxHeight() const {
-    return (ftface->bbox.yMax - ftface->bbox.yMin) / 64.0f;
+    return max_height;
 }
 
 float FXGlyphSet::getWidth(const std::string& text) {
@@ -522,7 +528,6 @@ void FXFont::draw(float x, float y, const std::string& text) const {
     }
 
     if(align_top) {
-        //fprintf(stderr, "font size = %d, max height = %.2f, ascender = %.2f, descender = %.2f\n", getFontSize(), getMaxHeight(), (glyphset->getFTFace()->ascender / 64.0f), (glyphset->getFTFace()->descender / 64.0f));
         y += getFontSize() + (glyphset->getFTFace()->descender / 64.0f);
     }
 

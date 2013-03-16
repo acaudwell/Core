@@ -99,6 +99,7 @@ class FXGlyph {
     vec2 dims;
     vec2 corner;
     vec2 advance;
+    int  height;
 public:
     vec2 vertex_positions[4];
     vec2 vertex_texcoords[4];
@@ -114,6 +115,8 @@ public:
     const vec2& getCorner() const { return corner; };
     const vec2& getDimensions() const { return dims; };
 
+    const int getHeight() const { return height; };    
+    
     void setPage(FXGlyphPage* page, const vec4& texcoords);
 
     void drawToVBO(quadbuf& buffer, const vec2& offset, const vec4& colour) const;
@@ -124,6 +127,7 @@ class FXGlyphSet {
     FT_Library freetype;
     FT_Face ftface;
     std::string fontfile;
+    int max_height;
     int size;
     int dpi;
     float tab_width;
