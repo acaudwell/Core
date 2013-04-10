@@ -115,8 +115,8 @@ public:
     const vec2& getCorner() const { return corner; };
     const vec2& getDimensions() const { return dims; };
 
-    const int getHeight() const { return height; };    
-    
+    int getHeight() const { return height; };
+
     void setPage(FXGlyphPage* page, const vec4& texcoords);
 
     void drawToVBO(quadbuf& buffer, const vec2& offset, const vec4& colour) const;
@@ -194,7 +194,7 @@ public:
     float getWidth(const std::string& text) const;
 
     float getAscender() const;
-    
+
     void alignTop(bool top);
     void alignRight(bool right);
 
