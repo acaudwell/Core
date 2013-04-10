@@ -1,7 +1,15 @@
 #ifndef SHADER_COMMON_H
 #define SHADER_COMMON_H
 
+#include "resource.h"
 #include "regex.h"
+#include "vectors.h"
+
+#include <map>
+#include <list>
+#include <string>
+
+extern std::string gSDLAppShaderDir;
 
 enum { SHADER_UNIFORM_FLOAT,
        SHADER_UNIFORM_BOOL,
@@ -28,6 +36,21 @@ extern Regex Shader_error3_line;
 extern Regex Shader_warning_line;
 extern Regex Shader_redefine_line;
 
+class ShaderException : public std::exception {
+protected:
+    std::string message;
+    std::string source;
+public:
+    ShaderException(const std::string& message);
+    ShaderException(const std::string& message, const std::string& source);
+
+    ~ShaderException() throw () {};
+
+    virtual const char* what() const throw() { return message.c_str(); }
+
+    const std::string& getSource() const;
+};
+
 class AbstractShader;
 
 class ShaderUniform {
@@ -45,7 +68,7 @@ public:
 
     ShaderUniform(AbstractShader* shader, const std::string& name, int uniform_type, const std::string& type_name);
     virtual ~ShaderUniform() {};
-    
+
     virtual void unload();
 
     int getType() { return uniform_type; };
@@ -54,7 +77,6 @@ public:
 
     const std::string& getName() const;
     bool  isInitialized() const { return initialized; };
-    int   getLocation();
 
     bool isBaked() const    { return baked; };
     bool isModified() const { return modified; };
@@ -64,8 +86,6 @@ public:
 
     void setInitialized(bool initialized) { this->initialized = initialized; };
 
-    virtual void apply() {};
-    
     virtual void setBaked(bool baked);
     virtual void setModified(bool modified) { this->modified = modified; };
 };
@@ -77,9 +97,8 @@ public:
 
     void write(std::string& content) const;
 
-    void apply();
     void setValue(float value);
-    
+
     float& getValue();
 };
 
@@ -90,9 +109,8 @@ public:
 
     void write(std::string& content) const;
 
-    void apply();
     void setValue(int value);
-    
+
     int& getValue();
 };
 
@@ -103,7 +121,6 @@ public:
 
     void write(std::string& content) const;
 
-    void apply();
     void setValue(bool value);
 
     bool& getValue();
@@ -118,9 +135,8 @@ public:
 
     void setBaked(bool baked);
 
-    void apply();
     void setValue(int value);
-    
+
     int& getValue();
 };
 
@@ -133,9 +149,8 @@ public:
 
     void setBaked(bool baked);
 
-    void apply();
     void setValue(int value);
-    
+
     int& getValue();
 };
 
@@ -146,9 +161,8 @@ public:
 
     void write(std::string& content) const;
 
-    void apply();
     void setValue(const vec2& value);
-    
+
     vec2& getValue();
 };
 
@@ -159,9 +173,8 @@ public:
 
     void write(std::string& content) const;
 
-    void apply();
     void setValue(const vec3& value);
-    
+
     vec3& getValue();
 };
 
@@ -172,9 +185,8 @@ public:
 
     void write(std::string& content) const;
 
-    void apply();
     void setValue(const vec4& value);
-    
+
     vec4& getValue();
 };
 
@@ -185,9 +197,8 @@ public:
 
     void write(std::string& content) const;
 
-    void apply();
     void setValue(const mat3& value);
-    
+
     mat3& getValue();
 };
 
@@ -198,9 +209,8 @@ public:
 
     void write(std::string& content) const;
 
-    void apply();
     void setValue(const mat4& value);
-    
+
     mat4& getValue();
 };
 
@@ -216,14 +226,12 @@ public:
 
     void write(std::string& content) const;
 
-    void apply();
-
     void setValue(const vec2* value);
     void setValue(const std::vector<vec2>& value);
 
     const std::vector<vec2>& getValue();
-    
-    size_t getLength() const;   
+
+    size_t getLength() const;
 };
 
 class Vec3ArrayShaderUniform : public ShaderUniform {
@@ -237,8 +245,6 @@ public:
     ~Vec3ArrayShaderUniform();
 
     void write(std::string& content) const;
-
-    void apply();
 
     void setValue(const vec3* value);
     void setValue(const std::vector<vec3>& value);
@@ -260,13 +266,11 @@ public:
 
     void write(std::string& content) const;
 
-    void apply();
-
     void setValue(const vec4* value);
     void setValue(const std::vector<vec4>& value);
 
     const std::vector<vec4>& getValue();
-    
+
     size_t getLength() const;
 };
 
@@ -328,7 +332,7 @@ protected:
     bool preprocess(const std::string& line);
 public:
     AbstractShaderPass(AbstractShader* parent, int shader_object_type, const std::string& shader_object_desc);
-    virtual ~AbstractShaderPass();
+    virtual ~AbstractShaderPass() {};
 
     int getType() { return shader_object_type; };
 
@@ -342,14 +346,14 @@ public:
 
     void includeSource(const std::string& source);
     void includeFile(const std::string& filename);
-    
+
     std::list<ShaderUniform*>& getUniforms();
-    
+
     virtual void attachTo(unsigned int program) = 0;
     virtual void unload() = 0;
     virtual void compile() = 0;
     virtual void checkError() = 0;
-    
+
 };
 
 class AbstractShader : public Resource {
@@ -372,7 +376,7 @@ public:
 
     AbstractShader();
     AbstractShader(const std::string& prefix);
-    virtual ~AbstractShader();
+    virtual ~AbstractShader() {};
 
     unsigned int getProgram();
 
@@ -389,7 +393,7 @@ public:
 
     void addSubstitute(const std::string& name, const std::string& value);
     void addSubstitute(const std::string& name, const char *value, ...);
-    
+
     void applySubstitutions(std::string& source);
 
     void addUniform(ShaderUniform* uniform);
@@ -399,7 +403,7 @@ public:
     bool needsCompile();
 
     void getUniforms(std::list<ShaderUniform*>& uniform_list);
-    
+
     void applyUniforms();
 
     void setBool(const std::string& name, bool value);
@@ -428,7 +432,7 @@ public:
     virtual AbstractShaderPass* grabShaderPass(unsigned int shader_object_type) = 0;
 
     virtual void applyUniform(ShaderUniform* u) = 0;
-    
+
     virtual void load() = 0;
     virtual void unload() = 0;
 

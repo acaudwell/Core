@@ -37,37 +37,31 @@
 
 #include "shader_common.h"
 
-class ShaderException : public std::exception {
-protected:
-    std::string message;
-    std::string source;
-public:
-    ShaderException(const std::string& message);
-    ShaderException(const std::string& message, const std::string& source);
-
-    ~ShaderException() throw () {};
-
-    virtual const char* what() const throw() { return message.c_str(); }
-
-    const std::string& getSource() const;    
-};
+class Shader;
 
 class ShaderPass : public AbstractShaderPass {
-public:   
+public:
+    ShaderPass(Shader* parent, int shader_object_type, const std::string& shader_object_desc);
+    ~ShaderPass();
+
     void attachTo(unsigned int program);
     void unload();
     void compile();
-    void checkError();    
+    void checkError();
 };
 
 class Shader : public AbstractShader {
 protected:
     void checkProgramError();
 public:
+    Shader();
+    Shader(const std::string& prefix);
+    ~Shader();
+
     void applyUniform(ShaderUniform* u);
 
     void loadPrefix();
-    
+
     void load();
     void unload();
 

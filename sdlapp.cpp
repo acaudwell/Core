@@ -355,7 +355,7 @@ bool SDLApp::getClipboardText(std::string& text) {
 
     return assigned;
 #else
-    return false;   
+    return false;
 #endif
 }
 
@@ -468,6 +468,7 @@ void SDLAppInit(std::string apptitle, std::string execname) {
 
     gSDLAppResourceDir = resource_dir;
     gSDLAppConfDir     = conf_dir;
+    gSDLAppShaderDir   = shaders_dir;
 
     fontmanager.init();
 }

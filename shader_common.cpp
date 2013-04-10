@@ -1,4 +1,12 @@
 #include "shader_common.h"
+#include "logger.h"
+
+#include <boost/format.hpp>
+#include <stdarg.h>
+#include <fstream>
+#include <sstream>
+
+std::string gSDLAppShaderDir;
 
 Regex Shader_pre_version("^\\s*#version\\s*(\\d+)\\s*");
 Regex Shader_pre_extension("^\\s*#extension\\s*([a-zA-Z0-9_]+)\\s+:\\s+(enable|require|warn|disable)\\s*$");
@@ -9,6 +17,20 @@ Regex Shader_error2_line("\\bERROR: \\d+:(\\d+):");
 Regex Shader_error3_line("^\\d+:(\\d+)\\(\\d+\\): error");
 Regex Shader_warning_line("\\b\\d*\\((\\d+)\\) : warning ");
 Regex Shader_redefine_line(" (?:defined|declaration) at \\d*\\((\\d+)\\)");
+
+//ShaderException
+
+ShaderException::ShaderException(const std::string& message)
+    : message(message) {
+}
+
+ShaderException::ShaderException(const std::string& message, const std::string& source)
+    : message(message), source(source) {
+}
+
+const std::string& ShaderException::getSource() const {
+    return source;
+}
 
 //ShaderPart
 
@@ -175,17 +197,6 @@ void ShaderUniform::unload() {
 
 const std::string& ShaderUniform::getName() const {
     return name;
-}
-
-int ShaderUniform::getLocation() {
-
-    // TODO: (re-)compiling the shader should break the uniform location caching.
-
-    if(location != -1) return location;
-
-    location = glGetUniformLocation( shader->getProgram(), name.c_str() );
-
-    return location;
 }
 
 void ShaderUniform::setBaked(bool baked) {
@@ -806,10 +817,6 @@ AbstractShaderPass::AbstractShaderPass(AbstractShader* parent, int shader_object
     version = 0;
 }
 
-AbstractShaderPass::~AbstractShaderPass() {
-    unload();
-}
-
 void AbstractShaderPass::showContext(std::string& context, int line_no, int amount) {
 
     std::stringstream in(shader_object_source);
@@ -962,7 +969,7 @@ bool AbstractShaderPass::preprocess(const std::string& line) {
     }
 
     if(Shader_pre_include.match(line, &matches)) {
-        std::string include_file = shadermanager.getDir() + matches[0];
+        std::string include_file = gSDLAppShaderDir + matches[0];
         includeFile(include_file);
 
         return true;
@@ -1026,10 +1033,7 @@ void AbstractShaderPass::includeSource(const std::string& string) {
 
 AbstractShader::AbstractShader(const std::string& prefix)
     : prefix(prefix), Resource(prefix) {
-
     setDefaults();
-
-    loadPrefix();
 }
 
 AbstractShader::AbstractShader() {
@@ -1046,10 +1050,6 @@ void AbstractShader::setDefaults() {
     geometry_shader = 0;
     program = 0;
     dynamic_compile = false;
-}
-
-AbstractShader::~AbstractShader() {
-    clear();
 }
 
 void AbstractShader::clear() {
@@ -1135,14 +1135,14 @@ ShaderUniform* AbstractShader::getUniform(const std::string& name) {
 
 void AbstractShader::includeSource(unsigned int shader_object_type, const std::string& source) {
 
-    ShaderPass* pass = grabShaderPass(shader_object_type);
+    AbstractShaderPass* pass = grabShaderPass(shader_object_type);
 
     pass->includeSource(source);
 }
 
 void AbstractShader::includeFile(unsigned int shader_object_type, const std::string& filename) {
 
-    ShaderPass* pass = grabShaderPass(shader_object_type);
+    AbstractShaderPass* pass = grabShaderPass(shader_object_type);
 
     pass->includeFile(filename);
 }
@@ -1342,7 +1342,8 @@ void AbstractShader::getUniforms(std::list<ShaderUniform*>& uniform_list) {
 
 void AbstractShader::applyUniforms() {
     for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
-        if(!it->second->isBaked()) it->second->apply();
+        ShaderUniform* u = it->second;
+        if(!u->isBaked()) applyUniform(u);
     }
 }
 

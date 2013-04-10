@@ -39,20 +39,6 @@
 
 ShaderManager shadermanager;
 
-//ShaderException
-
-ShaderException::ShaderException(const std::string& message)
-    : message(message) {
-}
-
-ShaderException::ShaderException(const std::string& message, const std::string& source)
-    : message(message), source(source) {
-}
-
-const std::string& ShaderException::getSource() const {
-    return source;
-}
-
 //ShaderManager
 
 ShaderManager::ShaderManager() {
@@ -100,6 +86,13 @@ void ShaderManager::reload(bool force) {
 
 // ShaderPass
 
+ShaderPass::ShaderPass(Shader* parent, int shader_object_type, const std::string& shader_object_desc) :
+    AbstractShaderPass(parent, shader_object_type, shader_object_desc) {
+}
+
+ShaderPass::~ShaderPass() {
+    unload();
+}
 
 void ShaderPass::unload() {
     if(shader_object!=0) glDeleteShader(shader_object);
@@ -184,6 +177,18 @@ void ShaderPass::compile() {
 
 
 // Shader
+
+Shader::Shader(const std::string& prefix) : AbstractShader(prefix) {
+
+    loadPrefix();
+}
+
+Shader::Shader() : AbstractShader() {
+}
+
+Shader::~Shader() {
+    clear();
+}
 
 void Shader::unload() {
     if(program != 0) glDeleteProgram(program);
@@ -275,56 +280,62 @@ void Shader::unbind() {
 }
 
 void Shader::applyUniform(ShaderUniform* u) {
-    
+
+    // TODO: (re-)compiling the shader should break the uniform location caching.
+
+    // TODO: cache location ?
+
+    int location = glGetUniformLocation( getProgram(), u->getName().c_str() );
+
     switch(u->getType()) {
         case SHADER_UNIFORM_INT:
-            glUniform1i(getLocation(), ((IntShaderUniform*)u)->getValue());
+            glUniform1i(location, ((IntShaderUniform*)u)->getValue());
             break;
         case SHADER_UNIFORM_FLOAT:
-            glUniform1f(getLocation(), ((FloatShaderUniform*)u)->getValue());
+            glUniform1f(location, ((FloatShaderUniform*)u)->getValue());
             break;
         case SHADER_UNIFORM_BOOL:
-            glUniform1i(getLocation(), ((BoolShaderUniform*)u)->getValue());
+            glUniform1i(location, ((BoolShaderUniform*)u)->getValue());
             break;
         case SHADER_UNIFORM_SAMPLER_1D:
-            glUniform1i(getLocation(), ((Sampler1DShaderUniform*)u)->getValue());
+            glUniform1i(location, ((Sampler1DShaderUniform*)u)->getValue());
             break;
         case SHADER_UNIFORM_SAMPLER_2D:
-            glUniform1i(getLocation(), ((Sampler2DShaderUniform*)u)->getValue());
+            glUniform1i(location, ((Sampler2DShaderUniform*)u)->getValue());
             break;
         case SHADER_UNIFORM_VEC2:
-            glUniform2fv(getLocation(), 1, glm::value_ptr(((Vec2ShaderUniform*)u)->getValue()));
+            glUniform2fv(location, 1, glm::value_ptr(((Vec2ShaderUniform*)u)->getValue()));
             break;
         case SHADER_UNIFORM_VEC3:
-            glUniform3fv(getLocation(), 1, glm::value_ptr(((Vec3ShaderUniform*)u)->getValue()));
+            glUniform3fv(location, 1, glm::value_ptr(((Vec3ShaderUniform*)u)->getValue()));
             break;
         case SHADER_UNIFORM_VEC4:
-            glUniform4fv(getLocation(), 1, glm::value_ptr(((Vec4ShaderUniform*)u)->getValue()));
+            glUniform4fv(location, 1, glm::value_ptr(((Vec4ShaderUniform*)u)->getValue()));
             break;
         case SHADER_UNIFORM_MAT3:
-            glUniformMatrix3fv(getLocation(), 1, 0, glm::value_ptr(((Mat3ShaderUniform*)u)->getValue()));
+            glUniformMatrix3fv(location, 1, 0, glm::value_ptr(((Mat3ShaderUniform*)u)->getValue()));
             break;
         case SHADER_UNIFORM_MAT4:
-            glUniformMatrix4fv(getLocation(), 1, 0, glm::value_ptr(((Mat4ShaderUniform*)u)->getValue()));
+            glUniformMatrix4fv(location, 1, 0, glm::value_ptr(((Mat4ShaderUniform*)u)->getValue()));
             break;
         case SHADER_UNIFORM_VEC2_ARRAY:
-            glUniform2fv(getLocation(), ((Vec2ArrayShaderUniform*)u)->getLength(), glm::value_ptr(((Vec2ArrayShaderUniform*)u)->getValue()[0]));
+            glUniform2fv(location, ((Vec2ArrayShaderUniform*)u)->getLength(), glm::value_ptr(((Vec2ArrayShaderUniform*)u)->getValue()[0]));
             break;
         case SHADER_UNIFORM_VEC3_ARRAY:
-            glUniform3fv(getLocation(), ((Vec3ArrayShaderUniform*)u)->getLength(), glm::value_ptr(((Vec3ArrayShaderUniform*)u)->getValue()[0]));
+            glUniform3fv(location, ((Vec3ArrayShaderUniform*)u)->getLength(), glm::value_ptr(((Vec3ArrayShaderUniform*)u)->getValue()[0]));
             break;
         case SHADER_UNIFORM_VEC4_ARRAY:
-            glUniform4fv(getLocation(), ((Vec4ArrayShaderUniform*)u)->getLength(), glm::value_ptr(((Vec4ArrayShaderUniform*)u)->getValue()[0]));
+            glUniform4fv(location, ((Vec4ArrayShaderUniform*)u)->getLength(), glm::value_ptr(((Vec4ArrayShaderUniform*)u)->getValue()[0]));
             break;
         default:
-            throw ShaderException(str(boost::format("unsupported uniform type %d") % uniform->getType()));
+            throw ShaderException(str(boost::format("unsupported uniform type %d") % u->getType()));
             break;
     }
 }
 
 AbstractShaderPass* Shader::grabShaderPass(unsigned int shader_object_type) {
 
-    ShaderPass* shader_pass = 0;
+    AbstractShaderPass* shader_pass = 0;
 
     switch(shader_object_type) {
         case GL_VERTEX_SHADER:
