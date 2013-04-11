@@ -71,6 +71,8 @@ public:
 
     virtual void unload();
 
+    int getLocation();
+
     int getType() { return uniform_type; };
 
     virtual void write(std::string& content) const {};
@@ -431,6 +433,8 @@ public:
     virtual AbstractShaderPass* grabShaderPass(unsigned int shader_object_type) = 0;
 
     virtual void applyUniform(ShaderUniform* u) = 0;
+
+    virtual int getUniformLocation(const std::string& uniform_name) = 0;
 
     virtual void load() = 0;
     virtual void unload() = 0;

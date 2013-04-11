@@ -279,13 +279,20 @@ void Shader::unbind() {
     glUseProgram(0);
 }
 
+int Shader::getUniformLocation(const std::string& uniform_name) {
+    return glGetUniformLocation( program, uniform_name.c_str() );
+}
+
 void Shader::applyUniform(ShaderUniform* u) {
 
-    // TODO: (re-)compiling the shader should break the uniform location caching.
+    int location = u->getLocation();
 
-    // TODO: cache location ?
-
-    int location = glGetUniformLocation( getProgram(), u->getName().c_str() );
+    if(location == -1) {
+        if(Logger::getDefault()->getLevel() == LOG_LEVEL_PEDANTIC) {
+            pedanticLog("shader '%s': invalid uniform '%s'", (!resource_name.empty() ? resource_name.c_str() : "???"), u->getName().c_str());
+        }
+        return;
+    }
 
     switch(u->getType()) {
         case SHADER_UNIFORM_INT:

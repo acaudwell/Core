@@ -60,6 +60,8 @@ public:
 
     void applyUniform(ShaderUniform* u);
 
+    int getUniformLocation(const std::string& uniform_name);
+
     void loadPrefix();
 
     void load();

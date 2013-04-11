@@ -195,6 +195,15 @@ void ShaderUniform::unload() {
     location = -1;
 }
 
+int ShaderUniform::getLocation() {
+
+    if(location != -1) return location;
+
+    location = shader->getUniformLocation( name.c_str() );
+
+    return location;
+}
+
 const std::string& ShaderUniform::getName() const {
     return name;
 }
