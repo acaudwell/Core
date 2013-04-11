@@ -376,7 +376,6 @@ public:
 
     AbstractShader();
     AbstractShader(const std::string& prefix);
-    virtual ~AbstractShader() {};
 
     unsigned int getProgram();
 
