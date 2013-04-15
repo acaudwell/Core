@@ -78,7 +78,7 @@ FXGlyph::FXGlyph(FXGlyphSet* set, unsigned int chr) {
 
     FT_Glyph_Metrics *metrics = &ftface->glyph->metrics;
     height = glm::ceil(metrics->height / 64.0);
-     
+
     FT_Glyph_To_Bitmap( &ftglyph, FT_RENDER_MODE_NORMAL, 0, 1 );
 
     glyph_bitmap = (FT_BitmapGlyph)ftglyph;
@@ -207,7 +207,7 @@ FXGlyphSet::FXGlyphSet(FT_Library freetype, const std::string& fontfile, int siz
     this->size     = size;
     this->dpi      = dpi;
     this->ftface   = 0;
-    
+
     this->tab_width  = 4.0f;
     this->max_height = 0;
 
@@ -291,7 +291,7 @@ FXGlyph* FXGlyphSet::getGlyph(unsigned int chr) {
     }
 
     max_height = glm::max( glyph->getHeight(), max_height );
-    
+
     //update the texture unless this is the precaching process
     if(!pre_caching) page->updateTexture();
 
@@ -353,6 +353,12 @@ void FXGlyphSet::draw(const std::string& text) {
 
     vec2 pos;
 
+    std::vector<FXGlyph*> glyphs;
+    glyphs.reserve(text.size());
+
+    // iterate over glyphs before drawing to avoid
+    // encountering a new glyph while inside the GL draw call
+
     while (*unicode_text) {
         chr = *unicode_text++;
 
@@ -361,9 +367,12 @@ void FXGlyphSet::draw(const std::string& text) {
              pos += glyph->getAdvance() * tab_width;
              continue;
         }
-        
         FXGlyph* glyph = getGlyph(chr);
 
+        glyphs.push_back(glyph);
+    }
+
+    for(auto glyph : glyphs) {
         if(glyph->page->texture->textureid != textureid) {
             if(textureid != -1) glEnd();
             textureid = glyph->page->texture->textureid;
@@ -375,6 +384,7 @@ void FXGlyphSet::draw(const std::string& text) {
 
         pos += glyph->getAdvance();
     }
+
     if(textureid != -1) glEnd();
 }
 
