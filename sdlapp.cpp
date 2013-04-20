@@ -41,22 +41,23 @@ std::string gSDLAppTitle = "SDL App";
 std::string gSDLAppExec  = "sdlapp";
 
 #ifdef _WIN32
-HWND gSDLAppConsoleWindow = 0;
-bool using_parent_console = false;
 
-bool SDLAppAttachToConsole() {
-    if(using_parent_console)      return true;
-    if(gSDLAppConsoleWindow != 0) return false;
+HWND SDLApp::console_window = 0;
+bool SDLApp::attached_console = false;
 
-    // if TERM is set to msys, try and attach to console
-    // could possibly add other supported TERMs here if there are any
+bool SDLApp::attachConsole() {
+    if(SDLApp::console_window != 0) return false;
 
-    char* term = getenv("TERM");
-    if(!term || strcmp(term, "msys")!=0) return false;
+    if(!SDLApp::attached_console) {
 
-    if(AttachConsole(ATTACH_PARENT_PROCESS)) {
+        if(AttachConsole(ATTACH_PARENT_PROCESS)) {
+            SDLApp::attached_console = true;
+        }
+    }
 
-        // send stdout to console unless already redirected
+    if(!SDLApp::attached_console) return false;
+
+    if(SDLApp::attached_console) {
         if (_fileno(stdout) == -1 || _get_osfhandle(fileno(stdout)) == -1) {
             freopen("conout$","w", stdout);
         }
@@ -65,19 +66,26 @@ bool SDLAppAttachToConsole() {
         if (_fileno(stderr) == -1 || _get_osfhandle(fileno(stderr)) == -1) {
             freopen("conout$","w", stderr);
         }
-
-        using_parent_console = true;
     }
 
-    return using_parent_console;
+    return true;
 }
 
-void SDLAppCreateWindowsConsole() {
-    if(using_parent_console || gSDLAppConsoleWindow != 0) return;
+bool SDLApp::detachConsole() {
+    if(!SDLApp::attached_console) return false;
+
+    fclose(stdout);
+    fclose(stderr);
+
+    return true;
+}
+
+void SDLApp::createConsole() {
+    if(SDLApp::attached_console || SDLApp::console_window != 0) return;
 
     //try to attach to the available console if there is one
 
-    if(SDLAppAttachToConsole()) return;
+    if(SDLApp::attachConsole()) return;
 
     //create a console on Windows so users can see messages
     //find an available name for our window
@@ -98,25 +106,25 @@ void SDLAppCreateWindowsConsole() {
     freopen("conout$","w", stdout);
     freopen("conout$","w", stderr);
 
-    gSDLAppConsoleWindow = 0;
+    SDLApp::console_window = 0;
 
     //wait for our console window
-    while(gSDLAppConsoleWindow==0) {
-        gSDLAppConsoleWindow = FindWindow(0, consoleTitle);
+    while(SDLApp::console_window==0) {
+        SDLApp::console_window = FindWindow(0, consoleTitle);
         SDL_Delay(100);
     }
 
     //disable the close button so the user cant crash the application
-    HMENU hm = GetSystemMenu(gSDLAppConsoleWindow, false);
+    HMENU hm = GetSystemMenu(SDLApp::console_window, false);
     DeleteMenu(hm, SC_CLOSE, MF_BYCOMMAND);
 }
 
-void SDLAppResizeWindowsConsole(int height) {
-    if(gSDLAppConsoleWindow !=0) {
+void SDLApp::resizeConsole(int height) {
+    if(SDLApp::console_window !=0) {
         RECT windowRect;
-        if(GetWindowRect(gSDLAppConsoleWindow, &windowRect)) {
+        if(GetWindowRect(SDLApp::console_window, &windowRect)) {
             float width = windowRect.right - windowRect.left;
-            MoveWindow(gSDLAppConsoleWindow,windowRect.left,windowRect.top,width,height,true);
+            MoveWindow(SDLApp::console_window,windowRect.left,windowRect.top,width,height,true);
         }
     }
 }
@@ -141,13 +149,13 @@ std::string SDLAppAddSlash(std::string path) {
 //info message
 void SDLAppInfo(std::string msg) {
 #ifdef _WIN32
-    SDLAppCreateWindowsConsole();
+    SDLApp::createConsole();
 #endif
 
     printf("%s\n", msg.c_str());
 
 #ifdef _WIN32
-    if(gSDLAppConsoleWindow) {
+    if(SDLApp::console_window) {
         printf("\nPress Enter\n");
         getchar();
     }
@@ -161,14 +169,14 @@ void SDLAppQuit(std::string error) {
     SDL_Quit();
 
 #ifdef _WIN32
-    SDLAppCreateWindowsConsole();
+    SDLApp::createConsole();
 #endif
 
     fprintf(stderr, "%s: %s\n", gSDLAppExec.c_str(), error.c_str());
     fprintf(stderr, "Try '%s --help' for more information.\n\n", gSDLAppExec.c_str());
 
 #ifdef _WIN32
-    if(gSDLAppConsoleWindow) {
+    if(SDLApp::console_window) {
         fprintf(stderr, "Press Enter\n");
         getchar();
     }

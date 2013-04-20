@@ -51,14 +51,6 @@ extern std::string gSDLAppPathSeparator;
 extern std::string gSDLAppTitle;
 extern std::string gSDLAppExec;
 
-#ifdef _WIN32
-extern HWND gSDLAppConsoleWindow;
-
-bool SDLAppAttachToConsole();
-void SDLAppCreateWindowsConsole();
-void SDLAppResizeWindowsConsole(int height);
-#endif
-
 void SDLAppInfo(std::string msg);
 void SDLAppQuit(std::string error);
 
@@ -116,6 +108,16 @@ public:
 #ifdef USE_X11
     static void initX11ClipboardEventFilter();
     static int X11ClipboardEventFilter(const SDL_Event *event);
+#endif
+
+#ifdef _WIN32
+    static HWND console_window;
+    static bool attached_console;
+
+    static void createConsole();
+    static bool detachConsole();
+    static bool attachConsole();
+    static void resizeConsole(int height);
 #endif
 
     int run();
