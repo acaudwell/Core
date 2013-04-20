@@ -39,7 +39,7 @@ std::map<int,std::string> log_levels = boost::assign::map_list_of
     (LOG_LEVEL_SCRIPT,   " SCRIPT" )
     (LOG_LEVEL_DEBUG,    "  DEBUG" )
     (LOG_LEVEL_WARN,     "   WARN" )
-    (LOG_LEVEL_PEDANTIC, "  PEDANT")
+    (LOG_LEVEL_PEDANTIC, " PEDANT" )
     (LOG_LEVEL_INFINITY, "???????" );
 
 #define PARSE_AND_LOG(LOG_LEVEL) \
