@@ -42,53 +42,34 @@ std::string gSDLAppExec  = "sdlapp";
 
 #ifdef _WIN32
 
-HWND SDLApp::console_window = 0;
-bool SDLApp::attached_console = false;
+HWND SDLApp::console_window   = 0;
+bool SDLApp::existing_console = false;
 
-bool SDLApp::attachConsole() {
-    if(SDLApp::console_window != 0) return false;
+void SDLApp::showConsole(bool show) {
+    if(!SDLApp::console_window) return;
 
-    if(!SDLApp::attached_console) {
-
-        if(AttachConsole(ATTACH_PARENT_PROCESS)) {
-            SDLApp::attached_console = true;
-        }
-    }
-
-    if(!SDLApp::attached_console) return false;
-
-    if(SDLApp::attached_console) {
-        if (_fileno(stdout) == -1 || _get_osfhandle(fileno(stdout)) == -1) {
-            freopen("conout$","w", stdout);
-        }
-
-        // send stderr to console unless already redirected
-        if (_fileno(stderr) == -1 || _get_osfhandle(fileno(stderr)) == -1) {
-            freopen("conout$","w", stderr);
-        }
-    }
-
-    return true;
+    ShowWindow( SDLApp::console_window, show);
 }
 
-bool SDLApp::detachConsole() {
-    if(!SDLApp::attached_console) return false;
+void SDLApp::initConsole() {
+    if(SDLApp::console_window != 0) return;
 
-    fclose(stdout);
-    fclose(stderr);
+    SDLApp::console_window = GetConsoleWindow();
 
-    return true;
-}
+    // check if this is a new console or not
+    CONSOLE_SCREEN_BUFFER_INFO buffer_info;
+    if(GetConsoleScreenBufferInfo( GetStdHandle( STD_OUTPUT_HANDLE ), &buffer_info )) {
+        existing_console = !(buffer_info.dwCursorPosition.X==0 && buffer_info.dwCursorPosition.Y==0);
+    }
 
-void SDLApp::createConsole() {
-    if(SDLApp::attached_console || SDLApp::console_window != 0) return;
+    // don't customize the console unless it was created for this program
+    if(existing_console) return;
 
-    //try to attach to the available console if there is one
+    //disable the close button so the user cant crash the application
+    HMENU hm = GetSystemMenu(SDLApp::console_window, false);
+    DeleteMenu(hm, SC_CLOSE, MF_BYCOMMAND);
 
-    if(SDLApp::attachConsole()) return;
-
-    //create a console on Windows so users can see messages
-    //find an available name for our window
+    //set title
 
     char consoleTitle[512];
     int console_suffix = 0;
@@ -98,29 +79,11 @@ void SDLApp::createConsole() {
         sprintf(consoleTitle, "%s Console %d", gSDLAppTitle.c_str(), ++console_suffix);
     }
 
-    AllocConsole();
     SetConsoleTitle(consoleTitle);
-
-    //redirect streams to console
-    freopen("conin$", "r", stdin);
-    freopen("conout$","w", stdout);
-    freopen("conout$","w", stderr);
-
-    SDLApp::console_window = 0;
-
-    //wait for our console window
-    while(SDLApp::console_window==0) {
-        SDLApp::console_window = FindWindow(0, consoleTitle);
-        SDL_Delay(100);
-    }
-
-    //disable the close button so the user cant crash the application
-    HMENU hm = GetSystemMenu(SDLApp::console_window, false);
-    DeleteMenu(hm, SC_CLOSE, MF_BYCOMMAND);
 }
 
 void SDLApp::resizeConsole(int height) {
-    if(SDLApp::console_window !=0) {
+    if(SDLApp::console_window !=0 && !existing_console) {
         RECT windowRect;
         if(GetWindowRect(SDLApp::console_window, &windowRect)) {
             float width = windowRect.right - windowRect.left;
@@ -149,13 +112,13 @@ std::string SDLAppAddSlash(std::string path) {
 //info message
 void SDLAppInfo(std::string msg) {
 #ifdef _WIN32
-    SDLApp::createConsole();
+    SDLApp::showConsole(true);
 #endif
 
     printf("%s\n", msg.c_str());
 
 #ifdef _WIN32
-    if(SDLApp::console_window) {
+    if(!SDLApp::existing_console) {
         printf("\nPress Enter\n");
         getchar();
     }
@@ -169,14 +132,14 @@ void SDLAppQuit(std::string error) {
     SDL_Quit();
 
 #ifdef _WIN32
-    SDLApp::createConsole();
+    SDLApp::showConsole(true);
 #endif
 
     fprintf(stderr, "%s: %s\n", gSDLAppExec.c_str(), error.c_str());
     fprintf(stderr, "Try '%s --help' for more information.\n\n", gSDLAppExec.c_str());
 
 #ifdef _WIN32
-    if(SDLApp::console_window) {
+    if(!SDLApp::existing_console) {
         fprintf(stderr, "Press Enter\n");
         getchar();
     }

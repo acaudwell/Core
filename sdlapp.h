@@ -112,11 +112,10 @@ public:
 
 #ifdef _WIN32
     static HWND console_window;
-    static bool attached_console;
+    static bool existing_console;
 
-    static void createConsole();
-    static bool detachConsole();
-    static bool attachConsole();
+    static void initConsole();
+    static void showConsole(bool show);
     static void resizeConsole(int height);
 #endif
 
