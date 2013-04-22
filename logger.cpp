@@ -39,8 +39,7 @@ std::map<int,std::string> log_levels = boost::assign::map_list_of
     (LOG_LEVEL_SCRIPT,   " SCRIPT" )
     (LOG_LEVEL_DEBUG,    "  DEBUG" )
     (LOG_LEVEL_WARN,     "   WARN" )
-    (LOG_LEVEL_PEDANTIC, " PEDANT" )
-    (LOG_LEVEL_INFINITY, "???????" );
+    (LOG_LEVEL_PEDANTIC, " PEDANT" );
 
 #define PARSE_AND_LOG(LOG_LEVEL) \
     Logger* logger = Logger::getDefault(); \
@@ -96,7 +95,7 @@ int Logger::getMessageCount() {
 
 void Logger::message(int level, const std::string& message) {
 
-    if(this->level > level) return;
+    if(!level || this->level < level) return;
 
     if(stream != 0) {
         fprintf(stream, "%s: %s\n", log_levels[level].c_str(), message.c_str());
