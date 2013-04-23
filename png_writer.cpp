@@ -115,6 +115,8 @@ void PNGWriter::writePNG(std::vector<char>& buffer) {
     png_write_info(png_ptr, info_ptr);
     png_write_image(png_ptr, &(rows[0]));
     png_write_end(png_ptr, 0);
+
+    png_destroy_write_struct(&png_ptr, &info_ptr);
 }
 
 // PNGExporter
