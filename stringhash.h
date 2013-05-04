@@ -33,11 +33,10 @@
 #include "vectors.h"
 
 //basic string hash algorithm
-int stringHash(std::string& str);
-vec2 vec2Hash(std::string& str);
-vec3 vec3Hash(std::string& str);
-vec3 colourHash(std::string& str);
-vec3 stylizedColourHash(std::string& str);
+int stringHash(const std::string& str);
+vec2 vec2Hash(const std::string& str);
+vec3 vec3Hash(const std::string& str);
+vec3 colourHash(const std::string& str);
 
 extern int gStringHashSeed;
 

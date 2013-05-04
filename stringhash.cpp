@@ -29,7 +29,7 @@
 
 int gStringHashSeed = 31;
 
-int stringHash(std::string& str) {
+int stringHash(const std::string& str) {
 
     int val = 0;
     int n = str.size();
@@ -45,7 +45,7 @@ int stringHash(std::string& str) {
     return val;
 }
 
-vec2 vec2Hash(std::string& str) {
+vec2 vec2Hash(const std::string& str) {
     int hash = stringHash(str);
 
     int x = ((hash/7) % 255) - 127;
@@ -56,7 +56,7 @@ vec2 vec2Hash(std::string& str) {
     return v;
 }
 
-vec3 vec3Hash(std::string& str) {
+vec3 vec3Hash(const std::string& str) {
     int hash = stringHash(str);
 
     int x = ((hash/7) % 255) - 127;
@@ -68,7 +68,7 @@ vec3 vec3Hash(std::string& str) {
     return v;
 }
 
-vec3 colourHash(std::string& str) {
+vec3 colourHash(const std::string& str) {
     int hash = stringHash(str);
 
     int r = (hash/7) % 255;
