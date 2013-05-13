@@ -319,10 +319,12 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
     //get actual opengl viewport
     GLint viewport[4];
     glGetIntegerv( GL_VIEWPORT, viewport );
-
+    
     this->width      = viewport[2];
     this->height     = viewport[3];
     this->fullscreen = fullscreen;
+
+    glViewport(0, 0, this->width, this->height);
 }
 
 void SDLAppDisplay::quit() {
