@@ -254,6 +254,8 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
     if(display_settings == 0) return;
 
     ConfEntry* entry = 0;
+    
+    bool viewport_specified = false;
 
     if((entry = display_settings->getEntry("viewport")) != 0) {
 
@@ -269,6 +271,8 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
             display_width   = width;
             display_height  = height;
             if(no_resize) resizable = false;
+
+            viewport_specified = true;
         } else {
             conffile.invalidValueException(entry);
         }
@@ -286,6 +290,12 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
         fullscreen = false;
     }
 
+    // default to use desktop resolution for fullscreen unless specified
+    if(fullscreen && !viewport_specified) {
+        display_width  = 0;
+        display_height = 0;
+    }
+    
     if(display_settings->getBool("transparent")) {
         transparent = true;
     }
