@@ -138,23 +138,35 @@ bool Regex::match(const std::string& str, std::vector<std::string>* results) {
 
 bool Regex::matchAll(const std::string& str, std::vector<std::string>* results) {
    
-    int offset = -1;
+    int offset = 0;
+    int match_count = 0;
     if(results != 0) results->clear();
-    while((offset = matchOffset(str, results, offset+1)) != -1 && offset < str.size());
 
-    return (offset != -1);
+    int str_size = str.size();
+    
+    while((offset = matchOffset(str, results, offset)) != -1) {
+        match_count++;
+        if(offset >= str_size) break;
+    }
+
+    return match_count>0;
 }
 
 int Regex::matchOffset(const std::string& str, std::vector<std::string>* results, int offset) {
-
+    
     int ovector[REGEX_MAX_MATCHES];
 
+    if(offset >= str.size()) return -1;
+    
+    // To allow ^ to match the start of the remaining string
+    // we offset the string before passing it to pcre_exec
+    
     int rc = pcre_exec(
         re,
         0,
-        str.c_str(),
-        str.size(),
-        offset,
+        str.c_str() + offset,
+        str.size()-offset,
+        0,
         0,
         ovector,
         REGEX_MAX_MATCHES
@@ -174,13 +186,11 @@ int Regex::matchOffset(const std::string& str, std::vector<std::string>* results
             if(match_start == -1) {
                 results->push_back(std::string(""));
             } else {
-                std::string match(str, match_start, match_end-match_start);
+                std::string match(str, match_start+offset, match_end-match_start);
                 results->push_back(match);
             }
         }
     }
 
-    return ovector[1];
+    return ovector[1]+offset;
 }
-
-
