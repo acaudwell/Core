@@ -44,7 +44,7 @@ std::map<int,std::string> log_levels = boost::assign::map_list_of
 #define PARSE_AND_LOG(LOG_LEVEL) \
     Logger* logger = Logger::getDefault(); \
 \
-if(!logger || logger->getLevel() > LOG_LEVEL) return; \
+if(!logger || logger->getLevel() < LOG_LEVEL) return; \
 \
     char msgbuff[65536]; \
     char* buffer = msgbuff; \
