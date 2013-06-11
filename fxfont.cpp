@@ -228,11 +228,15 @@ void FXGlyphSet::init() {
     if(FT_New_Face(freetype, fontfile.c_str(), 0, &ftface)) {
         throw FXFontException(fontfile);
     }
-
+   
     int ft_font_size = 64 * size;
 
     FT_Set_Char_Size( ftface, ft_font_size, ft_font_size, dpi, dpi );
 
+    double em_size = 1.0 * ftface->units_per_EM;
+
+    unit_scale = vec2( ftface->size->metrics.x_ppem / em_size, ftface->size->metrics.y_ppem / em_size);
+    
     precache("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ;:'\",<.>/?-_=+!@#$%^&*()\\ ");
 }
 
@@ -308,6 +312,14 @@ float FXGlyphSet::getMaxHeight() const {
     return max_height;
 }
 
+float FXGlyphSet::getAscender() const {
+    return getFTFace()->ascender * unit_scale.y;
+}
+
+float FXGlyphSet::getDescender() const {
+    return getFTFace()->descender * unit_scale.y;
+}
+
 float FXGlyphSet::getWidth(const std::string& text) {
 
     FTUnicodeStringItr<unsigned char> unicode_text((const unsigned char*)text.c_str());
@@ -323,10 +335,6 @@ float FXGlyphSet::getWidth(const std::string& text) {
     }
 
     return width;
-}
-
-float FXGlyphSet::getAscender() const {
-    return getFTFace()->ascender / 64.0f;
 }
 
 void FXGlyphSet::drawToVBO(vec2& cursor, const std::string& text, const vec4& colour) {
@@ -498,6 +506,10 @@ float FXFont::getAscender() const {
     return glyphset->getAscender();
 }
 
+float FXFont::getDescender() const {
+    return glyphset->getDescender();
+}
+
 void FXFont::render(float x, float y, const std::string& text, const vec4& colour) const{
 
     if(fontmanager.use_vbo) {
@@ -538,7 +550,7 @@ void FXFont::draw(float x, float y, const std::string& text) const {
     }
 
     if(align_top) {
-        y += getFontSize() + (glyphset->getFTFace()->descender / 64.0f);
+        y += glm::ceil(getAscender() + getDescender());
     }
 
     if(round) {

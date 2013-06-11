@@ -131,6 +131,7 @@ class FXGlyphSet {
     int size;
     int dpi;
     float tab_width;
+    vec2 unit_scale;
 
     bool pre_caching;
 
@@ -153,6 +154,7 @@ public:
     float getWidth(const std::string& text);
 
     float getAscender() const;
+    float getDescender() const;
 
     float getMaxWidth()  const;
     float getMaxHeight() const;
@@ -194,6 +196,7 @@ public:
     float getWidth(const std::string& text) const;
 
     float getAscender() const;
+    float getDescender() const;
 
     void alignTop(bool top);
     void alignRight(bool right);
