@@ -50,19 +50,6 @@ void ResourceManager::purge() {
 ResourceManager::~ResourceManager() {
 }
 
-Resource* ResourceManager::grab(const std::string& name) {
-    //debugLog("grabing %s\n", name.c_str());
-    Resource* r = resources[name];
-
-    if(r==0) {
-        //debugLog("%s not found. creating resource...\n", name.c_str());
-        r = create(name);
-        resources[name] = r;
-    }
-    r->addref();
-    return r;
-}
-
 void ResourceManager::release(Resource* resource) {
     Resource* r = resources[resource->resource_name];
 
@@ -77,4 +64,3 @@ void ResourceManager::release(Resource* resource) {
         delete r;
     }
 }
-

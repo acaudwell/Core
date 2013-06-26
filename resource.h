@@ -30,7 +30,7 @@
 
 #include <map>
 #include <string>
-#include <cstring>
+
 #include <stdexcept>
 
 class ResourceException : public std::exception {
@@ -74,10 +74,7 @@ public:
     virtual ~ResourceManager();
 
     void purge();
-
     void release(Resource* resource);
-    Resource* grab(const std::string& resource_name);
-    virtual Resource* create(const std::string& name) { return 0; };
 };
 
 #endif
