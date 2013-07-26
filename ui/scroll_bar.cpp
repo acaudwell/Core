@@ -125,7 +125,7 @@ void UIScrollBar::scroll(bool up) {
     bool left_ctrl  = false;
     bool left_shift = false;
 
-#if SDL_VERSION_ATLEAST(1,3,0)
+#if SDL_VERSION_ATLEAST(2,0,0)
     Uint8* keystate = SDL_GetKeyboardState(NULL);
 
     if(keystate[SDL_SCANCODE_LCTRL])  left_ctrl  = true;

@@ -48,7 +48,7 @@ FrameExporter::FrameExporter() {
     cond   = SDL_CreateCond();
     mutex  = SDL_CreateMutex();
 
-#if SDL_VERSION_ATLEAST(1,3,0)
+#if SDL_VERSION_ATLEAST(2,0,0)
     thread = SDL_CreateThread( dumper_thread, "frame_exporter", this );
 #else
     thread = SDL_CreateThread( dumper_thread, this );
@@ -58,7 +58,6 @@ FrameExporter::FrameExporter() {
 FrameExporter::~FrameExporter() {
     stop();
 
-    SDL_KillThread(thread);
     SDL_DestroyCond(cond);
     SDL_DestroyMutex(mutex);
 
@@ -81,6 +80,7 @@ void FrameExporter::stop() {
     SDL_mutexV(mutex);
 
     //busy wait for thread to exit
+    // TODO: replace with SDL_WaitThread ?
     while(dumper_thread_state != FRAME_EXPORTER_STOPPED)
         SDL_Delay(100);
 }

@@ -30,7 +30,7 @@
 
 #include <iostream>
 
-#define PNG_SKIP_SETJMP_CHECK 
+#define PNG_SKIP_SETJMP_CHECK
 #include <png.h>
 
 PNGWriter::PNGWriter(int components)
@@ -92,13 +92,13 @@ void PNGWriter::writePNG(std::vector<char>& buffer) {
     png_structp png_ptr  = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
 
     if(!png_ptr) throw PNGExporterException("png_create_write_struct failed");
-   
+
     png_set_write_fn(png_ptr, out, png_writer_write_data, png_writer_flush_data);
 
     png_infop info_ptr = png_create_info_struct(png_ptr);
 
     if(!info_ptr) throw PNGExporterException("png_create_info_struct failed");
-        
+
     if(setjmp(png_jmpbuf(png_ptr))) {
         throw PNGExporterException("setjmp failed");
     }
@@ -111,7 +111,7 @@ void PNGWriter::writePNG(std::vector<char>& buffer) {
     for (int i = 0; i < display.height; i++) {
         rows[i] = (png_bytep) &(buffer[(display.height-i-1) * components * display.width]);
     }
-    
+
     png_write_info(png_ptr, info_ptr);
     png_write_image(png_ptr, &(rows[0]));
     png_write_end(png_ptr, 0);
@@ -143,7 +143,7 @@ PNGExporter::PNGExporter(const std::string& filename) {
         }
     }
 
-#if SDL_VERSION_ATLEAST(1,3,0)
+#if SDL_VERSION_ATLEAST(2,0,0)
     thread = SDL_CreateThread( PNGExporter::startThread, "png_exporter", this );
 #else
     thread = SDL_CreateThread( PNGExporter::startThread, this );
@@ -154,7 +154,6 @@ PNGExporter::~PNGExporter() {
 
     stop();
 
-    SDL_KillThread(thread);
     SDL_DestroyCond(cond);
     SDL_DestroyMutex(mutex);
 

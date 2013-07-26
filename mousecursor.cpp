@@ -140,7 +140,7 @@ bool MouseCursor::isVisible() const {
 }
 
 bool MouseCursor::hasFocus() const {
-#if SDL_VERSION_ATLEAST(1,3,0)
+#if SDL_VERSION_ATLEAST(2,0,0)
     return (SDL_GetMouseFocus() == display.sdl_window);
 #else
     return (SDL_GetAppState() & SDL_APPMOUSEFOCUS);

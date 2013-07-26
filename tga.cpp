@@ -232,7 +232,7 @@ TGAExporter::TGAExporter(const std::string& filename) {
         }
     }
 
-#if SDL_VERSION_ATLEAST(1,3,0)
+#if SDL_VERSION_ATLEAST(2,0,0)
     thread = SDL_CreateThread( TGAExporter::startThread, "tga_exporter", this );
 #else
     thread = SDL_CreateThread( TGAExporter::startThread, this );

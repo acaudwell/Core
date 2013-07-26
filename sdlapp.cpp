@@ -234,6 +234,15 @@ int SDLApp::X11ClipboardEventFilter(const SDL_Event *event) {
 
 bool SDLApp::getClipboardText(std::string& text) {
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+    char* clipboard_text = SDL_GetClipboardText();
+
+    if(clipboard_text!=0) {
+        text = std::string(clipboard_text);
+    } else {
+        text.resize(0);
+    }
+#else
     SDL_SysWMinfo wininfo;
     SDL_VERSION(&wininfo.version);
     SDL_GetWMInfo(&wininfo);
@@ -328,9 +337,14 @@ bool SDLApp::getClipboardText(std::string& text) {
 #else
     return false;
 #endif
+#endif
 }
 
 void SDLApp::setClipboardText(const std::string& text) {
+
+#if SDL_VERSION_ATLEAST(2,0,0)
+    SDL_SetClipboardText(text.c_str());
+#else
     SDL_SysWMinfo wininfo;
     SDL_VERSION(&wininfo.version);
     SDL_GetWMInfo(&wininfo);
@@ -370,6 +384,7 @@ void SDLApp::setClipboardText(const std::string& text) {
 #else
 
 #endif
+#endif
 }
 
 void SDLAppInit(std::string apptitle, std::string execname) {
@@ -395,6 +410,7 @@ void SDLAppInit(std::string apptitle, std::string execname) {
     resource_dir = path + std::string("\\data\\");
     fonts_dir    = path + std::string("\\data\\fonts\\");
     shaders_dir  = path + std::string("\\data\\shaders\\");
+
 #else
     //get working directory
     char cwd_buff[1024];
@@ -583,15 +599,15 @@ int SDLApp::run() {
                     mouseMove(&event.motion);
                     break;
 
-#if SDL_VERSION_ATLEAST(1,3,0)
+#if SDL_VERSION_ATLEAST(2,0,0)
                 case SDL_MOUSEWHEEL:
                     mouseWheel(&event.wheel);
                     break;
 
-		case SDL_WINDOWEVENT:
-		    if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
-			resize(event.window.data1, event.window.data2);
-		    }
+                case SDL_WINDOWEVENT:
+                    if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                    resize(event.window.data1, event.window.data2);
+                    }
                     break;
 #else
                 case SDL_VIDEORESIZE:

@@ -64,14 +64,15 @@ class SDLAppDisplay {
 
     int  multi_sample;
 
-    int  SDLFlags(bool fullscreen);
+    Uint32 SDLWindowFlags(bool fullscreen);
+
     void setupExtensions();
 public:
     int width, height;
     int desktop_width, desktop_height;
     int windowed_width, windowed_height;
 
-#if SDL_VERSION_ATLEAST(1,3,0)
+#if SDL_VERSION_ATLEAST(2,0,0)
     SDL_Window*   sdl_window;
     SDL_GLContext gl_context;
 #else

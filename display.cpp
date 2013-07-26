@@ -30,6 +30,10 @@
 #include "sdlapp.h"
 #include <iostream>
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+#include "SDL_syswm.h"
+#endif
+
 SDLAppDisplay display;
 
 SDLAppDisplay::SDLAppDisplay() {
@@ -46,7 +50,7 @@ SDLAppDisplay::SDLAppDisplay() {
     desktop_height  = 0;
     windowed_width  = 0;
     windowed_height = 0;
-#if SDL_VERSION_ATLEAST(1,3,0)
+#if SDL_VERSION_ATLEAST(2,0,0)
     sdl_window = 0;
     gl_context = 0;
 #else
@@ -66,12 +70,20 @@ void SDLAppDisplay::setClearColour(vec4 colour) {
     clearColour = colour;
 }
 
-int SDLAppDisplay::SDLFlags(bool fullscreen) {
-    int flags = SDL_OPENGL | SDL_HWSURFACE | SDL_ANYFORMAT | SDL_DOUBLEBUF;
+Uint32 SDLAppDisplay::SDLWindowFlags(bool fullscreen) {
+#if SDL_VERSION_ATLEAST(2,0,0)
+    Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
+
+    if (frameless) flags |= SDL_WINDOW_BORDERLESS;
+    if(resizable && !fullscreen) flags |= SDL_WINDOW_RESIZABLE;
+    if(fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
+#else
+    Uint32 flags = SDL_OPENGL | SDL_HWSURFACE | SDL_ANYFORMAT | SDL_DOUBLEBUF;
+
     if (frameless) flags |= SDL_NOFRAME;
     if (resizable && !fullscreen) flags |= SDL_RESIZABLE;
     if (fullscreen) flags |= SDL_FULLSCREEN;
-
+#endif
     return flags;
 }
 
@@ -114,23 +126,31 @@ bool SDLAppDisplay::multiSamplingEnabled() {
     return value==1;
 }
 
+#if SDL_VERSION_ATLEAST(2,0,0) && defined(_WIN32)
+WNDPROC window_proc = 0;
+
+LRESULT CALLBACK window_filter_proc(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+
+   if (msg == WM_SYSCOMMAND && (wparam & 0xfff0) == SC_KEYMENU) {
+        return 0;
+   }
+
+   return CallWindowProc(window_proc, wnd, msg, wparam, lparam);
+}
+#endif
+
 void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
-#if SDL_VERSION_ATLEAST(1,3,0)
+#if SDL_VERSION_ATLEAST(2,0,0)
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-    Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
-    if(resizable && !fullscreen) flags |= SDL_WINDOW_RESIZABLE;
-    if(fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
+    Uint32 flags = SDLWindowFlags(fullscreen);
 
     if(gl_context != 0) SDL_GL_DeleteContext(gl_context);
     if(sdl_window != 0) SDL_DestroyWindow(sdl_window);
 
-    sdl_window = SDL_CreateWindow(
-	gSDLAppTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        width, height, flags);
-
+    sdl_window = SDL_CreateWindow(gSDLAppTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
 
     if (!sdl_window) {
         std::string sdlerr(SDL_GetError());
@@ -143,7 +163,7 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
 #else
     int depth = 32;
 
-    int flags = SDLFlags(fullscreen);
+    int flags = SDLWindowFlags(fullscreen);
 
     if(vsync) SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
     else SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 0);
@@ -192,6 +212,21 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
 #endif
 
     setupExtensions();
+
+#if SDL_VERSION_ATLEAST(2,0,0) && defined(_WIN32)
+    // suppress 'ding' noise when doing alt+key combinations
+    // solution from: http://forums.libsdl.org/viewtopic.php?t=6075
+
+    SDL_SysWMinfo sys_window_info;
+
+    SDL_VERSION(&sys_window_info.version);
+
+    if(SDL_GetWindowWMInfo(sdl_window, &sys_window_info)) {
+        HWND wnd = sys_window_info.info.win.window;
+        window_proc = (WNDPROC) GetWindowLongPtr(wnd, GWLP_WNDPROC);
+        SetWindowLongPtr(wnd, GWLP_WNDPROC, (LONG_PTR) &window_filter_proc);
+    }
+#endif
 }
 
 void SDLAppDisplay::getFullscreenResolution(int& width, int& height) {
@@ -199,11 +234,14 @@ void SDLAppDisplay::getFullscreenResolution(int& width, int& height) {
     int fullscreen_width  = desktop_width;
     int fullscreen_height = desktop_height;
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+    // TODO: SDL2 api will have a nice way to do this ...
+#else
     float aspect_ratio = fullscreen_width / (float) fullscreen_height;
 
     if(aspect_ratio > 2.5) {
-        
-        SDL_Rect** modes = SDL_ListModes(0, SDLFlags(true));
+
+        SDL_Rect** modes = SDL_ListModes(0, SDLWindowFlags(true));
 
         if(modes != (SDL_Rect**)0 && modes != (SDL_Rect**)-1) {
 
@@ -215,7 +253,7 @@ void SDLAppDisplay::getFullscreenResolution(int& width, int& height) {
             }
         }
     }
-        
+#endif
     width  = fullscreen_width;
     height = fullscreen_height;
 }
@@ -230,9 +268,9 @@ void SDLAppDisplay::toggleFullscreen() {
         //save windowed width and height
         windowed_width  = width;
         windowed_height = height;
-       
+
         getFullscreenResolution(width, height);
-        
+
     } else {
         //switch back to window dimensions, if known
         if(windowed_width != 0) {
@@ -243,13 +281,14 @@ void SDLAppDisplay::toggleFullscreen() {
 
     fullscreen = !fullscreen;
 
-    setVideoMode(width, height, fullscreen);
-
     int resized_width, resized_height;
 
-#if SDL_VERSION_ATLEAST(1,3,0)
+#if SDL_VERSION_ATLEAST(2,0,0)
+    SDL_SetWindowFullscreen(sdl_window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
     SDL_GetWindowSize(sdl_window, &resized_width, &resized_height);
 #else
+    setVideoMode(width, height, fullscreen);
+
     const SDL_VideoInfo* display_info = SDL_GetVideoInfo();
 
     resized_width  = display_info->current_w;
@@ -267,7 +306,7 @@ void SDLAppDisplay::resize(int width, int height) {
 
     int resized_width, resized_height;
 
-#if SDL_VERSION_ATLEAST(1,3,0)
+#if SDL_VERSION_ATLEAST(2,0,0)
     SDL_GetWindowSize(sdl_window, &resized_width, &resized_height);
 #else
     setVideoMode(width, height, fullscreen);
@@ -291,12 +330,24 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
         throw SDLInitException(SDL_GetError());
     }
 
+
+#if SDL_VERSION_ATLEAST(2,0,0)
+
+    // TODO: which display? is 0 the designated primary display always?
+    SDL_Rect display_rect;
+    SDL_GetDisplayBounds(0, &display_rect);
+
+    desktop_width  = display_rect.w;
+    desktop_height = display_rect.h;
+
+#else
     const SDL_VideoInfo* display_info = SDL_GetVideoInfo();
 
     //save the desktop resolution
     desktop_width  = display_info->current_w;
     desktop_height = display_info->current_h;
-    
+#endif
+
     //initialize width and height to desktop resolution if un-specified
     if(!width || !height) {
         if(fullscreen) {
@@ -306,13 +357,13 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
             if(!height) height = desktop_height;
         }
     }
-    
+
     atexit(SDL_Quit);
 
-    SDL_EnableUNICODE(1);
+#if SDL_VERSION_ATLEAST(2,0,0)
 
-#if SDL_VERSION_ATLEAST(1,3,0)
 #else
+    SDL_EnableUNICODE(1);
     SDL_WM_SetCaption(window_title.c_str(),0);
 #endif
 
@@ -321,7 +372,7 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
     //get actual opengl viewport
     GLint viewport[4];
     glGetIntegerv( GL_VIEWPORT, viewport );
-    
+
     this->width      = viewport[2];
     this->height     = viewport[3];
     this->fullscreen = fullscreen;
@@ -331,7 +382,7 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
 
 void SDLAppDisplay::quit() {
 
-#if SDL_VERSION_ATLEAST(1,3,0)
+#if SDL_VERSION_ATLEAST(2,0,0)
     if(gl_context != 0) SDL_GL_DeleteContext(gl_context);
     if(sdl_window != 0) SDL_DestroyWindow(sdl_window);
 #endif
@@ -343,7 +394,7 @@ void SDLAppDisplay::quit() {
 }
 
 void SDLAppDisplay::update() {
-#if SDL_VERSION_ATLEAST(1,3,0)
+#if SDL_VERSION_ATLEAST(2,0,0)
     SDL_GL_SwapWindow(sdl_window);
 #else
     SDL_GL_SwapBuffers();
