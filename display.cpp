@@ -72,11 +72,6 @@ int SDLAppDisplay::SDLFlags(bool fullscreen) {
     if (resizable && !fullscreen) flags |= SDL_RESIZABLE;
     if (fullscreen) flags |= SDL_FULLSCREEN;
 
-    //SDL 1.3 vsync
-#ifdef SDL_RENDERER_PRESENTVSYNC
-    if (!vsync) flags |= SDL_RENDERER_PRESENTVSYNC;
-#endif
-
     return flags;
 }
 
@@ -199,6 +194,32 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
     setupExtensions();
 }
 
+void SDLAppDisplay::getFullscreenResolution(int& width, int& height) {
+
+    int fullscreen_width  = desktop_width;
+    int fullscreen_height = desktop_height;
+
+    float aspect_ratio = fullscreen_width / (float) fullscreen_height;
+
+    if(aspect_ratio > 2.5) {
+        
+        SDL_Rect** modes = SDL_ListModes(0, SDLFlags(true));
+
+        if(modes != (SDL_Rect**)0 && modes != (SDL_Rect**)-1) {
+
+            for (int i=0; modes[i]; i++) {
+                if(modes[i]->h == fullscreen_height && (modes[i]->w/(float)modes[i]->h) < 2.5) {
+                    fullscreen_width = modes[i]->w;
+                    break;
+                }
+            }
+        }
+    }
+        
+    width  = fullscreen_width;
+    height = fullscreen_height;
+}
+
 void SDLAppDisplay::toggleFullscreen() {
 
     int width  = this->width;
@@ -209,38 +230,9 @@ void SDLAppDisplay::toggleFullscreen() {
         //save windowed width and height
         windowed_width  = width;
         windowed_height = height;
-
-        int fullscreen_width  = desktop_width;
-        int fullscreen_height = desktop_height;
-
-        float aspect_ratio = fullscreen_width / (float) fullscreen_height;
-
-        // if the aspect ratio suggests the person is using multiple monitors
-        // find a supported resolution with a lower aspect ratio with the same
-        // fullscreen height
-
-#if SDL_VERSION_ATLEAST(1,3,0)
-        // TODO: do something with the 1.3 API here
-#else
-        if(aspect_ratio >= 2.5) {
-
-            SDL_Rect** modes = SDL_ListModes(0, SDLFlags(true));
-
-            if(modes != (SDL_Rect**)0 && modes != (SDL_Rect**)-1) {
-
-                for (int i=0; modes[i]; i++) {
-                    if(modes[i]->h == fullscreen_height && (modes[i]->w/(float)modes[i]->h) < 2.5) {
-                        fullscreen_width = modes[i]->w;
-                        break;
-                    }
-                }
-            }
-        }
-#endif
-
-        width  = fullscreen_width;
-        height = fullscreen_height;
-
+       
+        getFullscreenResolution(width, height);
+        
     } else {
         //switch back to window dimensions, if known
         if(windowed_width != 0) {
@@ -304,11 +296,17 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
     //save the desktop resolution
     desktop_width  = display_info->current_w;
     desktop_height = display_info->current_h;
-
+    
     //initialize width and height to desktop resolution if un-specified
-    if(!width) width   = desktop_width;
-    if(!height) height = desktop_height;
-
+    if(!width || !height) {
+        if(fullscreen) {
+            getFullscreenResolution(width, height);
+        } else {
+            if(!width) width   = desktop_width;
+            if(!height) height = desktop_height;
+        }
+    }
+    
     atexit(SDL_Quit);
 
     SDL_EnableUNICODE(1);

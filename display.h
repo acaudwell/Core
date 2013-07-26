@@ -84,6 +84,7 @@ public:
     SDLAppDisplay();
     ~SDLAppDisplay();
 
+    void   getFullscreenResolution(int& width, int& height);
     void   toggleFullscreen();
     void   resize(int width, int height);
 
