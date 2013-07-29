@@ -243,7 +243,6 @@ TGAExporter::~TGAExporter() {
 
     stop();
 
-    SDL_KillThread(thread);
     SDL_DestroyCond(cond);
     SDL_DestroyMutex(mutex);
 
@@ -284,6 +283,7 @@ void TGAExporter::run() {
 }
 
 void TGAExporter::stop() {
+    if(!thread) return;
 
     if(thread_state == TGA_EXPORTER_STOPPED || thread_state == TGA_EXPORTER_EXIT) return;
 
@@ -294,9 +294,10 @@ void TGAExporter::stop() {
         SDL_CondSignal(cond);
 
     SDL_mutexV(mutex);
-
-    while(thread_state != TGA_EXPORTER_STOPPED)
-        SDL_Delay(100);
+   
+    SDL_WaitThread(thread, 0);
+    
+    thread = 0;
 }
 
 void TGAExporter::capture() {

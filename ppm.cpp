@@ -69,6 +69,8 @@ FrameExporter::~FrameExporter() {
 }
 
 void FrameExporter::stop() {
+    if(!thread) return;
+    
     if(dumper_thread_state == FRAME_EXPORTER_STOPPED || dumper_thread_state == FRAME_EXPORTER_EXIT) return;
 
     SDL_mutexP(mutex);
@@ -79,10 +81,9 @@ void FrameExporter::stop() {
 
     SDL_mutexV(mutex);
 
-    //busy wait for thread to exit
-    // TODO: replace with SDL_WaitThread ?
-    while(dumper_thread_state != FRAME_EXPORTER_STOPPED)
-        SDL_Delay(100);
+    SDL_WaitThread(thread, 0);
+    
+    thread = 0;
 }
 
 void FrameExporter::dump() {

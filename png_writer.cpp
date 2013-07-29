@@ -194,6 +194,7 @@ void PNGExporter::run() {
 }
 
 void PNGExporter::stop() {
+    if(!thread) return;
 
     if(thread_state == PNG_EXPORTER_STOPPED || thread_state == PNG_EXPORTER_EXIT) return;
 
@@ -205,8 +206,9 @@ void PNGExporter::stop() {
 
     SDL_mutexV(mutex);
 
-    while(thread_state != PNG_EXPORTER_STOPPED)
-        SDL_Delay(100);
+    SDL_WaitThread(thread, 0);
+    
+    thread = 0;
 }
 
 void PNGExporter::capture() {
