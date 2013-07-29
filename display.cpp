@@ -75,8 +75,8 @@ Uint32 SDLAppDisplay::SDLWindowFlags(bool fullscreen) {
     Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
 
     if (frameless) flags |= SDL_WINDOW_BORDERLESS;
-    if(resizable && !fullscreen) flags |= SDL_WINDOW_RESIZABLE;
-    if(fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
+    if (resizable) flags |= SDL_WINDOW_RESIZABLE;
+    if (fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
 #else
     Uint32 flags = SDL_OPENGL | SDL_HWSURFACE | SDL_ANYFORMAT | SDL_DOUBLEBUF;
 
