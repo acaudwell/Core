@@ -61,7 +61,7 @@ public:
     void updateContent();
     void drawContent();
 
-    bool keyPress(SDL_KeyboardEvent *e, char c);
+    bool keyPress(SDL_KeyboardEvent *e);
 
     bool submit();
     void tab();

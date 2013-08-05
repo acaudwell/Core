@@ -1,4 +1,5 @@
 #include "ui.h"
+#include "element.h"
 #include "checkbox.h"
 #include "group.h"
 #include "subgroup.h"
@@ -7,8 +8,6 @@
 #include "select.h"
 #include "button.h"
 #include "colour.h"
-#include "element.h"
-#include "../mousecursor.h"
 
 #include <algorithm>
 
@@ -131,18 +130,26 @@ UIElement* UI::scrollableElementAt(const vec2& pos) {
 void UI::deselect() {
     if(!selectedElement) return;
 
+    if(selectedElement->isEditable()) SDL_StopTextInput();
+    
     selectedElement->setSelected(false);
     selectedElement = 0;
 }
 
 void UI::selectElement(UIElement* element) {
-    if(selectedElement != 0) {
-        selectedElement->setSelected(false);
-    }
+    if(selectedElement == element) return;
+
+    deselect();
+    
     selectedElement = element;
 
     if(element!=0) {
         element->setSelected(true);
+
+        if(element->isEditable()) {
+            SDL_StartTextInput();
+        }
+        
     }
 }
 
@@ -163,24 +170,9 @@ UIElement* UI::selectElementAt(const vec2& pos) {
         break;
     }
 
-    if(selectedElement == found) return selectedElement;
-
-    if(selectedElement != 0) {
-        selectedElement->setSelected(false);
-    }
-
-    //if(found) debugLog("selected element %s (%d) zindex %d", found->getElementName().c_str(), found->getType(), found->zindex);
-
-    if(!found) {
-        selectedElement = 0;
-        return 0;
-    }
-
-    selectedElement = found;
-
-    selectedElement->setSelected(true);
-
-    return selectedElement;
+    selectElement(found);
+    
+    return found;
 }
 
 void UI::update(float dt) {
@@ -316,20 +308,21 @@ void UI::drawOutline() {
     }
 }
 
-char UI::toChar(SDL_KeyboardEvent *e) {
+void UI::textEdit(SDL_TextEditingEvent* e) {
+    UIElement* selected = getSelected();
 
-    int unicode = e->keysym.unicode;
+    if(!selected) return;
+    
+    selected->setText(e->text);   
+}
 
-    if( unicode > 0x80 && unicode <= 0 ) return 0;
+void UI::textInput(SDL_TextInputEvent *e) {
+    UIElement* selected = getSelected();
 
-    char c         = unicode;
-    bool uppercase = SDL_GetModState() & KMOD_SHIFT;
-
-    if(uppercase) {
-        return toupper(c);
-    }
-
-    return c;
+    if(!selected) return;
+    
+    selected->setText(e->text);
+    selected->submit();
 }
 
 bool UI::keyPress(SDL_KeyboardEvent *e) {
@@ -343,9 +336,7 @@ bool UI::keyPress(SDL_KeyboardEvent *e) {
         return selected->isEditable();
     }
 
-    char c = toChar(e);
-
-    return selected->keyPress(e, c);
+    return selected->keyPress(e);
 }
 
 UIElement* UI::scroll(MouseCursor& cursor) {

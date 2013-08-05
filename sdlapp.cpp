@@ -242,148 +242,16 @@ bool SDLApp::getClipboardText(std::string& text) {
     } else {
         text.resize(0);
     }
-#else
-    SDL_SysWMinfo wininfo;
-    SDL_VERSION(&wininfo.version);
-    SDL_GetWMInfo(&wininfo);
-
-#if defined(_WIN32)
-    if(!IsClipboardFormatAvailable(CF_TEXT) || !OpenClipboard(wininfo.window)) return false;
-
-    HGLOBAL handle = GetClipboardData(CF_TEXT);
-
-    if (!handle) {
-        CloseClipboard();
-        return false;
-    }
-
-    const char* global_str = (const char*) GlobalLock(handle);
-
-    text.assign(global_str);
-
-    GlobalUnlock(handle);
-
-    CloseClipboard();
 
     return true;
-
-#elif defined(USE_X11)
-    Window owner;
-    Atom selection;
-
-    wininfo.info.x11.lock_func();
-
-    owner = XGetSelectionOwner(wininfo.info.x11.display, xa_clipboard);
-
-    wininfo.info.x11.unlock_func();
-
-    if ( (owner == None) || (owner == wininfo.info.x11.window) ) {
-
-        owner     = DefaultRootWindow(wininfo.info.x11.display);
-        selection = XA_CUT_BUFFER0;
-
-    } else {
-
-        owner = wininfo.info.x11.window;
-
-        wininfo.info.x11.lock_func();
-
-        selection = XInternAtom(wininfo.info.x11.display, "SDL_SELECTION", False);
-
-        XConvertSelection(wininfo.info.x11.display, xa_clipboard, XA_STRING, selection, owner, CurrentTime);
-
-        wininfo.info.x11.unlock_func();
-
-        int selection_response = 0;
-        SDL_Event event;
-
-        while ( !selection_response ) {
-            SDL_WaitEvent(&event);
-
-            if ( event.type == SDL_SYSWMEVENT ) {
-                XEvent xevent = event.syswm.msg->event.xevent;
-
-                if ( (xevent.type == SelectionNotify) && (xevent.xselection.requestor == owner) )
-                    selection_response = 1;
-            }
-        }
-    }
-
-    wininfo.info.x11.lock_func();
-
-    unsigned char *selection_data;
-    unsigned long selection_length;
-    unsigned long overflow;
-    int selection_format;
-    Atom selection_type;
-
-    bool assigned = false;
-
-    if ( XGetWindowProperty(wininfo.info.x11.display, owner, selection, 0, INT_MAX/4,
-                            False, XA_STRING, &selection_type, &selection_format,
-                       &selection_length, &overflow, &selection_data) == Success ) {
-
-        if ( selection_type == XA_STRING ) {
-            text.assign((const char*)selection_data);
-            assigned = true;
-        }
-
-        XFree(selection_data);
-    }
-
-    wininfo.info.x11.unlock_func();
-
-    return assigned;
 #else
     return false;
-#endif
 #endif
 }
 
 void SDLApp::setClipboardText(const std::string& text) {
-
 #if SDL_VERSION_ATLEAST(2,0,0)
     SDL_SetClipboardText(text.c_str());
-#else
-    SDL_SysWMinfo wininfo;
-    SDL_VERSION(&wininfo.version);
-    SDL_GetWMInfo(&wininfo);
-#if defined(_WIN32)
-
-    if (!OpenClipboard(wininfo.window)) return;
-
-    HANDLE handle  = GlobalAlloc((GMEM_MOVEABLE|GMEM_DDESHARE), text.size());
-
-    if(!handle) {
-        CloseClipboard();
-        return;
-    }
-
-    char* global_str = (char*) GlobalLock(handle);
-
-    strcpy(global_str, text.c_str());
-
-    GlobalUnlock(handle);
-
-    EmptyClipboard();
-
-    SetClipboardData(CF_TEXT, handle);
-
-    CloseClipboard();
-
-#elif defined(USE_X11)
-    wininfo.info.x11.lock_func();
-
-    XChangeProperty(wininfo.info.x11.display, DefaultRootWindow(wininfo.info.x11.display), XA_CUT_BUFFER0, XA_STRING, 8, PropModeReplace, (unsigned char*) text.c_str(), text.size());
-
-    if(XGetSelectionOwner(wininfo.info.x11.display, xa_clipboard) != wininfo.info.x11.window ) {
-        XSetSelectionOwner(wininfo.info.x11.display, xa_clipboard, wininfo.info.x11.window, CurrentTime);
-    }
-
-    wininfo.info.x11.unlock_func();
-#else
-
-#endif
 #endif
 }
 
@@ -600,6 +468,14 @@ int SDLApp::run() {
                     break;
 
 #if SDL_VERSION_ATLEAST(2,0,0)
+                case SDL_TEXTINPUT:
+                    //debugLog("text input: %s", event.text.text);
+                    textInput(&event.text);
+                     break;
+                case SDL_TEXTEDITING:
+                    //debugLog("text edit: %s", event.edit);
+                    textEdit(&event.edit);
+                    break;
                 case SDL_MOUSEWHEEL:
                     mouseWheel(&event.wheel);
                     break;

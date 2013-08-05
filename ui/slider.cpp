@@ -6,7 +6,6 @@ UISlider::UISlider(const std::string& slider_texture, float width, UIAction* act
     slidertex  = texturemanager.grab(slider_texture);
     rect       = vec2(slider_width, 16.0f);
     background = true;
-    editable   = true;
     selectable = true;
     scrollable = true;
     dragging   = false;
@@ -64,7 +63,7 @@ void UISlider::drawSlider(float position) {
     drawQuad(vec2(slider_position-4.0, 0.0f), vec2(16.0,16.0), vec4(0.0f, 0.0f, 1.0f, 1.0f));
 }
 
-bool UISlider::keyPress(SDL_KeyboardEvent *e, char c) {
+bool UISlider::keyPress(SDL_KeyboardEvent *e) {
 
     switch(e->keysym.sym) {
         case SDLK_MINUS:

@@ -216,9 +216,9 @@ void UIConsolePrompt::drawContent() {
     UILabel::drawContent();
 }
 
-bool UIConsolePrompt::keyPress(SDL_KeyboardEvent *e, char c) {
+bool UIConsolePrompt::keyPress(SDL_KeyboardEvent *e) {
 
-    if(c == SDLK_BACKQUOTE) {
+    if(e->keysym.sym == SDLK_BACKQUOTE) {
         console->showHide();
         return true;
     }
@@ -246,6 +246,6 @@ bool UIConsolePrompt::keyPress(SDL_KeyboardEvent *e, char c) {
         return true;
     }
 
-    return UILabel::keyPress(e, c);
+    return UILabel::keyPress(e);
 }
 

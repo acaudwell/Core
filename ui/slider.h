@@ -18,7 +18,7 @@ protected:
 public:
     UISlider(const std::string& slider_texure, float width, UIAction* action = 0);
 
-    bool keyPress(SDL_KeyboardEvent *e, char c);
+    bool keyPress(SDL_KeyboardEvent *e);
 
     virtual void scroll(bool up) {};
     virtual void scale(bool up) {};

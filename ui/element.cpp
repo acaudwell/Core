@@ -1,4 +1,5 @@
 #include "element.h"
+
 #include <boost/assign/list_of.hpp>
 
 std::map<int,std::string> element_names = boost::assign::map_list_of
@@ -61,17 +62,10 @@ void UIElement::getModifiers(bool& left_ctrl, bool& left_shift) {
 
     left_ctrl = left_shift = false;
 
-#if SDL_VERSION_ATLEAST(2,0,0)
     Uint8* keystate = SDL_GetKeyboardState(NULL);
 
     if(keystate[SDL_SCANCODE_LCTRL])  left_ctrl  = true;
     if(keystate[SDL_SCANCODE_LSHIFT]) left_shift = true;
-#else
-    Uint8* keystate = SDL_GetKeyState(NULL);
-
-    if(keystate[SDLK_LCTRL])  left_ctrl  = true;
-    if(keystate[SDLK_LSHIFT]) left_shift = true;
-#endif
 }
 
 double UIElement::granulaity(double initial, double scale) {

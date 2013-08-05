@@ -4,9 +4,9 @@
 #include "../display.h"
 #include "../vectors.h"
 
-#include <string>
-
 #include "ui.h"
+
+#include <string>
 
 enum { UI_INVALID, UI_ELEMENT, UI_LABEL, UI_BUTTON, UI_IMAGE, UI_LAYOUT, UI_GROUP, UI_COLOUR, UI_SELECT, UI_SLIDER, UI_SCROLL_BAR, UI_CHECKBOX };
 
@@ -64,7 +64,7 @@ public:
     void setFillHorizontal(bool fill) { this->fill_horizontal = fill; };
     void setFillVertical  (bool fill) { this->fill_vertical  = fill; };
     void setFill(bool fill)           { this->fill_horizontal = fill; this->fill_vertical = fill; };
-
+   
     bool fillVertical()   const { return fill_vertical; }
     bool fillHorizontal() const { return fill_horizontal; }
 
@@ -76,6 +76,8 @@ public:
     void show() { hidden=false; };
 
     virtual void idle() {};
+
+    virtual void setText(const std::string& text) {};
 
     virtual void setSelected(bool selected) { this->selected = selected; };
 
@@ -98,7 +100,7 @@ public:
     virtual void updateRect() {};
     virtual void updateZIndex();
 
-    virtual bool keyPress(SDL_KeyboardEvent *e, char c) { return false; };
+    virtual bool keyPress(SDL_KeyboardEvent *e) { return false; };
     virtual bool submit() { return false; };
 
     virtual void update(float dt);

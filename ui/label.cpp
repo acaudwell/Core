@@ -78,72 +78,6 @@ bool UILabel::submit() {
     return false;
 }
 
-bool UILabel::keyPress(SDL_KeyboardEvent *e, char c) {
-
-    if(!c) return false;
-
-    if(!editable) {
-
-        switch(c) {
-            case SDLK_RETURN:
-                if(submit()) return true;
-                break;
-        }
-
-        return false;
-    }
-
-    // copy / paste clipboard
-    if(e->keysym.sym == SDLK_v || e->keysym.sym == SDLK_c) {
-
-        Uint8* keystate = SDL_GetKeyState(0);
-
-        if(keystate[SDLK_LCTRL]) {
-
-            if(e->keysym.sym == SDLK_c) {
-
-                if(!this->text.empty()) {
-                    SDLApp::setClipboardText(this->text);
-                    return true;
-                }
-
-            } else if(e->keysym.sym == SDLK_v) {
-
-                std::string text;
-                if(SDLApp::getClipboardText(text)) {
-                    setText(this->text + text);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-    }
-
-    switch(c) {
-#ifdef __APPLE__
-        case SDLK_DELETE:
-#else
-	case SDLK_BACKSPACE:
-#endif
-            backspace();
-            break;
-        case SDLK_TAB:
-            tab();
-            break;
-        case SDLK_RETURN:
-            submit();
-            break;
-        default:
-            text += c;
-            break;
-    }
-
-    text_changed = true;
-
-    return true;
-}
-
 void UILabel::update(float dt) {
 
     updateZIndex();
@@ -281,9 +215,9 @@ UIIntLabel::UIIntLabel(int* value, bool editable, UIAction* action) : value(valu
     edit_bgcolour = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
-bool UIIntLabel::keyPress(SDL_KeyboardEvent *e, char c) {
+bool UIIntLabel::keyPress(SDL_KeyboardEvent *e) {
 
-    bool changed = UILabel::keyPress(e,c);
+    bool changed = UILabel::keyPress(e);
 
     return changed;
 }
@@ -323,11 +257,44 @@ UIFloatLabel::UIFloatLabel(float* value, bool editable, UIAction* action) : valu
     scrollable = editable;
 }
 
-bool UIFloatLabel::keyPress(SDL_KeyboardEvent *e, char c) {
+bool UIFloatLabel::keyPress(SDL_KeyboardEvent *e) {
 
-    bool changed = UILabel::keyPress(e,c);
+    bool changed = UILabel::keyPress(e);
 
     return changed;
+}
+
+// TODO: do copy/paste at a higher level ?
+bool UILabel::keyPress(SDL_KeyboardEvent *e) {
+/*
+    // copy / paste clipboard
+    if(e->keysym.scancode == SDL_SCANCODE_V || e->keysym.scancode == SDL_SCANCODE_V) {
+
+        Uint8* keystate = SDL_GetKeyboardState(NULL);
+
+        if(keystate[SDL_SCANCODE_LCTRL]) {
+
+            if(e->keysym.scancode == SDL_SCANCODE_C) {
+
+                if(!this->text.empty()) {
+                    SDLApp::setClipboardText(this->text);
+                    return true;
+                }
+
+            } else if(e->keysym.scancode == SDL_SCANCODE_V) {
+
+                std::string text;
+                if(SDLApp::getClipboardText(text)) {
+                    setText(this->text + text);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+*/
+    return UIElement::keyPress(e);
 }
 
 void UIFloatLabel::setValue(float* value) {

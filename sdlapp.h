@@ -139,6 +139,9 @@ public:
     virtual void keyPress(SDL_KeyboardEvent *e) {};
 
 #if SDL_VERSION_ATLEAST(2,0,0)
+    virtual void textInput(SDL_TextInputEvent* e)  {};
+    virtual void textEdit(SDL_TextEditingEvent* e) {};
+
     virtual void mouseWheel(SDL_MouseWheelEvent *e) {};
 #endif
 

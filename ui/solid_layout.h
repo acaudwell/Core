@@ -1,7 +1,6 @@
 #ifndef UI_SOLID_LAYOUT_H
 #define UI_SOLID_LAYOUT_H
 
-#include "element.h"
 #include "layout.h"
 
 class UISolidLayout : public UILayout {

@@ -74,6 +74,9 @@ public:
     virtual vec4 getTintColour();
     virtual vec4 getAlpha();
 
+    void textEdit(SDL_TextEditingEvent* e);
+    void textInput(SDL_TextInputEvent* e);
+    
     UIColour* getActiveColour();
 
     void update(float dt);

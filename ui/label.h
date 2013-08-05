@@ -36,7 +36,7 @@ public:
 
     float width;
 
-    bool keyPress(SDL_KeyboardEvent *e, char c);
+    bool keyPress(SDL_KeyboardEvent *e);
 
     int getType() const { return UI_LABEL; }
 
@@ -70,7 +70,7 @@ class UIIntLabel : public UILabel {
 public:
     UIIntLabel(int* value, bool editable, UIAction* action = 0);
 
-    bool keyPress(SDL_KeyboardEvent *e, char c);
+    bool keyPress(SDL_KeyboardEvent *e);
     bool submit();
 
     void updateContent();
@@ -89,7 +89,7 @@ public:
     void scroll(bool up);
     void scale(bool up, float value_scale);
     
-    bool keyPress(SDL_KeyboardEvent *e, char c);
+    bool keyPress(SDL_KeyboardEvent *e);
     bool submit();
 
     void setSelected(bool selected);
