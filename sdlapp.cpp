@@ -148,90 +148,6 @@ void SDLAppQuit(std::string error) {
     exit(1);
 }
 
-#ifdef USE_X11
-static Atom xa_targets;
-static Atom xa_clipboard;
-
-void SDLApp::initX11ClipboardEventFilter() {
-    SDL_SysWMinfo wininfo;
-    SDL_VERSION(&wininfo.version);
-    SDL_GetWMInfo(&wininfo);
-
-    SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-    SDL_SetEventFilter(SDLApp::X11ClipboardEventFilter);
-
-    xa_targets   = XInternAtom(wininfo.info.x11.display, "TARGETS",   False);
-    xa_clipboard = XInternAtom(wininfo.info.x11.display, "CLIPBOARD", False);
-}
-
-int SDLApp::X11ClipboardEventFilter(const SDL_Event *event) {
-
-    if ( event->type != SDL_SYSWMEVENT ) return 1;
-
-    if( event->syswm.msg->event.xevent.type == SelectionRequest) {
-
-        SDL_SysWMinfo wininfo;
-        SDL_VERSION(&wininfo.version);
-        SDL_GetWMInfo(&wininfo);
-
-        XSelectionRequestEvent *req;
-        XEvent snotify;
-
-        req = &event->syswm.msg->event.xevent.xselectionrequest;
-
-        snotify.xselection.type      = SelectionNotify;
-
-        snotify.xselection.display   = req->display;
-        snotify.xselection.selection = req->selection;
-        snotify.xselection.requestor = req->requestor;
-        snotify.xselection.time      = req->time;
-
-        snotify.xselection.target    = None;
-        snotify.xselection.property  = None;
-
-        Atom supported_targets[] = {
-            xa_targets,
-            XA_STRING
-        };
-
-        if ( req->target == xa_targets ) {
-
-            XChangeProperty (req->display, req->requestor, req->property, XA_ATOM, 32, PropModeReplace, (unsigned char*) supported_targets, sizeof(supported_targets) / sizeof (Atom));
-            snotify.xselection.property = req->property;
-
-        } else if( req->target == XA_STRING ) {
-
-            unsigned char *selection_data;
-            unsigned long selection_length;
-            unsigned long overflow;
-            int selection_format;
-
-            if ( XGetWindowProperty(wininfo.info.x11.display, DefaultRootWindow(wininfo.info.x11.display),
-                                    XA_CUT_BUFFER0, 0, INT_MAX/4, False, req->target,
-                                    &snotify.xselection.target, &selection_format,
-                                    &selection_length, &overflow, &selection_data) == Success ) {
-
-                if ( snotify.xselection.target == req->target ) {
-
-                    XChangeProperty(wininfo.info.x11.display, req->requestor, req->property,
-                        snotify.xselection.target, selection_format, PropModeReplace, selection_data, selection_length);
-
-                    snotify.xselection.property = req->property;
-                }
-
-                XFree(selection_data);
-            }
-        }
-
-        XSendEvent(wininfo.info.x11.display,req->requestor,False,0,&snotify);
-        XSync(wininfo.info.x11.display, False);
-    }
-
-    return 1;
-}
-
-#endif
-
 bool SDLApp::getClipboardText(std::string& text) {
 
 #if SDL_VERSION_ATLEAST(2,0,0)
@@ -410,10 +326,6 @@ void SDLApp::stop(int return_code) {
 }
 
 int SDLApp::run() {
-
-#ifdef USE_X11
-    SDLApp::initX11ClipboardEventFilter();
-#endif
 
     Uint32 msec=0, last_msec=0, buffer_msec=0, total_msec = 0;
 
