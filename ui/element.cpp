@@ -19,7 +19,7 @@ std::map<int,std::string> element_names = boost::assign::map_list_of
 UIElement::~UIElement() {
     { if(ui && selected) ui->deselect(); };
 }
-    
+
 const std::string& UIElement::getElementName() const {
     return getElementName(this->getType());
 }
@@ -62,7 +62,7 @@ void UIElement::getModifiers(bool& left_ctrl, bool& left_shift) {
 
     left_ctrl = left_shift = false;
 
-    Uint8* keystate = SDL_GetKeyboardState(NULL);
+    const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
     if(keystate[SDL_SCANCODE_LCTRL])  left_ctrl  = true;
     if(keystate[SDL_SCANCODE_LSHIFT]) left_shift = true;

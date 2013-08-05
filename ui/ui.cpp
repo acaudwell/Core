@@ -131,7 +131,7 @@ void UI::deselect() {
     if(!selectedElement) return;
 
     if(selectedElement->isEditable()) SDL_StopTextInput();
-    
+
     selectedElement->setSelected(false);
     selectedElement = 0;
 }
@@ -140,7 +140,7 @@ void UI::selectElement(UIElement* element) {
     if(selectedElement == element) return;
 
     deselect();
-    
+
     selectedElement = element;
 
     if(element!=0) {
@@ -149,7 +149,7 @@ void UI::selectElement(UIElement* element) {
         if(element->isEditable()) {
             SDL_StartTextInput();
         }
-        
+
     }
 }
 
@@ -171,7 +171,7 @@ UIElement* UI::selectElementAt(const vec2& pos) {
     }
 
     selectElement(found);
-    
+
     return found;
 }
 
@@ -265,14 +265,14 @@ UIElement* UI::processMouse(MouseCursor& cursor) {
 
         left_pressed = true;
         return click(cursor);
-        
+
     } else if(cursor.leftButtonPressed()) {
 
         if(mousemove) {
             left_drag = true;
             return drag(cursor);
         }
-        
+
     } else {
         if(left_pressed) {
             if(left_drag) {
@@ -312,15 +312,15 @@ void UI::textEdit(SDL_TextEditingEvent* e) {
     UIElement* selected = getSelected();
 
     if(!selected) return;
-    
-    selected->setText(e->text);   
+
+    selected->setText(e->text);
 }
 
 void UI::textInput(SDL_TextInputEvent *e) {
     UIElement* selected = getSelected();
 
     if(!selected) return;
-    
+
     selected->setText(e->text);
     selected->submit();
 }
@@ -331,7 +331,7 @@ bool UI::keyPress(SDL_KeyboardEvent *e) {
 
     if(!selected) return false;
 
-    if(e->keysym.unicode == SDLK_ESCAPE) {
+    if(e->keysym.sym == SDLK_ESCAPE) {
         deselect();
         return selected->isEditable();
     }
