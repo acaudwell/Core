@@ -160,6 +160,8 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
     gl_context = SDL_GL_CreateContext(sdl_window);
 
     if(vsync) SDL_GL_SetSwapInterval(1);
+    else SDL_GL_SetSwapInterval(0);
+
 #else
     int depth = 32;
 
