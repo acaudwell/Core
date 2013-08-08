@@ -143,7 +143,12 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
 #if SDL_VERSION_ATLEAST(2,0,0)
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   24);
+
+    if(multi_sample > 0) {
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, (GLuint) multi_sample);
+    }
 
     Uint32 flags = SDLWindowFlags(fullscreen);
 
@@ -153,11 +158,28 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
     sdl_window = SDL_CreateWindow(gSDLAppTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
 
     if (!sdl_window) {
-        std::string sdlerr(SDL_GetError());
-        throw SDLInitException(sdlerr);
+
+        // retry without multi-sampling enabled
+        if(multi_sample > 0) {
+            multi_sample = 0;
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+
+            sdl_window = SDL_CreateWindow(gSDLAppTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
+        }
+
+        if(!sdl_window) {
+            std::string sdlerr(SDL_GetError());
+            throw SDLInitException(sdlerr);
+        }
     }
 
     gl_context = SDL_GL_CreateContext(sdl_window);
+
+    if(!gl_context) {
+        std::string sdlerr(SDL_GetError());
+        throw SDLInitException(sdlerr);
+    }
 
     if(vsync) SDL_GL_SetSwapInterval(1);
     else SDL_GL_SetSwapInterval(0);
