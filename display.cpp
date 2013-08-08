@@ -149,7 +149,11 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, (GLuint) multi_sample);
     }
-
+    
+    if(enable_alpha) {
+        SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    }
+    
     Uint32 flags = SDLWindowFlags(fullscreen);
 
     if(gl_context != 0) SDL_GL_DeleteContext(gl_context);
