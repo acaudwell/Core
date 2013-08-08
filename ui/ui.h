@@ -53,6 +53,8 @@ public:
 
     UIElement* getSelected();
 
+    bool acceptingTextInput();
+    
     bool elementsByType(std::list<UIElement*>& found, int type);
 
     void elementsAt(const vec2& pos, std::list<UIElement*>& found_elements);

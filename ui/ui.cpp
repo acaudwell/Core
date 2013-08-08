@@ -130,10 +130,16 @@ UIElement* UI::scrollableElementAt(const vec2& pos) {
 void UI::deselect() {
     if(!selectedElement) return;
 
-    if(selectedElement->isEditable()) SDL_StopTextInput();
-
+    if(selectedElement->isEditable()) {
+        SDL_StopTextInput();
+    }
+    
     selectedElement->setSelected(false);
     selectedElement = 0;
+}
+
+bool UI::acceptingTextInput() {
+    return (selectedElement !=0 && selectedElement->isEditable());
 }
 
 void UI::selectElement(UIElement* element) {
@@ -311,7 +317,7 @@ void UI::drawOutline() {
 void UI::textEdit(SDL_TextEditingEvent* e) {
     UIElement* selected = getSelected();
 
-    if(!selected) return;
+    if(!selected || !selected->isEditable()) return;
 
     selected->setText(e->text);
 }
@@ -319,7 +325,7 @@ void UI::textEdit(SDL_TextEditingEvent* e) {
 void UI::textInput(SDL_TextInputEvent *e) {
     UIElement* selected = getSelected();
 
-    if(!selected) return;
+    if(!selected || !selected->isEditable()) return;
 
     selected->setText(e->text);
     selected->submit();

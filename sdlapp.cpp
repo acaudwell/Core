@@ -337,6 +337,11 @@ int SDLApp::run() {
     msec = SDL_GetTicks();
     last_msec = msec;
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+        //text input seems to be enabled by default, turn it off
+        SDL_StopTextInput();
+#endif
+
     while(!appFinished) {
         last_msec = msec;
         msec      = SDL_GetTicks();
