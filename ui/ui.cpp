@@ -317,18 +317,21 @@ void UI::drawOutline() {
 void UI::textEdit(SDL_TextEditingEvent* e) {
     UIElement* selected = getSelected();
 
-    if(!selected || !selected->isEditable()) return;
-
-    selected->setText(e->text);
+    UILabel* label = dynamic_cast<UILabel*>(selected);
+    
+    if(!label || !label->isEditable()) return;        
+    
+    label->setText(label->text + e->text);
 }
 
 void UI::textInput(SDL_TextInputEvent *e) {
     UIElement* selected = getSelected();
 
-    if(!selected || !selected->isEditable()) return;
-
-    selected->setText(e->text);
-    selected->submit();
+    UILabel* label = dynamic_cast<UILabel*>(selected);
+    
+    if(!label || !label->isEditable()) return;        
+    
+    label->setText(label->text + e->text);
 }
 
 bool UI::keyPress(SDL_KeyboardEvent *e) {
@@ -340,6 +343,17 @@ bool UI::keyPress(SDL_KeyboardEvent *e) {
     if(e->keysym.sym == SDLK_ESCAPE) {
         deselect();
         return selected->isEditable();
+    }
+    
+    // if in editable state only handle certain key combinations and consume all others
+    if(selected->isEditable()) {
+
+        UILabel* label = dynamic_cast<UILabel*>(selected);
+
+        // only applies to labels currently.
+        if(label!=0) label->keyPress(e);
+
+        return true;
     }
 
     return selected->keyPress(e);

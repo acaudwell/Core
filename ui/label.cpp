@@ -65,6 +65,7 @@ void UILabel::backspace() {
     if(!text.empty()) {
         text.resize( text.size() - 1 );
     }
+    text_changed = true;
 }
 
 void UILabel::tab() {
@@ -266,22 +267,23 @@ bool UIFloatLabel::keyPress(SDL_KeyboardEvent *e) {
 
 // TODO: do copy/paste at a higher level ?
 bool UILabel::keyPress(SDL_KeyboardEvent *e) {
-/*
-    // copy / paste clipboard
-    if(e->keysym.scancode == SDL_SCANCODE_V || e->keysym.scancode == SDL_SCANCODE_V) {
+
+    if(!editable) return false;
+
+    if(e->keysym.sym == SDLK_c || e->keysym.sym == SDLK_v) {
 
         Uint8* keystate = SDL_GetKeyboardState(NULL);
-
+        
         if(keystate[SDL_SCANCODE_LCTRL]) {
 
-            if(e->keysym.scancode == SDL_SCANCODE_C) {
-
+            if(e->keysym.sym == SDLK_c) {
+                                    
                 if(!this->text.empty()) {
                     SDLApp::setClipboardText(this->text);
                     return true;
                 }
 
-            } else if(e->keysym.scancode == SDL_SCANCODE_V) {
+            } else if(e->keysym.sym == SDLK_v) {
 
                 std::string text;
                 if(SDLApp::getClipboardText(text)) {
@@ -289,12 +291,26 @@ bool UILabel::keyPress(SDL_KeyboardEvent *e) {
                     return true;
                 }
             }
-
-            return false;
         }
     }
-*/
-    return UIElement::keyPress(e);
+        
+    switch(e->keysym.sym) {
+#ifdef __APPLE__
+        case SDLK_DELETE:
+#else
+        case SDLK_BACKSPACE:
+#endif
+            backspace();
+            break;
+        case SDLK_TAB:
+            tab();
+            break;
+        case SDLK_RETURN:
+            submit();
+            break;
+    }
+    
+    return true;
 }
 
 void UIFloatLabel::setValue(float* value) {
