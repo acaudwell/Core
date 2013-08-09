@@ -56,12 +56,12 @@ public:
 
 class SDLAppDisplay {
 
-    bool enable_shaders;
     bool enable_alpha;
     bool resizable;
     bool frameless;
     bool vsync;
 
+    int  zbuffer_depth;
     int  multi_sample;
 
     Uint32 SDLWindowFlags(bool fullscreen);
@@ -80,7 +80,7 @@ public:
 #endif
 
     bool fullscreen;
-    vec4 clearColour;
+    vec4 clear_colour;
 
     SDLAppDisplay();
     ~SDLAppDisplay();
@@ -102,8 +102,8 @@ public:
     void   setClearColour(vec3 colour);
     void   setClearColour(vec4 colour);
 
-
-    void   enableShaders(bool enable);
+    void   setZBufferDepth(int zbuffer_depth);
+    
     void   enableVsync(bool vsync);
     void   enableAlpha(bool enable);
     void   enableResize(bool resizable);

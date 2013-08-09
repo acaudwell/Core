@@ -37,15 +37,15 @@
 SDLAppDisplay display;
 
 SDLAppDisplay::SDLAppDisplay() {
-    clearColour = vec4(0.0f,0.0f,0.0f,1.0f);
-    enable_shaders=false;
-    enable_alpha=false;
-    vsync=false;
-    resizable=false;
-    frameless=false;
-    multi_sample = 0;
-    width = 0;
-    height = 0;
+    clear_colour    = vec4(0.0f,0.0f,0.0f,1.0f);
+    zbuffer_depth   = 16;
+    enable_alpha    = false;
+    vsync           = false;
+    resizable       = false;
+    frameless       = false;
+    multi_sample    = 0;
+    width           = 0;
+    height          = 0;
     desktop_width   = 0;
     desktop_height  = 0;
     windowed_width  = 0;
@@ -67,7 +67,7 @@ void SDLAppDisplay::setClearColour(vec3 colour) {
 }
 
 void SDLAppDisplay::setClearColour(vec4 colour) {
-    clearColour = colour;
+    clear_colour = colour;
 }
 
 Uint32 SDLAppDisplay::SDLWindowFlags(bool fullscreen) {
@@ -91,8 +91,8 @@ void SDLAppDisplay::enableVsync(bool vsync) {
     this->vsync = vsync;
 }
 
-void SDLAppDisplay::enableShaders(bool enable) {
-    enable_shaders = enable;
+void SDLAppDisplay::setZBufferDepth(int zbuffer_depth) {
+    this->zbuffer_depth = zbuffer_depth;
 }
 
 void SDLAppDisplay::enableResize(bool resizable) {
@@ -143,7 +143,7 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
 #if SDL_VERSION_ATLEAST(2,0,0)
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   24);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   zbuffer_depth);
 
     if(multi_sample > 0) {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
@@ -189,7 +189,7 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
     else SDL_GL_SetSwapInterval(0);
 
 #else
-    int depth = 32;
+    int bpp = 32;
 
     int flags = SDLWindowFlags(fullscreen);
 
@@ -205,19 +205,8 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
         SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
     }
 
-#ifdef _WIN32
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    surface = SDL_SetVideoMode(width, height, depth, flags);
-#else
-    if(enable_shaders) {
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-        surface = SDL_SetVideoMode(width, height, depth, flags);
-    } else {
-        depth = 24;
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-        surface = SDL_SetVideoMode(width, height, depth, flags);
-    }
-#endif
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, zbuffer_depth);
+    surface = SDL_SetVideoMode(width, height, bpp, flags);
 
     if (!surface) {
         if (multi_sample > 0) {
@@ -229,7 +218,7 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
             multi_sample = 0;
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
-            surface = SDL_SetVideoMode(width, height, depth, flags);
+            surface = SDL_SetVideoMode(width, height, bpp, flags);
         }
 
         if (!surface) {
@@ -430,7 +419,7 @@ void SDLAppDisplay::update() {
 }
 
 void SDLAppDisplay::clear() {
-    glClearColor(clearColour.x, clearColour.y, clearColour.z, clearColour.w);
+    glClearColor(clear_colour.x, clear_colour.y, clear_colour.z, clear_colour.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
