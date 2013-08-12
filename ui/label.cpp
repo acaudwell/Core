@@ -272,12 +272,12 @@ bool UILabel::keyPress(SDL_KeyboardEvent *e) {
 
     if(e->keysym.sym == SDLK_c || e->keysym.sym == SDLK_v) {
 
-        Uint8* keystate = SDL_GetKeyboardState(NULL);
-        
+        const Uint8* keystate = SDL_GetKeyboardState(NULL);
+
         if(keystate[SDL_SCANCODE_LCTRL]) {
 
             if(e->keysym.sym == SDLK_c) {
-                                    
+
                 if(!this->text.empty()) {
                     SDLApp::setClipboardText(this->text);
                     return true;
@@ -293,7 +293,7 @@ bool UILabel::keyPress(SDL_KeyboardEvent *e) {
             }
         }
     }
-        
+
     switch(e->keysym.sym) {
 #ifdef __APPLE__
         case SDLK_DELETE:
@@ -309,7 +309,7 @@ bool UILabel::keyPress(SDL_KeyboardEvent *e) {
             submit();
             break;
     }
-    
+
     return true;
 }
 
@@ -318,12 +318,12 @@ void UIFloatLabel::setValue(float* value) {
 }
 
 void UIFloatLabel::setValue(float value) {
-    if(!this->value) return;   
+    if(!this->value) return;
 
     *(this->value) = value;
 
     debugLog("setValue(%f)", value);
-    
+
     if(action!=0) action->perform();
 }
 
