@@ -83,7 +83,7 @@ bool UISlider::keyPress(SDL_KeyboardEvent *e) {
 
 void UISlider::idle() {
     if(action != 0) action->idle();
-    dragging = false;    
+    dragging = false;
 }
 
 
@@ -101,29 +101,29 @@ void UIFloatSlider::scale(bool up, float value_scale) {
 
     if(!value) return;
 
-    float value_inc = (min!=max) ? ((max-min) / 100.0f) : glm::max( 0.00001f, glm::abs(*value) * 0.1f );
+    float value_inc = (min!=max) ? ((max-min) / 100.0f) : glm::max( 0.00001f, glm::abs(glm::max(1.0f, *value)) * 0.1f );
 
     if(!up) value_inc = -value_inc;
 
-    setValue(*value + UIElement::granulaity(value_inc, value_scale));    
+    setValue(*value + UIElement::granulaity(value_inc, value_scale));
 }
 
 void UIFloatSlider::click(const vec2& pos) {
     float percent = (pos.x - this->pos.x) / slider_width;
-       
+
     float new_value;
-    
-    if(min!=max) {           
+
+    if(min!=max) {
         new_value = percent * (max-min) + min;
     } else {
         float v = *value;
-        if(v == 0.0f) v = 1.0f;        
-        
+        if(v == 0.0f) v = 1.0f;
+
         new_value = percent * 2.0 * v;
     }
-    
+
     //debugLog("new value = %f", new_value);
-        
+
     setValue(new_value);
 }
 
@@ -134,13 +134,13 @@ void UIFloatSlider::drag(const vec2& pos) {
     }
 
     float percent = (pos.x - this->pos.x) / slider_width;
-    
+
     float new_value = (min!=max)
-        ? percent * (max-min) + min 
+        ? percent * (max-min) + min
         : percent * 2.0 * old_value;
-        
+
     //debugLog("drag: percent %f new_value %f", percent, new_value);
-        
+
     setValue(new_value);
 }
 
@@ -151,23 +151,23 @@ void UIFloatSlider::setFloat(float* f) {
 void UIFloatSlider::setValue(float v) {
     if(!value) return;
 
-    if(min!=max) {   
+    if(min!=max) {
         *value = std::max(std::min(max,v), min);
     } else {
         *value = v;
     }
-    
+
     if(action != 0) action->perform();
 }
 
 void UIFloatSlider::drawContent() {
     if(!value) return;
-    
+
     float position;
-    
+
     if (min!=max) {
         position = std::min(1.0f, ((*value) - min) / ((float)max-min));
-         
+
     } else {
         if(dragging) {
             position = std::max(0.0f, std::min(1.0f, *value / (old_value * 2.0f)));
