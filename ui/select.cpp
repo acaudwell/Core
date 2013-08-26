@@ -119,11 +119,14 @@ void UISelect::draw() {
     }
 }
 
-UIIntSelectAction::UIIntSelectAction(int* field, int value) : field(field), value(value) {
+UIIntSelectAction::UIIntSelectAction(int* field, int value, UIAction* action) : field(field), value(value), action(action) {
 }
 
 void UIIntSelectAction::perform() {
     *field = value;
+    if(action != 0) {
+        action->perform();
+    }
 }
 
 // UIOptionLabel

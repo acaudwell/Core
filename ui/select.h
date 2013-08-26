@@ -10,8 +10,9 @@ class UISelect;
 class UIIntSelectAction : public UIAction {
     int* field;
     int value;
+    UIAction* action;
 public:
-    UIIntSelectAction(int* field, int value);
+    UIIntSelectAction(int* field, int value, UIAction* action = 0);
 
     void perform();
 };
