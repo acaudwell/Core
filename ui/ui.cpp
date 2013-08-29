@@ -285,6 +285,13 @@ UIElement* UI::processMouse(MouseCursor& cursor) {
                 left_drag = false;
             }
             left_pressed = false;
+
+            // call idle if nothing happened
+            // not sure about this 'idle' concept really
+            // might be better to indicate the type of change in the action class
+
+            UIElement* selected = getSelected();
+            if(selected!=0) selected->idle();
         }
     }
 
@@ -292,17 +299,14 @@ UIElement* UI::processMouse(MouseCursor& cursor) {
 
     if(scroll_amount != 0) {
         scrolling = true;
-        return scroll(cursor);
+
+        UIElement* scrolled = scroll(cursor);
+        if(scrolled != 0) scrolled->idle();
+
+        return scrolled;
     } else if(scrolling) {
         scrolling = false;
     }
-
-    // call idle if nothing happened
-    // not sure about this 'idle' concept really
-    // might be better to indicate the type of change in the action class
-
-    UIElement* selected = getSelected();
-    if(selected!=0) selected->idle();
 
     return 0;
 }
