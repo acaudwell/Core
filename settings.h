@@ -20,7 +20,9 @@
 
 #include "conffile.h"
 
+#include <map>
 #include <vector>
+#include <string>
 
 class SDLAppSettings {
 protected:

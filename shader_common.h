@@ -8,6 +8,8 @@
 #include <map>
 #include <list>
 #include <string>
+#include <exception>
+#include <vector>
 
 extern std::string gSDLAppShaderDir;
 

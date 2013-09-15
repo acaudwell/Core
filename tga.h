@@ -30,8 +30,10 @@
 
 #include "SDL_thread.h"
 
+#include <ostream>
 #include <fstream>
 #include <vector>
+#include <string>
 
 class TGAWriter {
 protected:

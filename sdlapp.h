@@ -28,6 +28,8 @@
 #ifndef SDLAPP_H
 #define SDLAPP_H
 
+#include "gl.h"
+
 #ifdef _WIN32
 
 #ifdef _WIN32_WINNT
@@ -38,10 +40,8 @@
 #include "windows.h"
 #endif
 
-#include "display.h"
-#include "logger.h"
-
-#include <stdexcept>
+#include <string>
+#include <exception>
 #include <vector>
 
 extern std::string gSDLAppConfDir;

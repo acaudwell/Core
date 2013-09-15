@@ -33,6 +33,8 @@
 #include "resource.h"
 #include "gl.h"
 
+#include <string>
+
 class TextureException : public ResourceException {
 public:
     TextureException(std::string& texture_file) : ResourceException(texture_file) {}

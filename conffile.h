@@ -18,11 +18,12 @@
 #ifndef CONF_FILE_H
 #define CONF_FILE_H
 
+#include <ostream>
 #include <fstream>
 #include <string>
 #include <list>
 #include <map>
-#include <stdexcept>
+#include <exception>
 
 #include "vectors.h"
 
@@ -78,7 +79,7 @@ public:
     vec2       getVec2();
     vec3       getVec3();
     vec4       getVec4();
-    
+
     bool isFloat();
     bool isInt();
     bool isBool();
@@ -180,7 +181,7 @@ public:
     vec4       getVec4(const std::string& section,   const std::string& key);
 
     static void trim(std::string& value);
-    
+
     void unknownOptionException(ConfEntry* entry);
     void missingValueException(ConfEntry* entry);
     void invalidValueException(ConfEntry* entry);

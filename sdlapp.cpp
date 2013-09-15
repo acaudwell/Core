@@ -26,6 +26,8 @@
 */
 
 #include "sdlapp.h"
+#include "display.h"
+#include "logger.h"
 #include "SDL_syswm.h"
 
 std::string gSDLAppResourceDir;

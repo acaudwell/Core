@@ -31,8 +31,10 @@
 #define REGEX_MAX_MATCHES 100
 
 #include "pcre.h"
+
 #include <string>
 #include <vector>
+#include <exception>
 
 class RegexCompilationException : public std::exception {
 protected:
@@ -60,10 +62,10 @@ public:
 
     bool match(const std::string& str, std::vector<std::string>* results = 0);
     bool matchAll(const std::string& str, std::vector<std::string>* results = 0);
-    
+
     bool replace(std::string& str, const std::string& replacement_str);
     bool replaceAll(std::string& str, const std::string& replacement_str);
-    
+
     bool isValid();
 
 };

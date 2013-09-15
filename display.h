@@ -43,6 +43,7 @@
 
 #include <vector>
 #include <string>
+#include <exception>
 
 class SDLInitException : public std::exception {
 protected:
@@ -103,7 +104,7 @@ public:
     void   setClearColour(vec4 colour);
 
     void   setZBufferDepth(int zbuffer_depth);
-    
+
     void   enableVsync(bool vsync);
     void   enableAlpha(bool enable);
     void   enableResize(bool resizable);

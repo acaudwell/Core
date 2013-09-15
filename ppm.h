@@ -21,6 +21,8 @@
 #include <iostream>
 #include <fstream>
 #include <ostream>
+#include <string>
+#include <exception>
 
 #include "sdlapp.h"
 #include "display.h"

@@ -30,8 +30,7 @@
 
 #include <map>
 #include <string>
-
-#include <stdexcept>
+#include <exception>
 
 class ResourceException : public std::exception {
 protected:
@@ -50,7 +49,7 @@ public:
     Resource() { refs =0; };
     Resource(const std::string& resource_name) : resource_name(resource_name), refs(0) {};
     virtual ~Resource() {};
-    
+
     void setResourceName(const std::string& resource_name) {
         if(this->resource_name.empty()) this->resource_name = resource_name;
     };
