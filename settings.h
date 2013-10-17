@@ -36,7 +36,7 @@ protected:
 
     bool parseRectangle(const std::string& value, int& x, int& y);
     bool parseViewport(const std::string& value, int& x, int& y, bool& no_resize);
-
+    bool parseDateTime(const std::string& datetime, time_t& timestamp);
 public:
     int display_width;
     int display_height;

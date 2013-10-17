@@ -18,6 +18,8 @@
 #include "settings.h"
 #include "regex.h"
 
+#include <time.h>
+
 Regex SDLAppSettings_rect_regex("^([0-9.]+)x([0-9.]+)$");
 Regex SDLAppSettings_viewport_regex("^([0-9.]+)x([0-9.]+)(!)?$");
 
@@ -245,6 +247,29 @@ void SDLAppSettings::parseArgs(const std::vector<std::string>& arguments, ConfFi
     }
 }
 
+bool SDLAppSettings::parseDateTime(const std::string& datetime, time_t& timestamp) {
+
+    struct tm timeinfo;
+    memset(&timeinfo, 0, sizeof(timeinfo));
+
+    int rc = sscanf(datetime.c_str(), "%04d-%02d-%02d %02d:%02d:%02d",
+                    &timeinfo.tm_year, &timeinfo.tm_mon, &timeinfo.tm_mday,
+                    &timeinfo.tm_hour, &timeinfo.tm_min, &timeinfo.tm_sec);
+
+    if(rc == 3 || rc == 5 || rc == 6) {
+
+        timeinfo.tm_year -= 1900;
+        timeinfo.tm_mon  -= 1;
+        timeinfo.tm_isdst = -1;
+
+        timestamp = mktime(&timeinfo);
+
+        return true;
+    }
+
+    return false;
+}
+
 void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
 
     setDisplayDefaults();
@@ -254,7 +279,7 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
     if(display_settings == 0) return;
 
     ConfEntry* entry = 0;
-    
+
     bool viewport_specified = false;
 
     if((entry = display_settings->getEntry("viewport")) != 0) {
@@ -295,7 +320,7 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
         display_width  = 0;
         display_height = 0;
     }
-    
+
     if(display_settings->getBool("transparent")) {
         transparent = true;
     }
