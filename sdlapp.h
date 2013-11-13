@@ -97,8 +97,10 @@ class SDLApp {
 protected:
     int  min_delta_msec;
     bool appFinished;
+
     void stop(int return_code);
 
+    virtual bool handleEvent(SDL_Event& event);
 public:
     float fps;
 

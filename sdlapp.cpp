@@ -327,6 +327,58 @@ void SDLApp::stop(int return_code) {
     appFinished=true;
 }
 
+bool SDLApp::handleEvent(SDL_Event& event) {
+
+    switch(event.type) {
+        case SDL_QUIT:
+            quit();
+            break;
+
+        case SDL_MOUSEMOTION:
+            mouseMove(&event.motion);
+            break;
+
+#if SDL_VERSION_ATLEAST(2,0,0)
+        case SDL_TEXTINPUT:
+            textInput(&event.text);
+             break;
+
+        case SDL_TEXTEDITING:
+            textEdit(&event.edit);
+            break;
+
+        case SDL_MOUSEWHEEL:
+            mouseWheel(&event.wheel);
+            break;
+
+        case SDL_WINDOWEVENT:
+            if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                resize(event.window.data1, event.window.data2);
+            }
+            break;
+#else
+        case SDL_VIDEORESIZE:
+            resize(event.resize.w, event.resize.h);
+            break;
+#endif
+
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+            mouseClick(&event.button);
+            break;
+
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+            keyPress(&event.key);
+            break;
+
+        default:
+            return false;
+    }
+
+    return true;
+}
+
 int SDLApp::run() {
 
     Uint32 msec=0, last_msec=0, buffer_msec=0, total_msec = 0;
@@ -376,59 +428,7 @@ int SDLApp::run() {
         //process new events
         SDL_Event event;
         while ( SDL_PollEvent(&event) ) {
-
-            switch(event.type) {
-                case SDL_QUIT:
-                    quit();
-                    break;
-
-                case SDL_MOUSEMOTION:
-                    mouseMove(&event.motion);
-                    break;
-
-#if SDL_VERSION_ATLEAST(2,0,0)
-                case SDL_TEXTINPUT:
-                    //debugLog("text input: %s", event.text.text);
-                    textInput(&event.text);
-                     break;
-                case SDL_TEXTEDITING:
-                    //debugLog("text edit: %s", event.edit);
-                    textEdit(&event.edit);
-                    break;
-                case SDL_MOUSEWHEEL:
-                    mouseWheel(&event.wheel);
-                    break;
-
-                case SDL_WINDOWEVENT:
-                    if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                    resize(event.window.data1, event.window.data2);
-                    }
-                    break;
-#else
-                case SDL_VIDEORESIZE:
-                    resize(event.resize.w, event.resize.h);
-                    break;
-#endif
-
-                case SDL_MOUSEBUTTONDOWN:
-                    mouseClick(&event.button);
-                    break;
-
-                case SDL_MOUSEBUTTONUP:
-                    mouseClick(&event.button);
-                    break;
-
-                case SDL_KEYDOWN:
-                    keyPress(&event.key);
-                    break;
-
-                case SDL_KEYUP:
-                    keyPress(&event.key);
-                    break;
-
-                default:
-                    break;
-            }
+            handleEvent(event);
         }
 
         update(t, dt);
