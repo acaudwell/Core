@@ -251,7 +251,7 @@ bool SDLAppSettings::parseDateTime(const std::string& datetime, time_t& timestam
 
     int timezone_offset = 0;
 
-    Regex timestamp_regex("^(\\d{4})-(\\d{2})-(\\d{2})(?: (\\d{2}):(\\d{2})(?::(\\d{2}))?)?(?: ([+-])(\\d{1,2}))?$");
+    Regex timestamp_regex("^(\\d{4})-(\\d{2})-(\\d{2})(?: (\\d{1,2}):(\\d{2})(?::(\\d{2}))?)?(?: ([+-])(\\d{1,2}))?$");
 
     std::vector<std::string> results;
 
