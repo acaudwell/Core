@@ -18,7 +18,7 @@
 #include "settings.h"
 #include "regex.h"
 
-#include <time.h>
+#include "timezone.h"
 
 Regex SDLAppSettings_rect_regex("^([0-9.]+)x([0-9.]+)$");
 Regex SDLAppSettings_viewport_regex("^([0-9.]+)x([0-9.]+)(!)?$");
@@ -249,25 +249,56 @@ void SDLAppSettings::parseArgs(const std::vector<std::string>& arguments, ConfFi
 
 bool SDLAppSettings::parseDateTime(const std::string& datetime, time_t& timestamp) {
 
+    int timezone_offset = 0;
+
+    Regex timestamp_regex("^(\\d{4})-(\\d{2})-(\\d{2})(?: (\\d{2}):(\\d{2})(?::(\\d{2}))?)?(?: ([+-])(\\d{1,2}))?$");
+
+    std::vector<std::string> results;
+
+    if(!timestamp_regex.match(datetime, &results) || results.size() < 3) return false;
+
     struct tm timeinfo;
     memset(&timeinfo, 0, sizeof(timeinfo));
 
-    int rc = sscanf(datetime.c_str(), "%04d-%02d-%02d %02d:%02d:%02d",
-                    &timeinfo.tm_year, &timeinfo.tm_mon, &timeinfo.tm_mday,
-                    &timeinfo.tm_hour, &timeinfo.tm_min, &timeinfo.tm_sec);
+    timeinfo.tm_isdst = -1;
+    timeinfo.tm_year = atoi(results[0].c_str()) - 1900;
+    timeinfo.tm_mon  = atoi(results[1].c_str()) - 1;
+    timeinfo.tm_mday = atoi(results[2].c_str());
 
-    if(rc == 3 || rc == 5 || rc == 6) {
-
-        timeinfo.tm_year -= 1900;
-        timeinfo.tm_mon  -= 1;
-        timeinfo.tm_isdst = -1;
-
-        timestamp = mktime(&timeinfo);
-
-        return true;
+    // optional: hours, minutes and seconds
+    if(results.size() >= 5) {
+        timeinfo.tm_hour = atoi(results[3].c_str());
+        timeinfo.tm_min  = atoi(results[4].c_str());
+        if(results.size() >= 6) {
+            timeinfo.tm_sec  = atoi(results[5].c_str());
+        }
     }
 
-    return false;
+    // optional: timezone (optional)
+    if(results.size() >= 8) {
+
+        int tz_hour = atoi(results[7].c_str());
+        int tz_min  = 0;
+
+        if(results.size() >= 9) {
+            tz_min = atoi(results[8].c_str());
+        }
+
+        int tz_offset = tz_hour * 3600 + tz_min * 60;
+
+        if(results[6] == "-") {
+            tz_offset = -tz_offset;
+        }
+        
+        timestamp = mktime_utc(&timeinfo);
+        
+        timestamp -= tz_offset;
+        
+    } else {
+        timestamp = mktime(&timeinfo);
+    }
+
+    return true;
 }
 
 void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {

@@ -2,17 +2,20 @@
 
 #include <string>
 
-std::string stored_env_tz;
+std::string local_tz;
+bool tz_initialized = false;
 
-void store_env_tz() {
+void init_tz() {
+    if(tz_initialized) return;
+        
     //check if TZ is set, store current value
-    if(stored_env_tz.empty()) {
-        char* current_tz_env = getenv("TZ");
-        if(current_tz_env != 0) {
-            stored_env_tz  = std::string("TZ=");
-            stored_env_tz += std::string(current_tz_env);
-        }
+    char* current_tz_env = getenv("TZ");
+    if(current_tz_env != 0) {
+        local_tz  = std::string("TZ=");
+        local_tz += std::string(current_tz_env);
     }
+
+    tz_initialized = true;   
 }
 
 void set_utc_tz() {
@@ -22,8 +25,8 @@ void set_utc_tz() {
 }
 
 void unset_utc_tz() {
-    if(!stored_env_tz.empty()) {
-        putenv((char*)stored_env_tz.c_str());
+    if(!local_tz.empty()) {
+        putenv((char*)local_tz.c_str());
     } else {
 #ifndef _WIN32
         unsetenv("TZ");
@@ -32,4 +35,16 @@ void unset_utc_tz() {
 #endif
     }
     tzset();
+}
+
+time_t mktime_utc(struct tm* timeinfo) {
+    init_tz();
+
+    set_utc_tz();
+
+        time_t time_utc = mktime(timeinfo);
+    
+    unset_utc_tz();
+    
+    return time_utc;
 }
