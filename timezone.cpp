@@ -1,13 +1,14 @@
 #include "timezone.h"
 
 #include <string>
+#include <stdlib.h>
 
 std::string local_tz;
 bool tz_initialized = false;
 
 void init_tz() {
     if(tz_initialized) return;
-        
+
     //check if TZ is set, store current value
     char* current_tz_env = getenv("TZ");
     if(current_tz_env != 0) {
@@ -15,7 +16,7 @@ void init_tz() {
         local_tz += std::string(current_tz_env);
     }
 
-    tz_initialized = true;   
+    tz_initialized = true;
 }
 
 void set_utc_tz() {
@@ -43,8 +44,8 @@ time_t mktime_utc(struct tm* timeinfo) {
     set_utc_tz();
 
         time_t time_utc = mktime(timeinfo);
-    
+
     unset_utc_tz();
-    
+
     return time_utc;
 }
