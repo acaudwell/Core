@@ -86,14 +86,14 @@ void ConfEntry::setString(const std::string& value) {
 
 void ConfEntry::setFloat(float value) {
     char floattostr[256];
-    sprintf(floattostr, "%.5f", value);
+    snprintf(floattostr, 256, "%.5f", value);
 
     this->value = std::string(floattostr);
 }
 
 void ConfEntry::setInt(int value) {
     char inttostr[256];
-    sprintf(inttostr, "%d", value);
+    snprintf(inttostr, 256, "%d", value);
 
     this->value = std::string(inttostr);
 }
@@ -104,21 +104,21 @@ void ConfEntry::setBool(bool value) {
 
 void ConfEntry::setVec2(vec2 value) {
     char vectostr[256];
-    sprintf(vectostr, "vec2(%.5f, %.5f)", value.x, value.y);
+    snprintf(vectostr, 256, "vec2(%.5f, %.5f)", value.x, value.y);
 
     this->value = std::string(vectostr);
 }
 
 void ConfEntry::setVec3(vec3 value) {
     char vectostr[256];
-    sprintf(vectostr, "vec3(%.5f, %.5f, %.5f)", value.x, value.y, value.z);
+    snprintf(vectostr, 256, "vec3(%.5f, %.5f, %.5f)", value.x, value.y, value.z);
 
     this->value = std::string(vectostr);
 }
 
 void ConfEntry::setVec4(vec4 value) {
     char vectostr[256];
-    sprintf(vectostr, "vec4(%.5f, %.5f, %.5f, %.5f)", value.x, value.y, value.z, value.w);
+    snprintf(vectostr, 256, "vec4(%.5f, %.5f, %.5f, %.5f)", value.x, value.y, value.z, value.w);
 
     this->value = std::string(vectostr);
 }
@@ -517,7 +517,7 @@ void ConfFile::load() {
     std::ifstream in(conffile.c_str());
 
     if(!in.is_open()) {
-        sprintf(buff, "failed to open config file %s", conffile.c_str());
+        snprintf(buff, 1024, "failed to open config file %s", conffile.c_str());
         std::string conf_error = std::string(buff);
 
         throw ConfFileException(conf_error, conffile, 0);
@@ -559,7 +559,7 @@ void ConfFile::load() {
             debugLog("%s: [%s] %s => %s", conffile.c_str(), sec->getName().c_str(), key.c_str(), value.c_str());
 
         } else {
-            sprintf(buff, "%s, line %d: could not parse line", conffile.c_str(), lineno);
+            snprintf(buff, 1024, "%s, line %d: could not parse line", conffile.c_str(), lineno);
             std::string conf_error = std::string(buff);
             throw ConfFileException(conf_error, conffile, lineno);
         }
