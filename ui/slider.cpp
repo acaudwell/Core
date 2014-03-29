@@ -21,7 +21,7 @@ void UISlider::drawSlider(float position) {
     vec4 tint  = ui->getTintColour();
     vec4 alpha = ui->getAlpha();
 
-    if(selected) tint = glm::clamp(tint + 0.75, 0.0, 1.0);
+    if(selected) tint = glm::clamp(tint + 0.75f, 0.0f, 1.0f);
 
     if(background) {
 
