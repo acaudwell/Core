@@ -614,20 +614,19 @@ void Vec2ArrayShaderUniform::write(std::string& content) const {
     char buff[1024];
 
     if(baked) {
-        snprintf(buff, 1024, "%s[%ld] %s = %s[] (\n", type_name.c_str(), length, name.c_str(), type_name.c_str());
+        content.append(str(boost::format("%s[%d] %s = %s[] (\n") % type_name % length % name % type_name));
 
         content += buff;
 
         for(size_t i=0; i<length; i++) {
-            snprintf(buff, 1024, "    %s(%e, %e)", type_name.c_str(), value[i].x, value[i].y);
-            content += buff;
+            content.append(str(boost::format("    %s(%e, %e)") % type_name % value[i].x % value[i].y));
+
             if(i<length-1) content += ",\n";
             else           content += "\n);\n";
         }
 
     } else {
-        snprintf(buff, 1024, "uniform %s %s[%ld];\n", type_name.c_str(), name.c_str(), length);
-        content += buff;
+        content.append(str(boost::format("uniform %s %s[%d];\n") % type_name % name % length));
     }
 }
 
@@ -707,20 +706,17 @@ void Vec3ArrayShaderUniform::write(std::string& content) const {
     char buff[1024];
 
     if(baked) {
-        snprintf(buff, 1024, "%s[%ld] %s = %s[] (\n", type_name.c_str(), length, name.c_str(), type_name.c_str());
-
-        content += buff;
+        content.append(str(boost::format("%s[%d] %s = %s[] (\n") % type_name % length % name % type_name));
 
         for(size_t i=0; i<length; i++) {
-            snprintf(buff, 1024, "    %s(%e, %e, %e)", type_name.c_str(), value[i].x, value[i].y, value[i].z);
-            content += buff;
+            content.append(str(boost::format("    %s(%e, %e, %e)") % type_name % value[i].x % value[i].y % value[i].z));
+
             if(i<length-1) content += ",\n";
             else           content += "\n);\n";
         }
 
     } else {
-        snprintf(buff, 1024, "uniform %s %s[%ld];\n", type_name.c_str(), name.c_str(), length);
-        content += buff;
+        content.append(str(boost::format("uniform %s %s[%d];\n") % type_name % name % length));
     }
 }
 
@@ -800,20 +796,17 @@ void Vec4ArrayShaderUniform::write(std::string& content) const {
     char buff[1024];
 
     if(baked) {
-        snprintf(buff, 1024, "%s[%ld] %s = %s[] (\n", type_name.c_str(), length, name.c_str(), type_name.c_str());
-
-        content += buff;
+        content.append(str(boost::format("%s[%d] %s = %s[] (\n") % type_name % length % name % type_name));
 
         for(size_t i=0; i<length; i++) {
-            snprintf(buff, 1024, "    %s(%e, %e, %e, %e)", type_name.c_str(), value[i].x, value[i].y, value[i].z, value[i].w);
-            content += buff;
+            content.append(str(boost::format("    %s(%e, %e, %e, %e)") % type_name % value[i].x % value[i].y % value[i].z % value[i].w));
+
             if(i<length-1) content += ",\n";
             else           content += "\n);\n";
         }
 
     } else {
-        snprintf(buff, 1024, "uniform %s %s[%ld];\n", type_name.c_str(), name.c_str(), length);
-        content += buff;
+        content.append(str(boost::format("uniform %s %s[%d];\n") % type_name % name % length));
     }
 
 }
