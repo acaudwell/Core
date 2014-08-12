@@ -28,10 +28,7 @@
 #include <boost/format.hpp>
 #include <stdarg.h>
 
-#ifdef USE_MGL_NAMESPACE
-#define GL_GLEXT_PROTOTYPES
-#include "../MGL/osmesa.h"
-#else
+#ifndef USE_MGL_NAMESPACE
 #include "gl.h"
 #endif
 
