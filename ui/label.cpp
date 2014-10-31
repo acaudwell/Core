@@ -325,6 +325,8 @@ void UIFloatLabel::setValue(float value) {
     debugLog("setValue(%f)", value);
 
     if(action!=0) action->perform();
+
+    updateContent();
 }
 
 void UIFloatLabel::scroll(bool up) {

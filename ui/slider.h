@@ -11,7 +11,7 @@ protected:
     float slider_width;
     bool background;
     UIAction* action;
-    
+
     bool dragging;
 
     void drawSlider(float position);
@@ -33,8 +33,8 @@ public:
     float* value;
     float min;
     float max;
-    
-    
+
+
     float old_value;
 
     UIFloatSlider(float* value, float min = 0.0f, float max = 0.0f, UIAction* action = 0);
@@ -84,6 +84,7 @@ public:
 class UILabelIntSlider : public UILabelledElement {
 
     UIIntSlider* slider;
+    UIIntLabel*  ilabel;
 public:
     UILabelIntSlider(const std::string& label, int* value, int min = 0.0f, int max = 0.0f, UIAction* action = 0);
 

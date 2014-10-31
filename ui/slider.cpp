@@ -248,10 +248,12 @@ void UILabelFloatSlider::setFloat(float* f) {
 
 void UILabelFloatSlider::scroll(bool up) {
     slider->scroll(up);
+    flabel->updateContent();
 }
 
 void UILabelFloatSlider::scale(bool up) {
     slider->scale(up);
+    flabel->updateContent();
 }
 
 void UILabelFloatSlider::scale(bool up, float value_scale) {
@@ -264,7 +266,7 @@ UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min
 
     slider = new UIIntSlider(value, min, max, action);
 
-    UIIntLabel*  ilabel = new UIIntLabel(value, true, action);
+    ilabel = new UIIntLabel(value, true, action);
     ilabel->slider = slider;
 
     layout->addElement(slider);
@@ -279,8 +281,10 @@ UILabelIntSlider::UILabelIntSlider(const std::string& label, int* value, int min
 
 void UILabelIntSlider::scroll(bool up) {
     slider->scroll(up);
+    ilabel->updateContent();
 }
 
 void UILabelIntSlider::scale(bool up) {
     slider->scale(up);
+    ilabel->updateContent();
 }
