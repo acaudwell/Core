@@ -363,6 +363,7 @@ public:
 class AbstractShader : public Resource {
 protected:
     std::map<std::string, ShaderUniform*>  uniforms;
+    std::list<ShaderUniform*> uniform_list;
     std::map<std::string,std::string> substitutions;
 
     std::string prefix;
@@ -405,7 +406,7 @@ public:
     void setDynamicCompile(bool dynamic_compile);
     bool needsCompile();
 
-    void getUniforms(std::list<ShaderUniform*>& uniform_list);
+    const std::list<ShaderUniform*>& getUniforms();
 
     void applyUniforms();
 

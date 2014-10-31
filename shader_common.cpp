@@ -1061,6 +1061,7 @@ void AbstractShader::clear() {
         delete it->second;
     }
     uniforms.clear();
+    uniform_list.clear();
 
     if(vertex_shader != 0)   delete vertex_shader;
     if(geometry_shader != 0) delete geometry_shader;
@@ -1124,6 +1125,7 @@ void AbstractShader::addUniform(ShaderUniform* uniform) {
     }
 
     uniforms[uniform->getName()] = uniform;
+    uniform_list.push_back(uniform);
 }
 
 ShaderUniform* AbstractShader::getUniform(const std::string& name) {
@@ -1336,10 +1338,8 @@ void AbstractShader::setBakedUniforms(bool baked) {
 }
 
 
-void AbstractShader::getUniforms(std::list<ShaderUniform*>& uniform_list) {
-    for(std::map<std::string, ShaderUniform*>::iterator it= uniforms.begin(); it!=uniforms.end();it++) {
-        uniform_list.push_back(it->second);
-    }
+const std::list<ShaderUniform*>& AbstractShader::getUniforms() {
+    return uniform_list;
 }
 
 void AbstractShader::applyUniforms() {
