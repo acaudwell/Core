@@ -33,15 +33,16 @@
 class MouseCursor {
 
     vec2 mousepos;
+    vec2 rel;
 
     bool hidden;
     bool system_cursor;
 
     float idle;
     float timeout;
-    
+
     int scrollwheel;
-    
+
     SDL_Cursor* sdl_default_cursor;
     SDL_Cursor* sdl_hidden_cursor;
 
@@ -53,8 +54,9 @@ class MouseCursor {
 public:
     MouseCursor();
     ~MouseCursor();
-    
-    vec2 getPos() const { return mousepos; }
+
+    const vec2& getPos() const;
+    const vec2& getRelativePos() const;
 
     void leftClick(bool click);
     void rightClick(bool click);
@@ -63,14 +65,14 @@ public:
     bool leftClick() const;
     bool rightClick() const;
     bool middleClick() const;
-    
+
     bool leftButtonPressed() const;
     bool rightButtonPressed() const;
     bool bothPressed() const;
     bool buttonPressed() const;
 
     int scrollWheel() const;
-    
+
     bool isHidden() const;
     bool isSystemCursor()const;
     bool isVisible() const;
@@ -80,6 +82,7 @@ public:
 
     void resetButtonState();
 
+    void updateRelativePos(const vec2& rel);
     void updatePos(const vec2& pos);
 
     void showCursor(bool show);

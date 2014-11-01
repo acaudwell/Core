@@ -34,20 +34,20 @@ MouseCursor::MouseCursor() {
     timeout       = 3.0f;
     idle          = timeout;
     scrollwheel   = 0;
-    
+
     left_click   = false;
     right_click  = false;
     middle_click = false;
-    
+
     sdl_default_cursor = SDL_GetCursor();
-    
-    
+
+
     Uint8 data[4*32];
     Uint8 mask[4*32];
-    
+
     memset(data, 0, sizeof(data));
     memset(mask, 0, sizeof(mask));
-  
+
     sdl_hidden_cursor = SDL_CreateCursor(data, mask, 32, 32, 0, 0);
 }
 
@@ -78,6 +78,17 @@ void MouseCursor::showCursor(bool show) {
         else SDL_SetCursor(sdl_hidden_cursor);
     }
 }
+const vec2& MouseCursor::getPos() const {
+    return mousepos;
+}
+
+const vec2& MouseCursor::getRelativePos() const {
+    return rel;
+}
+
+void MouseCursor::updateRelativePos(const vec2& rel) {
+    this->rel = rel;
+}
 
 void MouseCursor::leftClick(bool click) {
     left_click = click;
@@ -96,7 +107,7 @@ bool MouseCursor::leftClick() const {
 }
 
 bool MouseCursor::rightClick() const {
-    return right_click;    
+    return right_click;
 }
 
 bool MouseCursor::middleClick() const {
@@ -124,7 +135,7 @@ bool MouseCursor::buttonPressed() const {
 }
 
 int MouseCursor::scrollWheel() const {
-    return scrollwheel;    
+    return scrollwheel;
 }
 
 bool MouseCursor::isSystemCursor() const {
