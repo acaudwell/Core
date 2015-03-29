@@ -74,6 +74,7 @@ void PNGWriter::screenshot(const std::string& filename) {
 
 void PNGWriter::capture(std::vector<char>& buffer) {
     GLenum pixel_format = components == 4 ? GL_RGBA : GL_RGB;
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
     glReadPixels(0, 0, display.width, display.height, pixel_format, GL_UNSIGNED_BYTE, &(buffer[0]));
 }
 

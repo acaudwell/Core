@@ -96,6 +96,7 @@ void FrameExporter::dump() {
     char* next_pixel_ptr = (pixels_shared_ptr == pixels1) ? pixels2 : pixels1;
 
     // copy pixels - now the right way up
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
     glReadPixels(0, 0, display.width, display.height,
         GL_RGB, GL_UNSIGNED_BYTE, next_pixel_ptr);
 
