@@ -99,6 +99,10 @@ void SDLAppDisplay::enableResize(bool resizable) {
     this->resizable = resizable;
 }
 
+void SDLAppDisplay::enableFrameless(bool frameless) {
+    this->frameless = frameless;
+}
+
 void SDLAppDisplay::enableAlpha(bool enable) {
     enable_alpha = enable;
 }
@@ -317,6 +321,14 @@ void SDLAppDisplay::toggleFullscreen() {
 
     this->width  = resized_width;
     this->height = resized_height;
+}
+
+void SDLAppDisplay::toggleFrameless() {
+    if(fullscreen) return;
+#if SDL_VERSION_ATLEAST(2,0,0)
+    frameless = !frameless;
+    SDL_SetWindowBordered(sdl_window, frameless ? SDL_FALSE : SDL_TRUE);
+#endif
 }
 
 void SDLAppDisplay::resize(int width, int height) {

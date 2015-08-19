@@ -88,6 +88,9 @@ public:
 
     void   getFullscreenResolution(int& width, int& height);
     void   toggleFullscreen();
+
+    void   toggleFrameless();
+
     void   resize(int width, int height);
 
     void   init(std::string window_title, int width, int height, bool fullscreen);
