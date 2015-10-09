@@ -75,7 +75,7 @@ Uint32 SDLAppDisplay::SDLWindowFlags(bool fullscreen) {
     Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
 
     if (frameless) flags |= SDL_WINDOW_BORDERLESS;
-    if (resizable) flags |= SDL_WINDOW_RESIZABLE;
+    if (resizable && !frameless) flags |= SDL_WINDOW_RESIZABLE;
     if (fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
 #else
     Uint32 flags = SDL_OPENGL | SDL_HWSURFACE | SDL_ANYFORMAT | SDL_DOUBLEBUF;
@@ -153,17 +153,31 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, (GLuint) multi_sample);
     }
-    
+
     if(enable_alpha) {
         SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
     }
-    
+
     Uint32 flags = SDLWindowFlags(fullscreen);
 
     if(gl_context != 0) SDL_GL_DeleteContext(gl_context);
-    if(sdl_window != 0) SDL_DestroyWindow(sdl_window);
 
-    sdl_window = SDL_CreateWindow(gSDLAppTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
+
+    int display_index = -1;
+    int position_x, position_y;
+
+    if(sdl_window != 0) {
+        display_index = SDL_GetWindowDisplayIndex(sdl_window);
+        SDL_GetWindowPosition(sdl_window, &position_x, &position_y);
+        SDL_DestroyWindow(sdl_window);
+    }
+
+    if(display_index != -1) {
+        sdl_window = SDL_CreateWindow(gSDLAppTitle.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(display_index), SDL_WINDOWPOS_UNDEFINED_DISPLAY(display_index), width, height, flags);
+        SDL_SetWindowPosition(sdl_window, position_x, position_y);
+    } else {
+        sdl_window = SDL_CreateWindow(gSDLAppTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
+    }
 
     if (!sdl_window) {
 
@@ -173,7 +187,12 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
 
-            sdl_window = SDL_CreateWindow(gSDLAppTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
+            if(display_index != -1) {
+                sdl_window = SDL_CreateWindow(gSDLAppTitle.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(display_index), SDL_WINDOWPOS_UNDEFINED_DISPLAY(display_index), width, height, flags);
+                SDL_SetWindowPosition(sdl_window, position_x, position_y);
+            } else {
+                sdl_window = SDL_CreateWindow(gSDLAppTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
+            }
         }
 
         if(!sdl_window) {
@@ -324,10 +343,26 @@ void SDLAppDisplay::toggleFullscreen() {
 }
 
 void SDLAppDisplay::toggleFrameless() {
-    if(fullscreen) return;
 #if SDL_VERSION_ATLEAST(2,0,0)
+    if(fullscreen) return;
+
     frameless = !frameless;
-    SDL_SetWindowBordered(sdl_window, frameless ? SDL_FALSE : SDL_TRUE);
+
+    int position_x, position_y;
+    SDL_GetWindowPosition(sdl_window, &position_x, &position_y);
+
+    if(frameless) {
+        SDL_SetWindowBordered(sdl_window, SDL_FALSE);
+        SDL_SetWindowSize(sdl_window, width, height);
+        SDL_SetWindowPosition(sdl_window, position_x, position_y);
+        setVideoMode(width, height, fullscreen);
+
+    } else {
+        SDL_SetWindowBordered(sdl_window, SDL_TRUE);
+        SDL_SetWindowSize(sdl_window, width, height);
+        SDL_SetWindowPosition(sdl_window, position_x, position_y);
+        setVideoMode(width, height, fullscreen);
+    }
 #endif
 }
 
