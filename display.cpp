@@ -53,6 +53,11 @@ SDLAppDisplay::SDLAppDisplay() {
 #if SDL_VERSION_ATLEAST(2,0,0)
     sdl_window = 0;
     gl_context = 0;
+
+    framed_width  = 0;
+    framed_height = 0;
+    framed_x      = 0;
+    framed_y      = 0;
 #else
     surface = 0;
 #endif
@@ -348,21 +353,65 @@ void SDLAppDisplay::toggleFrameless() {
 
     frameless = !frameless;
 
-    int position_x, position_y;
-    SDL_GetWindowPosition(sdl_window, &position_x, &position_y);
+#ifdef _WIN32
 
     if(frameless) {
+
+        int position_x, position_y;
+        SDL_GetWindowPosition(sdl_window, &position_x, &position_y);
+
+        framed_width  = width;
+        framed_height = height;
+        framed_x      = position_x;
+        framed_y      = position_y;
+
+        SDL_SysWMinfo sys_window_info;
+        SDL_VERSION(&sys_window_info.version);
+
+        if(SDL_GetWindowWMInfo(sdl_window, &sys_window_info)) {
+
+            //make the new window equal the size of the old window including frame
+
+            HWND wnd = sys_window_info.info.win.window;
+
+            RECT rect;
+            GetWindowRect(wnd, &rect);
+
+            position_x = rect.left;
+            position_y = rect.top;
+
+            width  = rect.right - rect.left;
+            height = rect.bottom - rect.top;
+        }
+
+        //work around window position changing when when frame is toggled
+        //related bug: https://bugzilla.libsdl.org/show_bug.cgi?id=2791
+
         SDL_SetWindowBordered(sdl_window, SDL_FALSE);
         SDL_SetWindowSize(sdl_window, width, height);
         SDL_SetWindowPosition(sdl_window, position_x, position_y);
+
+        //window needs to be recreated to remove SDL_WINDOW_RESIZABLE flag
+        //otherwise there is still a weird border
+
         setVideoMode(width, height, fullscreen);
 
     } else {
+        width  = framed_width;
+        height = framed_height;
+
         SDL_SetWindowBordered(sdl_window, SDL_TRUE);
         SDL_SetWindowSize(sdl_window, width, height);
-        SDL_SetWindowPosition(sdl_window, position_x, position_y);
+        SDL_SetWindowPosition(sdl_window, framed_x, framed_y);
         setVideoMode(width, height, fullscreen);
     }
+#else
+    if(frameless) {
+        SDL_SetWindowBordered(sdl_window, SDL_FALSE);
+    } else {
+        SDL_SetWindowBordered(sdl_window, SDL_TRUE);
+    }
+#endif
 #endif
 }
 

@@ -76,6 +76,9 @@ public:
 #if SDL_VERSION_ATLEAST(2,0,0)
     SDL_Window*   sdl_window;
     SDL_GLContext gl_context;
+
+    int framed_width, framed_height;
+    int framed_x, framed_y;
 #else
     SDL_Surface *surface;
 #endif
