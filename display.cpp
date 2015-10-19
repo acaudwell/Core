@@ -353,8 +353,6 @@ void SDLAppDisplay::toggleFrameless() {
 
     frameless = !frameless;
 
-#ifdef _WIN32
-
     if(frameless) {
 
         int position_x, position_y;
@@ -365,6 +363,7 @@ void SDLAppDisplay::toggleFrameless() {
         framed_x      = position_x;
         framed_y      = position_y;
 
+#ifdef _WIN32
         SDL_SysWMinfo sys_window_info;
         SDL_VERSION(&sys_window_info.version);
 
@@ -383,6 +382,7 @@ void SDLAppDisplay::toggleFrameless() {
             width  = rect.right - rect.left;
             height = rect.bottom - rect.top;
         }
+#endif
 
         //work around window position changing when when frame is toggled
         //related bug: https://bugzilla.libsdl.org/show_bug.cgi?id=2791
@@ -405,13 +405,6 @@ void SDLAppDisplay::toggleFrameless() {
         SDL_SetWindowPosition(sdl_window, framed_x, framed_y);
         setVideoMode(width, height, fullscreen);
     }
-#else
-    if(frameless) {
-        SDL_SetWindowBordered(sdl_window, SDL_FALSE);
-    } else {
-        SDL_SetWindowBordered(sdl_window, SDL_TRUE);
-    }
-#endif
 #endif
 }
 
