@@ -61,6 +61,7 @@ FXGlyph::FXGlyph(FXGlyphSet* set, unsigned int chr) {
 
     this->set = set;
     this->chr = chr;
+    this->ftglyph = 0;
 
     FT_Face ftface = set->getFTFace();
 
@@ -70,8 +71,6 @@ FXGlyph::FXGlyph(FXGlyphSet* set, unsigned int chr) {
 
     if(FT_Load_Glyph( ftface, index, FT_LOAD_DEFAULT ))
     throw FXFontException(ftface->family_name);
-
-    FT_Glyph ftglyph;
 
     if(FT_Get_Glyph( ftface->glyph, &ftglyph ))
         throw FXFontException(ftface->family_name);
@@ -94,6 +93,10 @@ FXGlyph::FXGlyph(FXGlyphSet* set, unsigned int chr) {
 
     //call_list = 0;
     page = 0;
+}
+
+FXGlyph::~FXGlyph() {
+    if(ftglyph!=0) FT_Done_Glyph(ftglyph);
 }
 
 void FXGlyph::setPage(FXGlyphPage* page, const vec4& texcoords) {
@@ -221,6 +224,11 @@ FXGlyphSet::~FXGlyphSet() {
         delete (*it);
     }
     pages.clear();
+
+    for(auto it: glyphs) {
+        delete it.second;
+    }
+    glyphs.clear();
 }
 
 void FXGlyphSet::init() {

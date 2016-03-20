@@ -107,9 +107,11 @@ public:
     FXGlyphPage* page;
     vec4 texcoords;
     FXGlyphSet* set;
+    FT_Glyph       ftglyph;
     FT_BitmapGlyph glyph_bitmap;
 
     FXGlyph(FXGlyphSet* set, unsigned int chr);
+    ~FXGlyph();
 
     const vec2& getAdvance() const { return advance; };
     const vec2& getCorner() const { return corner; };
