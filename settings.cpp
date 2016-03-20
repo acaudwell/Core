@@ -14,10 +14,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+#include "sdlapp.h"
 #include "settings.h"
 #include "regex.h"
-
 #include "timezone.h"
 
 Regex SDLAppSettings_rect_regex("^([0-9.]+)x([0-9.]+)$");

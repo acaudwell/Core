@@ -16,6 +16,8 @@
 */
 
 #include "ppm.h"
+#include "display.h"
+#include "sdlapp.h"
 
 extern "C" {
 static int dumper_thread(void *arg) {
