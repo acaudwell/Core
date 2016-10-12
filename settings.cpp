@@ -31,6 +31,8 @@ SDLAppSettings::SDLAppSettings() {
     conf_sections["viewport"]           = "display";
     conf_sections["windowed"]           = "display";
     conf_sections["fullscreen"]         = "display";
+    conf_sections["frameless"]          = "display";
+    conf_sections["window-position"]    = "display";
     conf_sections["multi-sampling"]     = "display";
     conf_sections["output-ppm-stream"]  = "display";
     conf_sections["output-framerate"]   = "display";
@@ -46,7 +48,9 @@ SDLAppSettings::SDLAppSettings() {
     //boolean args
     arg_types["viewport"]          = "string";
     arg_types["windowed"]          = "bool";
+    arg_types["window-position"]   = "string";
     arg_types["fullscreen"]        = "bool";
+    arg_types["frameless"]         = "bool";
     arg_types["transparent"]       = "bool";
     arg_types["multi-sampling"]    = "bool";
     arg_types["no-vsync"]          = "bool";
@@ -63,10 +67,14 @@ void SDLAppSettings::setDisplayDefaults() {
     display_height = 768;
 #endif
     fullscreen     = false;
+    frameless      = false;
     multisample    = false;
     transparent    = false;
     resizable      = true;
     vsync          = true;
+
+    window_x = -1;
+    window_y = -1;
 
     output_ppm_filename = "";
     output_framerate    = 60;
@@ -85,6 +93,16 @@ void SDLAppSettings::exportDisplaySettings(ConfFile& conf) {
 
     if(fullscreen)
         section->setEntry(new ConfEntry("fullscreen", fullscreen));
+    else {
+        if(frameless)
+            section->setEntry(new ConfEntry("frameless", frameless));
+
+        if(window_x >= 0 && window_y >= 0) {
+            char windowbuff[256];
+            snprintf(windowbuff, 256, "%dx%d", window_x, window_y);
+            section->setEntry(new ConfEntry("window-position", std::string(windowbuff)));
+        }
+    }
 
     if(multisample)
         section->setEntry(new ConfEntry("multi-sampling", multisample));
@@ -316,8 +334,6 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
 
         std::string viewport = entry->getString();
 
-
-
         int width  = 0;
         int height = 0;
         bool no_resize = false;
@@ -333,6 +349,11 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
         }
     }
 
+    if((entry = display_settings->getEntry("window-position")) != 0) {
+        std::string window_position = entry->getString();
+        parseRectangle(window_position, window_x, window_y);
+    }
+
     if(display_settings->getBool("multi-sampling")) {
         multisample = true;
     }
@@ -343,6 +364,10 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
 
     if(display_settings->getBool("windowed")) {
         fullscreen = false;
+    }
+
+    if(display_settings->getBool("frameless") && !fullscreen) {
+        frameless = true;
     }
 
     // default to use desktop resolution for fullscreen unless specified
