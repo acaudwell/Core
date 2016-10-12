@@ -397,12 +397,60 @@ void SDLAppDisplay::toggleFrameless() {
         setVideoMode(width, height, fullscreen);
 
     } else {
-        width  = framed_width;
-        height = framed_height;
 
+#ifdef _WIN32
+        // handle computing framed window position
+        // if launched in frameless mode initially
+        if(framed_width == 0) {
+            SDL_SysWMinfo sys_window_info;
+            SDL_VERSION(&sys_window_info.version);
+
+            if(SDL_GetWindowWMInfo(sdl_window, &sys_window_info)) {
+
+                HWND wnd = sys_window_info.info.win.window;
+
+                RECT old_rect;
+                GetWindowRect(wnd, &old_rect);
+
+                SDL_SetWindowBordered(sdl_window, SDL_TRUE);
+
+                RECT new_rect;
+                GetWindowRect(wnd, &new_rect);
+
+                SDL_GetWindowSize(sdl_window, &framed_width, &framed_height);
+                SDL_GetWindowPosition(sdl_window, &framed_x, &framed_y);
+
+                int width_delta  = (new_rect.right - new_rect.left) - (old_rect.right - old_rect.left);
+                int height_delta = (new_rect.bottom - new_rect.top) - (old_rect.bottom - old_rect.top);
+
+                framed_width  = width - width_delta;
+                framed_height = height - height_delta;
+
+                framed_x += width_delta;
+                framed_y += height_delta;
+
+                // HACK: account for the resizable windows border being 2 pixels wider
+
+                if(resizable) {
+                    framed_x += 2;
+                    framed_y += 2;
+                }
+            }
+        }
+#endif
         SDL_SetWindowBordered(sdl_window, SDL_TRUE);
+
+        if(framed_width > 0) {
+            width  = framed_width;
+            height = framed_height;
+        }
+
         SDL_SetWindowSize(sdl_window, width, height);
-        SDL_SetWindowPosition(sdl_window, framed_x, framed_y);
+
+        if(framed_width > 0) {
+            SDL_SetWindowPosition(sdl_window, framed_x, framed_y);
+        }
+
         setVideoMode(width, height, fullscreen);
     }
 #endif
