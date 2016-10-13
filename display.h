@@ -59,6 +59,7 @@ class SDLAppDisplay {
 
     bool enable_alpha;
     bool resizable;
+    bool fullscreen;
     bool frameless;
     bool vsync;
 
@@ -82,8 +83,6 @@ public:
 #else
     SDL_Surface *surface;
 #endif
-
-    bool fullscreen;
     vec4 clear_colour;
 
     SDLAppDisplay();
@@ -91,8 +90,10 @@ public:
 
     void   getFullscreenResolution(int& width, int& height);
     void   toggleFullscreen();
-
     void   toggleFrameless();
+
+    bool   isFullscreen() const;
+    bool   isFrameless() const;
 
     void   resize(int width, int height);
 

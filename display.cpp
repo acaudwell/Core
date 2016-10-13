@@ -456,6 +456,14 @@ void SDLAppDisplay::toggleFrameless() {
 #endif
 }
 
+bool SDLAppDisplay::isFullscreen() const {
+    return fullscreen;
+}
+
+bool SDLAppDisplay::isFrameless() const {
+    return frameless;
+}
+
 void SDLAppDisplay::resize(int width, int height) {
 
     int resized_width, resized_height;
