@@ -71,6 +71,8 @@ vec3 vec3Hash(const std::string& str) {
 vec3 colourHash(const std::string& str) {
     int hash = stringHash(str);
 
+    if(hash == 0) hash++;
+
     int r = (hash/7) % 255;
     if(r<0) r=0;
     int g = (hash/3) % 255;
