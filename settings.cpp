@@ -32,6 +32,7 @@ SDLAppSettings::SDLAppSettings() {
     conf_sections["windowed"]           = "display";
     conf_sections["fullscreen"]         = "display";
     conf_sections["frameless"]          = "display";
+    conf_sections["screen"]             = "display";
     conf_sections["window-position"]    = "display";
     conf_sections["multi-sampling"]     = "display";
     conf_sections["output-ppm-stream"]  = "display";
@@ -48,6 +49,7 @@ SDLAppSettings::SDLAppSettings() {
     //boolean args
     arg_types["viewport"]          = "string";
     arg_types["windowed"]          = "bool";
+    arg_types["screen"]            = "int";
     arg_types["window-position"]   = "string";
     arg_types["fullscreen"]        = "bool";
     arg_types["frameless"]         = "bool";
@@ -72,6 +74,8 @@ void SDLAppSettings::setDisplayDefaults() {
     transparent    = false;
     resizable      = true;
     vsync          = true;
+
+    screen = -1;
 
     window_x = -1;
     window_y = -1;
@@ -102,6 +106,10 @@ void SDLAppSettings::exportDisplaySettings(ConfFile& conf) {
             snprintf(windowbuff, 256, "%dx%d", window_x, window_y);
             section->setEntry(new ConfEntry("window-position", std::string(windowbuff)));
         }
+    }
+
+    if(screen > 0) {
+        section->setEntry(new ConfEntry("screen", screen));
     }
 
     if(multisample)
@@ -353,6 +361,14 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
         std::string window_position = entry->getString();
 
         if(!parseRectangle(window_position, window_x, window_y)) {
+            conffile.invalidValueException(entry);
+        }
+    }
+
+    if((entry = display_settings->getEntry("screen")) != 0) {
+        screen = entry->getInt();
+
+        if(screen < 1) {
             conffile.invalidValueException(entry);
         }
     }

@@ -97,8 +97,8 @@ public:
 
     void   resize(int width, int height);
 
-    void   init(std::string window_title, int width, int height, bool fullscreen);
-    void   setVideoMode(int width, int height, bool fullscreen);
+    void   init(std::string window_title, int width, int height, bool fullscreen, int screen = -1);
+    void   setVideoMode(int width, int height, bool fullscreen, int screen = -1);
 
     bool   multiSamplingEnabled();
 

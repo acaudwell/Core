@@ -148,7 +148,7 @@ LRESULT CALLBACK window_filter_proc(HWND wnd, UINT msg, WPARAM wparam, LPARAM lp
 }
 #endif
 
-void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
+void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen, int screen) {
 #if SDL_VERSION_ATLEAST(2,0,0)
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -168,18 +168,27 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
     if(gl_context != 0) SDL_GL_DeleteContext(gl_context);
 
 
+    int position_x = -1;
+    int position_y = -1;
+
     int display_index = -1;
-    int position_x, position_y;
 
     if(sdl_window != 0) {
         display_index = SDL_GetWindowDisplayIndex(sdl_window);
         SDL_GetWindowPosition(sdl_window, &position_x, &position_y);
         SDL_DestroyWindow(sdl_window);
+
+    } else if(screen > 0 && screen <= SDL_GetNumVideoDisplays()) {
+        display_index = screen-1;
     }
 
     if(display_index != -1) {
         sdl_window = SDL_CreateWindow(gSDLAppTitle.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(display_index), SDL_WINDOWPOS_UNDEFINED_DISPLAY(display_index), width, height, flags);
-        SDL_SetWindowPosition(sdl_window, position_x, position_y);
+
+        if(sdl_window && position_x >= 0 && position_y >= 0) {
+            SDL_SetWindowPosition(sdl_window, position_x, position_y);
+        }
+
     } else {
         sdl_window = SDL_CreateWindow(gSDLAppTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
     }
@@ -194,7 +203,10 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen) {
 
             if(display_index != -1) {
                 sdl_window = SDL_CreateWindow(gSDLAppTitle.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(display_index), SDL_WINDOWPOS_UNDEFINED_DISPLAY(display_index), width, height, flags);
-                SDL_SetWindowPosition(sdl_window, position_x, position_y);
+
+                if(sdl_window && position_x >= 0 && position_y >= 0) {
+                    SDL_SetWindowPosition(sdl_window, position_x, position_y);
+                }
             } else {
                 sdl_window = SDL_CreateWindow(gSDLAppTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
             }
@@ -486,7 +498,7 @@ void SDLAppDisplay::resize(int width, int height) {
     this->height = resized_height;
 }
 
-void SDLAppDisplay::init(std::string window_title, int width, int height, bool fullscreen) {
+void SDLAppDisplay::init(std::string window_title, int width, int height, bool fullscreen, int screen) {
 
     if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO) != 0) {
         throw SDLInitException(SDL_GetError());
@@ -495,9 +507,13 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
 
 #if SDL_VERSION_ATLEAST(2,0,0)
 
-    // TODO: which display? is 0 the designated primary display always?
+    // check screen is valid
+    if(screen <= 0 || screen > SDL_GetNumVideoDisplays()) {
+        screen = -1;
+    }
+
     SDL_Rect display_rect;
-    SDL_GetDisplayBounds(0, &display_rect);
+    SDL_GetDisplayBounds(screen > 0 ? screen-1 : 0, &display_rect);
 
     desktop_width  = display_rect.w;
     desktop_height = display_rect.h;
@@ -529,7 +545,7 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
     SDL_WM_SetCaption(window_title.c_str(),0);
 #endif
 
-    setVideoMode(width, height, fullscreen);
+    setVideoMode(width, height, fullscreen, screen);
 
     //get actual opengl viewport
     GLint viewport[4];
