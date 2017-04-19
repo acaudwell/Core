@@ -62,6 +62,9 @@ void SDLApp::initConsole() {
     CONSOLE_SCREEN_BUFFER_INFO buffer_info;
     if(GetConsoleScreenBufferInfo( GetStdHandle( STD_OUTPUT_HANDLE ), &buffer_info )) {
         existing_console = !(buffer_info.dwCursorPosition.X==0 && buffer_info.dwCursorPosition.Y==0);
+    // assume TERM env implies this is an existing terminal
+    } else if(getenv("TERM") != 0) {
+        existing_console = true;
     }
 
     // don't customize the console unless it was created for this program
