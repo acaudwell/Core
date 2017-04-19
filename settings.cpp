@@ -351,7 +351,10 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
 
     if((entry = display_settings->getEntry("window-position")) != 0) {
         std::string window_position = entry->getString();
-        parseRectangle(window_position, window_x, window_y);
+
+        if(!parseRectangle(window_position, window_x, window_y)) {
+            conffile.invalidValueException(entry);
+        }
     }
 
     if(display_settings->getBool("multi-sampling")) {
