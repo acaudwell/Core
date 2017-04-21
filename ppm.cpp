@@ -151,6 +151,9 @@ void FrameExporter::dumpThr() {
 PPMExporter::PPMExporter(std::string outputfile) {
 
     if(outputfile == "-") {
+#ifdef _WIN32
+        _setmode( _fileno( stdout ), _O_BINARY );
+#endif // _WIN32
         output = &std::cout;
 
     } else {

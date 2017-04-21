@@ -395,11 +395,6 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
 
         output_ppm_filename = entry->getString();
 
-#ifdef _WIN32
-        if(output_ppm_filename == "-") {
-            conffile.entryException(entry, "stdout PPM mode not supported on Windows");
-        }
-#endif
     }
 
     if((entry = display_settings->getEntry("output-framerate")) != 0) {
