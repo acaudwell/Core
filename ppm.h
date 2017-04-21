@@ -18,11 +18,6 @@
 #ifndef PPM_FRAME_EXPORTER_H
 #define PPM_FRAME_EXPORTER_H
 
-#ifdef _WIN32
-#   include <io.h>
-#   include <fcntl.h>
-#endif // _WIN32
-
 #include <iostream>
 #include <fstream>
 #include <ostream>

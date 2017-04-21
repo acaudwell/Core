@@ -19,6 +19,11 @@
 #include "display.h"
 #include "sdlapp.h"
 
+#ifdef _WIN32
+    #include <io.h>
+    #include <fcntl.h>
+#endif
+
 extern "C" {
 static int dumper_thread(void *arg) {
     FrameExporter *e = static_cast<FrameExporter *>(arg);
