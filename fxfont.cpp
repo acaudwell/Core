@@ -63,19 +63,19 @@ FXGlyph::FXGlyph(FXGlyphSet* set, unsigned int chr) {
     this->chr = chr;
     this->ftglyph = 0;
 
-    FT_Face ftface = set->getFTFace();
+    FT_Face ft_face = set->getFTFace();
 
-    FT_UInt index = FT_Get_Char_Index( ftface, chr );
+    FT_UInt index = FT_Get_Char_Index( ft_face, chr );
 
     //debugLog("FXGlyph %x %d %d", chr, chr, index);
 
-    if(FT_Load_Glyph( ftface, index, FT_LOAD_DEFAULT ))
-    throw FXFontException(ftface->family_name);
+    if(FT_Load_Glyph( ft_face, index, set->getFlags()))
+    throw FXFontException(ft_face->family_name);
 
-    if(FT_Get_Glyph( ftface->glyph, &ftglyph ))
-        throw FXFontException(ftface->family_name);
+    if(FT_Get_Glyph( ft_face->glyph, &ftglyph ))
+        throw FXFontException(ft_face->family_name);
 
-    FT_Glyph_Metrics *metrics = &ftface->glyph->metrics;
+    FT_Glyph_Metrics *metrics = &ft_face->glyph->metrics;
     height = glm::ceil(metrics->height / 64.0);
 
     FT_Glyph_To_Bitmap( &ftglyph, FT_RENDER_MODE_NORMAL, 0, 1 );
@@ -84,7 +84,7 @@ FXGlyph::FXGlyph(FXGlyphSet* set, unsigned int chr) {
 
     dims    = vec2( glyph_bitmap->bitmap.width, glyph_bitmap->bitmap.rows) + vec2(2.0f, 2.0f);
     corner  = vec2( glyph_bitmap->left, -glyph_bitmap->top) + vec2(0.5, -0.5);
-    advance = vec2( ftface->glyph->advance.x >> 6, ftface->glyph->advance.y >> 6);
+    advance = vec2( ft_face->glyph->advance.x >> 6, ft_face->glyph->advance.y >> 6);
 
     vertex_positions[0] = vec2(0.0f, 0.0f);
     vertex_positions[1] = vec2(dims.x, 0.0f);
@@ -204,12 +204,13 @@ void FXGlyphPage::updateTexture() {
 
 //FXGlyphSet
 
-FXGlyphSet::FXGlyphSet(FT_Library freetype, const std::string& fontfile, int size, int dpi) {
+FXGlyphSet::FXGlyphSet(FT_Library freetype, const std::string& fontfile, int size, int dpi, FT_Int32 ft_flags) {
     this->freetype = freetype;
     this->fontfile = fontfile;
     this->size     = size;
     this->dpi      = dpi;
-    this->ftface   = 0;
+    this->ft_flags  = ft_flags;
+    this->ft_face   = 0;
 
     this->tab_width  = 4.0f;
     this->max_height = 0;
@@ -218,7 +219,7 @@ FXGlyphSet::FXGlyphSet(FT_Library freetype, const std::string& fontfile, int siz
 }
 
 FXGlyphSet::~FXGlyphSet() {
-    if(ftface!=0) FT_Done_Face(ftface);
+    if(ft_face!=0) FT_Done_Face(ft_face);
 
     for(std::vector<FXGlyphPage*>::iterator it = pages.begin(); it != pages.end(); it++) {
         delete (*it);
@@ -233,17 +234,17 @@ FXGlyphSet::~FXGlyphSet() {
 
 void FXGlyphSet::init() {
 
-    if(FT_New_Face(freetype, fontfile.c_str(), 0, &ftface)) {
+    if(FT_New_Face(freetype, fontfile.c_str(), 0, &ft_face)) {
         throw FXFontException(fontfile);
     }
    
     int ft_font_size = 64 * size;
 
-    FT_Set_Char_Size( ftface, ft_font_size, ft_font_size, dpi, dpi );
+    FT_Set_Char_Size( ft_face, ft_font_size, ft_font_size, dpi, dpi );
 
-    double em_size = 1.0 * ftface->units_per_EM;
+    double em_size = 1.0 * ft_face->units_per_EM;
 
-    unit_scale = vec2( ftface->size->metrics.x_ppem / em_size, ftface->size->metrics.y_ppem / em_size);
+    unit_scale = vec2( ft_face->size->metrics.x_ppem / em_size, ft_face->size->metrics.y_ppem / em_size);
     
     precache("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ;:'\",<.>/?-_=+!@#$%^&*()\\ ");
 }
@@ -313,7 +314,7 @@ FXGlyph* FXGlyphSet::getGlyph(unsigned int chr) {
 }
 
 float FXGlyphSet::getMaxWidth() const {
-    return ftface->size->metrics.max_advance / 64.0f;
+    return ft_face->size->metrics.max_advance / 64.0f;
 }
 
 float FXGlyphSet::getMaxHeight() const {
@@ -632,7 +633,7 @@ void FXFontManager::purge() {
     fonts.clear();
 }
 
-FXFont FXFontManager::grab(std::string font_file, int size, int dpi) {
+FXFont FXFontManager::grab(std::string font_file, int size, int dpi, FT_Int32 ft_flags) {
 
     if(font_dir.size()>0 && font_file[0] != '/') {
         font_file = font_dir + font_file;
@@ -652,7 +653,7 @@ FXFont FXFontManager::grab(std::string font_file, int size, int dpi) {
     FXGlyphSet* glyphset;
 
     if(ft_it == sizemap->end()) {
-        glyphset = new FXGlyphSet(library, font_file.c_str(), size, dpi);
+        glyphset = new FXGlyphSet(library, font_file.c_str(), size, dpi, ft_flags);
         sizemap->insert(std::pair<int,FXGlyphSet*>(size,glyphset));
     } else {
         glyphset = ft_it->second;
