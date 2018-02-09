@@ -34,6 +34,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_access.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
 
 using glm::vec2;
