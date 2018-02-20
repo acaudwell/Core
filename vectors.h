@@ -31,12 +31,15 @@
 #define GLM_FORCE_RADIANS
 
 #include <glm/glm.hpp>
+
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_access.hpp>
-
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
+
+#if defined(GLM_VERSION) && GLM_VERSION >= 990
+#error This software is currently not compatible with GLM 0.9.9 use GLM 0.9.8 instead
+#endif
 
 using glm::vec2;
 using glm::vec3;
