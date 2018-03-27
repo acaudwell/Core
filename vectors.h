@@ -38,7 +38,7 @@
 #include <glm/gtx/norm.hpp>
 
 #if defined(GLM_VERSION) && GLM_VERSION >= 990
-#error This software is currently not compatible with GLM 0.9.9 use GLM 0.9.8 instead
+#error This software is currently not compatible with GLM 0.9.9 or newer, use GLM 0.9.8 instead
 #endif
 
 using glm::vec2;
