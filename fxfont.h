@@ -197,6 +197,7 @@ public:
     void draw(float x, float y, const std::string& text) const;
 
     float getWidth(const std::string& text) const;
+    float getHeight() const;
 
     float getAscender() const;
     float getDescender() const;

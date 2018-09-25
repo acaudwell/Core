@@ -511,6 +511,10 @@ float FXFont::getWidth(const std::string& text) const {
     return glyphset->getWidth(text);
 }
 
+float FXFont::getHeight() const {
+    return glm::ceil(getAscender() + getDescender());
+}
+
 float FXFont::getAscender() const {
     return glyphset->getAscender();
 }
@@ -559,7 +563,7 @@ void FXFont::draw(float x, float y, const std::string& text) const {
     }
 
     if(align_top) {
-        y += glm::ceil(getAscender() + getDescender());
+        y += getHeight();
     }
 
     if(round) {
