@@ -54,7 +54,7 @@ extern std::string gSDLAppExec;
 void SDLAppInfo(std::string msg);
 void SDLAppQuit(std::string error);
 
-void SDLAppInit(std::string apptitle, std::string execname);
+void SDLAppInit(std::string apptitle, std::string execname, std::string exepath = "");
 bool SDLAppDirExists(std::string dir);
 std::string SDLAppAddSlash(std::string path);
 

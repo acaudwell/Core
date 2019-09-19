@@ -176,7 +176,7 @@ void SDLApp::setClipboardText(const std::string& text) {
 #endif
 }
 
-void SDLAppInit(std::string apptitle, std::string execname) {
+void SDLAppInit(std::string apptitle, std::string execname, std::string exepath) {
     gSDLAppTitle = apptitle;
     gSDLAppExec  = execname;
 
@@ -184,22 +184,22 @@ void SDLAppInit(std::string apptitle, std::string execname) {
     std::string resource_dir = "data/";
     std::string fonts_dir    = "data/fonts/";
     std::string shaders_dir  = "data/shaders/";
+
 #ifdef _WIN32
 
     char szAppPath[MAX_PATH];
     GetModuleFileName(0, szAppPath, MAX_PATH);
 
     // Extract directory
-    std::string exepath = std::string(szAppPath);
+    std::string winexepath = std::string(szAppPath);
 
-    int pos = exepath.rfind("\\");
+    int pos = winexepath.rfind("\\");
 
-    std::string path = exepath.substr(0, pos+1);
+    std::string path = winexepath.substr(0, pos+1);
     conf_dir     = path + std::string("\\");
     resource_dir = path + std::string("\\data\\");
     fonts_dir    = path + std::string("\\data\\fonts\\");
     shaders_dir  = path + std::string("\\data\\shaders\\");
-
 #else
     //get working directory
     char cwd_buff[1024];
@@ -224,6 +224,17 @@ void SDLAppInit(std::string apptitle, std::string execname) {
         resource_dir = SDLAPP_RESOURCE_DIR;
         fonts_dir    = SDLAPP_RESOURCE_DIR + std::string("/fonts/");
         shaders_dir  = SDLAPP_RESOURCE_DIR + std::string("/shaders/");
+    }
+    else if(!exepath.empty()) {
+        // make resource path relative to the directory of the executable
+        // if the resource directory doesn't exist
+        size_t pos = exepath.rfind("/");
+        if (pos != std::string::npos) {
+            std::string path = exepath.substr(0, pos+1);
+            resource_dir = path + std::string("data/");
+            fonts_dir    = path + std::string("data/fonts/");
+            shaders_dir  = path + std::string("data/shaders/");
+        }
     }
 #endif
 
