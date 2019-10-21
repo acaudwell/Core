@@ -111,7 +111,10 @@ bool SeekLog::readFully() {
 
     file_size = file->tellg();
 
-    if(!file->is_open()) return false;
+    if(!file->is_open()) {
+        delete file;
+        return false;
+    }
 
     file->seekg (0, std::ios::beg);
 
