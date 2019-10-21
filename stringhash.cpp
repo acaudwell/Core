@@ -74,9 +74,7 @@ vec3 colourHash(const std::string& str) {
     if(hash == 0) hash++;
 
     int r = (hash/7) % 255;
-    if(r<0) r=0;
     int g = (hash/3) % 255;
-    if(g<0) g=0;
     int b = hash % 255;
 
     vec3 colour = normalise(vec3(r, g, b));
