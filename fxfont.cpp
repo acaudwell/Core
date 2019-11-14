@@ -639,7 +639,7 @@ void FXFontManager::purge() {
 
 FXFont FXFontManager::grab(std::string font_file, int size, int dpi, FT_Int32 ft_flags) {
 
-    if(font_dir.size()>0 && font_file[0] != '/') {
+    if(font_dir.size()>0 && !(font_file.size() > 2 && font_file[1] == ':') && !(font_file.size() > 1 && font_file[0] == '/')) {
         font_file = font_dir + font_file;
     }
 
