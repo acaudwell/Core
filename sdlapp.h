@@ -89,9 +89,9 @@ public:
 };
 
 class SDLApp {
-    int frame_count;
-    int fps_updater;
-    int return_code;
+    int frame_count{0};
+    int fps_updater{0};
+    int return_code{0};
 
     void updateFramerate();
 protected:

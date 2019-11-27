@@ -19,7 +19,7 @@ class UI {
     float double_click_interval;
     float double_click_timer;
 
-    bool interaction;
+    bool interaction{false};
     char toChar(SDL_KeyboardEvent *e);
 protected:
     vec4 background_colour;

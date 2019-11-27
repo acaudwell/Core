@@ -175,15 +175,16 @@ class FXFont {
     FXGlyphSet* glyphset;
 
     std::string fontfile;
-    bool shadow;
-    bool round;
+    bool shadow{false};
+    bool round{false};
 
-    float shadow_strength;
+    float shadow_strength{0.0f};
     vec2 shadow_offset;
     vec4 shadow_colour;
     vec4 colour;
 
-    bool align_right, align_top;
+    bool align_right{false};
+    bool align_top{false};
 
     void render(float x, float y, const std::string& text, const vec4& colour) const;
     void init();
@@ -238,7 +239,7 @@ public:
     quadbuf font_vbo;
 
     FXFontManager();
-    bool use_vbo;
+    bool use_vbo{false};
 
     void setDir(std::string font_dir);
     void init();

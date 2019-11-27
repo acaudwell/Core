@@ -37,7 +37,7 @@ class Frustum {
 
     float near_distance, far_distance;
     float view_ratio;
-    float fov;
+    float fov{0.0f};
 
     float near_half_width;
     float near_half_height;

@@ -49,7 +49,8 @@ class TextureResource : public Resource {
 
     GLenum colourFormat(SDL_Surface* surface);
 public:
-    int w, h;
+    int w{0};
+    int h{0};
     GLenum target;
     GLenum format;
     GLuint textureid;
