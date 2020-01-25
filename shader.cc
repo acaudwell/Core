@@ -113,17 +113,19 @@ void ShaderPass::checkError() {
     const char* resource_desc = !parent->resource_name.empty() ? parent->resource_name.c_str() : "???";
 
     if(info_log_length > 1) {
-        char info_log[info_log_length];
-
+        char* info_log = new char[info_log_length];
         glGetShaderInfoLog(shader_object, info_log_length, &info_log_length, info_log);
 
+        std::string info_log_str(info_log);
+        delete info_log;
+
         std::string context;
-        if(!errorContext(info_log, context))
+        if(!errorContext(info_log_str, context))
             context = shader_object_source;
 
         if(!compile_success) {
             throw ShaderException(str(boost::format("%s shader '%s' failed to compile:\n%s\n%s")
-                 % shader_object_desc % resource_desc % ((const char*)info_log) % context),
+                 % shader_object_desc % resource_desc % info_log_str.c_str() % context),
                  shader_object_source);
         }
 
@@ -131,9 +133,8 @@ void ShaderPass::checkError() {
             warnLog("%s shader '%s':\n%s\n%s",
                             shader_object_desc.c_str(),
                             resource_desc,
-                            info_log,
+                            info_log_str.c_str(),
                             context.c_str());
-
         }
 
         return;
@@ -197,8 +198,6 @@ void Shader::unload() {
 }
 
 void Shader::load() {
-    //fprintf(stderr, "load\n");
-
     if(program !=0) unload();
 
     if(vertex_shader != 0)   vertex_shader->compile();
@@ -253,7 +252,7 @@ void Shader::checkProgramError() {
     const char* resource_desc = !resource_name.empty() ? resource_name.c_str() : "???";
 
     if(info_log_length > 1) {
-        char info_log[info_log_length];
+        char* info_log = new char[info_log_length];
         glGetProgramInfoLog(program, info_log_length, &info_log_length, info_log);
 
         if(!link_success) {
@@ -261,6 +260,7 @@ void Shader::checkProgramError() {
         } else if(Logger::getDefault()->getLevel() == LOG_LEVEL_WARN) {
             warnLog("shader '%s' warning:\n%s", resource_desc, info_log);
         }
+        delete info_log;
     }
 
     if(!link_success) {

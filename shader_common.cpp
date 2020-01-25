@@ -170,7 +170,6 @@ void ShaderPart::preprocess() {
     std::stringstream in(raw_source);
 
     std::string line;
-    bool skipdef = false;
 
     while( std::getline(in,line) ) {
         applySubstitutions(line);
@@ -242,17 +241,11 @@ float& FloatShaderUniform::getValue() {
 }
 
 void FloatShaderUniform::write(std::string& content) const {
-
-    char buff[256];
-
     if(baked) {
-//        snprintf(buff, 256, "const %s %s = %e;\n", type_name.c_str(), name.c_str(), value);
-        snprintf(buff, 256, "#define %s %e\n", name.c_str(), value);
+        content.append(str(boost::format("#define %s %e\n") % name % value));
     } else {
-        snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+        content.append(str(boost::format("uniform %s %s;\n") % type_name % name));
     }
-
-    content += buff;
 }
 
 //IntShaderUniform
@@ -274,16 +267,11 @@ int& IntShaderUniform::getValue() {
 }
 
 void IntShaderUniform::write(std::string& content) const {
-
-    char buff[256];
-
     if(baked) {
-        snprintf(buff, 256, "#define %s %d\n", name.c_str(), value);
+        content.append(str(boost::format("#define %s %d\n") % name % value));
     } else {
-        snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+        content.append(str(boost::format("uniform %s %s;\n") % type_name % name));
     }
-
-    content += buff;
 }
 
 //BoolShaderUniform
@@ -305,16 +293,11 @@ bool& BoolShaderUniform::getValue() {
 }
 
 void BoolShaderUniform::write(std::string& content) const {
-
-    char buff[256];
-
     if(baked) {
-        snprintf(buff, 256, "#define %s %s\n", name.c_str(), value ? "true" : "false");
+        content.append(str(boost::format("#define %s %s\n") % name % (value ? "true" : "false")));
     } else {
-        snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+        content.append(str(boost::format("uniform %s %s;\n") % type_name % name));
     }
-
-    content += buff;
 }
 
 //Sampler1DShaderUniform
@@ -335,9 +318,7 @@ void Sampler1DShaderUniform::setBaked(bool baked) {
 }
 
 void Sampler1DShaderUniform::write(std::string& content) const {
-    char buff[256];
-    snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
-    content += buff;
+    content.append(str(boost::format("uniform %s %s;\n") % type_name % name));
 }
 
 int& Sampler1DShaderUniform::getValue() {
@@ -367,9 +348,7 @@ void Sampler2DShaderUniform::setBaked(bool baked) {
 }
 
 void Sampler2DShaderUniform::write(std::string& content) const {
-    char buff[256];
-    snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
-    content += buff;
+    content.append(str(boost::format("uniform %s %s;\n") % type_name % name));
 }
 
 
@@ -392,16 +371,11 @@ vec2& Vec2ShaderUniform::getValue() {
 }
 
 void Vec2ShaderUniform::write(std::string& content) const {
-
-    char buff[256];
-
     if(baked) {
-        snprintf(buff, 256, "#define %s vec2(%e, %e)\n", name.c_str(), value.x, value.y);
+        content.append(str(boost::format("#define %s vec2(%e, %e)\n") % name % value.x % value.y));
     } else {
-        snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+        content.append(str(boost::format("uniform %s %s;\n") % type_name % name));
     }
-
-    content += buff;
 }
 
 //Vec3ShaderUniform
@@ -424,16 +398,11 @@ vec3& Vec3ShaderUniform::getValue() {
 }
 
 void Vec3ShaderUniform::write(std::string& content) const {
-
-    char buff[256];
-
     if(baked) {
-        snprintf(buff, 256, "#define %s vec3(%e, %e, %e)\n", name.c_str(), value.x, value.y, value.z);
+        content.append(str(boost::format("#define %s vec3(%e, %e, %e)\n") % name % value.x % value.y % value.z));
     } else {
-        snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+        content.append(str(boost::format("uniform %s %s;\n") % type_name % name));
     }
-
-    content += buff;
 }
 
 //Vec4ShaderUniform
@@ -455,16 +424,11 @@ vec4& Vec4ShaderUniform::getValue() {
 }
 
 void Vec4ShaderUniform::write(std::string& content) const {
-
-    char buff[256];
-
     if(baked) {
-        snprintf(buff, 256, "#define %s vec4(%e, %e, %e, %e)\n", name.c_str(), value.x, value.y, value.z, value.w);
+        content.append(str(boost::format("#define %s vec4(%e, %e, %e, %e)\n") % name % value.x % value.y % value.z % value.w));
     } else {
-        snprintf(buff, 256, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+        content.append(str(boost::format("uniform %s %s;\n") % type_name % name));
     }
-
-    content += buff;
 }
 
 //Mat3ShaderUniform
@@ -486,20 +450,15 @@ mat3& Mat3ShaderUniform::getValue() {
 }
 
 void Mat3ShaderUniform::write(std::string& content) const {
-
-    char buff[1024];
-
     if(baked) {
-        snprintf(buff, 1024, "#define %s mat3(%e, %e, %e, %e, %e, %e, %e, %e, %e)\n", name.c_str(),
-                value[0][0], value[0][1], value[0][2],
-                value[1][0], value[1][1], value[1][2],
-                value[2][0], value[2][1], value[2][2]);
+        content.append(str(boost::format("#define %s mat3(%e, %e, %e, %e, %e, %e, %e, %e, %e)\n") % name
+               % value[0][0] % value[0][1] % value[0][2]
+               % value[1][0] % value[1][1] % value[1][2]
+               % value[2][0] % value[2][1] % value[2][2]));
 
     } else {
-        snprintf(buff, 1024, "uniform %s %s;\n", type_name.c_str(), name.c_str());
+        content.append(str(boost::format("uniform %s %s;\n") % type_name % name));
     }
-
-    content += buff;
 }
 
 //Mat4ShaderUniform
@@ -521,20 +480,16 @@ mat4& Mat4ShaderUniform::getValue() {
 }
 
 void Mat4ShaderUniform::write(std::string& content) const {
-
-    char buff[1024];
-
     if(baked) {
-        snprintf(buff, 1024, "#define %s mat4(%e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e)\n", name.c_str(),
-                value[0][0], value[0][1], value[0][2], value[0][3],
-                value[1][0], value[1][1], value[1][2], value[1][3],
-                value[2][0], value[2][1], value[2][2], value[2][3],
-                value[3][0], value[3][1], value[3][2], value[3][3]);
-    } else {
-        snprintf(buff, 1024, "uniform %s %s;\n", type_name.c_str(), name.c_str());
-    }
+        content.append(str(boost::format("#define %s mat4(%e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e, %e)\n") % name
+               % value[0][0] % value[0][1] % value[0][2] % value[0][3]
+               % value[1][0] % value[1][1] % value[1][2] % value[1][3]
+               % value[2][0] % value[2][1] % value[2][2] % value[2][3]
+               % value[3][0] % value[3][1] % value[3][2] % value[3][3]));
 
-    content += buff;
+    } else {
+        content.append(str(boost::format("uniform %s %s;\n") % type_name % name));
+    }
 }
 
 
@@ -611,12 +566,8 @@ void Vec2ArrayShaderUniform::setValue(const std::vector<vec2>& value) {
 
 void Vec2ArrayShaderUniform::write(std::string& content) const {
 
-    char buff[1024];
-
     if(baked) {
         content.append(str(boost::format("%s[%d] %s = %s[] (\n") % type_name % length % name % type_name));
-
-        content += buff;
 
         for(size_t i=0; i<length; i++) {
             content.append(str(boost::format("    %s(%e, %e)") % type_name % value[i].x % value[i].y));
@@ -702,8 +653,6 @@ void Vec3ArrayShaderUniform::setValue(const std::vector<vec3>& value) {
 }
 
 void Vec3ArrayShaderUniform::write(std::string& content) const {
-
-    char buff[1024];
 
     if(baked) {
         content.append(str(boost::format("%s[%d] %s = %s[] (\n") % type_name % length % name % type_name));
@@ -792,9 +741,6 @@ void Vec4ArrayShaderUniform::setValue(const std::vector<vec4>& value) {
 }
 
 void Vec4ArrayShaderUniform::write(std::string& content) const {
-
-    char buff[1024];
-
     if(baked) {
         content.append(str(boost::format("%s[%d] %s = %s[] (\n") % type_name % length % name % type_name));
 
@@ -824,20 +770,18 @@ void AbstractShaderPass::showContext(std::string& context, int line_no, int amou
     std::stringstream in(shader_object_source);
 
     int i = 1;
-    char line_detail[1024];
     std::string line;
 
     while( std::getline(in,line) ) {
 
         if(i==line_no || (i<line_no && i+amount>=line_no) || (i>line_no && i-amount<=line_no)) {
-            snprintf(line_detail, 1024, "%s%4d | %s\n", (i==line_no ? "-> ": "   "), i, line.c_str());
-            context += line_detail;
+            context.append(str(boost::format("%s%4d | %s\n") % (i==line_no ? "-> ": "   ") % i % line));
         }
         i++;
     }
 }
 
-bool AbstractShaderPass::errorContext(const char* log_message, std::string& context) {
+bool AbstractShaderPass::errorContext(const std::string& log_message, std::string& context) {
 
     std::vector<std::string> matches;
 

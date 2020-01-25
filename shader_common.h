@@ -331,7 +331,7 @@ protected:
     std::list<ShaderUniform*> uniforms;
 
     void showContext(std::string& context, int line_no, int amount);
-    bool errorContext(const char* log_message, std::string& context);
+    bool errorContext(const std::string& log_message, std::string& context);
 
     bool preprocess(const std::string& line);
 public:
