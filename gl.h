@@ -3,11 +3,6 @@
 
 #include <GL/glew.h>
 
-#define NO_SDL_GLEXT
-#include "SDL.h"
-#include "SDL_opengl.h"
-#endif
-
 #define PRINT_GL_ERRORS
 
 #ifdef PRINT_GL_ERRORS
@@ -19,11 +14,6 @@
 #define glCheckError()
 #endif
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_GLYPH_H
-#include "ftgl/FTUnicode.h"
-
-#include "vectors.h"
+#endif
 
 
