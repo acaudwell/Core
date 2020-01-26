@@ -1020,6 +1020,8 @@ ShaderUniform* AbstractShaderPass::addUniform(const std::string& name, const std
             uniform = new Sampler1DShaderUniform(parent, name);
         } else if(type == "sampler2D") {
             uniform = new Sampler2DShaderUniform(parent, name);
+        } else if(type == "sampler3D") {
+            uniform = new Sampler3DShaderUniform(parent, name);
         } else if(type == "vec2") {
             uniform = new Vec2ShaderUniform(parent, name);
         } else if(type == "vec3") {

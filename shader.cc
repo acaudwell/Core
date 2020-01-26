@@ -314,6 +314,9 @@ void Shader::applyUniform(ShaderUniform* u) {
         case SHADER_UNIFORM_SAMPLER_2D:
             glUniform1i(location, ((Sampler2DShaderUniform*)u)->getValue());
             break;
+        case SHADER_UNIFORM_SAMPLER_3D:
+            glUniform1i(location, ((Sampler3DShaderUniform*)u)->getValue());
+            break;
         case SHADER_UNIFORM_VEC2:
             glUniform2fv(location, 1, glm::value_ptr(((Vec2ShaderUniform*)u)->getValue()));
             break;
@@ -328,6 +331,12 @@ void Shader::applyUniform(ShaderUniform* u) {
             break;
         case SHADER_UNIFORM_MAT4:
             glUniformMatrix4fv(location, 1, 0, glm::value_ptr(((Mat4ShaderUniform*)u)->getValue()));
+            break;
+        case SHADER_UNIFORM_INT_ARRAY:
+            glUniform1iv(location, ((IntegerArrayShaderUniform*)u)->getLength(), &(((IntegerArrayShaderUniform*)u)->getValue()[0]));
+            break;
+        case SHADER_UNIFORM_FLOAT_ARRAY:
+            glUniform1fv(location, ((FloatArrayShaderUniform*)u)->getLength(), &(((FloatArrayShaderUniform*)u)->getValue()[0]));
             break;
         case SHADER_UNIFORM_VEC2_ARRAY:
             glUniform2fv(location, ((Vec2ArrayShaderUniform*)u)->getLength(), glm::value_ptr(((Vec2ArrayShaderUniform*)u)->getValue()[0]));
