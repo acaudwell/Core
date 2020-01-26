@@ -351,6 +351,32 @@ void Sampler2DShaderUniform::write(std::string& content) const {
     content.append(str(boost::format("uniform %s %s;\n") % type_name % name));
 }
 
+//Sampler3DShaderUniform
+
+Sampler3DShaderUniform::Sampler3DShaderUniform(AbstractShader* shader, const std::string& name, int value) :
+    value(value), ShaderUniform(shader, name, SHADER_UNIFORM_SAMPLER_3D, "sampler3D") {
+}
+
+void Sampler3DShaderUniform::setValue(int value) {
+    if(baked && this->value == value) return;
+
+    this->value = value;
+    modified = true;
+    initialized = true;
+}
+
+int& Sampler3DShaderUniform::getValue() {
+    return value;
+}
+
+//cant be baked?
+void Sampler3DShaderUniform::setBaked(bool baked) {
+}
+
+void Sampler3DShaderUniform::write(std::string& content) const {
+    content.append(str(boost::format("uniform %s %s;\n") % type_name % name));
+}
+
 
 //Vec2ShaderUniform
 
@@ -492,6 +518,120 @@ void Mat4ShaderUniform::write(std::string& content) const {
     }
 }
 
+//IntegerArrayShaderUniform
+
+IntegerArrayShaderUniform::IntegerArrayShaderUniform(AbstractShader* shader, const std::string& name, size_t length) :
+    length(length), ShaderUniform(shader, name, SHADER_UNIFORM_INT_ARRAY, "int") {
+}
+
+IntegerArrayShaderUniform::~IntegerArrayShaderUniform() {
+}
+
+const std::vector<int>& IntegerArrayShaderUniform::getValue() {
+    return value;
+}
+
+size_t IntegerArrayShaderUniform::getLength() const {
+    return value.size();
+}
+
+void IntegerArrayShaderUniform::copyValue(const std::vector<int>& value) {
+    this->value = value;
+}
+
+void IntegerArrayShaderUniform::setValue(const std::vector<int>& value) {
+    if(baked) {
+        bool match = true;
+
+        for(size_t i=0;i<length;i++) {
+            if(value[i] != this->value[i]) {
+                match = false;
+                break;
+            }
+        }
+
+        if(match) return;
+    }
+
+    copyValue(value);
+
+    modified = true;
+    initialized = true;
+}
+
+void IntegerArrayShaderUniform::write(std::string& content) const {
+    if(baked) {
+        content.append(str(boost::format("%s[%d] %s = %s[] (\n") % type_name % length % name % type_name));
+
+        for(size_t i=0; i<length; i++) {
+            content.append(str(boost::format("    %d") % value[i]));
+
+            if(i<length-1) content += ",\n";
+            else           content += "\n);\n";
+        }
+
+    } else {
+        content.append(str(boost::format("uniform %s %s[%d];\n") % type_name % name % length));
+    }
+}
+
+
+//FloatArrayShaderUniform
+
+FloatArrayShaderUniform::FloatArrayShaderUniform(AbstractShader* shader, const std::string& name, size_t length) :
+    length(length), ShaderUniform(shader, name, SHADER_UNIFORM_FLOAT_ARRAY, "float") {
+}
+
+FloatArrayShaderUniform::~FloatArrayShaderUniform() {
+}
+
+const std::vector<float>& FloatArrayShaderUniform::getValue() {
+    return value;
+}
+
+size_t FloatArrayShaderUniform::getLength() const {
+    return length;
+}
+
+void FloatArrayShaderUniform::copyValue(const std::vector<float>& value) {
+    this->value = value;
+}
+
+void FloatArrayShaderUniform::setValue(const std::vector<float>& value) {
+    if(baked) {
+        bool match = true;
+
+        for(size_t i=0;i<length;i++) {
+            if(value[i] != this->value[i]) {
+                match = false;
+                break;
+            }
+        }
+
+        if(match) return;
+    }
+
+    copyValue(value);
+
+    modified = true;
+    initialized = true;
+}
+
+void FloatArrayShaderUniform::write(std::string& content) const {
+    if(baked) {
+        content.append(str(boost::format("%s[%d] %s = %s[] (\n") % type_name % length % name % type_name));
+
+        for(size_t i=0; i<length; i++) {
+            content.append(str(boost::format("    %e") % value[i]));
+
+            if(i<length-1) content += ",\n";
+            else           content += "\n);\n";
+        }
+
+    } else {
+        content.append(str(boost::format("uniform %s %s[%d];\n") % type_name % name % length));
+    }
+}
 
 //Vec2ArrayShaderUniform
 
@@ -840,7 +980,11 @@ ShaderUniform* AbstractShaderPass::addArrayUniform(const std::string& name, cons
 
     if((uniform = parent->getUniform(name)) == 0) {
 
-        if(type == "vec2") {
+        if(type == "int") {
+            uniform = new IntegerArrayShaderUniform(parent, name, length);
+        } else if(type == "float") {
+            uniform = new FloatArrayShaderUniform(parent, name, length);
+        } else if(type == "vec2") {
             uniform = new Vec2ArrayShaderUniform(parent, name, length);
         } else if(type == "vec3") {
             uniform = new Vec3ArrayShaderUniform(parent, name, length);
@@ -1171,6 +1315,14 @@ void AbstractShader::setSampler2D (const std::string& name, int value) {
     ((Sampler2DShaderUniform*)uniform)->setValue(value);
 }
 
+void AbstractShader::setSampler3D (const std::string& name, int value) {
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform || uniform->getType() != SHADER_UNIFORM_SAMPLER_3D) return;
+
+    ((Sampler3DShaderUniform*)uniform)->setValue(value);
+}
+
 void AbstractShader::setFloat(const std::string& name, float value) {
     ShaderUniform* uniform = getUniform(name);
 
@@ -1193,6 +1345,22 @@ void AbstractShader::setVec3 (const std::string& name, const vec3& value) {
     if(!uniform || uniform->getType() != SHADER_UNIFORM_VEC3) return;
 
     ((Vec3ShaderUniform*)uniform)->setValue(value);
+}
+
+void AbstractShader::setFloatArray(const std::string& name, std::vector<float>& value) {
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform || uniform->getType() != SHADER_UNIFORM_FLOAT_ARRAY) return;
+
+    ((FloatArrayShaderUniform*)uniform)->setValue(value);
+}
+
+void AbstractShader::setIntegerArray (const std::string& name, std::vector<int>& value) {
+    ShaderUniform* uniform = getUniform(name);
+
+    if(!uniform || uniform->getType() != SHADER_UNIFORM_INT_ARRAY) return;
+
+    ((IntegerArrayShaderUniform*)uniform)->setValue(value);
 }
 
 void AbstractShader::setVec2Array (const std::string& name, vec2* value) {

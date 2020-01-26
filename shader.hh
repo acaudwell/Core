@@ -64,6 +64,9 @@ public:
 
     void loadPrefix();
 
+    void compile();
+    void link();
+
     void load();
     void unload();
 

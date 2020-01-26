@@ -197,7 +197,7 @@ void Shader::unload() {
     }
 }
 
-void Shader::load() {
+void Shader::compile() {
     if(program !=0) unload();
 
     if(vertex_shader != 0)   vertex_shader->compile();
@@ -205,7 +205,9 @@ void Shader::load() {
     if(fragment_shader != 0) fragment_shader->compile();
 
     program = glCreateProgram();
+}
 
+void Shader::link() {
     if(vertex_shader!=0)   vertex_shader->attachTo(program);
     if(geometry_shader!=0) geometry_shader->attachTo(program);
     if(fragment_shader!=0) fragment_shader->attachTo(program);
@@ -217,6 +219,11 @@ void Shader::load() {
     if(vertex_shader  != 0)  vertex_shader->unload();
     if(geometry_shader != 0) geometry_shader->unload();
     if(fragment_shader != 0) fragment_shader->unload();
+}
+
+void Shader::load() {
+    compile();
+    link();
 }
 
 void Shader::loadPrefix() {
@@ -346,8 +353,8 @@ AbstractShaderPass* Shader::grabShaderPass(unsigned int shader_object_type) {
             if(!vertex_shader) vertex_shader = new ShaderPass(this, GL_VERTEX_SHADER, "vertex");
             shader_pass = vertex_shader;
             break;
-        case GL_GEOMETRY_SHADER_ARB:
-            if(!geometry_shader) geometry_shader = new ShaderPass(this, GL_GEOMETRY_SHADER_ARB, "geometry");
+        case GL_GEOMETRY_SHADER:
+            if(!geometry_shader) geometry_shader = new ShaderPass(this, GL_GEOMETRY_SHADER, "geometry");
             shader_pass = geometry_shader;
             break;
         case GL_FRAGMENT_SHADER:

@@ -13,16 +13,19 @@
 
 extern std::string gSDLAppShaderDir;
 
-enum { SHADER_UNIFORM_FLOAT,
+enum { SHADER_UNIFORM_INT,
+       SHADER_UNIFORM_FLOAT,
        SHADER_UNIFORM_BOOL,
        SHADER_UNIFORM_SAMPLER_1D,
        SHADER_UNIFORM_SAMPLER_2D,
-       SHADER_UNIFORM_INT,
+       SHADER_UNIFORM_SAMPLER_3D,
        SHADER_UNIFORM_VEC2,
        SHADER_UNIFORM_VEC3,
        SHADER_UNIFORM_VEC4,
        SHADER_UNIFORM_MAT3,
        SHADER_UNIFORM_MAT4,
+       SHADER_UNIFORM_INT_ARRAY,
+       SHADER_UNIFORM_FLOAT_ARRAY,
        SHADER_UNIFORM_VEC2_ARRAY,
        SHADER_UNIFORM_VEC3_ARRAY,
        SHADER_UNIFORM_VEC4_ARRAY
@@ -158,6 +161,20 @@ public:
     int& getValue();
 };
 
+class Sampler3DShaderUniform : public ShaderUniform {
+    int value;
+public:
+    Sampler3DShaderUniform(AbstractShader* shader, const std::string& name, int value = 0);
+
+    void write(std::string& content) const;
+
+    void setBaked(bool baked);
+
+    void setValue(int value);
+
+    int& getValue();
+};
+
 class Vec2ShaderUniform : public ShaderUniform {
     vec2 value;
 public:
@@ -216,6 +233,42 @@ public:
     void setValue(const mat4& value);
 
     mat4& getValue();
+};
+
+class IntegerArrayShaderUniform : public ShaderUniform {
+    std::vector<int> value;
+    size_t length;
+
+    void copyValue(const std::vector<int>& value);
+public:
+    IntegerArrayShaderUniform(AbstractShader* shader, const std::string& name, size_t length);
+    ~IntegerArrayShaderUniform();
+
+    void write(std::string& content) const;
+
+    void setValue(const std::vector<int>& value);
+
+    const std::vector<int>& getValue();
+
+    size_t getLength() const;
+};
+
+class FloatArrayShaderUniform : public ShaderUniform {
+    std::vector<float> value;
+    size_t length;
+
+    void copyValue(const std::vector<float>& value);
+public:
+    FloatArrayShaderUniform(AbstractShader* shader, const std::string& name, size_t length);
+    ~FloatArrayShaderUniform();
+
+    void write(std::string& content) const;
+
+    void setValue(const std::vector<float>& value);
+
+    const std::vector<float>& getValue();
+
+    size_t getLength() const;
 };
 
 class Vec2ArrayShaderUniform : public ShaderUniform {
@@ -414,12 +467,16 @@ public:
     void setInteger (const std::string& name, int value);
     void setSampler1D(const std::string& name, int value);
     void setSampler2D(const std::string& name, int value);
+    void setSampler3D(const std::string& name, int value);
     void setFloat(const std::string& name, float value);
     void setVec2 (const std::string& name, const vec2& value);
     void setVec3 (const std::string& name, const vec3& value);
     void setVec4 (const std::string& name, const vec4& value);
     void setMat3 (const std::string& name, const mat3& value);
     void setMat4 (const std::string& name, const mat4& value);
+
+    void setIntegerArray(const std::string& name, std::vector<int>& value);
+    void setFloatArray(const std::string& name, std::vector<float>& value);
 
     void setVec2Array(const std::string& name, vec2* value);
     void setVec2Array(const std::string& name, std::vector<vec2>& value);
@@ -438,6 +495,9 @@ public:
     virtual void applyUniform(ShaderUniform* u) = 0;
 
     virtual int getUniformLocation(const std::string& uniform_name) = 0;
+
+    virtual void compile() = 0;
+    virtual void link() = 0;
 
     virtual void load() = 0;
     virtual void unload() = 0;
