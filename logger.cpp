@@ -87,6 +87,7 @@ void Logger::init(int level, FILE* stream, int hist_capacity) {
     this->stream        = stream;
     this->hist_capacity = hist_capacity;
     this->message_count = 0;
+    this->auto_flush    = false;
 }
 
 int Logger::getMessageCount() {
@@ -99,6 +100,7 @@ void Logger::message(int level, const std::string& message) {
 
     if(stream != 0) {
         fprintf(stream, "%s: %s\n", log_levels[level].c_str(), message.c_str());
+        if(auto_flush) fflush(stream);
     }
 
     if(!hist_capacity) return;
@@ -117,6 +119,10 @@ const std::deque<LoggerMessage>& Logger::getHistory() const {
 
 void Logger::setHistoryCapacity(int hist_capacity) {
     this->hist_capacity = hist_capacity;
+}
+
+void Logger::setAutoFlush(bool auto_flush) {
+    this->auto_flush = auto_flush;
 }
 
 void warnLog(const char *str, ...) {
@@ -148,3 +154,19 @@ void pedanticLog(const char *str, ...) {
 }
 
 Logger* Logger::default_logger = new Logger(LOG_LEVEL_ERROR, stderr, 0);
+
+LoggerStringStream WarnLog() {
+    return LoggerStringStream(LOG_LEVEL_WARN);
+}
+
+LoggerStringStream DebugLog() {
+    return LoggerStringStream(LOG_LEVEL_DEBUG);
+}
+
+LoggerStringStream InfoLog() {
+    return LoggerStringStream(LOG_LEVEL_INFO);
+}
+
+LoggerStringStream ErrorLog() {
+    return LoggerStringStream(LOG_LEVEL_ERROR);
+}
