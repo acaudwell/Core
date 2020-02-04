@@ -83,27 +83,29 @@ void pedanticLog(const char *args, ...);
 
 class LoggerStringStream {
 protected:
-    std::ostringstream ss;
-    logger_level log_level;
     Logger* logger;
+    std::ostringstream* ss;
+    logger_level log_level;
     int count;
 public:
-    LoggerStringStream(logger_level level) : count(0), log_level(level) {
+    LoggerStringStream(logger_level level) : ss(nullptr), log_level(level), count(0) {
         logger = Logger::getDefault();
     }
     ~LoggerStringStream() {
-        if(logger && count > 0) {
-            logger->message(log_level, ss.str());
+        if(logger && ss != nullptr && count > 0) {
+            logger->message(log_level, ss->str());
         }
+        delete ss;
     }
 
     template<class T>
     LoggerStringStream& operator<<(const T& value) {
         if(logger != nullptr && logger->getLevel() >= log_level) {
+            if(!ss) ss = new std::ostringstream();
             if(count > 0) {
-                ss << " ";
+                *ss << " ";
             }
-            ss << value;
+            *ss << value;
             count++;
         }
         return *this;
