@@ -24,10 +24,71 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
     THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
 #ifndef GLSL_SHADER_H
 #define GLSL_SHADER_H
 
-#include "shader.hh"
+#include "vectors.h"
+#include "resource.h"
+
+#include <list>
+#include <map>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <vector>
+
+#include "shader_common.h"
+
+class Shader;
+
+class ShaderPass : public AbstractShaderPass {
+public:
+    ShaderPass(Shader* parent, int shader_object_type, const std::string& shader_object_desc);
+    ~ShaderPass();
+
+    void attachTo(unsigned int program);
+    void unload();
+    void compile();
+    void checkError();
+};
+
+class Shader : public AbstractShader {
+protected:
+    void checkProgramError();
+public:
+    Shader();
+    Shader(const std::string& prefix);
+    ~Shader();
+
+    void applyUniform(ShaderUniform* u);
+
+    int getUniformLocation(const std::string& uniform_name);
+
+    void loadPrefix();
+
+    void compile();
+    void link();
+
+    void load();
+    void unload();
+
+    void bind();
+    void unbind();
+
+    AbstractShaderPass* grabShaderPass(unsigned int shader_object_type);
+};
+
+class ShaderManager : public ResourceManager {
+public:
+    ShaderManager();
+    Shader* grab(const std::string& shader_prefix);
+
+    void manage(Shader* shader);
+
+    void unload();
+    void reload(bool force = false);
+};
+
+extern ShaderManager shadermanager;
 
 #endif
