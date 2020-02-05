@@ -170,3 +170,11 @@ LoggerStringStream InfoLog() {
 LoggerStringStream ErrorLog() {
     return LoggerStringStream(LOG_LEVEL_ERROR);
 }
+
+LoggerStringStream ConsoleLog() {
+    return LoggerStringStream(LOG_LEVEL_CONSOLE);
+}
+
+LoggerStringStream ScriptLog() {
+    return LoggerStringStream(LOG_LEVEL_SCRIPT);
+}

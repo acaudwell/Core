@@ -116,5 +116,7 @@ LoggerStringStream WarnLog();
 LoggerStringStream DebugLog();
 LoggerStringStream InfoLog();
 LoggerStringStream ErrorLog();
+LoggerStringStream ConsoleLog();
+LoggerStringStream ScriptLog();
 
 #endif
