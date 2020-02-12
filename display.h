@@ -39,7 +39,6 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 #include <vector>
 #include <string>
@@ -61,6 +60,7 @@ class SDLAppDisplay {
     bool resizable;
     bool fullscreen;
     bool frameless;
+    bool experimental;
     bool vsync;
 
     int  zbuffer_depth;
@@ -116,6 +116,7 @@ public:
     void   enableAlpha(bool enable);
     void   enableResize(bool resizable);
     void   enableFrameless(bool frameless);
+    void   enableExperimental(bool enable);
 
     void   multiSample(int sample);
 

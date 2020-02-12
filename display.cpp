@@ -43,6 +43,7 @@ SDLAppDisplay::SDLAppDisplay() {
     vsync           = false;
     resizable       = false;
     frameless       = false;
+    experimental    = false;
     multi_sample    = 0;
     width           = 0;
     height          = 0;
@@ -112,11 +113,17 @@ void SDLAppDisplay::enableAlpha(bool enable) {
     enable_alpha = enable;
 }
 
+void SDLAppDisplay::enableExperimental(bool enable) {
+    experimental = enable;
+}
+
 void SDLAppDisplay::multiSample(int samples) {
     multi_sample = samples;
 }
 
 void SDLAppDisplay::setupExtensions() {
+
+    if(experimental) glewExperimental = true;
 
     GLenum err = glewInit();
 
