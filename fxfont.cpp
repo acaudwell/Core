@@ -292,7 +292,7 @@ FXGlyph* FXGlyphSet::getGlyph(unsigned int chr) {
         //allocate page using maximum allowed texture size
         GLint max_texture_size;
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_texture_size);
-        max_texture_size = std::min( 512, max_texture_size );
+        max_texture_size = glm::min( 512, max_texture_size );
 
         page = new FXGlyphPage(max_texture_size, max_texture_size);
 

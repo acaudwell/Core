@@ -65,6 +65,11 @@
 #include <vector>
 #include <map>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include FT_GLYPH_H
+#include "ftgl/FTUnicode.h"
+
 class FXFontException : public ResourceException {
 public:
     FXFontException(const std::string & font_file) : ResourceException(font_file) {}
