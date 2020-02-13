@@ -28,6 +28,7 @@
 */
 
 #include <boost/format.hpp>
+
 #include <stdarg.h>
 
 #ifndef USE_MGL_NAMESPACE
@@ -240,12 +241,20 @@ void Shader::loadPrefix() {
 
     std::string vertex_file   = shader_dir + prefix + std::string(".vert");
     std::string fragment_file = shader_dir + prefix + std::string(".frag");
+    std::string geometry_file = shader_dir + prefix + std::string(".geom");
 
     vertex_shader = new ShaderPass(this, GL_VERTEX_SHADER, "vertex");
     vertex_shader->includeFile(vertex_file);
 
-    fragment_shader = new ShaderPass(this, GL_FRAGMENT_SHADER, "fragment");
-    fragment_shader->includeFile(fragment_file);
+    if(shadermanager.fileExists(fragment_file)) {
+        fragment_shader = new ShaderPass(this, GL_FRAGMENT_SHADER, "fragment");
+        fragment_shader->includeFile(fragment_file);
+    }
+
+    if(shadermanager.fileExists(geometry_file)) {
+        geometry_shader = new ShaderPass(this, GL_GEOMETRY_SHADER, "geometry");
+        geometry_shader->includeFile(geometry_file);
+    }
 
     load();
 }
