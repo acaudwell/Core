@@ -99,11 +99,6 @@ void SDLApp::resizeConsole(int height) {
 
 #endif
 
-bool SDLAppDirExists(std::string dir) {
-    struct stat st;
-    return !stat(dir.c_str(), &st) && S_ISDIR(st.st_mode);
-}
-
 std::string SDLAppAddSlash(std::string path) {
 
     //append slash unless the path is empty
@@ -214,13 +209,13 @@ void SDLAppInit(std::string apptitle, std::string execname, std::string exepath)
 #endif
 
 #ifdef SDLAPP_CONF_DIR
-    if (SDLAppDirExists(SDLAPP_CONF_DIR)) {
+    if (ResourceManager::dirExists(SDLAPP_CONF_DIR)) {
         conf_dir = SDLAPP_CONF_DIR;
     }
 #endif
 
 #ifdef SDLAPP_RESOURCE_DIR
-    if (SDLAppDirExists(SDLAPP_RESOURCE_DIR)) {
+    if (ResourceManager::dirExists(SDLAPP_RESOURCE_DIR)) {
         resource_dir = SDLAPP_RESOURCE_DIR;
         fonts_dir    = SDLAPP_RESOURCE_DIR + std::string("/fonts/");
         shaders_dir  = SDLAPP_RESOURCE_DIR + std::string("/shaders/");
@@ -239,7 +234,7 @@ void SDLAppInit(std::string apptitle, std::string execname, std::string exepath)
 #endif
 
 #ifdef SDLAPP_FONT_DIR
-    if (SDLAppDirExists(SDLAPP_FONT_DIR)) {
+    if (ResourceManager::dirExists(SDLAPP_FONT_DIR)) {
         fonts_dir    = SDLAPP_FONT_DIR;
     }
 #endif

@@ -60,7 +60,6 @@ public:
 };
 
 class ResourceManager {
-
 protected:
     std::map<std::string,Resource*> resources;
     std::string resource_dir;
@@ -71,6 +70,9 @@ public:
 
     ResourceManager();
     virtual ~ResourceManager();
+
+    static bool fileExists(const std::string& filename);
+    static bool dirExists(const std::string& dirname);
 
     void purge();
     void release(Resource* resource);

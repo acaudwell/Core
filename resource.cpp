@@ -26,6 +26,7 @@
 */
 
 #include "resource.h"
+#include <boost/filesystem.hpp>
 
 ResourceManager::ResourceManager() {
 }
@@ -48,6 +49,14 @@ void ResourceManager::purge() {
 }
 
 ResourceManager::~ResourceManager() {
+}
+
+bool ResourceManager::fileExists(const std::string& filename) {
+    return boost::filesystem::is_regular_file(filename);
+}
+
+bool ResourceManager::dirExists(const std::string& dirname) {
+    return boost::filesystem::is_directory(dirname);
 }
 
 void ResourceManager::release(Resource* resource) {

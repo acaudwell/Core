@@ -28,6 +28,8 @@
 #ifndef SDLAPP_H
 #define SDLAPP_H
 
+#include "SDL.h"
+
 #ifdef _WIN32
 
 #ifdef _WIN32_WINNT
@@ -55,7 +57,6 @@ void SDLAppInfo(std::string msg);
 void SDLAppQuit(std::string error);
 
 void SDLAppInit(std::string apptitle, std::string execname, std::string exepath = "");
-bool SDLAppDirExists(std::string dir);
 std::string SDLAppAddSlash(std::string path);
 
 void SDLAppParseArgs(int argc, char *argv[], int* xres, int* yres, bool* fullscreen, std::vector<std::string>* otherargs = 0);
