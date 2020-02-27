@@ -28,6 +28,10 @@
 #include "seeklog.h"
 #include "sdlapp.h"
 
+#ifndef _MSC_VER
+#include <unistd.h>
+#endif
+
 long long gSeekLogMaxBufferSize = 104857600;
 
 //StreamLog

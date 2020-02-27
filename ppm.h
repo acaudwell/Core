@@ -24,6 +24,7 @@
 #include <string>
 #include <exception>
 
+#include "SDL.h"
 #include "gl.h"
 
 enum { FRAME_EXPORTER_WAIT,
