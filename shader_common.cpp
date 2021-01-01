@@ -1140,6 +1140,7 @@ void AbstractShader::setDefaults() {
     vertex_shader   = 0;
     fragment_shader = 0;
     geometry_shader = 0;
+    compute_shader  = 0;
     program = 0;
     dynamic_compile = false;
 }
@@ -1156,17 +1157,20 @@ void AbstractShader::clear() {
     if(vertex_shader != 0)   delete vertex_shader;
     if(geometry_shader != 0) delete geometry_shader;
     if(fragment_shader != 0) delete fragment_shader;
+    if(compute_shader != 0) delete compute_shader;
 
     vertex_shader   = 0;
     geometry_shader = 0;
     fragment_shader = 0;
+    compute_shader  = 0;
 }
 
 bool AbstractShader::isEmpty() {
 
     if(   (!vertex_shader   || vertex_shader->isEmpty())
        && (!fragment_shader || fragment_shader->isEmpty())
-       && (!geometry_shader || geometry_shader->isEmpty())) {
+       && (!geometry_shader || geometry_shader->isEmpty())
+       && (!compute_shader  || compute_shader->isEmpty())) {
         return true;
     }
 

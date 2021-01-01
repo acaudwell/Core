@@ -430,6 +430,7 @@ protected:
 public:
     AbstractShaderPass* vertex_shader;
     AbstractShaderPass* geometry_shader;
+    AbstractShaderPass* compute_shader;
     AbstractShaderPass* fragment_shader;
 
     AbstractShader();

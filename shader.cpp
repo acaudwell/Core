@@ -206,6 +206,7 @@ void Shader::compile() {
     if(vertex_shader != 0)   vertex_shader->compile();
     if(geometry_shader != 0) geometry_shader->compile();
     if(fragment_shader != 0) fragment_shader->compile();
+    if(compute_shader != 0) compute_shader->compile();
 
     program = glCreateProgram();
 }
@@ -214,6 +215,7 @@ void Shader::link() {
     if(vertex_shader!=0)   vertex_shader->attachTo(program);
     if(geometry_shader!=0) geometry_shader->attachTo(program);
     if(fragment_shader!=0) fragment_shader->attachTo(program);
+    if(compute_shader!=0) compute_shader->attachTo(program);
 
     glLinkProgram(program);
 
@@ -222,6 +224,7 @@ void Shader::link() {
     if(vertex_shader  != 0)  vertex_shader->unload();
     if(geometry_shader != 0) geometry_shader->unload();
     if(fragment_shader != 0) fragment_shader->unload();
+    if(compute_shader != 0) compute_shader->unload();
 }
 
 void Shader::load() {
@@ -242,9 +245,12 @@ void Shader::loadPrefix() {
     std::string vertex_file   = shader_dir + prefix + std::string(".vert");
     std::string fragment_file = shader_dir + prefix + std::string(".frag");
     std::string geometry_file = shader_dir + prefix + std::string(".geom");
+    std::string compute_file  = shader_dir + prefix + std::string(".comp");
 
-    vertex_shader = new ShaderPass(this, GL_VERTEX_SHADER, "vertex");
-    vertex_shader->includeFile(vertex_file);
+    if(shadermanager.fileExists(vertex_file)) {
+        vertex_shader = new ShaderPass(this, GL_VERTEX_SHADER, "vertex");
+        vertex_shader->includeFile(vertex_file);
+    }
 
     if(shadermanager.fileExists(fragment_file)) {
         fragment_shader = new ShaderPass(this, GL_FRAGMENT_SHADER, "fragment");
@@ -254,6 +260,16 @@ void Shader::loadPrefix() {
     if(shadermanager.fileExists(geometry_file)) {
         geometry_shader = new ShaderPass(this, GL_GEOMETRY_SHADER, "geometry");
         geometry_shader->includeFile(geometry_file);
+    }
+
+    if(shadermanager.fileExists(compute_file)) {
+        compute_shader = new ShaderPass(this, GL_COMPUTE_SHADER, "compute");
+        compute_shader->includeFile(compute_file);
+    }
+
+    if(!vertex_shader && !compute_shader) {
+        // should have a vertex shader unless there is a compute shader
+        throw ShaderException(str(boost::format("could not find a vertex shader with prefix '%s'") % prefix));
     }
 
     load();
@@ -380,6 +396,10 @@ AbstractShaderPass* Shader::grabShaderPass(unsigned int shader_object_type) {
         case GL_FRAGMENT_SHADER:
             if(!fragment_shader) fragment_shader = new ShaderPass(this, GL_FRAGMENT_SHADER, "fragment");
             shader_pass = fragment_shader;
+            break;
+        case GL_COMPUTE_SHADER:
+            if(!compute_shader) compute_shader = new ShaderPass(this, GL_COMPUTE_SHADER, "compute");
+            shader_pass = compute_shader;
             break;
     }
 
