@@ -120,7 +120,7 @@ void ShaderPass::checkError() {
         glGetShaderInfoLog(shader_object, info_log_length, &info_log_length, info_log);
 
         std::string info_log_str(info_log);
-        delete info_log;
+        delete [] info_log;
 
         std::string context;
         if(!errorContext(info_log_str, context))
@@ -294,7 +294,7 @@ void Shader::checkProgramError() {
         } else if(Logger::getDefault()->getLevel() == LOG_LEVEL_WARN) {
             warnLog("shader '%s' warning:\n%s", resource_desc, info_log);
         }
-        delete info_log;
+        delete [] info_log;
     }
 
     if(!link_success) {
