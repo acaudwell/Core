@@ -18,6 +18,7 @@
 #include "settings.h"
 #include "regex.h"
 #include "timezone.h"
+#include "logger.h"
 
 Regex SDLAppSettings_rect_regex("^([0-9.]+)x([0-9.]+)$");
 Regex SDLAppSettings_viewport_regex("^([0-9.]+)x([0-9.]+)(!)?$");
@@ -274,13 +275,31 @@ void SDLAppSettings::parseArgs(const std::vector<std::string>& arguments, ConfFi
 
 bool SDLAppSettings::parseDateTime(const std::string& datetime, time_t& timestamp) {
 
-    int timezone_offset = 0;
+    // Support SQL style timestamps and also ISO 8601 https://www.w3.org/TR/NOTE-datetime
 
-    Regex timestamp_regex("^(\\d{4})-(\\d{2})-(\\d{2})(?: (\\d{1,2}):(\\d{2})(?::(\\d{2}))?)?(?: ([+-])(\\d{1,2}))?$");
+    // "2010-01-02"
+    // "2010-01-02Z"
+    // "2010-01-02 03:04"
+    // "2010-01-02 03:04:05"
+    // "2010-01-01 03:04:05+12"
+    // "2010-01-01T03:04"
+    // "2010-01-01T03:04:05"
+    // "2010-01-01T03:04:05Z"
+    // "2010-01-01T03:04:05+12"
+    // "2010-01-01T00:04:05+5:30"
+
+    // Sub-seconds are parsed but discarded
+    // "2010-01-01T03:04:05.6789"
+
+    Regex timestamp_regex("^(\\d{4})-(\\d{2})-(\\d{2})(?:[T ](\\d{1,2}):(\\d{2})(?::(\\d{2}(?:\\.\\d+)?))?)?(Z|([+-])(\\d{1,2})(?::?(\\d{2}))?)?$");
 
     std::vector<std::string> results;
 
     if(!timestamp_regex.match(datetime, &results) || results.size() < 3) return false;
+
+    // for(int i=0;i<results.size();i++) {
+    //      debugLog("results[%d] = %s", i, results[i].c_str());
+    // }
 
     struct tm timeinfo;
     memset(&timeinfo, 0, sizeof(timeinfo));
@@ -291,7 +310,7 @@ bool SDLAppSettings::parseDateTime(const std::string& datetime, time_t& timestam
     timeinfo.tm_mday = atoi(results[2].c_str());
 
     // optional: hours, minutes and seconds
-    if(results.size() >= 5) {
+    if(results.size() >= 5 && results[3] != "") {
         timeinfo.tm_hour = atoi(results[3].c_str());
         timeinfo.tm_min  = atoi(results[4].c_str());
         if(results.size() >= 6) {
@@ -299,29 +318,38 @@ bool SDLAppSettings::parseDateTime(const std::string& datetime, time_t& timestam
         }
     }
 
+    // optional: Zulu time aka GMT
+    if(results.size() == 7 && results[6] == "Z") {
+        timestamp = mktime_utc(&timeinfo);
+    }
     // optional: timezone (optional)
-    if(results.size() >= 8) {
-
-        int tz_hour = atoi(results[7].c_str());
+    else if(results.size() >= 9) {
+        int tz_hour = atoi(results[8].c_str());
         int tz_min  = 0;
 
-        if(results.size() >= 9) {
-            tz_min = atoi(results[8].c_str());
+        if(results.size() >= 10) {
+            tz_min = atoi(results[9].c_str());
         }
 
         int tz_offset = tz_hour * 3600 + tz_min * 60;
 
-        if(results[6] == "-") {
+        if(results[7] == "-") {
             tz_offset = -tz_offset;
         }
-        
+
         timestamp = mktime_utc(&timeinfo);
         
+        // debugLog("tz_hour = %d", tz_hour);
+        // debugLog("tz_min = %d", tz_min);
+        // debugLog("tz_offset = %d", tz_offset);
+
         timestamp -= tz_offset;
         
     } else {
         timestamp = mktime(&timeinfo);
     }
+
+    //debugLog("timestamp = %lld", timestamp);
 
     return true;
 }

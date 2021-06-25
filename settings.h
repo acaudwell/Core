@@ -36,7 +36,6 @@ protected:
 
     bool parseRectangle(const std::string& value, int& x, int& y);
     bool parseViewport(const std::string& value, int& x, int& y, bool& no_resize);
-    bool parseDateTime(const std::string& datetime, time_t& timestamp);
 public:
     int display_width;
     int display_height;
@@ -54,6 +53,8 @@ public:
     int output_framerate;
 
     SDLAppSettings();
+
+    static bool parseDateTime(const std::string& datetime, time_t& timestamp);
 
     void parseArgs(int argc, char *argv[], ConfFile& conffile, std::vector<std::string>* files = 0);
     void parseArgs(const std::vector<std::string>& args, ConfFile& conffile, std::vector<std::string>* files = 0);
