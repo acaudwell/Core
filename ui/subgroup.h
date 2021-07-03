@@ -15,7 +15,7 @@ public:
 
 class UISubGroup : public UILayout {
 protected:
-    UISubGroupBar* bar;
+    UISubGroupBar* bar{nullptr};
     UILayout* layout;
     UIAction* open_action;
 public:

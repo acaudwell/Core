@@ -12,7 +12,7 @@ class UILayout;
 
 class UILabel : public UIElement {
 protected:
-    float cursor_anim;
+    float cursor_anim{0.0f};
     float expanded;
 
     bool text_changed;

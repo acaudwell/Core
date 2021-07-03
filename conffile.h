@@ -44,7 +44,7 @@ public:
 class ConfEntry {
     std::string name;
     std::string value;
-    int lineno;
+    int lineno{0};
 
 public:
     ConfEntry();
@@ -95,7 +95,7 @@ class ConfFile;
 class ConfSection {
     std::map<std::string, ConfEntryList*> entrymap;
     std::string name;
-    int lineno;
+    int lineno{0};
     ConfFile* conf;
 public:
     ConfSection();

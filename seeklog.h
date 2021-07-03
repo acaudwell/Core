@@ -75,7 +75,7 @@ class SeekLog : public BaseLog {
     std::string logfile;
 
     long long file_size;
-    float current_percent;
+    float current_percent{0.0f};
 
     bool readFully();
 public:

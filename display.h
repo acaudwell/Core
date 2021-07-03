@@ -58,7 +58,7 @@ class SDLAppDisplay {
 
     bool enable_alpha;
     bool resizable;
-    bool fullscreen;
+    bool fullscreen{false};
     bool frameless;
     bool experimental;
     bool vsync;

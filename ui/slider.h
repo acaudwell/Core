@@ -34,8 +34,7 @@ public:
     float min;
     float max;
 
-
-    float old_value;
+    float old_value{0.0f};
 
     UIFloatSlider(float* value, float min = 0.0f, float max = 0.0f, UIAction* action = 0);
 
