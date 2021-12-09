@@ -291,7 +291,7 @@ bool SDLAppSettings::parseDateTime(const std::string& datetime, time_t& timestam
     // Sub-seconds are parsed but discarded
     // "2010-01-01T03:04:05.6789"
 
-    Regex timestamp_regex("^(\\d{4})-(\\d{2})-(\\d{2})(?:[T ](\\d{1,2}):(\\d{2})(?::(\\d{2}(?:\\.\\d+)?))?)?(Z|([+-])(\\d{1,2})(?::?(\\d{2}))?)?$");
+    Regex timestamp_regex("^(\\d{4})-(\\d{2})-(\\d{2})(?:[T ](\\d{1,2}):(\\d{2})(?::(\\d{2}(?:\\.\\d+)?))?)?(Z| ?([+-])(\\d{1,2})(?::?(\\d{2}))?)?$");
 
     std::vector<std::string> results;
 
