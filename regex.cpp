@@ -29,12 +29,16 @@
 
 Regex::Regex(std::string regex, bool test) {
 
-    re = pcre_compile(
-        regex.c_str(),
+    int errornumber;
+    PCRE2_SIZE erroroffset;
+
+    re = pcre2_compile(
+        (PCRE2_SPTR) regex.c_str(),
+        regex.size(),
         0,
-        &error,
-        &erroffset,
-        0
+        &errornumber,
+        &erroroffset,
+        NULL
     );
 
     if(!re) {
@@ -50,11 +54,21 @@ Regex::Regex(std::string regex, bool test) {
 
 }
 
-Regex::~Regex() {
-    if(re != 0) pcre_free(re);
+Regex::Regex(const Regex& regex) {
+    if(regex.isValid()) {
+        re = pcre2_code_copy(regex.re);
+        valid = true;
+    } else {
+        re = 0;
+        valid = false;
+    }
 }
 
-bool Regex::isValid() {
+Regex::~Regex() {
+    if(re != 0) pcre2_code_free(re);
+}
+
+bool Regex::isValid() const {
     return valid;
 }
 
@@ -77,23 +91,25 @@ bool Regex::replaceAll(std::string& str, const std::string& replacement_str) {
 
 int Regex::replaceOffset(std::string& str, const std::string& replacement_str, int offset) {
     
-    int ovector[REGEX_MAX_MATCHES];
+    pcre2_match_data* match_data = pcre2_match_data_create_from_pattern(re, NULL);
 
-    int rc = pcre_exec(
+    int rc = pcre2_match(
         re,
-        0,
-        str.c_str(),
+        (PCRE2_SPTR) str.c_str(),
         str.size(),
         offset,
         0,
-        ovector,
-        REGEX_MAX_MATCHES
+        match_data,
+        NULL
     );
 
     //failed match
     if(rc<1) {
+        pcre2_match_data_free(match_data);
         return -1;
     }
+
+    PCRE2_SIZE* ovector = pcre2_get_ovector_pointer(match_data);
     
     // replace matched section of string
     std::string new_str = str;
@@ -125,7 +141,8 @@ int Regex::replaceOffset(std::string& str, const std::string& replacement_str, i
     }
 
     str = new_str;
-    
+    pcre2_match_data_free(match_data);
+
     return end_offset;        
 }
 
@@ -149,35 +166,36 @@ bool Regex::matchAll(const std::string& str, std::vector<std::string>* results) 
         if(offset >= str_size) break;
     }
 
-    return match_count>0;
+    return match_count > 0;
 }
 
 int Regex::matchOffset(const std::string& str, std::vector<std::string>* results, int offset) {
     
-    int ovector[REGEX_MAX_MATCHES];
-
     if(offset >= str.size()) return -1;
-    
-    // To allow ^ to match the start of the remaining string
-    // we offset the string before passing it to pcre_exec
-    
-    int rc = pcre_exec(
+
+    pcre2_match_data* match_data = pcre2_match_data_create_from_pattern(re, NULL);
+
+    int rc = pcre2_match(
         re,
+        // To allow ^ to match the start of the remaining string
+        // offset the string before passing it
+        (PCRE2_SPTR)(str.c_str() + offset),
+        str.size() - offset,
         0,
-        str.c_str() + offset,
-        str.size()-offset,
         0,
-        0,
-        ovector,
-        REGEX_MAX_MATCHES
+        match_data,
+        NULL
     );
 
     //failed match
-    if(rc<1) {
+    if(rc < 1) {
+        pcre2_match_data_free(match_data);
         return -1;
     }
-   
-    if(results!=0) {
+
+    PCRE2_SIZE* ovector = pcre2_get_ovector_pointer(match_data);
+
+    if(results != 0) {
         for (int i = 1; i < rc; i++) {
             int match_start = ovector[2*i];
             int match_end   = ovector[2*i+1]; 
@@ -192,5 +210,9 @@ int Regex::matchOffset(const std::string& str, std::vector<std::string>* results
         }
     }
 
-    return ovector[1]+offset;
+    int result_offset = ovector[1] + offset;
+
+    pcre2_match_data_free(match_data);
+
+    return result_offset;
 }

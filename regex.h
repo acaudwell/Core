@@ -28,9 +28,8 @@
 #ifndef REGEX_H
 #define REGEX_H
 
-#define REGEX_MAX_MATCHES 100
-
-#include "pcre.h"
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include <pcre2.h>
 
 #include <string>
 #include <vector>
@@ -47,17 +46,15 @@ public:
 };
 
 class Regex {
-
-    const char *error;
-    int erroffset;
-    pcre *re;
-
+protected:
+    pcre2_code *re;
     bool valid;
 
     int replaceOffset(std::string& str, const std::string& replacement_str, int offset=0);
     int matchOffset(const std::string& str, std::vector<std::string>* results = 0, int offset=0);
 public:
     Regex(std::string regex, bool test = false);
+    Regex(const Regex& regex);
     ~Regex();
 
     bool match(const std::string& str, std::vector<std::string>* results = 0);
@@ -66,7 +63,7 @@ public:
     bool replace(std::string& str, const std::string& replacement_str);
     bool replaceAll(std::string& str, const std::string& replacement_str);
 
-    bool isValid();
+    bool isValid() const;
 
 };
 
