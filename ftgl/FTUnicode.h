@@ -140,7 +140,7 @@ private:
      * The character stored at the current buffer position (prefetched on
      * increment, so there's no penalty for dereferencing more than once).
      */
-    unsigned int curChar;
+    unsigned int curChar{0};
 
     /**
      * The buffer position of the first element in the next character.
