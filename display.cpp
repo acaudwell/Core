@@ -44,6 +44,7 @@ SDLAppDisplay::SDLAppDisplay() {
     resizable       = false;
     frameless       = false;
     experimental    = false;
+    high_dpi_aware  = false;
     multi_sample    = 0;
     width           = 0;
     height          = 0;
@@ -83,6 +84,10 @@ Uint32 SDLAppDisplay::SDLWindowFlags(bool fullscreen) {
     if (frameless) flags |= SDL_WINDOW_BORDERLESS;
     if (resizable && !frameless) flags |= SDL_WINDOW_RESIZABLE;
     if (fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
+#ifndef _WIN32
+    // see setWindowsHighDPIAwareness() work around for Windows
+    if(high_dpi_aware) flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+#endif
 #else
     Uint32 flags = SDL_OPENGL | SDL_HWSURFACE | SDL_ANYFORMAT | SDL_DOUBLEBUF;
 
@@ -107,6 +112,10 @@ void SDLAppDisplay::enableResize(bool resizable) {
 
 void SDLAppDisplay::enableFrameless(bool frameless) {
     this->frameless = frameless;
+}
+
+void SDLAppDisplay::enableHighDPIAwareness(bool enable) {
+    high_dpi_aware = enable;
 }
 
 void SDLAppDisplay::enableAlpha(bool enable) {
@@ -505,12 +514,54 @@ void SDLAppDisplay::resize(int width, int height) {
     this->height = resized_height;
 }
 
+
+#ifdef _WIN32
+void setWindowsHighDPIAwareness() {
+    // Because SDL2 doesn't currently do anything if you set SDL_WINDOW_ALLOW_HIGHDPI
+    // on Windows, it is necessary to manually tell Windows your application supports high DPI,
+    // otherwise it will give you a 1920x1080 window when you request 3840x2160 on a 4K display
+
+    // https://discourse.libsdl.org/t/sdl-getdesktopdisplaymode-resolution-reported-in-windows-10-when-using-app-scaling/22389/3
+
+    typedef enum PROCESS_DPI_AWARENESS {
+      PROCESS_DPI_UNAWARE = 0,
+      PROCESS_SYSTEM_DPI_AWARE = 1,
+      PROCESS_PER_MONITOR_DPI_AWARE = 2
+    } ;
+
+    BOOL(WINAPI *SetProcessDPIAware)(void) = NULL;
+    HRESULT(WINAPI *SetProcessDpiAwareness)(PROCESS_DPI_AWARENESS dpiAwareness) = NULL;
+
+    if (void* userDLL = SDL_LoadObject("USER32.DLL")) {
+        SetProcessDPIAware = (BOOL(WINAPI *)(void)) SDL_LoadFunction(userDLL, "SetProcessDPIAware");
+    }
+
+    if (void* shcoreDLL = SDL_LoadObject("SHCORE.DLL")) {
+        SetProcessDpiAwareness = (HRESULT(WINAPI *)(PROCESS_DPI_AWARENESS)) SDL_LoadFunction(shcoreDLL, "SetProcessDpiAwareness");
+    }
+
+    if (SetProcessDpiAwareness) {
+        // Windows 8.1 and later
+        HRESULT result = SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+        debugLog("SetProcessDpiAwareness %d", (result == S_OK) ? 1 : 0);
+
+    } else if (SetProcessDPIAware) {
+        // Vista / Windows 8
+        BOOL success = SetProcessDPIAware();
+        debugLog("SetProcessDPIAware %d", (int)success);
+    }
+}
+#endif
+
 void SDLAppDisplay::init(std::string window_title, int width, int height, bool fullscreen, int screen) {
 
     if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO) != 0) {
         throw SDLInitException(SDL_GetError());
     }
 
+#ifdef _WIN32
+    if(high_dpi_aware) setWindowsHighDPIAwareness();
+#endif
 
 #if SDL_VERSION_ATLEAST(2,0,0)
 

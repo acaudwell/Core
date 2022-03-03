@@ -61,6 +61,7 @@ class SDLAppDisplay {
     bool fullscreen;
     bool frameless;
     bool experimental;
+    bool high_dpi_aware;
     bool vsync;
 
     int  zbuffer_depth;
@@ -116,6 +117,7 @@ public:
     void   enableAlpha(bool enable);
     void   enableResize(bool resizable);
     void   enableFrameless(bool frameless);
+    void   enableHighDPIAwareness(bool enable);
     void   enableExperimental(bool enable);
 
     void   multiSample(int sample);
