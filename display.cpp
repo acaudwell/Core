@@ -552,6 +552,8 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
     SDL_WM_SetCaption(window_title.c_str(),0);
 #endif
 
+    debugLog("requesting video mode %d x %d", width, height);
+
     setVideoMode(width, height, fullscreen, screen);
 
     //get actual opengl viewport
@@ -561,6 +563,8 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
     this->width      = viewport[2];
     this->height     = viewport[3];
     this->fullscreen = fullscreen;
+
+    debugLog("opengl viewport %d x %d", this->width, this->height);
 
     glViewport(0, 0, this->width, this->height);
 }
