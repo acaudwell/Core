@@ -70,10 +70,12 @@ class SDLAppDisplay {
     Uint32 SDLWindowFlags(bool fullscreen);
 
     void setupExtensions();
+    void updateViewportDPIRatio();
 public:
     int width, height;
     int desktop_width, desktop_height;
     int windowed_width, windowed_height;
+    vec2 viewport_dpi_ratio;
 
 #if SDL_VERSION_ATLEAST(2,0,0)
     SDL_Window*   sdl_window;

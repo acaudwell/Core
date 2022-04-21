@@ -347,9 +347,15 @@ bool SDLApp::handleEvent(SDL_Event& event) {
             quit();
             break;
 
-        case SDL_MOUSEMOTION:
-            mouseMove(&event.motion);
+        case SDL_MOUSEMOTION: {
+            SDL_MouseMotionEvent motion = event.motion;
+            motion.x *= display.viewport_dpi_ratio.x;
+            motion.y *= display.viewport_dpi_ratio.y;
+            motion.xrel *= display.viewport_dpi_ratio.x;
+            motion.yrel *= display.viewport_dpi_ratio.y;
+            mouseMove(&motion);
             break;
+        }
 
 #if SDL_VERSION_ATLEAST(2,0,0)
         case SDL_TEXTINPUT:
@@ -376,9 +382,13 @@ bool SDLApp::handleEvent(SDL_Event& event) {
 #endif
 
         case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-            mouseClick(&event.button);
+        case SDL_MOUSEBUTTONUP: {
+            SDL_MouseButtonEvent button = event.button;
+            button.x *= display.viewport_dpi_ratio.x;
+            button.y *= display.viewport_dpi_ratio.y;
+            mouseClick(&button);
             break;
+        }
 
         case SDL_KEYDOWN:
         case SDL_KEYUP:

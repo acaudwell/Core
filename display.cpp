@@ -52,6 +52,7 @@ SDLAppDisplay::SDLAppDisplay() {
     desktop_height  = 0;
     windowed_width  = 0;
     windowed_height = 0;
+    viewport_dpi_ratio = vec2(1.0f, 1.0f);
 #if SDL_VERSION_ATLEAST(2,0,0)
     sdl_window = 0;
     gl_context = 0;
@@ -163,6 +164,17 @@ LRESULT CALLBACK window_filter_proc(HWND wnd, UINT msg, WPARAM wparam, LPARAM lp
    return CallWindowProc(window_proc, wnd, msg, wparam, lparam);
 }
 #endif
+
+void SDLAppDisplay::updateViewportDPIRatio() {
+    int drawable_width, drawable_height;
+    SDL_GL_GetDrawableSize(sdl_window, &drawable_width, &drawable_height);
+    
+    int sdl_window_width, sdl_window_height;
+    SDL_GetWindowSize(sdl_window, &sdl_window_width, &sdl_window_height);
+
+    viewport_dpi_ratio = vec2(drawable_width, drawable_height) / vec2(sdl_window_width, sdl_window_height);
+    debugLog("viewport dpi ratio %.2f x %.2f", viewport_dpi_ratio.x, viewport_dpi_ratio.y);
+}
 
 void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen, int screen) {
 #if SDL_VERSION_ATLEAST(2,0,0)
@@ -358,7 +370,10 @@ void SDLAppDisplay::toggleFullscreen() {
 
 #if SDL_VERSION_ATLEAST(2,0,0)
     SDL_SetWindowFullscreen(sdl_window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
-    SDL_GetWindowSize(sdl_window, &resized_width, &resized_height);
+
+    SDL_GL_GetDrawableSize(sdl_window, &resized_width, &resized_height);
+
+    updateViewportDPIRatio();
 #else
     setVideoMode(width, height, fullscreen);
 
@@ -376,6 +391,11 @@ void SDLAppDisplay::toggleFullscreen() {
 }
 
 void SDLAppDisplay::toggleFrameless() {
+#ifdef __APPLE__
+    debugLog("Frameless toggle not supported");
+    return;
+#endif
+
 #if SDL_VERSION_ATLEAST(2,0,0)
     if(fullscreen) return;
 
@@ -493,11 +513,14 @@ bool SDLAppDisplay::isFrameless() const {
 }
 
 void SDLAppDisplay::resize(int width, int height) {
+    debugLog("resize %d x %d", width, height);
 
     int resized_width, resized_height;
 
 #if SDL_VERSION_ATLEAST(2,0,0)
-    SDL_GetWindowSize(sdl_window, &resized_width, &resized_height);
+    SDL_GL_GetDrawableSize(sdl_window, &resized_width, &resized_height);
+
+    updateViewportDPIRatio();
 #else
     setVideoMode(width, height, fullscreen);
 
@@ -616,6 +639,13 @@ void SDLAppDisplay::init(std::string window_title, int width, int height, bool f
     this->fullscreen = fullscreen;
 
     debugLog("opengl viewport %d x %d", this->width, this->height);
+
+    int drawable_width, drawable_height;
+    SDL_GL_GetDrawableSize(this->sdl_window, &drawable_width, &drawable_height);
+
+    debugLog("drawable size %d x %d", drawable_width, drawable_height);
+
+    updateViewportDPIRatio();
 
     glViewport(0, 0, this->width, this->height);
 }
