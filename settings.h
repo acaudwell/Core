@@ -42,12 +42,14 @@ public:
     int window_x;
     int window_y;
     int screen;
+    bool viewport_specified;
     bool multisample;
     bool fullscreen;
     bool frameless;
     bool transparent;
     bool resizable;
     bool vsync;
+    bool high_dpi;
 
     std::string output_ppm_filename;
     int output_framerate;

@@ -40,6 +40,7 @@ SDLAppSettings::SDLAppSettings() {
     conf_sections["output-framerate"]   = "display";
     conf_sections["transparent"]        = "display";
     conf_sections["no-vsync"]           = "display";
+    conf_sections["high-dpi"]           = "display";
 
     //translate args
     arg_aliases["f"]   = "fullscreen";
@@ -57,6 +58,7 @@ SDLAppSettings::SDLAppSettings() {
     arg_types["transparent"]       = "bool";
     arg_types["multi-sampling"]    = "bool";
     arg_types["no-vsync"]          = "bool";
+    arg_types["high-dpi"]          = "bool";
     arg_types["output-ppm-stream"] = "string";
     arg_types["output-framerate"]  = "int";
 
@@ -69,12 +71,14 @@ void SDLAppSettings::setDisplayDefaults() {
 #else
     display_height = 768;
 #endif
+    viewport_specified = false;
     fullscreen     = false;
     frameless      = false;
     multisample    = false;
     transparent    = false;
     resizable      = true;
     vsync          = true;
+    high_dpi       = false;
 
     screen = -1;
 
@@ -118,6 +122,10 @@ void SDLAppSettings::exportDisplaySettings(ConfFile& conf) {
 
     if(!vsync) {
         section->setEntry(new ConfEntry("no-vsync", true));
+    }
+
+    if(high_dpi) {
+        section->setEntry(new ConfEntry("high-dpi", high_dpi));
     }
 
     conf.setSection(section);
@@ -364,7 +372,7 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
 
     ConfEntry* entry = 0;
 
-    bool viewport_specified = false;
+    viewport_specified = false;
 
     if((entry = display_settings->getEntry("viewport")) != 0) {
 
@@ -429,6 +437,10 @@ void SDLAppSettings::importDisplaySettings(ConfFile& conffile) {
 
     if(display_settings->getBool("no-vsync")) {
         vsync = false;
+    }
+
+    if(display_settings->getBool("high-dpi")) {
+        high_dpi = true;
     }
 
     if((entry = display_settings->getEntry("output-ppm-stream")) != 0) {
