@@ -159,6 +159,7 @@ float SeekLog::getPercent() {
 }
 
 void SeekLog::setPointer(std::streampos pointer) {
+    stream->clear();
     stream->seekg(pointer);
 }
 
@@ -167,8 +168,6 @@ std::streampos SeekLog::getPointer() {
 }
 
 void SeekLog::seekTo(float percent) {
-
-    if(isFinished()) stream->clear();
 
     std::streampos mem_offset = (std::streampos) (percent * file_size);
 
@@ -205,15 +204,11 @@ bool SeekLog::getNextLine(std::string& line) {
 
 // temporarily move the file pointer to get a line somewhere else in the file
 bool SeekLog::getNextLineAt(std::string& line, float percent) {
-    stream->clear();
-    
     std::streampos currpointer = getPointer();
 
     seekTo(percent);
 
     bool success = getNextLine(line);
-
-    stream->clear();
 
     //set the pointer back
     setPointer(currpointer);
