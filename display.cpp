@@ -137,7 +137,7 @@ void SDLAppDisplay::setupExtensions() {
 
     GLenum err = glewInit();
 
-    if (GLEW_OK != err) {
+    if (GLEW_OK != err && GLEW_ERROR_NO_GLX_DISPLAY != err) {
         /* Problem: glewInit failed, something is seriously wrong. */
         char glewerr[1024];
         snprintf(glewerr, 1024, "GLEW Error: %s", glewGetErrorString(err));
