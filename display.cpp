@@ -137,7 +137,12 @@ void SDLAppDisplay::setupExtensions() {
 
     GLenum err = glewInit();
 
+#ifdef GLEW_ERROR_NO_GLX_DISPLAY
+    // Ignore GLEW_ERROR_NO_GLX_DISPLAY error as wont have GLX if using Wayland
     if (GLEW_OK != err && GLEW_ERROR_NO_GLX_DISPLAY != err) {
+#else
+    if (GLEW_OK != err) {
+#endif
         /* Problem: glewInit failed, something is seriously wrong. */
         char glewerr[1024];
         snprintf(glewerr, 1024, "GLEW Error: %s", glewGetErrorString(err));
