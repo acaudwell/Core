@@ -251,7 +251,11 @@ void SDLAppDisplay::setVideoMode(int width, int height, bool fullscreen, int scr
         }
     }
 
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+
     gl_context = SDL_GL_CreateContext(sdl_window);
+
+    debugLog("opengl version %s", glGetString(GL_VERSION));
 
     if(!gl_context) {
         std::string sdlerr(SDL_GetError());
