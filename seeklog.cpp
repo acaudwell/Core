@@ -32,6 +32,8 @@
 #include <unistd.h>
 #endif
 
+#include <poll.h>
+
 long long gSeekLogMaxBufferSize = 104857600;
 
 //StreamLog
@@ -86,9 +88,38 @@ bool StreamLog::getNextLine(std::string& line) {
     return true;
 }
 
-bool StreamLog::isFinished() {
+bool StreamLog::isPipeOpen() {
+    struct pollfd pfd;
+    pfd.fd     = STDIN_FILENO;
+    pfd.events = POLLIN | POLLHUP;
 
-    if(fcntl_fail || stream->fail() || stream->eof()) {
+    int ret = poll(&pfd, 1, 0);
+
+    if(ret < 0) {
+        return false;
+    }
+
+    if(ret == 0) {
+        return true;
+    }
+
+    if(pfd.revents & POLLHUP) {
+        return false;
+    }
+}
+
+bool StreamLog::isFinished() {
+    if(fcntl_fail) {
+        return true;
+    }
+
+    #ifndef _WIN32
+    if(isPipeOpen()) {
+        return false;
+    }
+    #endif
+
+    if(stream->fail() || stream->eof()) {
         return true;
     }
 
