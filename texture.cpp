@@ -260,7 +260,7 @@ void TextureResource::load(bool reload) {
         if(surface==0) throw TextureException(filename);
 
         // Convert indexed images to RGBA for OpenGL compatibility
-        if(surface->format->BytesPerPixel == 1) {
+        if(surface->format->palette && surface->format->BytesPerPixel == 1 && surface->format->palette->ncolors <= 256) {
             SDL_Surface* converted = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
             SDL_FreeSurface(surface);
             surface = converted;
