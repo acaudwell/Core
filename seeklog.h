@@ -58,6 +58,7 @@ public:
 
     bool getNextLine(std::string& line);
     bool isFinished();
+    bool isPipeOpen();
 };
 
 class SeekLogException : public std::exception {
