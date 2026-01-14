@@ -78,7 +78,8 @@ FXGlyph::FXGlyph(FXGlyphSet* set, unsigned int chr) {
     FT_Glyph_Metrics *metrics = &ft_face->glyph->metrics;
     height = glm::ceil(metrics->height / 64.0);
 
-    FT_Glyph_To_Bitmap( &ftglyph, FT_RENDER_MODE_NORMAL, 0, 1 );
+    if(FT_Glyph_To_Bitmap( &ftglyph, FT_RENDER_MODE_NORMAL, 0, 1 ))
+		throw FXFontException(ft_face->family_name);
 
     glyph_bitmap = (FT_BitmapGlyph)ftglyph;
 
