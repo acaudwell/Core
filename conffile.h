@@ -31,6 +31,7 @@ class ConfFileException : public std::exception {
 protected:
     std::string errmsg;
 public:
+    ConfFileException(const std::string& errmsg) : errmsg(errmsg), conffile(), lineno(0) {}
     ConfFileException(const std::string& errmsg, const std::string& conffile, int lineno = 0) : errmsg(errmsg), conffile(conffile), lineno(lineno) {}
 
     std::string conffile;
