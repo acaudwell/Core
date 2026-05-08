@@ -44,6 +44,7 @@ public:
     virtual ~BaseLog() {};
     virtual bool getNextLine(std::string& line) { return false; };
     virtual bool isFinished() { return false; };
+    virtual bool isOpen()     { return !isFinished(); };
 };
 
 class StreamLog : public BaseLog {
@@ -58,6 +59,7 @@ public:
 
     bool getNextLine(std::string& line);
     bool isFinished();
+    bool isOpen();
 };
 
 class SeekLogException : public std::exception {

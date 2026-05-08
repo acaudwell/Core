@@ -32,6 +32,10 @@
 #include <unistd.h>
 #endif
 
+#ifndef _WIN32
+#include <poll.h>
+#endif
+
 long long gSeekLogMaxBufferSize = 104857600;
 
 //StreamLog
@@ -93,6 +97,33 @@ bool StreamLog::isFinished() {
     }
 
     return false;
+}
+
+bool StreamLog::isOpen() {
+    if(fcntl_fail) return false;
+
+#ifdef _WIN32
+    DWORD available_bytes;
+    if(!PeekNamedPipe(stdin_handle, 0, 0, 0, &available_bytes, 0)) {
+        return false;
+    }
+    return true;
+#else
+    struct pollfd pfd;
+    pfd.fd     = STDIN_FILENO;
+    pfd.events = POLLIN;
+
+    int ret = poll(&pfd, 1, 0);
+
+    if(ret < 0)  return false;
+    if(ret == 0) return true;
+
+    if(pfd.revents & (POLLHUP | POLLERR | POLLNVAL)) {
+        return false;
+    }
+
+    return true;
+#endif
 }
 
 // SeekLog
